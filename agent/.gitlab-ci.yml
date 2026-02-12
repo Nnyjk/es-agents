@@ -1,0 +1,84 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  GOPROXY: "https://goproxy.cn,direct"
+  GO111MODULE: "on"
+  OUTPUT_DIR: "bin"
+  COLLECTION_REPO_URL: "https://git.dev.yd/yangxiao/easy-station-collection.git"
+  COLLECTION_BRANCH: "main"
+  COLLECTION_DIR: "artifacts"
+  GITLAB_PROJECT_TOKEN: "glpat-sYRwTSBG2D27LRbutLSn"
+  INTERNAL_CA_CERT_PATH: "/usr/local/share/ca-certificates/internal-ca.crt"
+  INTERNAL_CA_CERT_SOURCE: "rootCA.pem"
+
+build_all:
+  stage: build
+  image: registry.cn-shanghai.aliyuncs.com/2048/golang:1.25.6
+  tags:
+    - dind
+  script:
+    - mkdir -p $OUTPUT_DIR
+    - echo "Downloading dependencies..."
+    - go mod download
+    - echo "Enumerating tools under ./cmd and building for Windows/Linux..."
+    - |
+      for dir in ./cmd/*; do
+        if [ -d "$dir" ]; then
+          name=$(basename "$dir")
+          echo "Building $name for Windows (amd64)..."
+          GOOS=windows GOARCH=amd64 go build -o "$OUTPUT_DIR/$name-windows-amd64.exe" "$dir"
+          echo "Building $name for Linux (amd64)..."
+          GOOS=linux GOARCH=amd64 go build -o "$OUTPUT_DIR/$name-linux-amd64" "$dir"
+        fi
+      done
+    
+    - echo "Build complete. Artifacts in $OUTPUT_DIR/"
+    - ls -lh $OUTPUT_DIR/
+  artifacts:
+    paths:
+      - $OUTPUT_DIR/
+
+publish_collection_repo:
+  stage: deploy
+  image: registry.cn-shanghai.aliyuncs.com/2048/golang:1.25.6
+  tags:
+    - dind
+  needs:
+    - build_all
+  script:
+    - apt-get update
+    - apt-get install -y git ca-certificates
+    - |
+      git config --global user.name "easy-station-ci"
+      git config --global user.email "ci@easy-station.local"
+      if [ -f "$INTERNAL_CA_CERT_SOURCE" ]; then
+        cp "$INTERNAL_CA_CERT_SOURCE" "$INTERNAL_CA_CERT_PATH"
+        update-ca-certificates
+        git config --global http.sslCAInfo /etc/ssl/certs/ca-certificates.crt
+      fi
+      if [ -z "$GITLAB_PROJECT_TOKEN" ]; then
+        echo "GITLAB_PROJECT_TOKEN is required"
+        exit 1
+      fi
+      git clone --depth 1 --branch "$COLLECTION_BRANCH" "https://oauth2:${GITLAB_PROJECT_TOKEN}@${COLLECTION_REPO_URL#https://}" collection
+      if [ -n "$CI_COMMIT_TAG" ]; then
+        mkdir -p "collection/$COLLECTION_DIR/$CI_COMMIT_TAG"
+        cp -f $OUTPUT_DIR/* "collection/$COLLECTION_DIR/$CI_COMMIT_TAG/"
+      fi
+      rm -rf "collection/$COLLECTION_DIR/latest"
+      mkdir -p "collection/$COLLECTION_DIR/latest"
+      cp -f $OUTPUT_DIR/* "collection/$COLLECTION_DIR/latest/"
+      cd collection
+      git add -A
+      if git diff --cached --quiet; then
+        echo "No changes to publish"
+        exit 0
+      fi
+      if [ -n "$CI_COMMIT_TAG" ]; then
+        git commit -m "ci: publish $CI_COMMIT_TAG"
+      else
+        git commit -m "ci: publish latest"
+      fi
+      git push origin "$COLLECTION_BRANCH"

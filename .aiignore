@@ -1,0 +1,46 @@
+# Version Control
+.git/
+.gitignore
+
+# IDE & Editor Configs
+.idea/
+.vscode/
+.editorconfig
+
+# Dependencies & Builds
+node_modules/
+target/
+dist/
+build/
+vendor/
+bin/
+
+# Agent Output
+server/src/main/resources/agent-binaries/host-agent-*
+
+# Lock Files (reduce noise)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+go.sum
+
+# Logs & Temp
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Large Assets
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.svg
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# Documentation Images
+docs/images/

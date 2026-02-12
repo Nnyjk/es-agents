@@ -1,0 +1,48 @@
+# OS & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Server (Java/Quarkus)
+server/target/
+server/**/*.class
+server/.project
+server/.classpath
+server/.settings/
+server/.factorypath
+server/*.iml
+
+# Agent Binaries in Server Resources (Ignore binaries, keep scripts)
+server/src/main/resources/agent-binaries/host-agent-*
+!server/src/main/resources/agent-binaries/*.sh
+!server/src/main/resources/agent-binaries/*.bat
+
+# Frontend (Node/React)
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+frontend/coverage/
+
+# Agent (Go)
+agent/bin/
+agent/easy-agent
+agent/easy-agent.exe
+agent/vendor/
+# Go test binaries
+*.test
+*.prof
+
+# Trae
+.trae/

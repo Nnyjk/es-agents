@@ -1,0 +1,13 @@
+FROM golang:1.23 AS builder
+WORKDIR /src
+COPY . .
+RUN go mod download
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /out/host-agent ./cmd/host-agent
+
+FROM alpine:3.19
+RUN adduser -D -h /app appuser
+COPY --from=builder /out/host-agent /app/host-agent
+USER appuser
+EXPOSE 9090
+ENTRYPOINT ["/app/host-agent"]
+
