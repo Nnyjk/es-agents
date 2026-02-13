@@ -175,7 +175,7 @@ func (m *Manager) monitorOutput(id string, r io.Reader, source string) {
 			var result map[string]interface{}
 			if err := json.Unmarshal([]byte(jsonContent), &result); err == nil {
 				fmt.Printf("[Agent %s] structured output: %v\n", id, result)
-				// TODO: Send to Server
+				// Structured output is currently logged locally; forwarding is handled by Agent logger path
 			} else {
 				fmt.Printf("[Agent %s][%s] raw: %s\n", id, source, line)
 			}

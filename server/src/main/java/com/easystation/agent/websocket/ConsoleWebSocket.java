@@ -12,7 +12,6 @@ import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +31,6 @@ public class ConsoleWebSocket {
     @Inject
     ObjectMapper objectMapper;
 
-    // Map<AgentID, Set<Session>> - One agent can be watched by multiple consoles
     private static final Map<String, Set<Session>> sessions = new ConcurrentHashMap<>();
 
     @OnOpen
@@ -43,30 +41,45 @@ public class ConsoleWebSocket {
 
     @OnMessage
     public void onMessage(Session session, String message, @PathParam("agentId") String agentId) {
-        // Intercept FETCH_LOGS
+        final UUID hostId;
         try {
-            if (message.contains("FETCH_LOGS")) {
-                JsonNode root = objectMapper.readTree(message);
-                if ("FETCH_LOGS".equals(root.path("type").asText())) {
-                    List<String> logs = agentLogService.readLogs(UUID.fromString(agentId), 100);
-                    // Construct LOG_HISTORY message
-                    String historyMsg = objectMapper.writeValueAsString(Map.of(
-                        "type", "LOG_HISTORY",
-                        "content", logs
-                    ));
-                    session.getAsyncRemote().sendText(historyMsg);
-                    return; // Handled locally, don't forward
-                }
-            }
-        } catch (Exception e) {
-            Log.warnf("Failed to process message locally: %s", e.getMessage());
+            hostId = UUID.fromString(agentId);
+        } catch (IllegalArgumentException e) {
+            sendSystemMessage(session, "ERROR", "Invalid agentId");
+            return;
         }
 
-        // Forward to Agent via AgentConnectionManager
         try {
-            agentConnectionManager.get().send(UUID.fromString(agentId), message);
+            JsonNode root = objectMapper.readTree(message);
+            String type = root.path("type").asText("");
+
+            if ("FETCH_LOGS".equals(type)) {
+                List<String> logs = agentLogService.readLogs(hostId, 100);
+                String historyMsg = objectMapper.writeValueAsString(Map.of(
+                        "type", "LOG_HISTORY",
+                        "content", logs
+                ));
+                session.getAsyncRemote().sendText(historyMsg);
+                return;
+            }
+
+            boolean sent = agentConnectionManager.get().send(hostId, message);
+            if (!sent) {
+                sendSystemMessage(session, "ERROR", "Agent connection unavailable");
+            }
+            return;
+        } catch (Exception e) {
+            Log.warnf("Failed to parse/route message, fallback raw forward: %s", e.getMessage());
+        }
+
+        try {
+            boolean sent = agentConnectionManager.get().send(hostId, message);
+            if (!sent) {
+                sendSystemMessage(session, "ERROR", "Agent connection unavailable");
+            }
         } catch (Exception e) {
             Log.errorf(e, "Failed to forward message to agent %s", agentId);
+            sendSystemMessage(session, "ERROR", "Failed to forward command to agent");
         }
     }
 
@@ -91,11 +104,23 @@ public class ConsoleWebSocket {
     public void broadcastLog(String agentId, String logMessage) {
         Set<Session> agentSessions = sessions.get(agentId);
         if (agentSessions != null) {
-            agentSessions.forEach(session -> {
-                if (session.isOpen()) {
-                    session.getAsyncRemote().sendText(logMessage);
+            agentSessions.forEach(s -> {
+                if (s.isOpen()) {
+                    s.getAsyncRemote().sendText(logMessage);
                 }
             });
+        }
+    }
+
+    private void sendSystemMessage(Session session, String type, String content) {
+        try {
+            String payload = objectMapper.writeValueAsString(Map.of(
+                    "type", type,
+                    "content", content
+            ));
+            session.getAsyncRemote().sendText(payload);
+        } catch (Exception e) {
+            Log.warnf("Failed to send system message: %s", e.getMessage());
         }
     }
 }
