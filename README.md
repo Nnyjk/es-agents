@@ -13,4 +13,4 @@ Easy-Station 是一个目标驱动（Goal-Driven）的自动化运维与部署�
 - `agent/`: Agent 端代码。
 - `frontend/`: 前端代码。
 
-详细文档请参考 `docs/` 目录。
+详细文档请先阅读 `docs/00-overview/DOCS-INDEX.md`，再按索引进入各专题。

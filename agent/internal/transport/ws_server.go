@@ -36,14 +36,11 @@ func (s *WSServer) Start(port int) error {
 }
 
 func (s *WSServer) handleWebSocket(w http.ResponseWriter, r *http.Request) {
-	// Verify Secret Key
+	// Verify Secret Key (header-only, no query fallback for security hardening)
 	secret := r.Header.Get("X-Agent-Secret")
 	if secret != s.SecretKey {
-		// Also check query param as fallback if headers are stripped by some proxy
-		if qSecret := r.URL.Query().Get("secret"); qSecret != s.SecretKey {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
 	}
 
 	conn, err := upgrader.Upgrade(w, r, nil)

@@ -1,9 +1,9 @@
 package com.easystation.infra.socket;
 
+import com.easystation.agent.record.HeartbeatRequest;
 import com.easystation.agent.service.AgentLogService;
 import com.easystation.agent.websocket.ConsoleWebSocket;
 import com.easystation.common.config.AgentConfig;
-import com.easystation.agent.record.HeartbeatRequest;
 import com.easystation.infra.domain.Host;
 import com.easystation.infra.domain.enums.HostStatus;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -66,7 +66,6 @@ public class AgentConnectionManager {
     void checkAndConnectAll() {
         List<Host> hosts = Host.listAll();
         for (Host host : hosts) {
-            // Skip UNCONNECTED and EXCEPTION
             if (host.getStatus() == HostStatus.UNCONNECTED || host.getStatus() == HostStatus.EXCEPTION) {
                 continue;
             }
@@ -80,37 +79,37 @@ public class AgentConnectionManager {
     }
 
     public void connect(Host host) {
-        if (host.getGatewayUrl() == null) return;
-        
-        // Check if already connected
-        if (sessions.containsKey(host.getId())) {
-            Session existing = sessions.get(host.getId());
-            if (existing.isOpen()) {
-                Log.infof("Host %s is already connected. Skipping connect request.", host.getId());
-                return;
-            } else {
-                sessions.remove(host.getId());
-            }
-        }
-        
-        if (!connecting.add(host.getId())) {
-             Log.infof("Host %s is currently connecting. Skipping duplicate request.", host.getId());
-             return;
+        if (host.getGatewayUrl() == null || host.getGatewayUrl().isBlank()) {
+            Log.warnf("Skip connect for host %s: empty gatewayUrl", host.getId());
+            return;
         }
 
-        try {
-            executor.submit(() -> doConnectWithRetry(host));
-        } finally {
-            connecting.remove(host.getId());
+        Session existing = sessions.get(host.getId());
+        if (existing != null && existing.isOpen()) {
+            Log.infof("Host %s is already connected. Skipping connect request.", host.getId());
+            return;
         }
+        if (existing != null) {
+            sessions.remove(host.getId());
+        }
+
+        if (!connecting.add(host.getId())) {
+            Log.infof("Host %s is currently connecting. Skipping duplicate request.", host.getId());
+            return;
+        }
+
+        executor.submit(() -> {
+            try {
+                doConnectWithRetry(host);
+            } finally {
+                connecting.remove(host.getId());
+            }
+        });
     }
 
     @ActivateRequestContext
     public void doConnectWithRetry(Host host) {
-        // Construct WS URL
-        String url = host.getGatewayUrl();
-        String wsUrl = buildWsUrl(url);
-
+        String wsUrl = buildWsUrl(host.getGatewayUrl());
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         ClientEndpointConfig config = buildConfig(host);
 
@@ -122,14 +121,14 @@ public class AgentConnectionManager {
                 Log.infof("Connecting to Agent at %s (Attempt %d/%d)", wsUrl, i + 1, maxRetries + 1);
                 AgentClientEndpoint endpoint = new AgentClientEndpoint(
                         msg -> handleMessage(host.getId(), msg),
-                        (session) -> handleClose(host.getId(), session)
+                        session -> handleClose(host.getId(), session)
                 );
                 Session session = container.connectToServer((Endpoint) endpoint, config, URI.create(wsUrl));
                 sessions.put(host.getId(), session);
 
                 updateHostStatus(host.getId(), HostStatus.ONLINE);
                 Log.infof("Connected to host %s (Session: %s)", host.getId(), session.getId());
-                return; // Success
+                return;
             } catch (Exception e) {
                 Log.errorf("Failed to connect to host %s: %s", host.getId(), e.getMessage());
                 if (i < maxRetries) {
@@ -142,8 +141,7 @@ public class AgentConnectionManager {
                 }
             }
         }
-        
-        // Failed after retries
+
         updateHostStatus(host.getId(), HostStatus.EXCEPTION);
         Log.infof("Marking host %s as EXCEPTION after failed connection attempts.", host.getId());
     }
@@ -174,42 +172,53 @@ public class AgentConnectionManager {
             }
         };
 
-        return ClientEndpointConfig.Builder.create()
-                .configurator(configurator)
-                .build();
+        return ClientEndpointConfig.Builder.create().configurator(configurator).build();
     }
-    
+
     public void disconnect(UUID hostId) {
         Session session = sessions.remove(hostId);
         if (session != null && session.isOpen()) {
             try {
                 session.close();
             } catch (Exception e) {
-                // ignore
+                Log.debugf("ignore close error for host %s: %s", hostId, e.getMessage());
             }
         }
     }
-    
-    public void send(UUID hostId, String message) {
+
+    public boolean send(UUID hostId, String message) {
         Session session = sessions.get(hostId);
         if (session != null && session.isOpen()) {
             session.getAsyncRemote().sendText(message);
-        } else {
-            Log.errorf("Cannot send message, no active session for host: %s", hostId);
+            try {
+                JsonNode root = objectMapper.readTree(message);
+                String requestId = root.path("requestId").asText("");
+                String type = root.path("type").asText("UNKNOWN");
+                Log.infof("Dispatched message to host=%s type=%s requestId=%s", hostId, type, requestId);
+            } catch (Exception ignored) {
+                Log.infof("Dispatched raw message to host=%s", hostId);
+            }
+            return true;
         }
+
+        Log.errorf("Cannot send message, no active session for host: %s", hostId);
+        return false;
     }
 
     private void handleMessage(UUID hostId, String message) {
         Log.debugf("Received from %s: %s", hostId, message);
 
-        // Try to parse JSON
         try {
             JsonNode root = objectMapper.readTree(message);
             String type = root.path("type").asText();
-            
+
+            String requestId = root.path("requestId").asText("");
             if ("LOG".equals(type)) {
                 String content = root.path("content").asText();
                 agentLogService.appendLog(hostId, content);
+                if (!requestId.isBlank()) {
+                    Log.debugf("Log message host=%s requestId=%s", hostId, requestId);
+                }
             } else if ("HEARTBEAT".equals(type)) {
                 JsonNode content = root.path("content");
                 try {
@@ -219,40 +228,43 @@ public class AgentConnectionManager {
                     Log.errorf("Failed to parse heartbeat from %s: %s", hostId, e.getMessage());
                     updateHostStatus(hostId, HostStatus.ONLINE);
                 }
-                // Broadcast to console so UI updates
+                consoleWebSocket.broadcastLog(hostId.toString(), message);
+                return;
+            } else if ("EXEC_RESULT".equals(type)) {
+                JsonNode content = root.path("content");
+                String status = content.path("status").asText("UNKNOWN");
+                int exitCode = content.path("exitCode").asInt(-1);
+                long durationMs = content.path("durationMs").asLong(-1);
+                String summary = String.format("EXEC_RESULT requestId=%s status=%s exitCode=%d durationMs=%d", requestId, status, exitCode, durationMs);
+                agentLogService.appendLog(hostId, summary);
+                Log.infof("Exec result received host=%s requestId=%s status=%s exitCode=%d durationMs=%d", hostId, requestId, status, exitCode, durationMs);
                 consoleWebSocket.broadcastLog(hostId.toString(), message);
                 return;
             }
         } catch (JsonProcessingException e) {
-            // Not JSON or parse error, ignore for log storage but might be legacy heartbeat
+            // ignore parse errors for backward compatibility
         }
 
-        // Heartbeat check or other logic
         if ("HEARTBEAT".equals(message)) {
-             updateHostStatus(hostId, HostStatus.ONLINE);
-             // Also broadcast heartbeat to console for UI
-             consoleWebSocket.broadcastLog(hostId.toString(), "{\"type\":\"HEARTBEAT\",\"content\":\"" + LocalDateTime.now() + "\"}");
+            updateHostStatus(hostId, HostStatus.ONLINE);
+            consoleWebSocket.broadcastLog(hostId.toString(), "{\"type\":\"HEARTBEAT\",\"content\":\"" + LocalDateTime.now() + "\"}");
         } else {
-             // Forward to ConsoleWebSocket
-             consoleWebSocket.broadcastLog(hostId.toString(), message);
+            consoleWebSocket.broadcastLog(hostId.toString(), message);
         }
     }
-    
+
     private void handleClose(UUID hostId, Session closedSession) {
         sessions.computeIfPresent(hostId, (id, currentSession) -> {
             if (currentSession.getId().equals(closedSession.getId())) {
                 Log.infof("Session closed for host %s (Session: %s)", hostId, closedSession.getId());
-                // If closed unexpectedly, we mark as OFFLINE. 
-                // scheduledReconnect will retry connection later (if not UNCONNECTED/EXCEPTION).
                 updateHostStatus(hostId, HostStatus.OFFLINE);
-                return null; // Remove from map
-            } else {
-                 Log.infof("Old session closed for host %s (Closed: %s, Current: %s). Ignoring.", hostId, closedSession.getId(), currentSession.getId());
-                 return currentSession; // Keep current
+                return null;
             }
+            Log.infof("Old session closed for host %s (Closed: %s, Current: %s). Ignoring.", hostId, closedSession.getId(), currentSession.getId());
+            return currentSession;
         });
     }
-    
+
     @Transactional
     public void updateHostStatus(UUID hostId, HostStatus status, String osType) {
         Host host = Host.findById(hostId);
@@ -272,22 +284,17 @@ public class AgentConnectionManager {
     public void updateHostStatus(UUID hostId, HostStatus status) {
         updateHostStatus(hostId, status, null);
     }
-    
-    // Periodic Reconnection Logic
+
     @Scheduled(every = "30m")
     @Transactional
     public void scheduledReconnect() {
         Log.info("Starting scheduled reconnection...");
-        // Reconnect logic: Check ALL hosts
         List<Host> hosts = Host.listAll();
-        
+
         for (Host host : hosts) {
-            // Skip UNCONNECTED and EXCEPTION
             if (host.getStatus() == HostStatus.UNCONNECTED || host.getStatus() == HostStatus.EXCEPTION) {
                 continue;
             }
-            
-            // For others (ONLINE, OFFLINE), we disconnect (if exists) and reconnect
             disconnect(host.getId());
             connect(host);
         }

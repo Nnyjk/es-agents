@@ -1,11 +1,17 @@
 package app
 
 import (
+	"bufio"
+	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
+	"os/exec"
 	"runtime"
+	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/easy-station/agent/internal/client"
@@ -34,7 +40,6 @@ func New(cfg *config.Config) *Agent {
 
 	wsServer.OnMessage = a.handleMessage
 
-	// Hook up plugin output to logger
 	a.PluginManager.OnOutput = func(line string) {
 		a.Log(line)
 	}
@@ -46,32 +51,23 @@ func (a *Agent) Log(msg string) {
 	a.LogBufferMu.Lock()
 	defer a.LogBufferMu.Unlock()
 
-	// Print to stdout for debugging
 	fmt.Println(msg)
-
-	// Add to buffer
 	a.LogBuffer = append(a.LogBuffer, msg)
 	if len(a.LogBuffer) > 100 {
 		a.LogBuffer = a.LogBuffer[1:]
 	}
 
-	// Send to WebSocket
 	if a.WSServer.Conn != nil {
-		out := map[string]interface{}{
+		_ = a.WSServer.SendJSON(map[string]interface{}{
 			"type":    "LOG",
 			"content": msg,
-		}
-		a.WSServer.SendJSON(out)
+		})
 	}
 }
 
 func (a *Agent) Run() error {
 	a.Log(fmt.Sprintf("Host Agent %s started. Listening on port %d", a.Config.HostID, a.Config.ListenPort))
-
-	// Start Heartbeat Loop
 	go a.heartbeatLoop()
-
-	// Start Server (Blocking)
 	return a.WSServer.Start(a.Config.ListenPort)
 }
 
@@ -79,9 +75,8 @@ func (a *Agent) heartbeatLoop() {
 	ticker := time.NewTicker(a.Config.HeartbeatInterval)
 	defer ticker.Stop()
 
-	// Immediate first heartbeat (might fail if not connected yet)
 	if a.WSServer.Conn != nil {
-		a.sendHeartbeat()
+		_ = a.sendHeartbeat()
 	}
 
 	for range ticker.C {
@@ -90,8 +85,6 @@ func (a *Agent) heartbeatLoop() {
 		}
 		if err := a.sendHeartbeat(); err != nil {
 			fmt.Printf("Heartbeat failed: %v\n", err)
-		} else {
-			// fmt.Println("Heartbeat sent")
 		}
 	}
 }
@@ -104,12 +97,13 @@ func (a *Agent) sendHeartbeat() error {
 		Version:   "0.0.1",
 		OsType:    getOsType(),
 	}
-	// Wrap in JSON with type="HEARTBEAT" for WebSocket
-	msg := map[string]interface{}{
-		"type":    "HEARTBEAT",
-		"content": req,
-	}
-	return a.WSServer.SendJSON(msg)
+	return a.WSServer.SendJSON(map[string]interface{}{
+		"protocolVersion": "2.0",
+		"requestId":       fmt.Sprintf("hb-%d", time.Now().UnixNano()),
+		"timestamp":       time.Now().UTC().Format(time.RFC3339),
+		"type":            "HEARTBEAT",
+		"content":         req,
+	})
 }
 
 func getOsType() string {
@@ -122,13 +116,11 @@ func getOsType() string {
 }
 
 func (a *Agent) handleMessage(msg []byte) {
-	// Parse generic message first
 	var generic struct {
-		Type    string          `json:"type"`
-		Content json.RawMessage `json:"content"`
-		// Legacy fields support
-		CommandName string `json:"commandName"`
-		ID          string `json:"id"`
+		Type            string          `json:"type"`
+		Content         json.RawMessage `json:"content"`
+		RequestID       string          `json:"requestId"`
+		ProtocolVersion string          `json:"protocolVersion"`
 	}
 
 	if err := json.Unmarshal(msg, &generic); err != nil {
@@ -136,32 +128,26 @@ func (a *Agent) handleMessage(msg []byte) {
 		return
 	}
 
-	// Handle Protocol Types
 	switch generic.Type {
 	case "FETCH_LOGS":
 		a.handleFetchLogs()
 	case "EXEC_CMD":
 		var cmdReq struct {
-			Command string `json:"command"`
+			Command   string `json:"command"`
+			TimeoutMs *int64 `json:"timeoutMs"`
 		}
 		if err := json.Unmarshal(generic.Content, &cmdReq); err == nil {
-			a.Log(fmt.Sprintf("Executing command: %s", cmdReq.Command))
-
-			var cmdName string
-			var cmdArgs []string
-			if runtime.GOOS == "windows" {
-				cmdName = "cmd.exe"
-				cmdArgs = []string{"/C", cmdReq.Command}
-			} else {
-				cmdName = "sh"
-				cmdArgs = []string{"-c", cmdReq.Command}
+			requestID := generic.RequestID
+			if requestID == "" {
+				requestID = fmt.Sprintf("cmd-%d", time.Now().UnixNano())
 			}
-
-			// Simple execution
-			go a.PluginManager.Start("cmd-"+time.Now().Format("150405"), cmdName, cmdArgs, plugin.Task)
+			var timeout time.Duration
+			if cmdReq.TimeoutMs != nil && *cmdReq.TimeoutMs > 0 {
+				timeout = time.Duration(*cmdReq.TimeoutMs) * time.Millisecond
+			}
+			go a.executeCommandWithResult(requestID, cmdReq.Command, timeout)
 		}
 	case "INPUT":
-		// Simple Line-Buffered Input for non-PTY shell
 		var inputReq struct {
 			Content string `json:"content"`
 		}
@@ -171,13 +157,138 @@ func (a *Agent) handleMessage(msg []byte) {
 			}
 		}
 	default:
-		// Legacy support (AgentTask)
-		if generic.CommandName != "" {
-			var task client.AgentTask
-			json.Unmarshal(msg, &task) // Re-unmarshal to full struct
-			go a.executeTask(task)
+		a.Log(fmt.Sprintf("Unsupported message type: %s", generic.Type))
+	}
+}
+
+func (a *Agent) executeCommandWithResult(requestID, command string, timeout time.Duration) {
+	started := time.Now().UTC()
+	a.Log(fmt.Sprintf("Executing command requestId=%s: %s", requestID, command))
+
+	ctx := context.Background()
+	cancel := func() {}
+	if timeout > 0 {
+		ctx, cancel = context.WithTimeout(context.Background(), timeout)
+	}
+	defer cancel()
+
+	var cmd *exec.Cmd
+	if runtime.GOOS == "windows" {
+		if timeout > 0 {
+			cmd = exec.CommandContext(ctx, "cmd.exe", "/C", command)
+		} else {
+			cmd = exec.Command("cmd.exe", "/C", command)
+		}
+	} else {
+		if timeout > 0 {
+			cmd = exec.CommandContext(ctx, "sh", "-c", command)
+		} else {
+			cmd = exec.Command("sh", "-c", command)
 		}
 	}
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		a.sendExecResult(requestID, started, "FAILED", 1, "", err.Error())
+		return
+	}
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		a.sendExecResult(requestID, started, "FAILED", 1, "", err.Error())
+		return
+	}
+
+	if err := cmd.Start(); err != nil {
+		a.sendExecResult(requestID, started, "FAILED", 1, "", err.Error())
+		return
+	}
+
+	const maxPreview = 2048
+	var previewMu sync.Mutex
+	preview := strings.Builder{}
+	appendPreview := func(s string) {
+		previewMu.Lock()
+		defer previewMu.Unlock()
+		remaining := maxPreview - preview.Len()
+		if remaining <= 0 {
+			return
+		}
+		if len(s) > remaining {
+			preview.WriteString(s[:remaining])
+			return
+		}
+		preview.WriteString(s)
+	}
+
+	stream := func(r io.Reader) {
+		scanner := bufio.NewScanner(r)
+		scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
+		for scanner.Scan() {
+			line := scanner.Text()
+			a.Log(line)
+			appendPreview(line + "\n")
+		}
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		stream(stdout)
+	}()
+	go func() {
+		defer wg.Done()
+		stream(stderr)
+	}()
+
+	err = cmd.Wait()
+	wg.Wait()
+
+	exitCode := 0
+	if cmd.ProcessState != nil {
+		if status, ok := cmd.ProcessState.Sys().(syscall.WaitStatus); ok {
+			exitCode = status.ExitStatus()
+		}
+	}
+
+	status := "SUCCESS"
+	errorMessage := ""
+	if timeout > 0 && ctx.Err() == context.DeadlineExceeded {
+		status = "TIMEOUT"
+		exitCode = -1
+		errorMessage = "command timed out"
+	} else if err != nil {
+		status = "FAILED"
+		if exitCode == 0 {
+			exitCode = 1
+		}
+		errorMessage = err.Error()
+	}
+
+	a.sendExecResult(requestID, started, status, exitCode, strings.TrimSpace(preview.String()), errorMessage)
+}
+
+func (a *Agent) sendExecResult(requestID string, started time.Time, status string, exitCode int, outputPreview string, errorMessage string) {
+	finished := time.Now().UTC()
+	result := map[string]interface{}{
+		"status":        status,
+		"exitCode":      exitCode,
+		"startedAt":     started.Format(time.RFC3339),
+		"finishedAt":    finished.Format(time.RFC3339),
+		"durationMs":    finished.Sub(started).Milliseconds(),
+		"outputPreview": outputPreview,
+	}
+	if errorMessage != "" {
+		result["errorMessage"] = errorMessage
+	}
+
+	_ = a.WSServer.SendJSON(map[string]interface{}{
+		"protocolVersion": "2.0",
+		"requestId":       requestID,
+		"timestamp":       time.Now().UTC().Format(time.RFC3339),
+		"type":            "EXEC_RESULT",
+		"content":         result,
+	})
 }
 
 func (a *Agent) handleFetchLogs() {
@@ -186,27 +297,8 @@ func (a *Agent) handleFetchLogs() {
 	copy(logs, a.LogBuffer)
 	a.LogBufferMu.Unlock()
 
-	resp := map[string]interface{}{
+	_ = a.WSServer.SendJSON(map[string]interface{}{
 		"type":    "LOG_HISTORY",
 		"content": logs,
-	}
-	a.WSServer.SendJSON(resp)
-}
-
-func (a *Agent) executeTask(task client.AgentTask) {
-	fmt.Printf("Executing task %s with args: %s\n", task.ID, task.Args)
-
-	var err error
-	if task.CommandName == "start-agent" {
-		// Real implementation would parse task.Args
-		err = a.PluginManager.Start(task.ID, "echo", []string{"Agent Started"}, plugin.Task)
-	} else if task.CommandName == "stop-agent" {
-		err = a.PluginManager.Stop(task.ID)
-	} else {
-		fmt.Printf("Generic command execution for %s\n", task.CommandName)
-	}
-
-	if err != nil {
-		fmt.Printf("Task execution error: %v\n", err)
-	}
+	})
 }
