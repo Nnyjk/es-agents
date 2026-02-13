@@ -1,13 +1,15 @@
 package app
 
 import (
-	"bytes"
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -132,17 +134,18 @@ func (a *Agent) handleMessage(msg []byte) {
 	case "EXEC_CMD":
 		var cmdReq struct {
 			Command   string `json:"command"`
-			TimeoutMs int64  `json:"timeoutMs"`
+			TimeoutMs *int64 `json:"timeoutMs"`
 		}
 		if err := json.Unmarshal(generic.Content, &cmdReq); err == nil {
-			if cmdReq.TimeoutMs <= 0 {
-				cmdReq.TimeoutMs = 30000
-			}
 			requestID := generic.RequestID
 			if requestID == "" {
 				requestID = fmt.Sprintf("cmd-%d", time.Now().UnixNano())
 			}
-			go a.executeCommandWithResult(requestID, cmdReq.Command, time.Duration(cmdReq.TimeoutMs)*time.Millisecond)
+			var timeout time.Duration
+			if cmdReq.TimeoutMs != nil && *cmdReq.TimeoutMs > 0 {
+				timeout = time.Duration(*cmdReq.TimeoutMs) * time.Millisecond
+			}
+			go a.executeCommandWithResult(requestID, cmdReq.Command, timeout)
 		}
 	case "INPUT":
 		var inputReq struct {
@@ -162,24 +165,85 @@ func (a *Agent) executeCommandWithResult(requestID, command string, timeout time
 	started := time.Now().UTC()
 	a.Log(fmt.Sprintf("Executing command requestId=%s: %s", requestID, command))
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx := context.Background()
+	cancel := func() {}
+	if timeout > 0 {
+		ctx, cancel = context.WithTimeout(context.Background(), timeout)
+	}
 	defer cancel()
 
 	var cmd *exec.Cmd
 	if runtime.GOOS == "windows" {
-		cmd = exec.CommandContext(ctx, "cmd.exe", "/C", command)
+		if timeout > 0 {
+			cmd = exec.CommandContext(ctx, "cmd.exe", "/C", command)
+		} else {
+			cmd = exec.Command("cmd.exe", "/C", command)
+		}
 	} else {
-		cmd = exec.CommandContext(ctx, "sh", "-c", command)
-	}
-
-	output, err := cmd.CombinedOutput()
-	for _, line := range bytes.Split(output, []byte("\n")) {
-		if len(bytes.TrimSpace(line)) > 0 {
-			a.Log(string(line))
+		if timeout > 0 {
+			cmd = exec.CommandContext(ctx, "sh", "-c", command)
+		} else {
+			cmd = exec.Command("sh", "-c", command)
 		}
 	}
 
-	finished := time.Now().UTC()
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		a.sendExecResult(requestID, started, "FAILED", 1, "", err.Error())
+		return
+	}
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		a.sendExecResult(requestID, started, "FAILED", 1, "", err.Error())
+		return
+	}
+
+	if err := cmd.Start(); err != nil {
+		a.sendExecResult(requestID, started, "FAILED", 1, "", err.Error())
+		return
+	}
+
+	const maxPreview = 2048
+	var previewMu sync.Mutex
+	preview := strings.Builder{}
+	appendPreview := func(s string) {
+		previewMu.Lock()
+		defer previewMu.Unlock()
+		remaining := maxPreview - preview.Len()
+		if remaining <= 0 {
+			return
+		}
+		if len(s) > remaining {
+			preview.WriteString(s[:remaining])
+			return
+		}
+		preview.WriteString(s)
+	}
+
+	stream := func(r io.Reader) {
+		scanner := bufio.NewScanner(r)
+		scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
+		for scanner.Scan() {
+			line := scanner.Text()
+			a.Log(line)
+			appendPreview(line + "\n")
+		}
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+		stream(stdout)
+	}()
+	go func() {
+		defer wg.Done()
+		stream(stderr)
+	}()
+
+	err = cmd.Wait()
+	wg.Wait()
+
 	exitCode := 0
 	if cmd.ProcessState != nil {
 		if status, ok := cmd.ProcessState.Sys().(syscall.WaitStatus); ok {
@@ -187,29 +251,35 @@ func (a *Agent) executeCommandWithResult(requestID, command string, timeout time
 		}
 	}
 
-	outputPreview := string(bytes.TrimSpace(output))
-	if len(outputPreview) > 2048 {
-		outputPreview = outputPreview[:2048]
+	status := "SUCCESS"
+	errorMessage := ""
+	if timeout > 0 && ctx.Err() == context.DeadlineExceeded {
+		status = "TIMEOUT"
+		exitCode = -1
+		errorMessage = "command timed out"
+	} else if err != nil {
+		status = "FAILED"
+		if exitCode == 0 {
+			exitCode = 1
+		}
+		errorMessage = err.Error()
 	}
 
+	a.sendExecResult(requestID, started, status, exitCode, strings.TrimSpace(preview.String()), errorMessage)
+}
+
+func (a *Agent) sendExecResult(requestID string, started time.Time, status string, exitCode int, outputPreview string, errorMessage string) {
+	finished := time.Now().UTC()
 	result := map[string]interface{}{
-		"status":        "SUCCESS",
+		"status":        status,
 		"exitCode":      exitCode,
 		"startedAt":     started.Format(time.RFC3339),
 		"finishedAt":    finished.Format(time.RFC3339),
 		"durationMs":    finished.Sub(started).Milliseconds(),
 		"outputPreview": outputPreview,
 	}
-
-	if ctx.Err() == context.DeadlineExceeded {
-		result["status"] = "TIMEOUT"
-		result["exitCode"] = -1
-	} else if err != nil {
-		result["status"] = "FAILED"
-		if exitCode == 0 {
-			result["exitCode"] = 1
-		}
-		result["errorMessage"] = err.Error()
+	if errorMessage != "" {
+		result["errorMessage"] = errorMessage
 	}
 
 	_ = a.WSServer.SendJSON(map[string]interface{}{
