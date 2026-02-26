@@ -1,0 +1,24 @@
+# Auto-labeler configuration
+# Labels PRs based on file patterns
+
+module/frontend:
+- changed-files:
+  - any-glob-to-any-file: 'frontend/**/*'
+
+module/server:
+- changed-files:
+  - any-glob-to-any-file: 'server/**/*'
+
+module/agent:
+- changed-files:
+  - any-glob-to-any-file: 'agent/**/*'
+
+module/docs:
+- changed-files:
+  - any-glob-to-any-file: 'docs/**/*'
+  - any-glob-to-any-file: '*.md'
+
+documentation:
+- changed-files:
+  - any-glob-to-any-file: '**/*.md'
+  - any-glob-to-any-file: 'docs/**/*'
