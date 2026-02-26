@@ -8,12 +8,12 @@
 - 产物：`server/target/easy-station-server-1.0.0-SNAPSHOT.jar`
 
 ### Frontend（React / Vite）
-- 首次执行 `npm ci` 由于 `xterm-for-react@1.0.4` 与 React 18 peer 依赖冲突失败。
-- 使用 `npm ci --legacy-peer-deps` 完成安装后执行 `npm run build` 成功。
+- 首次执行 `npm ci` 因 `xterm-for-react@1.0.4` 与 React 18 的 peer 依赖约束冲突失败。
+- 采用 `npm ci --legacy-peer-deps` 后执行 `npm run build` 成功。
 - 结果：Vite 生产构建成功，输出到 `frontend/dist/`。
 
 ### Agent（Go）
-- 命令：`go test ./...`（无测试文件，所有包检查通过）
+- 命令：`go test ./...`（当前仓库 agent 包无测试文件，编译检查通过）
 - 命令：
   - `go build -o dist/host-agent ./cmd/host-agent`
   - `go build -o dist/tool-exec ./cmd/tool-exec`
@@ -22,16 +22,21 @@
 ## 2. 前后端接口对接验证
 
 ### 验证方式
-- 新增脚本：`scripts/validate_api_contract.py`
-- 逻辑：
-  1. 解析 `frontend/src/services/*.ts` 中 `request.get/post/put/delete` 的接口调用。
-  2. 解析 `server/src/main/java/com/easystation/**/resource/*.java` 中 JAX-RS 注解接口。
-  3. 将前端 `${id}`、后端 `{id}` 统一归一化后匹配。
+- 脚本：`scripts/validate_api_contract.py`
+- 核心逻辑：
+  1. 扫描 `frontend/src/services/*.ts` 中 `request.get/post/put/delete` 调用。
+  2. 扫描 `server/src/main/java/com/easystation/**/resource/*.java` 中 JAX-RS 注解路由。
+  3. 将前端 `${id}` 与后端 `{id}` 统一归一化后按 `method + path` 比对。
+
+### 脚本改进（根据 review 调整）
+- 移除硬编码仓库路径，默认自动以脚本所在仓库根目录为准，支持 `--repo` 参数覆盖。
+- 增加 `--strict` 参数，在存在缺失映射时返回非零退出码，便于 CI 集成。
 
 ### 验证结论
-- Frontend endpoints: **26**
-- Backend endpoints: **65**
-- Missing mappings: **0**
+- 本次执行结果：
+  - Frontend endpoints: **26**
+  - Backend endpoints: **65**
+  - Missing mappings: **0**
 
 结论：当前前端服务层调用接口在后端资源层均可匹配到对应路由（静态契约层面通过）。
 
@@ -44,4 +49,4 @@
 - `agent/dist/tool-exec`（约 5.8MB）
   - SHA256: `ce352b7f8d57d5ae535aee96981cea23d2863c1544f09945b5217191c2f6240b`
 
-> 说明：二进制产物为验证生成，不纳入版本库提交。
+> 说明：二进制产物为验证阶段临时生成，不纳入版本库提交。
