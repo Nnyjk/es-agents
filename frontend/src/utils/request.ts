@@ -19,10 +19,16 @@ request.interceptors.response.use(
   (error) => {
     if (error.response) {
       const { status, data } = error.response;
+      const requestUrl = error.config?.url || '';
+      const isLoginRequest = requestUrl.includes('/auth/login');
       if (status === 401) {
-        message.error('Session expired, please login again.');
-        localStorage.removeItem('token');
-        window.location.href = '/login';
+        if (isLoginRequest) {
+          message.error(data.message || '登录失败，请检查用户名和密码');
+        } else {
+          message.error('Session expired, please login again.');
+          localStorage.removeItem('token');
+          window.location.href = '/login';
+        }
       } else {
         message.error(data.message || 'Request failed');
       }

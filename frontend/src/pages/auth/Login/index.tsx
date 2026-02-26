@@ -18,22 +18,44 @@ const Login: React.FC = () => {
     }
   }, []);
 
-  const fetchPublicKey = async () => {
+  const fetchPublicKey = async (): Promise<string> => {
     try {
       const response = await getPublicKey();
       setPublicKey(response.publicKey);
+      return response.publicKey;
     } catch (error) {
       console.error('获取公钥失败:', error);
+      throw error;
     }
   };
 
   const onFinish = async (values: { username: string; password: string }) => {
     setLoading(true);
     try {
-      const encryptedPassword = encrypt(values.password, publicKey);
+      let passwordPayload = values.password;
+      let currentPublicKey = publicKey;
+
+      if (!currentPublicKey) {
+        try {
+          currentPublicKey = await fetchPublicKey();
+        } catch {
+          // 后端会兼容明文密码（服务端尝试解密失败后回退）
+          currentPublicKey = '';
+        }
+      }
+
+      if (currentPublicKey) {
+        const encryptedPassword = encrypt(values.password, currentPublicKey);
+        if (encryptedPassword) {
+          passwordPayload = encryptedPassword;
+        } else {
+          console.warn('密码加密失败，回退为明文提交');
+        }
+      }
+
       const result = await login({
         username: values.username,
-        password: encryptedPassword,
+        password: passwordPayload,
       });
       
       localStorage.setItem('token', result.token);
