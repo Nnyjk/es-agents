@@ -27,7 +27,7 @@ jobs:
         cache-dependency-path: frontend/package-lock.json
     
     - name: Install dependencies
-      run: npm ci
+      run: npm ci --legacy-peer-deps
     
     - name: Type check
       run: npm run type-check
@@ -107,13 +107,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Check documentation links
+    - name: Check documentation structure
       run: |
         echo "Checking documentation structure..."
         find docs -name "*.md" | head -20
         echo "✓ Documentation check passed"
 
-  # Labeler (Auto-label issues and PRs)
+  # Labeler (Auto-label PRs)
   labeler:
     name: Auto Labeler
     runs-on: ubuntu-latest
