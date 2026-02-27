@@ -7,7 +7,6 @@ import Editor from '@monaco-editor/react';
 import { DrawerForm } from '@/components/DrawerForm';
 import { TerminalCommandModal } from './components/TerminalCommandModal';
 import { queryHosts, saveHost, removeHost, queryEnvironments, connectHost } from '@/services/infra';
-import { queryAgentResources } from '@/services/agent';
 import type { Host, Environment } from '@/types';
 import { XTerm } from 'xterm-for-react';
 import { FitAddon } from 'xterm-addon-fit';
@@ -173,34 +172,53 @@ const HostList: React.FC = () => {
 
   const handleDownloadPackage = async (host: Host) => {
     try {
-        const sources = await queryAgentResources();
-        let sourceName = '';
         const os = host.os?.toUpperCase();
+        let assetName = '';
         
+        // Determine package name based on OS
         if (os === 'LINUX' || os === 'LINUX_DOCKER') {
-             sourceName = 'Host Agent (Linux)';
+            assetName = 'host-agent-linux.tar.gz';
         } else if (os === 'WINDOWS') {
-             sourceName = 'Host Agent (Windows)';
+            assetName = 'host-agent-windows.tar.gz';
+        } else if (os === 'MACOS') {
+            assetName = 'host-agent-macos.tar.gz';
         } else {
-             message.error(`不支持的操作系统: ${host.os}`);
-             return;
+            message.error(`不支持的操作系统：${host.os}`);
+            return;
         }
 
-        const source = sources.find(s => s.name === sourceName && s.type === 'LOCAL');
-        if (source) {
-            // Use window.open to trigger download
+        // Fetch latest release from GitHub Releases API
+        const repoOwner = 'Nnyjk';
+        const repoName = 'es-agents';
+        const releaseUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/releases/latest`;
+        
+        const response = await fetch(releaseUrl);
+        if (!response.ok) {
+            throw new Error('Failed to fetch latest release from GitHub');
+        }
+        
+        const release = await response.json();
+        
+        // Find the matching asset
+        const asset = release.assets?.find((a: any) => a.name === assetName);
+        
+        if (asset && asset.browser_download_url) {
+            // Trigger download
             const link = document.createElement('a');
-            link.href = `/api/agents/sources/${source.id}/download`;
+            link.href = asset.browser_download_url;
             link.target = '_blank';
+            link.download = assetName;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            message.success(`开始下载 ${assetName}`);
         } else {
-            message.error(`未找到对应的 Host Agent 安装包 (${sourceName})`);
+            message.error(`未找到对应的 Host Agent 安装包 (${assetName})`);
+            console.warn('Available assets:', release.assets?.map((a: any) => a.name));
         }
-    } catch (error) {
+    } catch (error: any) {
         console.error(error);
-        message.error('获取安装包信息失败');
+        message.error(`下载失败：${error.message || '请检查网络连接'}`);
     }
   };
 
