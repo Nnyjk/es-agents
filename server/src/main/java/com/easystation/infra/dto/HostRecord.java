@@ -29,6 +29,7 @@ public record HostRecord(
         String name,
         @NotBlank(message = "Hostname cannot be blank")
         String hostname,
+        String os,
         @NotNull(message = "Environment ID cannot be null")
         UUID environmentId,
         String description,
@@ -39,6 +40,7 @@ public record HostRecord(
     public record Update(
         String name,
         String hostname,
+        String os,
         String description,
         UUID environmentId,
         String config,

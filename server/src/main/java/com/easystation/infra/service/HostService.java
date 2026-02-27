@@ -67,6 +67,7 @@ public class HostService {
         Host host = new Host();
         host.setName(dto.name());
         host.setHostname(dto.hostname());
+        host.setOs(dto.os());
         host.setEnvironment(env);
         host.setDescription(dto.description());
         host.setStatus(HostStatus.UNCONNECTED);
@@ -87,6 +88,7 @@ public class HostService {
         
         if (dto.name() != null) host.setName(dto.name());
         if (dto.hostname() != null) host.setHostname(dto.hostname());
+        if (dto.os() != null) host.setOs(dto.os());
         if (dto.description() != null) host.setDescription(dto.description());
         if (dto.config() != null) host.setConfig(dto.config());
         if (dto.heartbeatInterval() != null) host.setHeartbeatInterval(dto.heartbeatInterval());

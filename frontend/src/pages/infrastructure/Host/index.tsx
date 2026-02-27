@@ -320,6 +320,14 @@ const HostList: React.FC = () => {
         <Form.Item name="hostname" label="IP/域名" rules={[{ required: true }]}>
             <Input placeholder="请输入IP或域名" />
         </Form.Item>
+        <Form.Item name="os" label="系统类型" tooltip="主机操作系统类型">
+            <Select placeholder="请选择系统类型" allowClear>
+              <Select.Option value="LINUX">Linux</Select.Option>
+              <Select.Option value="LINUX_DOCKER">Linux (Docker)</Select.Option>
+              <Select.Option value="WINDOWS">Windows</Select.Option>
+              <Select.Option value="MACOS">macOS</Select.Option>
+            </Select>
+        </Form.Item>
         <Form.Item name="gatewayUrl" label="网关地址" tooltip="Server 连接此 Host Agent 的网关地址 (例如 http://192.168.1.100:9090 或通过中间件的地址)">
             <Input placeholder="请输入网关地址 (Server 将主动连接此地址)" />
         </Form.Item>
