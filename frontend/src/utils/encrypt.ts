@@ -1,7 +1,8 @@
-import JSEncrypt from 'jsencrypt';
+// 暂时剔除登录加密功能
+// 此文件保留仅作兼容，实际不再使用
 
 export const encrypt = (text: string, publicKey: string): string | false => {
-  const encryptor = new JSEncrypt();
-  encryptor.setPublicKey(publicKey);
-  return encryptor.encrypt(text);
+  // 加密功能已暂时剔除，直接返回原文
+  console.warn('登录加密功能已暂时剔除，使用明文密码');
+  return text;
 };

@@ -1,61 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Form, Input, Button, Card, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import { login, getPublicKey } from '../../../services/auth';
-import { encrypt } from '../../../utils/encrypt';
+import { login } from '../../../services/auth';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [publicKey, setPublicKey] = useState<string>('');
-  const initialized = React.useRef(false);
 
-  useEffect(() => {
-    if (!initialized.current) {
-      initialized.current = true;
-      fetchPublicKey();
-    }
-  }, []);
-
-  const fetchPublicKey = async (): Promise<string> => {
-    try {
-      const response = await getPublicKey();
-      setPublicKey(response.publicKey);
-      return response.publicKey;
-    } catch (error) {
-      console.error('获取公钥失败:', error);
-      throw error;
-    }
-  };
-
+  // 暂时剔除登录加密功能，直接使用明文密码登录
   const onFinish = async (values: { username: string; password: string }) => {
     setLoading(true);
     try {
-      let passwordPayload = values.password;
-      let currentPublicKey = publicKey;
-
-      if (!currentPublicKey) {
-        try {
-          currentPublicKey = await fetchPublicKey();
-        } catch {
-          // 后端会兼容明文密码（服务端尝试解密失败后回退）
-          currentPublicKey = '';
-        }
-      }
-
-      if (currentPublicKey) {
-        const encryptedPassword = encrypt(values.password, currentPublicKey);
-        if (encryptedPassword) {
-          passwordPayload = encryptedPassword;
-        } else {
-          console.warn('密码加密失败，回退为明文提交');
-        }
-      }
-
+      // 直接使用明文密码，不再加密
       const result = await login({
         username: values.username,
-        password: passwordPayload,
+        password: values.password,
       });
       
       localStorage.setItem('token', result.token);

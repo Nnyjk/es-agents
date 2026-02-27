@@ -11,7 +11,6 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Path("/auth")
@@ -39,20 +38,18 @@ public class AuthResource {
 
     /**
      * 获取公钥
-     * 用于前端加密敏感信息或验证Token签名
+     * 暂时剔除登录加密功能，返回硬编码占位公钥
      */
     @GET
     @Path("/public-key")
     @PermitAll
     public Response getPublicKey() {
-        try (java.io.InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("publicKey.pem")) {
-            if (is == null) {
-                return Response.status(Response.Status.NOT_FOUND).entity("Public key not found").build();
-            }
-            String publicKey = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            return Response.ok(Map.of("publicKey", publicKey)).build();
-        } catch (java.io.IOException e) {
-            return Response.serverError().entity(e.getMessage()).build();
-        }
+        // 暂时剔除公钥加密功能，返回硬编码占位值
+        String hardcodedPublicKey = "-----BEGIN PUBLIC KEY-----\n" +
+                "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDUMMY+PLACEHOLDER+KEY+FOR+\n" +
+                "LOGIN+ENCRYPTION+DISABLED+TEMPORARILY+USE+PLAINTEXT+PASSWORD+INSTEAD+\n" +
+                "THIS+IS+HARDCODED+PERMANENT+PUBLIC+KEY+FOR+COMPATIBILITY+ONLY\n" +
+                "-----END PUBLIC KEY-----";
+        return Response.ok(Map.of("publicKey", hardcodedPublicKey)).build();
     }
 }

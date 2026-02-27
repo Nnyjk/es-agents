@@ -2,7 +2,6 @@ package com.easystation.auth.service;
 
 import com.easystation.auth.record.LoginResponse;
 import com.easystation.auth.record.RouteRecord;
-import com.easystation.common.utils.CryptoUtil;
 import com.easystation.common.utils.PasswordUtil;
 import com.easystation.system.domain.Module;
 import com.easystation.system.domain.User;
@@ -26,8 +25,6 @@ public class AuthService {
     PasswordUtil passwordUtil;
     @Inject
     TokenService tokenService;
-    @Inject
-    CryptoUtil cryptoUtil;
 
     public List<RouteRecord> getRoutes(String username) {
         User user = User.find("username", username).firstResult();
@@ -79,12 +76,8 @@ public class AuthService {
              throw new WebApplicationException("Invalid credentials", 401);
         }
 
+        // 暂时剔除登录加密功能，直接使用明文密码校验
         String passwordToCheck = request.password();
-        try {
-            passwordToCheck = cryptoUtil.decrypt(request.password());
-        } catch (Exception e) {
-            Log.warnf("Password decryption failed, using original input. Error: %s", e.getMessage());
-        }
 
         if (!passwordUtil.check(passwordToCheck, user.password)) {
             throw new WebApplicationException("Invalid credentials", 401);

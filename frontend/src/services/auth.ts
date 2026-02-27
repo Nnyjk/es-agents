@@ -22,6 +22,7 @@ export const getRoutes = (): Promise<RouteItem[]> => {
   return request.get('/auth/routes');
 };
 
+// 暂时剔除登录加密功能，此方法保留仅作兼容
 export const getPublicKey = (): Promise<{ publicKey: string }> => {
   return request.get('/auth/public-key');
 };
