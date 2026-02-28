@@ -14,8 +14,6 @@ export interface Host {
   name: string;
   hostname: string;
   os?: string;
-  cpuInfo?: string;
-  memInfo?: string;
   environment?: Partial<Environment>;
   environmentId?: string; // Form usage
   environmentName?: string;

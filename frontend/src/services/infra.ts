@@ -25,8 +25,6 @@ export const queryHosts = async (params?: PageParams): Promise<Host[] | ListResp
     name: string;
     hostname: string;
     os?: string;
-    cpuInfo?: string;
-    memInfo?: string;
     status: Host['status'];
     environmentId?: string;
     environmentName?: string;
@@ -47,8 +45,6 @@ export const queryHosts = async (params?: PageParams): Promise<Host[] | ListResp
     name: item.name,
     hostname: item.hostname,
     os: item.os,
-    cpuInfo: item.cpuInfo,
-    memInfo: item.memInfo,
     status: item.status,
     secretKey: item.secretKey,
     description: item.description,
@@ -82,6 +78,7 @@ export const saveHost = (data: Partial<Host>): Promise<Host> => {
   const payload = {
     name: data.name,
     hostname: data.hostname,
+    os: data.os,
     description: data.description,
     environmentId: data.environmentId ?? data.environment?.id,
     config: data.config,
