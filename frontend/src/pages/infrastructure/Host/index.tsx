@@ -241,6 +241,7 @@ const HostList: React.FC = () => {
     { title: '主机名称', dataIndex: 'name' },
     { title: '地址', dataIndex: 'hostname' },
     { title: '系统', dataIndex: 'os', hideInForm: true },
+    { title: '最后心跳', dataIndex: 'lastHeartbeat', valueType: 'dateTime', hideInForm: true },
     { 
       title: '所属环境', 
       dataIndex: 'environment',
