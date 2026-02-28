@@ -2,12 +2,12 @@ import React, { useRef, useState, useEffect } from 'react';
 import { PlusOutlined, DownloadOutlined, SettingOutlined, CodeOutlined, LinkOutlined, ApiOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
-import { Button, message, Popconfirm, Form, Input, Select, Drawer, InputNumber, Modal } from 'antd';
+import { Button, message, Popconfirm, Form, Input, Select, Drawer, InputNumber, Modal, Typography } from 'antd';
 import Editor from '@monaco-editor/react';
 import { DrawerForm } from '@/components/DrawerForm';
 import { TerminalCommandModal } from './components/TerminalCommandModal';
-import { queryHosts, saveHost, removeHost, queryEnvironments, connectHost } from '@/services/infra';
-import type { Host, Environment } from '@/types';
+import { queryHosts, saveHost, removeHost, queryEnvironments, connectHost, getInstallGuide } from '@/services/infra';
+import type { Host, Environment, HostInstallGuide } from '@/types';
 import { XTerm } from 'xterm-for-react';
 import { FitAddon } from 'xterm-addon-fit';
 
@@ -23,6 +23,7 @@ const HostList: React.FC = () => {
   const [configContent, setConfigContent] = useState('');
   const [heartbeatInterval, setHeartbeatInterval] = useState<number>(30);
   const [currentHost, setCurrentHost] = useState<Host | null>(null);
+  const [installGuide, setInstallGuide] = useState<HostInstallGuide | null>(null);
   const [terminalSocket, setTerminalSocket] = useState<WebSocket | null>(null);
   const [connecting, setConnecting] = useState(false);
   
@@ -37,6 +38,20 @@ const HostList: React.FC = () => {
       setEnvironments(list);
     });
   }, []);
+
+  // Fetch Install Guide when modal opens
+  useEffect(() => {
+    if (installGuideVisible && currentHost) {
+        getInstallGuide(currentHost.id)
+            .then(data => setInstallGuide(data))
+            .catch(err => {
+                console.error(err);
+                message.error('获取接入指南失败');
+            });
+    } else {
+        setInstallGuide(null);
+    }
+  }, [installGuideVisible, currentHost]);
 
   // Handle Terminal Socket
   useEffect(() => {
@@ -405,34 +420,101 @@ const HostList: React.FC = () => {
         width={600}
       >
           <div style={{ padding: 20 }}>
-            <h3>1. 下载部署包</h3>
-            <p>点击下方按钮下载包含配置文件和安装脚本的 Host Agent 部署包。</p>
-            <Button type="primary" icon={<DownloadOutlined />} onClick={() => currentHost && handleDownloadPackage(currentHost)}>
-                下载部署包
-            </Button>
+            {installGuide ? (
+                <>
+                    <div style={{ marginBottom: 24 }}>
+                        <h3 style={{ marginBottom: 16 }}>身份验证信息</h3>
+                        <div style={{ marginBottom: 16 }}>
+                            <div style={{ marginBottom: 4, color: '#666' }}>Host ID</div>
+                            <Typography.Paragraph copyable code style={{ marginBottom: 0 }}>{installGuide.hostId}</Typography.Paragraph>
+                        </div>
+                        <div>
+                            <div style={{ marginBottom: 4, color: '#666' }}>Secret Key</div>
+                            <Typography.Paragraph copyable code style={{ marginBottom: 0 }}>{installGuide.secretKey}</Typography.Paragraph>
+                        </div>
+                    </div>
+
+                    <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 20 }}>
+                        <h3 style={{ marginBottom: 12 }}>安装步骤</h3>
+                        {(() => {
+                            const os = currentHost?.os?.toUpperCase();
+                            const isWindows = os === 'WINDOWS';
+                            const isMac = os === 'MACOS';
+                            const osName = isWindows ? 'Windows' : (isMac ? 'macOS' : 'Linux');
+                            const pkgName = isWindows ? 'windows' : (isMac ? 'macos' : 'linux');
+                            
+                            if (isWindows) {
+                                return (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                        <div>
+                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>1. 下载安装包</div>
+                                            <Button type="primary" icon={<DownloadOutlined />} onClick={() => currentHost && handleDownloadPackage(currentHost)}>
+                                                下载 {osName} 部署包
+                                            </Button>
+                                        </div>
+                                        <div>
+                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>2. 解压</div>
+                                            <div>解压下载的压缩文件。</div>
+                                        </div>
+                                        <div>
+                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>3. 配置</div>
+                                            <div>打开 <code>config.yaml</code> 并设置 <code>host_id</code> 为 <code>{installGuide.hostId}</code>，<code>secret_key</code> 为 <code>{installGuide.secretKey}</code>。</div>
+                                        </div>
+                                        <div>
+                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>4. 启动</div>
+                                            <div>以管理员身份运行 <code>install.bat</code>。</div>
+                                        </div>
+                                    </div>
+                                );
+                            } else {
+                                return (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                        <div>
+                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>1. 下载安装包</div>
+                                            <Button type="primary" icon={<DownloadOutlined />} onClick={() => currentHost && handleDownloadPackage(currentHost)}>
+                                                下载 {osName} 部署包
+                                            </Button>
+                                        </div>
+                                        <div>
+                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>2. 解压</div>
+                                            <Typography.Paragraph copyable code>
+                                                {`tar -zxvf host-agent-${pkgName}.tar.gz`}
+                                            </Typography.Paragraph>
+                                        </div>
+                                        <div>
+                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>3. 配置</div>
+                                            <Typography.Paragraph copyable code>
+                                                {`sed -i 's/host_id: ""/host_id: "${installGuide.hostId}"/' config.yaml && sed -i 's/secret_key: ""/secret_key: "${installGuide.secretKey}"/' config.yaml`}
+                                            </Typography.Paragraph>
+                                        </div>
+                                        <div>
+                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>4. 启动</div>
+                                            <Typography.Paragraph copyable code>
+                                                sudo ./install.sh
+                                            </Typography.Paragraph>
+                                        </div>
+                                    </div>
+                                );
+                            }
+                        })()}
+                    </div>
+                </>
+            ) : (
+                <div style={{ textAlign: 'center', padding: '20px' }}>正在获取接入指南...</div>
+            )}
             
-            <h3 style={{ marginTop: 20 }}>2. 上传至服务器</h3>
-            <p>将下载的 tar.gz 包上传到目标服务器的目标目录。</p>
-            
-            <h3 style={{ marginTop: 20 }}>3. 安装并启动</h3>
-            <div style={{ background: '#f5f5f5', padding: 10, borderRadius: 4 }}>
-                <code>
-                    tar -zxvf host-agent-install.tar.gz<br/>
-                    chmod +x install.sh<br/>
-                    ./install.sh
-                </code>
+            <div style={{ marginTop: 30, borderTop: '1px solid #eee', paddingTop: 20 }}>
+                <p>Host Agent 启动后，请点击下方按钮由 Server 主动尝试连接。</p>
+                <Button 
+                    type="primary" 
+                    icon={<ApiOutlined />} 
+                    loading={connecting}
+                    onClick={() => currentHost && handleConnect(currentHost.id)}
+                    block
+                >
+                    连接 Host Agent
+                </Button>
             </div>
-            
-            <h3 style={{ marginTop: 20 }}>4. 验证连接</h3>
-            <p>Host Agent 启动后，请点击下方按钮由 Server 主动尝试连接。</p>
-            <Button 
-                type="primary" 
-                icon={<ApiOutlined />} 
-                loading={connecting}
-                onClick={() => currentHost && handleConnect(currentHost.id)}
-            >
-                连接 Host Agent
-            </Button>
           </div>
       </Modal>
 

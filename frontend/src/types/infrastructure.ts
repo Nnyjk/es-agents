@@ -9,6 +9,14 @@ export interface Environment {
   updatedAt?: string;
 }
 
+export interface HostInstallGuide {
+  hostId: string;
+  secretKey: string;
+  installScript: string;
+  dockerCommand: string;
+  downloadUrl: string;
+}
+
 export interface Host {
   id: string;
   name: string;

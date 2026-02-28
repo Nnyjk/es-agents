@@ -1,5 +1,5 @@
 import request from '../utils/request';
-import type { Host, Environment, PageParams, ListResponse } from '../types';
+import type { Host, Environment, PageParams, ListResponse, HostInstallGuide } from '../types';
 
 // Environments
 export const queryEnvironments = async (params?: PageParams): Promise<Environment[] | ListResponse<Environment>> => {
@@ -97,5 +97,9 @@ export const removeHost = (id: string): Promise<void> => {
 
 export const connectHost = (id: string): Promise<void> => {
   return request.post(`/infra/hosts/${id}/connect`);
+};
+
+export const getInstallGuide = (id: string): Promise<HostInstallGuide> => {
+  return request.get(`/infra/hosts/${id}/install-guide`);
 };
 
