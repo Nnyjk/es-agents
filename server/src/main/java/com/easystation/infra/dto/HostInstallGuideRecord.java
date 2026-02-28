@@ -7,5 +7,19 @@ public record HostInstallGuideRecord(
     String secretKey,
     String installScript,
     String dockerCommand,
-    String downloadUrl
-) {}
+    String downloadUrl,
+    String packageFileName,
+    String startCommand,
+    String stopCommand,
+    String updateCommand,
+    String logPath,
+    String pidFile,
+    HostAgentResourceRecord source
+) {
+    public record HostAgentResourceRecord(
+        UUID sourceId,
+        String sourceName,
+        String fileName,
+        String osType
+    ) {}
+}

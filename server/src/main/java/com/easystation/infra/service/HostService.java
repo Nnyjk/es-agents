@@ -1,6 +1,7 @@
 package com.easystation.infra.service;
 
 import com.easystation.agent.service.AgentSourceService;
+import com.easystation.agent.domain.AgentTemplate;
 import com.easystation.infra.domain.Environment;
 import com.easystation.infra.domain.Host;
 import com.easystation.infra.domain.enums.HostStatus;
@@ -17,12 +18,9 @@ import io.quarkus.logging.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -31,6 +29,12 @@ public class HostService {
 
     @Inject
     AgentSourceService agentSourceService;
+
+    @Inject
+    HostAgentResourceResolver resourceResolver;
+
+    @Inject
+    HostAgentPackageBuilder packageBuilder;
 
     @Inject
     AgentConnectionManager connectionManager;
@@ -136,12 +140,37 @@ public class HostService {
         if (host == null) {
             throw new WebApplicationException("Host not found", Response.Status.NOT_FOUND);
         }
-        
-        int port = host.getListenPort() != null ? host.getListenPort() : 9090;
-        String installScript = String.format("curl -sfL https://easystation.com/install.sh | sudo bash -s -- --host-id %s --secret %s --listen-port %d", host.getId(), host.getSecretKey(), port);
-        String dockerCommand = String.format("docker run -d --name easy-agent -p %d:%d -e HOST_ID=%s -e AGENT_SECRET=%s -e LISTEN_PORT=%d easystation/agent:latest", port, port, host.getId(), host.getSecretKey(), port);
-        String downloadUrl = "/api/infra/hosts/" + host.getId() + "/package";
-        return new HostInstallGuideRecord(host.getId(), host.getSecretKey(), installScript, dockerCommand, downloadUrl);
+
+        HostAgentResourceResolver.ResolvedHostAgentResource resource = resolveHostAgentResource(host);
+        boolean windows = resource.osType() == com.easystation.agent.domain.enums.OsType.WINDOWS;
+        String downloadUrl = "/api/infra/hosts/" + host.getId() + "/package?sourceId=" + resource.sourceId();
+        String packageFileName = "host-agent-" + resource.osType().name().toLowerCase() + ".zip";
+        String installCommand = windows ? "install.bat" : "./install.sh";
+        String startCommand = windows ? "start.bat" : "./start.sh";
+        String stopCommand = windows ? "stop.bat" : "./stop.sh";
+        String updateCommand = windows ? "update.bat <new-package-dir>" : "./update.sh <new-package-dir>";
+        String logPath = windows ? ".\\logs\\host-agent.log" : "./logs/host-agent.log";
+        String pidFile = windows ? ".\\host-agent.pid" : "./host-agent.pid";
+
+        return new HostInstallGuideRecord(
+                host.getId(),
+                host.getSecretKey(),
+                installCommand,
+                "",
+                downloadUrl,
+                packageFileName,
+                startCommand,
+                stopCommand,
+                updateCommand,
+                logPath,
+                pidFile,
+                new HostInstallGuideRecord.HostAgentResourceRecord(
+                        resource.sourceId(),
+                        resource.sourceName(),
+                        resource.fileName(),
+                        resource.osType().name()
+                )
+        );
     }
 
     public StreamingOutput downloadPackage(UUID id, UUID sourceId) {
@@ -149,38 +178,22 @@ public class HostService {
         if (host == null) {
             throw new WebApplicationException("Host not found", Response.Status.NOT_FOUND);
         }
-        
-        // 1. Get Agent Binary Stream from Source Service
-        String[] fileName = new String[1];
-        InputStream sourceStream = agentSourceService.getSourceStream(sourceId, fileName);
-        
-        // 2. Determine scripts based on OS (simplified check based on filename or explicit parameter, here we guess by filename)
-        boolean isWindows = fileName[0].toLowerCase().endsWith(".exe");
-        
+
+        HostAgentResourceResolver.ResolvedHostAgentResource resource = resolveHostAgentResource(host);
+        if (!resource.sourceId().equals(sourceId)) {
+            throw new WebApplicationException(
+                    "sourceId does not match the HostAgent resource bound to host OS: " + resource.osType().name(),
+                    Response.Status.BAD_REQUEST
+            );
+        }
+
+        InputStream sourceStream = agentSourceService.getSourceStream(sourceId, new String[1]);
+        String configContent = generateConfigFile(host);
+
         return output -> {
             try (ZipOutputStream zos = new ZipOutputStream(output);
                  sourceStream) {
-                
-                // Add Agent Binary
-                ZipEntry binaryEntry = new ZipEntry(fileName[0]);
-                zos.putNextEntry(binaryEntry);
-                sourceStream.transferTo(zos);
-                zos.closeEntry();
-                
-                // Add Config
-                ZipEntry configEntry = new ZipEntry("config.yaml");
-                zos.putNextEntry(configEntry);
-                String configContent = generateConfigFile(id);
-                zos.write(configContent.getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-                
-                // Add Scripts
-                if (isWindows) {
-                    addWindowsScripts(zos, fileName[0]);
-                } else {
-                    addLinuxScripts(zos, fileName[0]);
-                }
-                
+                packageBuilder.writePackage(zos, resource, sourceStream, configContent);
             } catch (Exception e) {
                 Log.errorf("Failed to create package for host %s: %s", id, e.getMessage());
                 throw new WebApplicationException("Failed to create package", e);
@@ -188,96 +201,15 @@ public class HostService {
         };
     }
 
-    private void addLinuxScripts(ZipOutputStream zos, String binaryName) throws IOException {
-        // start.sh
-        String startScript = "#!/bin/bash\n" +
-                "chmod +x " + binaryName + "\n" +
-                "nohup ./" + binaryName + " > agent.log 2>&1 & echo $! > pid\n" +
-                "echo \"Agent started with PID $(cat pid)\"\n";
-        zos.putNextEntry(new ZipEntry("start.sh"));
-        zos.write(startScript.getBytes(StandardCharsets.UTF_8));
-        zos.closeEntry();
-        
-        // stop.sh
-        String stopScript = "#!/bin/bash\n" +
-                "if [ -f pid ]; then\n" +
-                "  kill $(cat pid)\n" +
-                "  rm pid\n" +
-                "  echo \"Agent stopped\"\n" +
-                "else\n" +
-                "  echo \"PID file not found\"\n" +
-                "fi\n";
-        zos.putNextEntry(new ZipEntry("stop.sh"));
-        zos.write(stopScript.getBytes(StandardCharsets.UTF_8));
-        zos.closeEntry();
-        
-        // uninstall.sh
-        String uninstallScript = "#!/bin/bash\n" +
-                "INSTALL_DIR=\"${INSTALL_DIR:-/opt/host-agent}\"\n" +
-                "echo \"Uninstalling HostAgent...\"\n" +
-                "if [ -f \"$INSTALL_DIR/stop.sh\" ]; then\n" +
-                "  bash \"$INSTALL_DIR/stop.sh\"\n" +
-                "fi\n" +
-                "rm -rf \"$INSTALL_DIR\"\n" +
-                "echo \"HostAgent uninstalled.\"\n";
-        zos.putNextEntry(new ZipEntry("uninstall.sh"));
-        zos.write(uninstallScript.getBytes(StandardCharsets.UTF_8));
-        zos.closeEntry();
-        
-        // update.sh
-        String updateScript = "#!/bin/bash\n" +
-                "VERSION=\"${1:-latest}\"\n" +
-                "echo \"Updating HostAgent to version: $VERSION\"\n" +
-                "echo \"Please download the new version and replace the binary.\"\n" +
-                "echo \"TODO: Implement actual update logic based on your release strategy.\"\n";
-        zos.putNextEntry(new ZipEntry("update.sh"));
-        zos.write(updateScript.getBytes(StandardCharsets.UTF_8));
-        zos.closeEntry();
-    }
-
-    private void addWindowsScripts(ZipOutputStream zos, String binaryName) throws IOException {
-        // start.bat
-        String startScript = "@echo off\n" +
-                "start /B " + binaryName + " > agent.log 2>&1\n" +
-                "echo Agent started in background.\n";
-        zos.putNextEntry(new ZipEntry("start.bat"));
-        zos.write(startScript.getBytes(StandardCharsets.UTF_8));
-        zos.closeEntry();
-        
-        // stop.bat
-        String stopScript = "@echo off\n" +
-                "taskkill /F /IM " + binaryName + "\n" +
-                "echo Agent stopped.\n";
-        zos.putNextEntry(new ZipEntry("stop.bat"));
-        zos.write(stopScript.getBytes(StandardCharsets.UTF_8));
-        zos.closeEntry();
-        
-        // uninstall.bat
-        String uninstallScript = "@echo off\n" +
-                "echo Uninstalling HostAgent...\n" +
-                "taskkill /F /IM " + binaryName + " 2>nul\n" +
-                "del /Q host-agent.exe config.yaml start.bat stop.bat uninstall.bat update.bat\n" +
-                "echo HostAgent uninstalled.\n";
-        zos.putNextEntry(new ZipEntry("uninstall.bat"));
-        zos.write(uninstallScript.getBytes(StandardCharsets.UTF_8));
-        zos.closeEntry();
-        
-        // update.bat
-        String updateScript = "@echo off\n" +
-                "echo Updating HostAgent to version: %1\n" +
-                "echo Please download the new version and replace the binary.\n" +
-                "echo TODO: Implement actual update logic.\n";
-        zos.putNextEntry(new ZipEntry("update.bat"));
-        zos.write(updateScript.getBytes(StandardCharsets.UTF_8));
-        zos.closeEntry();
-    }
-
     public String generateConfigFile(UUID id) {
         Host host = Host.findById(id);
         if (host == null) {
             throw new WebApplicationException("Host not found", Response.Status.NOT_FOUND);
         }
-        
+        return generateConfigFile(host);
+    }
+
+    private String generateConfigFile(Host host) {
         StringBuilder yaml = new StringBuilder();
         yaml.append("# HostAgent Configuration\n");
         yaml.append("listen_port: ").append(host.getListenPort() != null ? host.getListenPort() : 9090).append("\n");
@@ -290,6 +222,20 @@ public class HostService {
             yaml.append(host.getConfig());
         }
         return yaml.toString();
+    }
+
+    private HostAgentResourceResolver.ResolvedHostAgentResource resolveHostAgentResource(Host host) {
+        List<AgentTemplate> templates = AgentTemplate.<AgentTemplate>listAll();
+        List<HostAgentResourceResolver.HostAgentCandidate> candidates = templates.stream()
+                .filter(template -> template.source != null)
+                .map(template -> new HostAgentResourceResolver.HostAgentCandidate(
+                        template.source.id,
+                        template.source.name,
+                        template.source.config,
+                        template.osType
+                ))
+                .toList();
+        return resourceResolver.resolve(host.getOs(), candidates);
     }
 
     private HostRecord toDto(Host host) {

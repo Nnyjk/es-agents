@@ -87,10 +87,13 @@ jobs:
         cache-dependency-path: agent/go.sum
     
     - name: Build
-      run: go build -v ./...
-    
+      run: CGO_ENABLED=0 go build -v ./...
+
     - name: Test
       run: go test -v ./...
+
+    - name: Verify Linux compatibility
+      run: bash scripts/verify-linux-compat.sh
 
   # Documentation Check
   docs:

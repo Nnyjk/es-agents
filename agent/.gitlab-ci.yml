@@ -28,11 +28,12 @@ build_all:
         if [ -d "$dir" ]; then
           name=$(basename "$dir")
           echo "Building $name for Windows (amd64)..."
-          GOOS=windows GOARCH=amd64 go build -o "$OUTPUT_DIR/$name-windows-amd64.exe" "$dir"
+          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -o "$OUTPUT_DIR/$name-windows-amd64.exe" "$dir"
           echo "Building $name for Linux (amd64)..."
-          GOOS=linux GOARCH=amd64 go build -o "$OUTPUT_DIR/$name-linux-amd64" "$dir"
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o "$OUTPUT_DIR/$name-linux-amd64" "$dir"
         fi
       done
+    - bash scripts/verify-linux-compat.sh "$OUTPUT_DIR/host-agent-linux-amd64"
     
     - echo "Build complete. Artifacts in $OUTPUT_DIR/"
     - ls -lh $OUTPUT_DIR/

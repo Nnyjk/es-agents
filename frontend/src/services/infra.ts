@@ -1,4 +1,5 @@
 import request from '../utils/request';
+import axios from 'axios';
 import type { Host, Environment, PageParams, ListResponse, HostInstallGuide } from '../types';
 
 // Environments
@@ -103,3 +104,19 @@ export const getInstallGuide = (id: string): Promise<HostInstallGuide> => {
   return request.get(`/infra/hosts/${id}/install-guide`);
 };
 
+export const downloadHostPackage = async (downloadUrl: string, fileName: string): Promise<void> => {
+  const token = localStorage.getItem('token');
+  const response = await axios.get(`/api${downloadUrl}`, {
+    responseType: 'blob',
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+
+  const blobUrl = window.URL.createObjectURL(response.data);
+  const link = document.createElement('a');
+  link.href = blobUrl;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(blobUrl);
+};

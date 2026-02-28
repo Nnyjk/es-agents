@@ -15,6 +15,18 @@ export interface HostInstallGuide {
   installScript: string;
   dockerCommand: string;
   downloadUrl: string;
+  packageFileName: string;
+  startCommand: string;
+  stopCommand: string;
+  updateCommand: string;
+  logPath: string;
+  pidFile: string;
+  source: {
+    sourceId: string;
+    sourceName: string;
+    fileName: string;
+    osType: string;
+  };
 }
 
 export interface Host {

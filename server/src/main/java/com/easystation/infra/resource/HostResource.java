@@ -2,24 +2,12 @@ package com.easystation.infra.resource;
 
 import com.easystation.infra.record.HostRecord;
 import com.easystation.infra.service.HostService;
-import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
-
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
-
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.UUID;
 
@@ -80,9 +68,9 @@ public class HostResource {
         if (sourceId == null) {
             throw new WebApplicationException("sourceId is required", Response.Status.BAD_REQUEST);
         }
-        
+
         StreamingOutput stream = hostService.downloadPackage(id, sourceId);
-        
+
         return Response.ok(stream)
                 .header("Content-Disposition", "attachment; filename=\"host-agent-" + id + ".zip\"")
                 .build();

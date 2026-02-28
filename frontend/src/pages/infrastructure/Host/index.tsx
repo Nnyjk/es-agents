@@ -6,7 +6,7 @@ import { Button, message, Popconfirm, Form, Input, Select, Drawer, InputNumber, 
 import Editor from '@monaco-editor/react';
 import { DrawerForm } from '@/components/DrawerForm';
 import { TerminalCommandModal } from './components/TerminalCommandModal';
-import { queryHosts, saveHost, removeHost, queryEnvironments, connectHost, getInstallGuide } from '@/services/infra';
+import { queryHosts, saveHost, removeHost, queryEnvironments, connectHost, getInstallGuide, downloadHostPackage } from '@/services/infra';
 import type { Host, Environment, HostInstallGuide } from '@/types';
 import { XTerm } from 'xterm-for-react';
 import { FitAddon } from 'xterm-addon-fit';
@@ -187,53 +187,17 @@ const HostList: React.FC = () => {
 
   const handleDownloadPackage = async (host: Host) => {
     try {
-        const os = host.os?.toUpperCase();
-        let assetName = '';
-        
-        // Determine package name based on OS
-        if (os === 'LINUX' || os === 'LINUX_DOCKER') {
-            assetName = 'host-agent-linux.tar.gz';
-        } else if (os === 'WINDOWS') {
-            assetName = 'host-agent-windows.tar.gz';
-        } else if (os === 'MACOS') {
-            assetName = 'host-agent-macos.tar.gz';
-        } else {
-            message.error(`不支持的操作系统：${host.os}`);
-            return;
+        const guide = installGuide && currentHost?.id === host.id
+          ? installGuide
+          : await getInstallGuide(host.id);
+        if (!guide.downloadUrl) {
+            throw new Error('缺少下载地址');
         }
-
-        // Fetch latest release from GitHub Releases API
-        const repoOwner = 'Nnyjk';
-        const repoName = 'es-agents';
-        const releaseUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/releases/latest`;
-        
-        const response = await fetch(releaseUrl);
-        if (!response.ok) {
-            throw new Error('Failed to fetch latest release from GitHub');
-        }
-        
-        const release = await response.json();
-        
-        // Find the matching asset
-        const asset = release.assets?.find((a: any) => a.name === assetName);
-        
-        if (asset && asset.browser_download_url) {
-            // Trigger download
-            const link = document.createElement('a');
-            link.href = asset.browser_download_url;
-            link.target = '_blank';
-            link.download = assetName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            message.success(`开始下载 ${assetName}`);
-        } else {
-            message.error(`未找到对应的 Host Agent 安装包 (${assetName})`);
-            console.warn('Available assets:', release.assets?.map((a: any) => a.name));
-        }
+        await downloadHostPackage(guide.downloadUrl, guide.packageFileName);
+        message.success(`开始下载 ${guide.packageFileName}`);
     } catch (error: any) {
         console.error(error);
-        message.error(`下载失败：${error.message || '请检查网络连接'}`);
+        message.error(`下载失败：${error.message || '请检查服务端资源配置'}`);
     }
   };
 
@@ -437,65 +401,61 @@ const HostList: React.FC = () => {
                     <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 20 }}>
                         <h3 style={{ marginBottom: 12 }}>安装步骤</h3>
                         {(() => {
-                            const os = currentHost?.os?.toUpperCase();
-                            const isWindows = os === 'WINDOWS';
-                            const isMac = os === 'MACOS';
-                            const osName = isWindows ? 'Windows' : (isMac ? 'macOS' : 'Linux');
-                            const pkgName = isWindows ? 'windows' : (isMac ? 'macos' : 'linux');
-                            
-                            if (isWindows) {
-                                return (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                        <div>
-                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>1. 下载安装包</div>
-                                            <Button type="primary" icon={<DownloadOutlined />} onClick={() => currentHost && handleDownloadPackage(currentHost)}>
-                                                下载 {osName} 部署包
-                                            </Button>
-                                        </div>
-                                        <div>
-                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>2. 解压</div>
-                                            <div>解压下载的压缩文件。</div>
-                                        </div>
-                                        <div>
-                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>3. 配置</div>
-                                            <div>打开 <code>config.yaml</code> 并设置 <code>host_id</code> 为 <code>{installGuide.hostId}</code>，<code>secret_key</code> 为 <code>{installGuide.secretKey}</code>。</div>
-                                        </div>
-                                        <div>
-                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>4. 启动</div>
-                                            <div>以管理员身份运行 <code>install.bat</code>。</div>
-                                        </div>
+                            const isWindows = installGuide.source.osType === 'WINDOWS';
+                            const unpackCommand = isWindows
+                              ? `Expand-Archive -Path ${installGuide.packageFileName} -DestinationPath .\\host-agent`
+                              : `unzip ${installGuide.packageFileName} -d ./host-agent`;
+
+                            return (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                    <div>
+                                        <div style={{ marginBottom: 4, fontWeight: 'bold' }}>已绑定资源</div>
+                                        <div>{installGuide.source.sourceName}</div>
+                                        <Typography.Paragraph copyable code style={{ marginBottom: 0 }}>
+                                            {installGuide.source.fileName}
+                                        </Typography.Paragraph>
                                     </div>
-                                );
-                            } else {
-                                return (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                        <div>
-                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>1. 下载安装包</div>
-                                            <Button type="primary" icon={<DownloadOutlined />} onClick={() => currentHost && handleDownloadPackage(currentHost)}>
-                                                下载 {osName} 部署包
-                                            </Button>
-                                        </div>
-                                        <div>
-                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>2. 解压</div>
-                                            <Typography.Paragraph copyable code>
-                                                {`tar -zxvf host-agent-${pkgName}.tar.gz`}
-                                            </Typography.Paragraph>
-                                        </div>
-                                        <div>
-                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>3. 配置</div>
-                                            <Typography.Paragraph copyable code>
-                                                {`sed -i 's/host_id: ""/host_id: "${installGuide.hostId}"/' config.yaml && sed -i 's/secret_key: ""/secret_key: "${installGuide.secretKey}"/' config.yaml`}
-                                            </Typography.Paragraph>
-                                        </div>
-                                        <div>
-                                            <div style={{ marginBottom: 4, fontWeight: 'bold' }}>4. 启动</div>
-                                            <Typography.Paragraph copyable code>
-                                                sudo ./install.sh
-                                            </Typography.Paragraph>
-                                        </div>
+                                    <div>
+                                        <div style={{ marginBottom: 4, fontWeight: 'bold' }}>1. 下载部署包</div>
+                                        <Button type="primary" icon={<DownloadOutlined />} onClick={() => currentHost && handleDownloadPackage(currentHost)}>
+                                            下载 {installGuide.packageFileName}
+                                        </Button>
                                     </div>
-                                );
-                            }
+                                    <div>
+                                        <div style={{ marginBottom: 4, fontWeight: 'bold' }}>2. 解压</div>
+                                        <Typography.Paragraph copyable code>{unpackCommand}</Typography.Paragraph>
+                                    </div>
+                                    <div>
+                                        <div style={{ marginBottom: 4, fontWeight: 'bold' }}>3. 启动</div>
+                                        <div>部署包中的 <code>config.yaml</code> 已包含当前主机身份信息，无需手工修改。</div>
+                                        <Typography.Paragraph copyable code style={{ marginTop: 8, marginBottom: 0 }}>
+                                            {installGuide.installScript}
+                                        </Typography.Paragraph>
+                                    </div>
+                                    <div>
+                                        <div style={{ marginBottom: 4, fontWeight: 'bold' }}>4. 验证后台进程</div>
+                                        <div>启动命令会立即返回，后台进程会写入日志和 PID 文件。</div>
+                                        <Typography.Paragraph copyable code style={{ marginBottom: 4 }}>
+                                            {installGuide.logPath}
+                                        </Typography.Paragraph>
+                                        <Typography.Paragraph copyable code style={{ marginBottom: 0 }}>
+                                            {installGuide.pidFile}
+                                        </Typography.Paragraph>
+                                    </div>
+                                    <div>
+                                        <div style={{ marginBottom: 4, fontWeight: 'bold' }}>常用命令</div>
+                                        <Typography.Paragraph copyable code style={{ marginBottom: 4 }}>
+                                            {installGuide.startCommand}
+                                        </Typography.Paragraph>
+                                        <Typography.Paragraph copyable code style={{ marginBottom: 4 }}>
+                                            {installGuide.stopCommand}
+                                        </Typography.Paragraph>
+                                        <Typography.Paragraph copyable code style={{ marginBottom: 0 }}>
+                                            {installGuide.updateCommand}
+                                        </Typography.Paragraph>
+                                    </div>
+                                </div>
+                            );
                         })()}
                     </div>
                 </>
