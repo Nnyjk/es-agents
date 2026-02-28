@@ -46,27 +46,27 @@ jobs:
     - name: Build for Linux (amd64)
       run: |
         echo "Building host-agent for Linux (amd64)..."
-        GOOS=linux GOARCH=amd64 go build -o bin/host-agent-linux-amd64 ./cmd/host-agent
+        GOOS=linux GOARCH=amd64 go build -o agent/bin/host-agent-linux-amd64 ./cmd/host-agent
         echo "Building host-agent for Linux (arm64)..."
-        GOOS=linux GOARCH=arm64 go build -o bin/host-agent-linux-arm64 ./cmd/host-agent
+        GOOS=linux GOARCH=arm64 go build -o agent/bin/host-agent-linux-arm64 ./cmd/host-agent
     
     - name: Build for Windows (amd64)
       run: |
         echo "Building host-agent for Windows (amd64)..."
-        GOOS=windows GOARCH=amd64 go build -o bin/host-agent-windows-amd64.exe ./cmd/host-agent
+        GOOS=windows GOARCH=amd64 go build -o agent/bin/host-agent-windows-amd64.exe ./cmd/host-agent
     
     - name: Build for macOS
       run: |
         echo "Building host-agent for macOS (amd64)..."
-        GOOS=darwin GOARCH=amd64 go build -o bin/host-agent-darwin-amd64 ./cmd/host-agent
+        GOOS=darwin GOARCH=amd64 go build -o agent/bin/host-agent-darwin-amd64 ./cmd/host-agent
         echo "Building host-agent for macOS (arm64)..."
-        GOOS=darwin GOARCH=arm64 go build -o bin/host-agent-darwin-arm64 ./cmd/host-agent
+        GOOS=darwin GOARCH=arm64 go build -o agent/bin/host-agent-darwin-arm64 ./cmd/host-agent
     
     - name: Create installation packages
       run: |
         # Create Linux package
         mkdir -p package-linux
-        cp bin/host-agent-linux-amd64 package-linux/host-agent
+        cp agent/bin/host-agent-linux-amd64 package-linux/host-agent
         cp rootCA.pem package-linux/ 2>/dev/null || true
         cat > package-linux/install.sh << 'EOF'
         #!/bin/bash
@@ -77,11 +77,11 @@ jobs:
         echo "To start: sudo host-agent"
         EOF
         chmod +x package-linux/install.sh
-        tar -czvf bin/host-agent-linux.tar.gz -C package-linux .
+        tar -czvf agent/bin/host-agent-linux.tar.gz -C package-linux .
         
         # Create Windows package
         mkdir -p package-windows
-        cp bin/host-agent-windows-amd64.exe package-windows/host-agent.exe
+        cp agent/bin/host-agent-windows-amd64.exe package-windows/host-agent.exe
         cp rootCA.pem package-windows/ 2>/dev/null || true
         cat > package-windows/install.bat << 'EOF'
         @echo off
@@ -90,23 +90,23 @@ jobs:
         echo Host Agent installed successfully!
         echo To start: host-agent.exe
         EOF
-        tar -czvf bin/host-agent-windows.tar.gz -C package-windows .
+        tar -czvf agent/bin/host-agent-windows.tar.gz -C package-windows .
         
         # Create macOS package
         mkdir -p package-macos
-        cp bin/host-agent-darwin-amd64 package-macos/host-agent-intel
-        cp bin/host-agent-darwin-arm64 package-macos/host-agent-arm
+        cp agent/bin/host-agent-darwin-amd64 package-macos/host-agent-intel
+        cp agent/bin/host-agent-darwin-arm64 package-macos/host-agent-arm
         cp rootCA.pem package-macos/ 2>/dev/null || true
         cat > package-macos/install.sh << 'EOF'
         #!/bin/bash
         echo "Installing Host Agent..."
         chmod +x host-agent-intel host-agent-arm
-        sudo cp host-agent-intel /usr/local/bin/host-agent
+        sudo cp host-agent-intel /usr/local/agent/bin/host-agent
         echo "Host Agent installed successfully!"
         echo "To start: sudo host-agent"
         EOF
         chmod +x package-macos/install.sh
-        tar -czvf bin/host-agent-macos.tar.gz -C package-macos .
+        tar -czvf agent/bin/host-agent-macos.tar.gz -C package-macos .
         
         echo "Packages created:"
         ls -lh bin/*.tar.gz
@@ -144,10 +144,10 @@ jobs:
           Host Agent will connect to Server via WebSocket.
           Configure `gatewayUrl` in the Server when registering the host.
         files: |
-          bin/host-agent-linux.tar.gz
-          bin/host-agent-linux-arm64
-          bin/host-agent-windows.tar.gz
-          bin/host-agent-macos.tar.gz
+          agent/bin/host-agent-linux.tar.gz
+          agent/bin/host-agent-linux-arm64
+          agent/bin/host-agent-windows.tar.gz
+          agent/bin/host-agent-macos.tar.gz
         token: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Upload standalone binaries
@@ -155,9 +155,9 @@ jobs:
       with:
         tag_name: ${{ steps.get_version.outputs.version }}
         files: |
-          bin/host-agent-linux-amd64
-          bin/host-agent-linux-arm64
-          bin/host-agent-windows-amd64.exe
-          bin/host-agent-darwin-amd64
-          bin/host-agent-darwin-arm64
+          agent/bin/host-agent-linux-amd64
+          agent/bin/host-agent-linux-arm64
+          agent/bin/host-agent-windows-amd64.exe
+          agent/bin/host-agent-darwin-amd64
+          agent/bin/host-agent-darwin-arm64
         token: ${{ secrets.GITHUB_TOKEN }}
