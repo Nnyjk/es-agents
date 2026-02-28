@@ -143,12 +143,12 @@ jobs:
           ### Configuration
           Host Agent will connect to Server via WebSocket.
           Configure `gatewayUrl` in the Server when registering the host.
-      files: |
-        bin/host-agent-linux.tar.gz
-        bin/host-agent-linux-arm64
-        bin/host-agent-windows.tar.gz
-        bin/host-agent-macos.tar.gz
-      token: ${{ secrets.GITHUB_TOKEN }}
+        files: |
+          bin/host-agent-linux.tar.gz
+          bin/host-agent-linux-arm64
+          bin/host-agent-windows.tar.gz
+          bin/host-agent-macos.tar.gz
+        token: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Upload standalone binaries
       uses: softprops/action-gh-release@v1
@@ -160,4 +160,4 @@ jobs:
           bin/host-agent-windows-amd64.exe
           bin/host-agent-darwin-amd64
           bin/host-agent-darwin-arm64
-      token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
