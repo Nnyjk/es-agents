@@ -2,6 +2,8 @@ import request from '../utils/request';
 import axios from 'axios';
 import type { Host, Environment, PageParams, ListResponse, HostInstallGuide } from '../types';
 
+const HOST_PACKAGE_API_PATH = /^\/(?:api\/)?infra\/hosts\/[^/]+\/package(?:\?.*)?$/;
+
 // Environments
 export const queryEnvironments = async (params?: PageParams): Promise<Environment[] | ListResponse<Environment>> => {
   // 暂时直接返回列表，如果后端支持分页则返回 ListResponse
@@ -104,9 +106,17 @@ export const getInstallGuide = (id: string): Promise<HostInstallGuide> => {
   return request.get(`/infra/hosts/${id}/install-guide`);
 };
 
+export const resolveHostPackageDownloadUrl = (downloadUrl: string): string => {
+  if (!HOST_PACKAGE_API_PATH.test(downloadUrl)) {
+    throw new Error('安装引导返回了无效的部署包地址');
+  }
+
+  return downloadUrl.startsWith('/api/') ? downloadUrl : `/api${downloadUrl}`;
+};
+
 export const downloadHostPackage = async (downloadUrl: string, fileName: string): Promise<void> => {
   const token = localStorage.getItem('token');
-  const response = await axios.get(`/api${downloadUrl}`, {
+  const response = await axios.get(resolveHostPackageDownloadUrl(downloadUrl), {
     responseType: 'blob',
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });

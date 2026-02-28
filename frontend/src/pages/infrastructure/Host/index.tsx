@@ -1,11 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { PlusOutlined, DownloadOutlined, SettingOutlined, CodeOutlined, LinkOutlined, ApiOutlined } from '@ant-design/icons';
+import { PlusOutlined, SettingOutlined, CodeOutlined, LinkOutlined, ApiOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
-import { Button, message, Popconfirm, Form, Input, Select, Drawer, InputNumber, Modal, Typography } from 'antd';
+import { Button, message, Popconfirm, Form, Input, Select, Drawer, InputNumber } from 'antd';
 import Editor from '@monaco-editor/react';
 import { DrawerForm } from '@/components/DrawerForm';
 import { TerminalCommandModal } from './components/TerminalCommandModal';
+import { HostInstallGuideModal } from './components/HostInstallGuideModal';
 import { queryHosts, saveHost, removeHost, queryEnvironments, connectHost, getInstallGuide, downloadHostPackage } from '@/services/infra';
 import type { Host, Environment, HostInstallGuide } from '@/types';
 import { XTerm } from 'xterm-for-react';
@@ -24,6 +25,10 @@ const HostList: React.FC = () => {
   const [heartbeatInterval, setHeartbeatInterval] = useState<number>(30);
   const [currentHost, setCurrentHost] = useState<Host | null>(null);
   const [installGuide, setInstallGuide] = useState<HostInstallGuide | null>(null);
+  const [installGuideLoading, setInstallGuideLoading] = useState(false);
+  const [installGuideError, setInstallGuideError] = useState<string | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [connectError, setConnectError] = useState<string | null>(null);
   const [terminalSocket, setTerminalSocket] = useState<WebSocket | null>(null);
   const [connecting, setConnecting] = useState(false);
   
@@ -42,14 +47,27 @@ const HostList: React.FC = () => {
   // Fetch Install Guide when modal opens
   useEffect(() => {
     if (installGuideVisible && currentHost) {
+        setInstallGuideLoading(true);
+        setInstallGuideError(null);
+        setDownloadError(null);
+        setConnectError(null);
         getInstallGuide(currentHost.id)
             .then(data => setInstallGuide(data))
             .catch(err => {
                 console.error(err);
+                setInstallGuideError(err?.response?.data?.message || err?.message || '请检查主机绑定的 Agent 资源是否可用');
                 message.error('获取接入指南失败');
+                setInstallGuide(null);
+            })
+            .finally(() => {
+                setInstallGuideLoading(false);
             });
     } else {
         setInstallGuide(null);
+        setInstallGuideLoading(false);
+        setInstallGuideError(null);
+        setDownloadError(null);
+        setConnectError(null);
     }
   }, [installGuideVisible, currentHost]);
 
@@ -187,6 +205,7 @@ const HostList: React.FC = () => {
 
   const handleDownloadPackage = async (host: Host) => {
     try {
+        setDownloadError(null);
         const guide = installGuide && currentHost?.id === host.id
           ? installGuide
           : await getInstallGuide(host.id);
@@ -197,20 +216,25 @@ const HostList: React.FC = () => {
         message.success(`开始下载 ${guide.packageFileName}`);
     } catch (error: any) {
         console.error(error);
-        message.error(`下载失败：${error.message || '请检查服务端资源配置'}`);
+        const errorText = error?.response?.data?.message || error?.message || '请检查服务端资源配置';
+        setDownloadError(errorText);
+        message.error(`下载失败：${errorText}`);
     }
   };
 
   const handleConnect = async (id: string) => {
     setConnecting(true);
     try {
+        setConnectError(null);
         await connectHost(id);
         message.success('连接成功，Host 状态已更新为在线');
         actionRef.current?.reload();
-        if (installGuideVisible) setInstallGuideVisible(false);
+        setInstallGuideVisible(false);
     } catch (error: any) {
         console.error(error);
-        message.error(`连接失败: ${error.message || '请检查网关地址和 Host Agent 状态'}`);
+        const errorText = error?.response?.data?.message || error?.message || '请检查网关地址和 Host Agent 状态';
+        setConnectError(errorText);
+        message.error(`连接失败: ${errorText}`);
     } finally {
         setConnecting(false);
     }
@@ -375,108 +399,18 @@ const HostList: React.FC = () => {
         </div>
       </Drawer>
       
-      {/* Access Guide Modal */}
-      <Modal
-        title="Host Agent 接入指南"
-        open={installGuideVisible}
-        onCancel={() => setInstallGuideVisible(false)}
-        footer={null}
-        width={600}
-      >
-          <div style={{ padding: 20 }}>
-            {installGuide ? (
-                <>
-                    <div style={{ marginBottom: 24 }}>
-                        <h3 style={{ marginBottom: 16 }}>身份验证信息</h3>
-                        <div style={{ marginBottom: 16 }}>
-                            <div style={{ marginBottom: 4, color: '#666' }}>Host ID</div>
-                            <Typography.Paragraph copyable code style={{ marginBottom: 0 }}>{installGuide.hostId}</Typography.Paragraph>
-                        </div>
-                        <div>
-                            <div style={{ marginBottom: 4, color: '#666' }}>Secret Key</div>
-                            <Typography.Paragraph copyable code style={{ marginBottom: 0 }}>{installGuide.secretKey}</Typography.Paragraph>
-                        </div>
-                    </div>
-
-                    <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 20 }}>
-                        <h3 style={{ marginBottom: 12 }}>安装步骤</h3>
-                        {(() => {
-                            const isWindows = installGuide.source.osType === 'WINDOWS';
-                            const unpackCommand = isWindows
-                              ? `Expand-Archive -Path ${installGuide.packageFileName} -DestinationPath .\\host-agent`
-                              : `unzip ${installGuide.packageFileName} -d ./host-agent`;
-
-                            return (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                    <div>
-                                        <div style={{ marginBottom: 4, fontWeight: 'bold' }}>已绑定资源</div>
-                                        <div>{installGuide.source.sourceName}</div>
-                                        <Typography.Paragraph copyable code style={{ marginBottom: 0 }}>
-                                            {installGuide.source.fileName}
-                                        </Typography.Paragraph>
-                                    </div>
-                                    <div>
-                                        <div style={{ marginBottom: 4, fontWeight: 'bold' }}>1. 下载部署包</div>
-                                        <Button type="primary" icon={<DownloadOutlined />} onClick={() => currentHost && handleDownloadPackage(currentHost)}>
-                                            下载 {installGuide.packageFileName}
-                                        </Button>
-                                    </div>
-                                    <div>
-                                        <div style={{ marginBottom: 4, fontWeight: 'bold' }}>2. 解压</div>
-                                        <Typography.Paragraph copyable code>{unpackCommand}</Typography.Paragraph>
-                                    </div>
-                                    <div>
-                                        <div style={{ marginBottom: 4, fontWeight: 'bold' }}>3. 启动</div>
-                                        <div>部署包中的 <code>config.yaml</code> 已包含当前主机身份信息，无需手工修改。</div>
-                                        <Typography.Paragraph copyable code style={{ marginTop: 8, marginBottom: 0 }}>
-                                            {installGuide.installScript}
-                                        </Typography.Paragraph>
-                                    </div>
-                                    <div>
-                                        <div style={{ marginBottom: 4, fontWeight: 'bold' }}>4. 验证后台进程</div>
-                                        <div>启动命令会立即返回，后台进程会写入日志和 PID 文件。</div>
-                                        <Typography.Paragraph copyable code style={{ marginBottom: 4 }}>
-                                            {installGuide.logPath}
-                                        </Typography.Paragraph>
-                                        <Typography.Paragraph copyable code style={{ marginBottom: 0 }}>
-                                            {installGuide.pidFile}
-                                        </Typography.Paragraph>
-                                    </div>
-                                    <div>
-                                        <div style={{ marginBottom: 4, fontWeight: 'bold' }}>常用命令</div>
-                                        <Typography.Paragraph copyable code style={{ marginBottom: 4 }}>
-                                            {installGuide.startCommand}
-                                        </Typography.Paragraph>
-                                        <Typography.Paragraph copyable code style={{ marginBottom: 4 }}>
-                                            {installGuide.stopCommand}
-                                        </Typography.Paragraph>
-                                        <Typography.Paragraph copyable code style={{ marginBottom: 0 }}>
-                                            {installGuide.updateCommand}
-                                        </Typography.Paragraph>
-                                    </div>
-                                </div>
-                            );
-                        })()}
-                    </div>
-                </>
-            ) : (
-                <div style={{ textAlign: 'center', padding: '20px' }}>正在获取接入指南...</div>
-            )}
-            
-            <div style={{ marginTop: 30, borderTop: '1px solid #eee', paddingTop: 20 }}>
-                <p>Host Agent 启动后，请点击下方按钮由 Server 主动尝试连接。</p>
-                <Button 
-                    type="primary" 
-                    icon={<ApiOutlined />} 
-                    loading={connecting}
-                    onClick={() => currentHost && handleConnect(currentHost.id)}
-                    block
-                >
-                    连接 Host Agent
-                </Button>
-            </div>
-          </div>
-      </Modal>
+      <HostInstallGuideModal
+        visible={installGuideVisible}
+        guide={installGuide}
+        loading={installGuideLoading}
+        guideError={installGuideError}
+        downloadError={downloadError}
+        connectError={connectError}
+        connecting={connecting}
+        onClose={() => setInstallGuideVisible(false)}
+        onDownload={() => currentHost && handleDownloadPackage(currentHost)}
+        onConnect={() => currentHost && handleConnect(currentHost.id)}
+      />
 
       {/* Terminal Drawer */}
       <Drawer
