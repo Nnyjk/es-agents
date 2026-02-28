@@ -27,6 +27,9 @@ type Agent struct {
 
 	LogBuffer   []string
 	LogBufferMu sync.Mutex
+	
+	LogFile     *os.File
+	LogFileMu   sync.Mutex
 }
 
 func New(cfg *config.Config) *Agent {
@@ -47,16 +50,44 @@ func New(cfg *config.Config) *Agent {
 	return a
 }
 
-func (a *Agent) Log(msg string) {
-	a.LogBufferMu.Lock()
-	defer a.LogBufferMu.Unlock()
+// initLogFile initializes the log file for persistent logging
+func (a *Agent) initLogFile() error {
+	a.LogFileMu.Lock()
+	defer a.LogFileMu.Unlock()
+	
+	// Open log file in append mode, create if not exists
+	logFile, err := os.OpenFile("host-agent.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to open log file: %w", err)
+	}
+	a.LogFile = logFile
+	return nil
+}
 
-	fmt.Println(msg)
-	a.LogBuffer = append(a.LogBuffer, msg)
+// Log writes a message to console, log buffer, log file, and WebSocket
+func (a *Agent) Log(msg string) {
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
+	logLine := fmt.Sprintf("[%s] %s", timestamp, msg)
+	
+	// Write to console
+	fmt.Println(logLine)
+	
+	// Write to buffer (for in-memory recent logs)
+	a.LogBufferMu.Lock()
+	a.LogBuffer = append(a.LogBuffer, logLine)
 	if len(a.LogBuffer) > 100 {
 		a.LogBuffer = a.LogBuffer[1:]
 	}
-
+	a.LogBufferMu.Unlock()
+	
+	// Write to log file
+	a.LogFileMu.Lock()
+	if a.LogFile != nil {
+		a.LogFile.WriteString(logLine + "\n")
+	}
+	a.LogFileMu.Unlock()
+	
+	// Send to WebSocket (without timestamp to keep original format)
 	if a.WSServer.Conn != nil {
 		_ = a.WSServer.SendJSON(map[string]interface{}{
 			"type":    "LOG",
@@ -66,9 +97,23 @@ func (a *Agent) Log(msg string) {
 }
 
 func (a *Agent) Run() error {
+	// Initialize log file
+	if err := a.initLogFile(); err != nil {
+		fmt.Printf("Warning: failed to initialize log file: %v\n", err)
+	}
+	
 	a.Log(fmt.Sprintf("Host Agent %s started. Listening on port %d", a.Config.HostID, a.Config.ListenPort))
 	go a.heartbeatLoop()
 	return a.WSServer.Start(a.Config.ListenPort)
+}
+
+// Close cleans up resources
+func (a *Agent) Close() {
+	a.LogFileMu.Lock()
+	defer a.LogFileMu.Unlock()
+	if a.LogFile != nil {
+		a.LogFile.Close()
+	}
 }
 
 func (a *Agent) heartbeatLoop() {

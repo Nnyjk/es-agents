@@ -13,12 +13,16 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
+import io.quarkus.logging.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -31,12 +35,25 @@ public class HostService {
     @Inject
     AgentConnectionManager connectionManager;
 
+    /**
+     * Connect to HostAgent - performs actual connection test
+     * @param id Host ID
+     * @throws WebApplicationException if connection fails
+     */
     public void connect(UUID id) {
         Host host = Host.findById(id);
         if (host == null) {
             throw new WebApplicationException("Host not found", Response.Status.NOT_FOUND);
         }
-        connectionManager.connect(host);
+        
+        // Try to establish connection and wait for result
+        boolean connected = connectionManager.connectAndWait(host, 5000);
+        if (!connected) {
+            throw new WebApplicationException(
+                "Failed to connect to HostAgent. Please ensure the agent is running and accessible.", 
+                Response.Status.BAD_GATEWAY
+            );
+        }
     }
 
     public List<HostRecord> list(UUID envId) {
@@ -165,6 +182,7 @@ public class HostService {
                 }
                 
             } catch (Exception e) {
+                Log.errorf("Failed to create package for host %s: %s", id, e.getMessage());
                 throw new WebApplicationException("Failed to create package", e);
             }
         };
@@ -192,6 +210,29 @@ public class HostService {
         zos.putNextEntry(new ZipEntry("stop.sh"));
         zos.write(stopScript.getBytes(StandardCharsets.UTF_8));
         zos.closeEntry();
+        
+        // uninstall.sh
+        String uninstallScript = "#!/bin/bash\n" +
+                "INSTALL_DIR=\"${INSTALL_DIR:-/opt/host-agent}\"\n" +
+                "echo \"Uninstalling HostAgent...\"\n" +
+                "if [ -f \"$INSTALL_DIR/stop.sh\" ]; then\n" +
+                "  bash \"$INSTALL_DIR/stop.sh\"\n" +
+                "fi\n" +
+                "rm -rf \"$INSTALL_DIR\"\n" +
+                "echo \"HostAgent uninstalled.\"\n";
+        zos.putNextEntry(new ZipEntry("uninstall.sh"));
+        zos.write(uninstallScript.getBytes(StandardCharsets.UTF_8));
+        zos.closeEntry();
+        
+        // update.sh
+        String updateScript = "#!/bin/bash\n" +
+                "VERSION=\"${1:-latest}\"\n" +
+                "echo \"Updating HostAgent to version: $VERSION\"\n" +
+                "echo \"Please download the new version and replace the binary.\"\n" +
+                "echo \"TODO: Implement actual update logic based on your release strategy.\"\n";
+        zos.putNextEntry(new ZipEntry("update.sh"));
+        zos.write(updateScript.getBytes(StandardCharsets.UTF_8));
+        zos.closeEntry();
     }
 
     private void addWindowsScripts(ZipOutputStream zos, String binaryName) throws IOException {
@@ -203,12 +244,31 @@ public class HostService {
         zos.write(startScript.getBytes(StandardCharsets.UTF_8));
         zos.closeEntry();
         
-        // stop.bat (Simple kill by name, not ideal but works for basic usage)
+        // stop.bat
         String stopScript = "@echo off\n" +
                 "taskkill /F /IM " + binaryName + "\n" +
                 "echo Agent stopped.\n";
         zos.putNextEntry(new ZipEntry("stop.bat"));
         zos.write(stopScript.getBytes(StandardCharsets.UTF_8));
+        zos.closeEntry();
+        
+        // uninstall.bat
+        String uninstallScript = "@echo off\n" +
+                "echo Uninstalling HostAgent...\n" +
+                "taskkill /F /IM " + binaryName + " 2>nul\n" +
+                "del /Q host-agent.exe config.yaml start.bat stop.bat uninstall.bat update.bat\n" +
+                "echo HostAgent uninstalled.\n";
+        zos.putNextEntry(new ZipEntry("uninstall.bat"));
+        zos.write(uninstallScript.getBytes(StandardCharsets.UTF_8));
+        zos.closeEntry();
+        
+        // update.bat
+        String updateScript = "@echo off\n" +
+                "echo Updating HostAgent to version: %1\n" +
+                "echo Please download the new version and replace the binary.\n" +
+                "echo TODO: Implement actual update logic.\n";
+        zos.putNextEntry(new ZipEntry("update.bat"));
+        zos.write(updateScript.getBytes(StandardCharsets.UTF_8));
         zos.closeEntry();
     }
 
@@ -219,10 +279,11 @@ public class HostService {
         }
         
         StringBuilder yaml = new StringBuilder();
+        yaml.append("# HostAgent Configuration\n");
         yaml.append("listen_port: ").append(host.getListenPort() != null ? host.getListenPort() : 9090).append("\n");
         yaml.append("host_id: ").append(host.getId()).append("\n");
         yaml.append("secret_key: ").append(host.getSecretKey()).append("\n");
-        yaml.append("heartbeat_interval: ").append(host.getHeartbeatInterval() != null ? host.getHeartbeatInterval() : 30).append("\n");
+        yaml.append("heartbeat_interval: ").append(host.getHeartbeatInterval() != null ? host.getHeartbeatInterval() : 30).append("s\n");
         
         if (host.getConfig() != null && !host.getConfig().isBlank()) {
             yaml.append("\n# User defined config\n");

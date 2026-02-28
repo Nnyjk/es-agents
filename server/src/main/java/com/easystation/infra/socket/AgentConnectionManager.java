@@ -33,7 +33,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @ApplicationScoped
 public class AgentConnectionManager {
@@ -78,6 +81,53 @@ public class AgentConnectionManager {
         Log.info("AgentConnectionManager initialized");
     }
 
+    /**
+     * Connect to HostAgent and wait for connection result
+     * @param host Host to connect to
+     * @param timeoutMs Timeout in milliseconds
+     * @return true if connected successfully, false otherwise
+     */
+    public boolean connectAndWait(Host host, long timeoutMs) {
+        if (host.getGatewayUrl() == null || host.getGatewayUrl().isBlank()) {
+            Log.warnf("Skip connect for host %s: empty gatewayUrl", host.getId());
+            return false;
+        }
+
+        // Check if already connected
+        Session existing = sessions.get(host.getId());
+        if (existing != null && existing.isOpen()) {
+            Log.infof("Host %s is already connected.", host.getId());
+            return true;
+        }
+        
+        // Remove stale session
+        if (existing != null) {
+            sessions.remove(host.getId());
+        }
+
+        // Prevent duplicate connection attempts
+        if (!connecting.add(host.getId())) {
+            Log.infof("Host %s is currently connecting. Waiting...", host.getId());
+            // Wait a bit for existing connection attempt
+            try {
+                Thread.sleep(Math.min(timeoutMs, 2000));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            existing = sessions.get(host.getId());
+            return existing != null && existing.isOpen();
+        }
+
+        try {
+            return doConnectWithRetryAndWait(host, timeoutMs);
+        } finally {
+            connecting.remove(host.getId());
+        }
+    }
+
+    /**
+     * Asynchronous connect - initiates connection in background
+     */
     public void connect(Host host) {
         if (host.getGatewayUrl() == null || host.getGatewayUrl().isBlank()) {
             Log.warnf("Skip connect for host %s: empty gatewayUrl", host.getId());
@@ -108,6 +158,71 @@ public class AgentConnectionManager {
     }
 
     @ActivateRequestContext
+    public boolean doConnectWithRetryAndWait(Host host, long timeoutMs) {
+        String wsUrl = buildWsUrl(host.getGatewayUrl());
+        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+        ClientEndpointConfig config = buildConfig(host);
+
+        long startTime = System.currentTimeMillis();
+        long remainingTimeout = timeoutMs;
+        
+        // Try to connect with timeout
+        try {
+            Log.infof("Connecting to Agent at %s (timeout: %dms)", wsUrl, timeoutMs);
+            
+            CountDownLatch connectionLatch = new CountDownLatch(1);
+            AtomicBoolean connectionSuccess = new AtomicBoolean(false);
+            
+            AgentClientEndpoint endpoint = new AgentClientEndpoint(
+                    msg -> handleMessage(host.getId(), msg),
+                    session -> handleClose(host.getId(), session),
+                    (session, success) -> {
+                        connectionSuccess.set(success);
+                        connectionLatch.countDown();
+                    }
+            );
+            
+            // Connect in a separate thread to enforce timeout
+            Thread connectThread = new Thread(() -> {
+                try {
+                    Session session = container.connectToServer((Endpoint) endpoint, config, URI.create(wsUrl));
+                    sessions.put(host.getId(), session);
+                    connectionSuccess.set(true);
+                    Log.infof("Connected to host %s (Session: %s)", host.getId(), session.getId());
+                } catch (Exception e) {
+                    Log.errorf("Failed to connect to host %s: %s", host.getId(), e.getMessage());
+                    connectionSuccess.set(false);
+                } finally {
+                    connectionLatch.countDown();
+                }
+            });
+            
+            connectThread.start();
+            
+            // Wait for connection with timeout
+            if (!connectionLatch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
+                connectThread.interrupt();
+                Log.errorf("Connection to host %s timed out after %dms", host.getId(), timeoutMs);
+                updateHostStatus(host.getId(), HostStatus.EXCEPTION);
+                return false;
+            }
+            
+            if (connectionSuccess.get()) {
+                updateHostStatus(host.getId(), HostStatus.ONLINE);
+                return true;
+            } else {
+                updateHostStatus(host.getId(), HostStatus.EXCEPTION);
+                return false;
+            }
+            
+        } catch (Exception e) {
+            Log.errorf("Failed to connect to host %s: %s", host.getId(), e.getMessage());
+            updateHostStatus(host.getId(), HostStatus.EXCEPTION);
+            return false;
+        }
+    }
+
+    @ActivateRequestContext
     public void doConnectWithRetry(Host host) {
         String wsUrl = buildWsUrl(host.getGatewayUrl());
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -121,13 +236,23 @@ public class AgentConnectionManager {
                 Log.infof("Connecting to Agent at %s (Attempt %d/%d)", wsUrl, i + 1, maxRetries + 1);
                 AgentClientEndpoint endpoint = new AgentClientEndpoint(
                         msg -> handleMessage(host.getId(), msg),
-                        session -> handleClose(host.getId(), session)
+                        session -> handleClose(host.getId(), session),
+                        (session, success) -> {
+                            if (success) {
+                                sessions.put(host.getId(), session);
+                                updateHostStatus(host.getId(), HostStatus.ONLINE);
+                                Log.infof("Connected to host %s (Session: %s)", host.getId(), session.getId());
+                            }
+                        }
                 );
                 Session session = container.connectToServer((Endpoint) endpoint, config, URI.create(wsUrl));
-                sessions.put(host.getId(), session);
-
-                updateHostStatus(host.getId(), HostStatus.ONLINE);
-                Log.infof("Connected to host %s (Session: %s)", host.getId(), session.getId());
+                
+                // For async connect, we put session here too
+                if (!sessions.containsKey(host.getId())) {
+                    sessions.put(host.getId(), session);
+                    updateHostStatus(host.getId(), HostStatus.ONLINE);
+                    Log.infof("Connected to host %s (Session: %s)", host.getId(), session.getId());
+                }
                 return;
             } catch (Exception e) {
                 Log.errorf("Failed to connect to host %s: %s", host.getId(), e.getMessage());
