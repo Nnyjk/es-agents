@@ -104,9 +104,42 @@ export const getInstallGuide = (id: string): Promise<HostInstallGuide> => {
   return request.get(`/infra/hosts/${id}/install-guide`);
 };
 
-export const downloadHostPackage = async (hostId: string, sourceId: string, fileName: string): Promise<void> => {
-  // Build API URL with sourceId parameter
-  const apiUrl = `/api/infra/hosts/${hostId}/package?sourceId=${sourceId}`;
+/**
+ * Download host agent package
+ * @param downloadUrl API download URL (fallback)
+ * @param githubReleaseUrl Direct GitHub Releases URL (preferred if available)
+ * @param fileName File name for the download
+ */
+export const downloadHostPackage = async (
+  downloadUrl: string | null | undefined,
+  githubReleaseUrl: string | null | undefined,
+  fileName: string
+): Promise<void> => {
+  // Prefer GitHub Releases URL if available (avoids 502 errors from server proxy)
+  if (githubReleaseUrl && githubReleaseUrl.trim()) {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(githubReleaseUrl, {
+      responseType: 'blob',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+
+    const blobUrl = window.URL.createObjectURL(response.data);
+    const link = document.createElement('a');
+    link.href = blobUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
+    return;
+  }
+
+  // Fallback to API endpoint
+  if (!downloadUrl) {
+    throw new Error('缺少下载地址');
+  }
+  
+  const apiUrl = downloadUrl.startsWith('/api/') ? downloadUrl : `/api${downloadUrl}`;
   const token = localStorage.getItem('token');
   
   const response = await axios.get(apiUrl, {

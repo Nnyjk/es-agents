@@ -28,6 +28,7 @@ export interface HostInstallGuide {
     fileName: string;
     osType: string;
   };
+  githubReleaseUrl?: string;
 }
 
 export interface Host {
@@ -36,7 +37,7 @@ export interface Host {
   hostname: string;
   os?: string;
   environment?: Partial<Environment>;
-  environmentId?: string; // Form usage
+  environmentId?: string;
   environmentName?: string;
   status: HostStatus;
   secretKey?: string;

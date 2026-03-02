@@ -1,21 +1,24 @@
 package com.easystation.infra.service;
 
-import com.easystation.agent.service.AgentSourceService;
+import com.easystation.agent.domain.AgentSource;
 import com.easystation.agent.domain.AgentTemplate;
 import com.easystation.agent.domain.enums.OsType;
+import com.easystation.agent.service.AgentSourceService;
 import com.easystation.infra.domain.Environment;
 import com.easystation.infra.domain.Host;
 import com.easystation.infra.domain.enums.HostStatus;
-import com.easystation.infra.record.HostRecord;
 import com.easystation.infra.record.HostInstallGuideRecord;
+import com.easystation.infra.record.HostRecord;
 import com.easystation.infra.socket.AgentConnectionManager;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
-import io.quarkus.logging.Log;
 
 import java.io.InputStream;
 import java.util.List;
@@ -35,6 +38,9 @@ public class HostService {
 
     @Inject
     AgentConnectionManager connectionManager;
+
+    @Inject
+    ObjectMapper objectMapper;
 
     /**
      * Connect to HostAgent - performs actual connection test
@@ -89,7 +95,7 @@ public class HostService {
         host.setEnvironment(env);
         host.setDescription(dto.description());
         host.setStatus(HostStatus.UNCONNECTED);
-        host.setSecretKey(UUID.randomUUID().toString()); // Generate secret key
+        host.setSecretKey(UUID.randomUUID().toString());
         host.setGatewayUrl(dto.gatewayUrl());
         if (dto.listenPort() != null) host.setListenPort(dto.listenPort());
         
@@ -140,7 +146,6 @@ public class HostService {
 
         HostAgentResourceResolver.ResolvedHostAgentResource resource = resolveHostAgentResource(host);
         boolean windows = resource.osType() == OsType.WINDOWS;
-        // downloadUrl is null - frontend should call /package endpoint with sourceId
         String packageFileName = getPackageFileName(resource.osType());
         String installCommand = windows ? "install.bat" : "./install.sh";
         String startCommand = windows ? "start.bat" : "./start.sh";
@@ -149,6 +154,9 @@ public class HostService {
         String updateCommand = windows ? "update.bat <new-package-dir>" : "./update.sh <new-package-dir>";
         String logPath = windows ? ".\\logs\\host-agent.log" : "./logs/host-agent.log";
         String pidFile = windows ? ".\\host-agent.pid" : "./host-agent.pid";
+
+        // Extract GitHub Releases URL from source config if available
+        String githubReleaseUrl = extractGithubReleaseUrl(resource.sourceId());
 
         return new HostInstallGuideRecord(
                 host.getId(),
@@ -168,8 +176,46 @@ public class HostService {
                         resource.sourceName(),
                         resource.fileName(),
                         resource.osType().name()
-                )
+                ),
+                githubReleaseUrl
         );
+    }
+
+    private String extractGithubReleaseUrl(UUID sourceId) {
+        try {
+            String configJson = getAgentSourceConfig(sourceId);
+            if (configJson == null || configJson.isBlank()) {
+                return null;
+            }
+            JsonNode config = objectMapper.readTree(configJson);
+            
+            // Check for direct GitHub Releases URL configuration
+            for (String key : List.of("githubReleaseUrl", "releaseUrl", "githubUrl")) {
+                String value = config.path(key).asText();
+                if (value != null && !value.isBlank() && value.contains("github.com")) {
+                    return value;
+                }
+            }
+            
+            // Check if the URL field itself is a GitHub Releases URL
+            String url = config.path("url").asText();
+            if (url != null && !url.isBlank() && url.contains("github.com") && url.contains("/releases/")) {
+                return url;
+            }
+        } catch (Exception e) {
+            Log.warnf("Failed to extract GitHub Releases URL: %s", e.getMessage());
+        }
+        return null;
+    }
+
+    private String getAgentSourceConfig(UUID sourceId) {
+        try {
+            AgentSource source = AgentSource.findById(sourceId);
+            return source != null ? source.getConfig() : null;
+        } catch (Exception e) {
+            Log.warnf("Failed to get agent source config: %s", e.getMessage());
+            return null;
+        }
     }
 
     public StreamingOutput downloadPackage(UUID id, UUID sourceId) {
@@ -245,14 +291,11 @@ public class HostService {
     }
 
     private String getPackageFileName(OsType osType) {
-        // Match GitHub release artifact names from ci.yml
         if (osType == OsType.WINDOWS) {
             return "host-agent-windows-amd64.zip";
         } else if (osType == OsType.MACOS) {
-            // Default to arm64 for macOS (most common on modern Macs)
             return "host-agent-macos-arm64.tar.gz";
         } else {
-            // LINUX and LINUX_DOCKER
             return "host-agent-linux-amd64.tar.gz";
         }
     }

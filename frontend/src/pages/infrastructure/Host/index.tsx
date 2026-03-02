@@ -217,10 +217,8 @@ const HostList: React.FC = () => {
         const guide = installGuide && currentHost?.id === host.id
           ? installGuide
           : await getInstallGuide(host.id);
-        if (!guide.source?.sourceId) {
-            throw new Error('缺少 Agent 资源 ID');
-        }
-        await downloadHostPackage(host.id, guide.source.sourceId, guide.packageFileName);
+        // Download using GitHub Releases URL if available, otherwise use API endpoint
+        await downloadHostPackage(guide.downloadUrl, guide.githubReleaseUrl, guide.packageFileName);
         message.success(`开始下载 ${guide.packageFileName}`);
     } catch (error: any) {
         console.error(error);
