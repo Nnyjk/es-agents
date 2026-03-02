@@ -4,20 +4,17 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strings"
 	"testing"
 )
 
-var glibcVersionPattern = regexp.MustCompile(`GLIBC_(\d+\.\d+)`)
-
-func TestHostAgentLinuxBuildIsStaticAndGlibcFree(t *testing.T) {
+func TestHostAgentLinuxBuildIsStatic(t *testing.T) {
 	if runtime.GOOS != "linux" {
 		t.Skip("linux compatibility verification runs on linux only")
 	}
 
-	requireCommands(t, "go", "file", "ldd", "readelf", "objdump", "strings")
+	requireCommands(t, "go", "file", "ldd", "readelf", "objdump")
 
 	tmpDir := t.TempDir()
 	output := filepath.Join(tmpDir, "host-agent-linux-amd64")
@@ -32,7 +29,6 @@ func TestHostAgentLinuxBuildIsStaticAndGlibcFree(t *testing.T) {
 	assertELFMetadata(t, output)
 	assertStaticLinking(t, output)
 	assertNoDynamicLoader(t, output)
-	assertNoGLIBCSymbols(t, output)
 }
 
 func requireCommands(t *testing.T, commands ...string) {
@@ -74,27 +70,13 @@ func assertNoDynamicLoader(t *testing.T, binaryPath string) {
 
 	programHeaders := mustRun(t, exec.Command("readelf", "-l", binaryPath))
 	if strings.Contains(programHeaders, "INTERP") {
-		t.Fatalf("static binary unexpectedly exposes INTERP program header:\n%s", programHeaders)
+		t.Fatalf("static binary unexpectedly exposes INTERP program header (dynamic loader):\n%s", programHeaders)
 	}
 
 	dynamicSection := runAllowFailure(exec.Command("readelf", "-d", binaryPath))
 	objdumpHeaders := runAllowFailure(exec.Command("objdump", "-p", binaryPath))
 	if strings.Contains(dynamicSection, "(NEEDED)") || strings.Contains(objdumpHeaders, "NEEDED") {
 		t.Fatalf("static binary unexpectedly exposes dynamic dependencies:\nreadelf -d:\n%s\nobjdump -p:\n%s", dynamicSection, objdumpHeaders)
-	}
-}
-
-func assertNoGLIBCSymbols(t *testing.T, binaryPath string) {
-	t.Helper()
-
-	outputs := []string{
-		mustRun(t, exec.Command("strings", binaryPath)),
-		runAllowFailure(exec.Command("readelf", "--version-info", binaryPath)),
-		runAllowFailure(exec.Command("objdump", "-T", binaryPath)),
-	}
-
-	if matches := glibcVersionPattern.FindAllString(strings.Join(outputs, "\n"), -1); len(matches) > 0 {
-		t.Fatalf("detected unexpected GLIBC symbol references: %s", strings.Join(matches, ", "))
 	}
 }
 

@@ -71,8 +71,8 @@ jobs:
         run: |
           go test -v ./...
           go vet ./...
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o bin/host-agent-linux-amd64 ./cmd/host-agent
-          TARGET_GLIBC_VERSION=2.34 bash scripts/verify-linux-compat.sh bin/host-agent-linux-amd64
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o bin/host-agent-linux-amd64 ./cmd/host-agent
+          bash scripts/verify-linux-compat.sh bin/host-agent-linux-amd64
 
       # Repository lint
       - name: Repository lint
@@ -130,17 +130,17 @@ jobs:
 
           # Host Agent - Linux amd64
           cd agent
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o dist/host-agent-linux-amd64 ./cmd/host-agent
-          TARGET_GLIBC_VERSION=2.34 bash scripts/verify-linux-compat.sh dist/host-agent-linux-amd64
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-linux-amd64 ./cmd/host-agent
+          bash scripts/verify-linux-compat.sh dist/host-agent-linux-amd64
 
           # Host Agent - Windows amd64
-          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -o dist/host-agent-windows-amd64.exe ./cmd/host-agent
+          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-windows-amd64.exe ./cmd/host-agent
 
           # Host Agent - macOS amd64
-          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -trimpath -o dist/host-agent-macos-amd64 ./cmd/host-agent
+          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-macos-amd64 ./cmd/host-agent
 
           # Host Agent - macOS arm64
-          CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -trimpath -o dist/host-agent-macos-arm64 ./cmd/host-agent
+          CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-macos-arm64 ./cmd/host-agent
           cd ..
 
       - name: Create deployment bundle

@@ -2,9 +2,6 @@ import request from '../utils/request';
 import axios from 'axios';
 import type { Host, Environment, PageParams, ListResponse, HostInstallGuide } from '../types';
 
-const HOST_PACKAGE_API_PATH = /^\/(?:api\/)?infra\/hosts\/[^/]+\/package(?:\?.*)?$/;
-const GITHUB_RELEASES_URL = /^https:\/\/github\.com\/[^/]+\/[^/]+\/releases\//;
-
 // Environments
 export const queryEnvironments = async (params?: PageParams): Promise<Environment[] | ListResponse<Environment>> => {
   // 暂时直接返回列表，如果后端支持分页则返回 ListResponse
@@ -107,28 +104,12 @@ export const getInstallGuide = (id: string): Promise<HostInstallGuide> => {
   return request.get(`/infra/hosts/${id}/install-guide`);
 };
 
-export const resolveHostPackageDownloadUrl = (downloadUrl: string): string => {
-  // GitHub releases URL - use as-is
-  if (GITHUB_RELEASES_URL.test(downloadUrl)) {
-    return downloadUrl;
-  }
+export const downloadHostPackage = async (hostId: string, sourceId: string, fileName: string): Promise<void> => {
+  // Build API URL with sourceId parameter
+  const apiUrl = `/api/infra/hosts/${hostId}/package?sourceId=${sourceId}`;
+  const token = localStorage.getItem('token');
   
-  // Legacy API path - validate and normalize
-  if (!HOST_PACKAGE_API_PATH.test(downloadUrl)) {
-    throw new Error('安装引导返回了无效的部署包地址');
-  }
-
-  return downloadUrl.startsWith('/api/') ? downloadUrl : `/api${downloadUrl}`;
-};
-
-export const downloadHostPackage = async (downloadUrl: string, fileName: string): Promise<void> => {
-  const resolvedUrl = resolveHostPackageDownloadUrl(downloadUrl);
-  const isGitHubUrl = GITHUB_RELEASES_URL.test(resolvedUrl);
-  
-  // GitHub releases don't need auth token
-  const token = isGitHubUrl ? null : localStorage.getItem('token');
-  
-  const response = await axios.get(resolvedUrl, {
+  const response = await axios.get(apiUrl, {
     responseType: 'blob',
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
@@ -141,4 +122,15 @@ export const downloadHostPackage = async (downloadUrl: string, fileName: string)
   link.click();
   document.body.removeChild(link);
   window.URL.revokeObjectURL(blobUrl);
+};
+
+// Host package download URL validation and normalization
+const HOST_PACKAGE_DOWNLOAD_API_PATH = /^\/(?:api\/)?infra\/hosts\/[^/]+\/package(?:\?.*)?$/;
+
+export const resolveHostPackageDownloadUrl = (downloadUrl: string): string => {
+  if (!HOST_PACKAGE_DOWNLOAD_API_PATH.test(downloadUrl)) {
+    throw new Error('安装引导返回了无效的部署包地址');
+  }
+
+  return downloadUrl.startsWith('/api/') ? downloadUrl : `/api${downloadUrl}`;
 };
