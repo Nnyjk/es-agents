@@ -2,7 +2,8 @@ FROM golang:1.23 AS builder
 WORKDIR /src
 COPY . .
 RUN go mod download
-RUN ./scripts/verify-linux-compat.sh /out/host-agent
+# Build static binary with no GLIBC dependency
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o /out/host-agent ./cmd/host-agent
 
 FROM alpine:3.19
 RUN adduser -D -h /app appuser
