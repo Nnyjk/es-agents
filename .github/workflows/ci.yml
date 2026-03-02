@@ -72,6 +72,7 @@ jobs:
           go test -v ./...
           go vet ./...
           CGO_ENABLED=0 go build -v ./...
+          TARGET_GLIBC_VERSION=2.34 bash scripts/verify-linux-compat.sh bin/host-agent-linux-amd64
 
       # Repository lint
       - name: Repository lint
@@ -124,7 +125,7 @@ jobs:
           npm --prefix frontend run build
           mvn -B -DskipTests package --file server/pom.xml
           mkdir -p agent/dist
-          (cd agent && CGO_ENABLED=0 go build -trimpath -o dist/host-agent ./cmd/host-agent)
+          (cd agent && TARGET_GLIBC_VERSION=2.34 bash scripts/verify-linux-compat.sh dist/host-agent)
 
       - name: Package deployment bundle
         run: |

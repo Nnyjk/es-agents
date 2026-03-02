@@ -1,10 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { PlusOutlined } from '@ant-design/icons';
+import { DownloadOutlined, PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { ProTable } from '@ant-design/pro-components';
 import { Button, message, Popconfirm, Form, Select, Input } from 'antd';
 import { DrawerForm } from '../../../components/DrawerForm';
-import { queryAgentTemplates, saveAgentTemplate, removeAgentTemplate, queryAgentResources } from '../../../services/agent';
+import { downloadAgentTemplate, queryAgentTemplates, saveAgentTemplate, removeAgentTemplate, queryAgentResources } from '../../../services/agent';
 import type { AgentTemplate, AgentResource } from '../../../types';
 
 const AgentTemplateList: React.FC = () => {
@@ -12,6 +12,7 @@ const AgentTemplateList: React.FC = () => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<AgentTemplate> | null>(null);
   const [resources, setResources] = useState<AgentResource[]>([]);
+  const [downloadingTemplateId, setDownloadingTemplateId] = useState<string | null>(null);
 
   useEffect(() => {
     queryAgentResources().then(setResources);
@@ -59,6 +60,23 @@ const AgentTemplateList: React.FC = () => {
       valueType: 'option',
       render: (_text, record, _, action) => [
         <a
+          key="download"
+          onClick={async () => {
+            try {
+              setDownloadingTemplateId(record.id);
+              await downloadAgentTemplate(record.id, record.source?.name || `${record.name}.bin`);
+              message.success('开始下载模板资源');
+            } catch (error) {
+              console.error(error);
+              message.error('下载失败');
+            } finally {
+              setDownloadingTemplateId((current) => (current === record.id ? null : current));
+            }
+          }}
+        >
+          <DownloadOutlined spin={downloadingTemplateId === record.id} /> 下载
+        </a>,
+        <a
           key="edit"
           onClick={() => {
             setEditingItem(record);
@@ -84,7 +102,11 @@ const AgentTemplateList: React.FC = () => {
 
   const handleSave = async (data: Partial<AgentTemplate>) => {
     try {
-        await saveAgentTemplate({ ...editingItem, ...data });
+        await saveAgentTemplate({
+          ...editingItem,
+          ...data,
+          sourceId: data.sourceId || editingItem?.sourceId || editingItem?.source?.id,
+        });
         message.success('保存成功');
         setDrawerVisible(false);
         setEditingItem(null);
@@ -136,7 +158,7 @@ const AgentTemplateList: React.FC = () => {
         width={600}
         onClose={handleClose}
         onSave={handleSave}
-        initialValues={editingItem || undefined}
+        initialValues={editingItem ? { ...editingItem, sourceId: editingItem.sourceId || editingItem.source?.id } : undefined}
       >
         <Form.Item name="name" label="模板名称" rules={[{ required: true }]}>
           <Input placeholder="请输入模板名称" />

@@ -18,8 +18,8 @@ BEGIN
     v_win_source_id := gen_random_uuid();
 
     INSERT INTO agent_source (id, name, type, config, createdat, updatedat) VALUES 
-    (v_linux_source_id, 'Host Agent (Linux)', 'HTTP', '{"url": "https://github.com/easy-station/agent/releases/latest/download/host-agent-linux"}', NOW(), NOW()),
-    (v_win_source_id, 'Host Agent (Windows)', 'HTTP', '{"url": "https://github.com/easy-station/agent/releases/latest/download/host-agent-windows.exe"}', NOW(), NOW());
+    (v_linux_source_id, 'Host Agent (Linux)', 'HTTPS', '{"url": "https://github.com/easy-station/agent/releases/latest/download/host-agent-linux-amd64", "fileName": "host-agent-linux-amd64"}', NOW(), NOW()),
+    (v_win_source_id, 'Host Agent (Windows)', 'HTTPS', '{"url": "https://github.com/easy-station/agent/releases/latest/download/host-agent-windows-amd64.exe", "fileName": "host-agent-windows-amd64.exe"}', NOW(), NOW());
 
     -- 2. Create Agent Templates
     -- Linux Template

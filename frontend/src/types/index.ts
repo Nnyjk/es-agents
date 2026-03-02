@@ -110,6 +110,7 @@ export interface AgentTemplate {
   id: string;
   name: string;
   description?: string;
+  osType?: string;
   source?: AgentResource;
   sourceId?: string;
   commands?: AgentCommand[];

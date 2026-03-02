@@ -20,7 +20,7 @@ const baseGuide: HostInstallGuide = {
   source: {
     sourceId: 'source-1',
     sourceName: 'HostAgent Linux',
-    fileName: 'host-agent-linux-glibc233.zip',
+    fileName: 'host-agent-linux-amd64',
     osType: 'LINUX',
   },
 };
@@ -83,6 +83,7 @@ describe('HostInstallGuideModal', () => {
         guideError={null}
         downloadError={null}
         connectError={null}
+        downloading={false}
         connecting={false}
         onClose={vi.fn()}
         onDownload={vi.fn()}

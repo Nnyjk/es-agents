@@ -42,6 +42,8 @@
 
 ## 本地建议检查
 
+完整检查流程请参考 [本地开发环境配置指南](07-development/LOCAL-DEV-ENV.md#完整本地验证流程)。
+
 ```bash
 # Frontend
 cd frontend && npm ci --legacy-peer-deps
@@ -56,4 +58,8 @@ mvn -B -DskipTests package --file server/pom.xml
 # Agent
 cd agent && go test ./...
 cd agent && go vet ./...
+CGO_ENABLED=0 go build -v ./...
+
+# Repository lint
+npx --yes prettier@3.5.3 --check ".github/**/*.{yml,yaml,md}" "docs/**/*.md" "frontend/src/**/*.{ts,tsx}"
 ```

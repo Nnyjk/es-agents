@@ -17,6 +17,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -96,21 +97,20 @@ public class AgentSourceService {
         try {
             JsonNode config = readConfig(source.getConfig());
 
-            if (source.getType() == AgentSourceType.HTTP || source.getType() == AgentSourceType.HTTPS) {
-                String url = config.path("url").asText();
-                if (url == null || url.isEmpty()) {
+            if (isDirectDownloadSource(source.getType())) {
+                AgentRepository repository = source.getRepository();
+                AgentCredential credential = source.getCredential() != null
+                        ? source.getCredential()
+                        : repository != null ? repository.getCredential() : null;
+                String url = resolveDirectDownloadUrl(source.getType(), repository, config);
+                if (url == null || url.isBlank()) {
                     throw new WebApplicationException("URL not configured for this source", Response.Status.INTERNAL_SERVER_ERROR);
                 }
 
-                String fileName = config.path("fileName").asText();
-                if (fileName == null || fileName.isEmpty()) {
-                    fileName = resolveFileName(url, "agent-package");
-                }
                 if (fileNameOut != null && fileNameOut.length > 0) {
-                    fileNameOut[0] = fileName;
+                    fileNameOut[0] = resolveConfiguredFileName(config, url, "agent-package");
                 }
 
-                AgentCredential credential = source.getCredential();
                 return downloadWithCredential(url, credential, source.getType());
             }
 
@@ -299,10 +299,90 @@ public class AgentSourceService {
         return fileName.toString();
     }
 
+    private boolean isDirectDownloadSource(AgentSourceType type) {
+        return type == AgentSourceType.HTTP
+                || type == AgentSourceType.HTTPS
+                || type == AgentSourceType.GIT
+                || type == AgentSourceType.DOCKER
+                || type == AgentSourceType.ALIYUN;
+    }
+
+    private String resolveDirectDownloadUrl(AgentSourceType type, AgentRepository repository, JsonNode config) {
+        for (String key : List.of("url", "downloadUrl")) {
+            String value = config.path(key).asText();
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
+        }
+        if (repository == null) {
+            return null;
+        }
+
+        String path = config.path("filePath").asText();
+        if (path == null || path.isBlank()) {
+            path = config.path("artifactPath").asText();
+        }
+        if (path == null || path.isBlank()) {
+            path = config.path("path").asText();
+        }
+
+        if (path != null && !path.isBlank()) {
+            return joinRepositoryPath(repository, path);
+        }
+
+        if (type == AgentSourceType.GIT) {
+            String ref = config.path("ref").asText();
+            if (ref == null || ref.isBlank()) {
+                ref = repository.getDefaultBranch() != null ? repository.getDefaultBranch() : "main";
+            }
+            String archiveFormat = config.path("archiveFormat").asText();
+            if (archiveFormat == null || archiveFormat.isBlank()) {
+                archiveFormat = "tar.gz";
+            }
+            String basePath = joinRepositoryBase(repository);
+            return basePath + "/archive/" + urlEncode(ref) + "." + archiveFormat;
+        }
+        return null;
+    }
+
+    private String joinRepositoryPath(AgentRepository repository, String path) {
+        return joinRepositoryBase(repository) + "/" + trimSlashes(path);
+    }
+
+    private String joinRepositoryBase(AgentRepository repository) {
+        String basePath = normalizeBaseUrl(repository.getBaseUrl());
+        if (repository.getProjectPath() != null && !repository.getProjectPath().isBlank()) {
+            basePath = basePath + "/" + trimSlashes(repository.getProjectPath());
+        }
+        return basePath;
+    }
+
+    private String resolveConfiguredFileName(JsonNode config, String url, String defaultName) {
+        for (String key : List.of("fileName", "file", "assetName", "artifactName")) {
+            String value = config.path(key).asText();
+            if (value != null && !value.isBlank()) {
+                return value;
+            }
+        }
+        return resolveFileName(url, defaultName);
+    }
+
     private String resolveFileName(String url, String defaultName) {
+        try {
+            String path = URI.create(url).getPath();
+            if (path != null && !path.isBlank()) {
+                int lastIndex = path.lastIndexOf('/');
+                if (lastIndex >= 0 && lastIndex < path.length() - 1) {
+                    return path.substring(lastIndex + 1);
+                }
+            }
+        } catch (IllegalArgumentException ignored) {
+            // Fallback to raw string parsing below.
+        }
+
         int lastIndex = url.lastIndexOf('/');
         if (lastIndex >= 0 && lastIndex < url.length() - 1) {
-            return url.substring(lastIndex + 1);
+            return url.substring(lastIndex + 1).split("\\?", 2)[0];
         }
         return defaultName;
     }

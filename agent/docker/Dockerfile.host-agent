@@ -2,7 +2,7 @@ FROM golang:1.23 AS builder
 WORKDIR /src
 COPY . .
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o /out/host-agent ./cmd/host-agent
+RUN TARGET_GLIBC_VERSION=2.34 ./scripts/verify-linux-compat.sh /out/host-agent
 
 FROM alpine:3.19
 RUN adduser -D -h /app appuser
