@@ -140,12 +140,12 @@ public class HostService {
 
         HostAgentResourceResolver.ResolvedHostAgentResource resource = resolveHostAgentResource(host);
         boolean windows = resource.osType() == OsType.WINDOWS;
-        // Use GitHub releases URL for pre-built packages to avoid 502 errors from on-the-fly package building
-        String downloadUrl = buildGitHubReleaseDownloadUrl(resource.osType());
+        // downloadUrl is null - frontend should call /package endpoint with sourceId
         String packageFileName = getPackageFileName(resource.osType());
         String installCommand = windows ? "install.bat" : "./install.sh";
         String startCommand = windows ? "start.bat" : "./start.sh";
         String stopCommand = windows ? "stop.bat" : "./stop.sh";
+        String uninstallCommand = windows ? "uninstall.bat" : "./uninstall.sh";
         String updateCommand = windows ? "update.bat <new-package-dir>" : "./update.sh <new-package-dir>";
         String logPath = windows ? ".\\logs\\host-agent.log" : "./logs/host-agent.log";
         String pidFile = windows ? ".\\host-agent.pid" : "./host-agent.pid";
@@ -155,10 +155,11 @@ public class HostService {
                 host.getSecretKey(),
                 installCommand,
                 "",
-                downloadUrl,
+                null,
                 packageFileName,
                 startCommand,
                 stopCommand,
+                uninstallCommand,
                 updateCommand,
                 logPath,
                 pidFile,
@@ -169,15 +170,6 @@ public class HostService {
                         resource.osType().name()
                 )
         );
-    }
-
-    /**
-     * Build GitHub releases download URL for host agent package.
-     * Uses 'latest' tag to always get the most recent stable release.
-     */
-    private String buildGitHubReleaseDownloadUrl(OsType osType) {
-        String fileName = getPackageFileName(osType);
-        return "https://github.com/Nnyjk/es-agents/releases/latest/download/" + fileName;
     }
 
     public StreamingOutput downloadPackage(UUID id, UUID sourceId) {
@@ -253,13 +245,15 @@ public class HostService {
     }
 
     private String getPackageFileName(OsType osType) {
+        // Match GitHub release artifact names from ci.yml
         if (osType == OsType.WINDOWS) {
-            return "host-agent-windows.zip";
+            return "host-agent-windows-amd64.zip";
         } else if (osType == OsType.MACOS) {
-            return "host-agent-macos.tar.gz";
+            // Default to arm64 for macOS (most common on modern Macs)
+            return "host-agent-macos-arm64.tar.gz";
         } else {
             // LINUX and LINUX_DOCKER
-            return "host-agent-linux.tar.gz";
+            return "host-agent-linux-amd64.tar.gz";
         }
     }
 

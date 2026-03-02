@@ -118,6 +118,7 @@ export const HostInstallGuideModal: React.FC<HostInstallGuideModalProps> = ({
                   <Space direction="vertical" size={4} style={{ width: '100%' }}>
                     <Typography.Text code>启动：{guide.startCommand}</Typography.Text>
                     <Typography.Text code>停止：{guide.stopCommand}</Typography.Text>
+                    <Typography.Text code>卸载：{guide.uninstallCommand}</Typography.Text>
                     <Typography.Text code>更新：{guide.updateCommand}</Typography.Text>
                   </Space>
                 }

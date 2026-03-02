@@ -102,7 +102,53 @@ public class HostAgentPackageBuilder {
                 set -eu
 
                 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
-                "$SCRIPT_DIR/start.sh"
+                BINARY_PATH="$SCRIPT_DIR/host-agent"
+                CONFIG_PATH="$SCRIPT_DIR/config.yaml"
+                LOG_DIR="$SCRIPT_DIR/logs"
+                LOG_FILE="$LOG_DIR/host-agent.log"
+                PID_FILE="$SCRIPT_DIR/host-agent.pid"
+
+                echo "Installing HostAgent..."
+
+                # Validate binary exists
+                if [ ! -f "$BINARY_PATH" ]; then
+                  echo "Error: host-agent binary not found at $BINARY_PATH"
+                  exit 1
+                fi
+
+                # Validate config exists
+                if [ ! -f "$CONFIG_PATH" ]; then
+                  echo "Error: config.yaml not found at $CONFIG_PATH"
+                  echo "Please create config.yaml with host_id and secret_key before installing."
+                  exit 1
+                fi
+
+                # Create log directory
+                mkdir -p "$LOG_DIR"
+
+                # Make binary executable
+                chmod +x "$BINARY_PATH"
+
+                # Check if already running
+                if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
+                  echo "HostAgent is already running with PID $(cat "$PID_FILE")"
+                  echo "Stopping existing process..."
+                  "$SCRIPT_DIR/stop.sh" || true
+                fi
+
+                # Start in background
+                echo "Starting HostAgent in background..."
+                nohup "$BINARY_PATH" --config "$CONFIG_PATH" >> "$LOG_FILE" 2>&1 &
+                printf '%s' "$!" > "$PID_FILE"
+
+                echo "HostAgent installed and started successfully."
+                echo "PID: $(cat "$PID_FILE")"
+                echo "Log file: $LOG_FILE"
+                echo ""
+                echo "Useful commands:"
+                echo "  Status: ps -p $(cat "$PID_FILE") || echo 'not running'"
+                echo "  Stop:   ./stop.sh"
+                echo "  Logs:   tail -f $LOG_FILE"
                 """;
     }
 
@@ -165,21 +211,72 @@ public class HostAgentPackageBuilder {
                 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
                 SOURCE_DIR="${1:-$SCRIPT_DIR}"
                 BINARY_NAME="%s"
+                CONFIG_FILE="config.yaml"
 
-                # Extract and replace binaries and scripts (except config.yaml)
+                echo "Updating HostAgent from $SOURCE_DIR..."
+
+                # Validate source directory
+                if [ ! -d "$SOURCE_DIR" ]; then
+                  echo "Error: Source directory not found: $SOURCE_DIR"
+                  exit 1
+                fi
+
+                # Validate source has required files
+                if [ ! -f "$SOURCE_DIR/$BINARY_NAME" ]; then
+                  echo "Error: $BINARY_NAME not found in source directory"
+                  exit 1
+                fi
+
+                # Stop existing process
+                echo "Stopping existing HostAgent..."
+                if [ -x "$SCRIPT_DIR/stop.sh" ]; then
+                  "$SCRIPT_DIR/stop.sh" || true
+                else
+                  PID_FILE="$SCRIPT_DIR/host-agent.pid"
+                  if [ -f "$PID_FILE" ]; then
+                    PID="$(cat "$PID_FILE")"
+                    if kill -0 "$PID" 2>/dev/null; then
+                      kill "$PID" || true
+                      sleep 1
+                    fi
+                    rm -f "$PID_FILE"
+                  fi
+                fi
+
+                # Backup config if exists
+                CONFIG_BACKUP=""
+                if [ -f "$SCRIPT_DIR/$CONFIG_FILE" ]; then
+                  echo "Backing up $CONFIG_FILE..."
+                  cp "$SCRIPT_DIR/$CONFIG_FILE" "$SCRIPT_DIR/${CONFIG_FILE}.bak"
+                  CONFIG_BACKUP="$SCRIPT_DIR/${CONFIG_FILE}.bak"
+                fi
+
+                # Replace files (preserve config.yaml)
+                echo "Replacing files..."
                 for FILE in "$BINARY_NAME" install.sh start.sh stop.sh update.sh; do
                   if [ ! -f "$SOURCE_DIR/$FILE" ]; then
+                    echo "  Skipping $FILE (not in source)"
                     continue
                   fi
                   if [ "$SOURCE_DIR/$FILE" = "$SCRIPT_DIR/$FILE" ]; then
+                    echo "  Skipping $FILE (same location)"
                     continue
                   fi
                   cp "$SOURCE_DIR/$FILE" "$SCRIPT_DIR/$FILE"
+                  echo "  Updated $FILE"
                 done
 
-                chmod +x "$SCRIPT_DIR/$BINARY_NAME" "$SCRIPT_DIR/install.sh" "$SCRIPT_DIR/start.sh" "$SCRIPT_DIR/stop.sh" "$SCRIPT_DIR/update.sh"
-                echo "HostAgent binaries and scripts updated."
-                echo "config.yaml preserved at $SCRIPT_DIR/config.yaml"
+                # Restore config
+                if [ -n "$CONFIG_BACKUP" ] && [ -f "$CONFIG_BACKUP" ]; then
+                  echo "Restoring $CONFIG_FILE..."
+                  mv "$CONFIG_BACKUP" "$SCRIPT_DIR/$CONFIG_FILE"
+                fi
+
+                # Make scripts executable
+                chmod +x "$SCRIPT_DIR/$BINARY_NAME" "$SCRIPT_DIR/install.sh" "$SCRIPT_DIR/start.sh" "$SCRIPT_DIR/stop.sh" "$SCRIPT_DIR/update.sh" 2>/dev/null || true
+
+                echo ""
+                echo "HostAgent updated successfully."
                 echo "Run ./start.sh to start the new version."
                 """.formatted(binaryName);
     }
@@ -197,7 +294,55 @@ public class HostAgentPackageBuilder {
         return """
                 @echo off
                 setlocal
-                call "%~dp0start.bat"
+
+                set "SCRIPT_DIR=%~dp0"
+                set "BINARY_PATH=%SCRIPT_DIR%host-agent.exe"
+                set "CONFIG_PATH=%SCRIPT_DIR%config.yaml"
+                set "LOG_DIR=%SCRIPT_DIR%logs"
+                set "LOG_FILE=%LOG_DIR%host-agent.log"
+                set "PID_FILE=%SCRIPT_DIR%host-agent.pid"
+
+                echo Installing HostAgent...
+
+                REM Validate binary exists
+                if not exist "%BINARY_PATH%" (
+                    echo Error: host-agent.exe not found at %BINARY_PATH%
+                    exit /b 1
+                )
+
+                REM Validate config exists
+                if not exist "%CONFIG_PATH%" (
+                    echo Error: config.yaml not found at %CONFIG_PATH%
+                    echo Please create config.yaml with host_id and secret_key before installing.
+                    exit /b 1
+                )
+
+                REM Create log directory
+                if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
+
+                REM Check if already running
+                if exist "%PID_FILE%" (
+                    set /p PID=%PID_FILE%
+                    tasklist /FI "PID eq %PID%" 2>NUL | findstr /R "^%PID%" >NUL
+                    if not errorlevel 1 (
+                        echo HostAgent is already running with PID %PID%
+                        echo Stopping existing process...
+                        call "%SCRIPT_DIR%stop.bat"
+                    )
+                )
+
+                REM Start in background
+                echo Starting HostAgent in background...
+                start /B "%BINARY_PATH%" --config "%CONFIG_PATH%" > "%LOG_FILE%" 2>&1
+                echo %ERRORLEVEL% > "%PID_FILE%"
+
+                echo HostAgent installed and started successfully.
+                echo Log file: %LOG_FILE%
+                echo.
+                echo Useful commands:
+                echo   Status: tasklist /FI "PID eq ..."
+                echo   Stop:   stop.bat
+                echo   Logs:   type %LOG_FILE%
                 """;
     }
 

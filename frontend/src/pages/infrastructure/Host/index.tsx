@@ -217,10 +217,10 @@ const HostList: React.FC = () => {
         const guide = installGuide && currentHost?.id === host.id
           ? installGuide
           : await getInstallGuide(host.id);
-        if (!guide.downloadUrl) {
-            throw new Error('缺少下载地址');
+        if (!guide.source?.sourceId) {
+            throw new Error('缺少 Agent 资源 ID');
         }
-        await downloadHostPackage(guide.downloadUrl, guide.packageFileName);
+        await downloadHostPackage(host.id, guide.source.sourceId, guide.packageFileName);
         message.success(`开始下载 ${guide.packageFileName}`);
     } catch (error: any) {
         console.error(error);
