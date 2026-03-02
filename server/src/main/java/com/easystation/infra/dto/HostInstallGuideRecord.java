@@ -15,7 +15,8 @@ public record HostInstallGuideRecord(
     String updateCommand,
     String logPath,
     String pidFile,
-    HostAgentResourceRecord source
+    HostAgentResourceRecord source,
+    String githubReleaseUrl
 ) {
     public record HostAgentResourceRecord(
         UUID sourceId,

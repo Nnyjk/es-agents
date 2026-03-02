@@ -360,3 +360,108 @@ cat agent/.dev/config.yaml
 ---
 
 _最后更新：2026-03-02_
+
+## 本地验证脚本
+
+### 完整检查脚本
+
+`scripts/local-test.sh` 提供完整的本地验证流程，支持分阶段运行：
+
+```bash
+# 运行所有检查（默认）
+./scripts/local-test.sh
+
+# 或指定检查项
+./scripts/local-test.sh --frontend    # 仅前端检查
+./scripts/local-test.sh --server      # 仅服务端检查
+./scripts/local-test.sh --agent       # 仅 Agent 检查
+./scripts/local-test.sh --lint        # 仅代码风格检查
+./scripts/local-test.sh --all         # 所有检查
+
+# 查看帮助
+./scripts/local-test.sh --help
+```
+
+**使用场景**：
+- 提交 PR 前的完整验证
+- 开发过程中阶段性检查
+- CI 失败后的本地复现
+
+### 快速检查脚本
+
+`scripts/quick-check.sh` 提供快速验证（1 分钟内完成）：
+
+```bash
+# 运行快速检查
+./scripts/quick-check.sh
+```
+
+**检查内容**：
+- 修改的 Go 文件语法检查（`go vet`）
+- 修改的 TypeScript 文件格式检查（Prettier）
+- 合并标记检测
+
+**使用场景**：
+- commit 前快速验证
+- 开发过程中频繁检查
+
+### Git Pre-commit Hook
+
+项目提供 pre-commit hook 自动运行快速检查：
+
+```bash
+# 安装 hook（二选一）
+
+# 方法 1：手动复制
+cp .githooks/pre-commit .git/hooks/pre-commit
+
+# 方法 2：使用 Git 配置（推荐）
+git config core.hooksPath .githooks
+```
+
+安装后，每次 commit 会自动运行 `quick-check.sh`。
+
+**跳过检查**（不推荐）：
+```bash
+git commit --no-verify -m "your message"
+```
+
+详细说明见 `.githooks/README.md`。
+
+## 推荐工作流程
+
+### 日常开发
+
+```bash
+# 1. 开发过程中频繁运行快速检查
+./scripts/quick-check.sh
+
+# 2. 完成功能后运行完整检查
+./scripts/local-test.sh --all
+
+# 3. 提交代码（pre-commit hook 自动验证）
+git add .
+git commit -m "feat: your feature"
+
+# 4. 推送前再次确认
+./scripts/local-test.sh --all
+git push
+```
+
+### PR 提交流程
+
+```bash
+# 1. 从 main 拉分支
+git checkout -b feat/your-feature main
+
+# 2. 开发完成后运行完整检查
+./scripts/local-test.sh --all
+
+# 3. 提交并推送
+git commit -m "feat: your feature"
+git push origin feat/your-feature
+
+# 4. 创建 PR，等待 CI 验证
+```
+
+详见 [PR-FLOW.md](PR-FLOW.md)。
