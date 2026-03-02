@@ -97,6 +97,6 @@ describe('HostInstallGuideModal', () => {
     expect(screen.getByText('2. 解压部署包')).toBeInTheDocument();
     expect(screen.getByText('5. 发起连接验证')).toBeInTheDocument();
     expect(screen.getByText('./install.sh')).toBeInTheDocument();
-    expect(screen.queryByText(/卸载/)).not.toBeInTheDocument();
+    expect(screen.getByText(/卸载：/)).toBeInTheDocument();
   });
 });
