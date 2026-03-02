@@ -11,6 +11,7 @@ interface HostInstallGuideModalProps {
   guideError?: string | null;
   downloadError?: string | null;
   connectError?: string | null;
+  downloading: boolean;
   connecting: boolean;
   onClose: () => void;
   onDownload: () => void;
@@ -24,6 +25,7 @@ export const HostInstallGuideModal: React.FC<HostInstallGuideModalProps> = ({
   guideError,
   downloadError,
   connectError,
+  downloading,
   connecting,
   onClose,
   onDownload,
@@ -85,7 +87,7 @@ export const HostInstallGuideModal: React.FC<HostInstallGuideModalProps> = ({
                       <div>{step.description}</div>
                       {step.key === 'download' ? (
                         <div style={{ marginTop: 8 }}>
-                          <Button type="primary" icon={<DownloadOutlined />} onClick={onDownload}>
+                          <Button type="primary" icon={<DownloadOutlined />} loading={downloading} onClick={onDownload}>
                             下载 {guide.packageFileName}
                           </Button>
                         </div>

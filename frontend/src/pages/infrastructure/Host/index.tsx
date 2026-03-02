@@ -26,6 +26,7 @@ const HostList: React.FC = () => {
   const [currentHost, setCurrentHost] = useState<Host | null>(null);
   const [installGuide, setInstallGuide] = useState<HostInstallGuide | null>(null);
   const [installGuideLoading, setInstallGuideLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [installGuideError, setInstallGuideError] = useState<string | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [connectError, setConnectError] = useState<string | null>(null);
@@ -65,11 +66,17 @@ const HostList: React.FC = () => {
     } else {
         setInstallGuide(null);
         setInstallGuideLoading(false);
+        setDownloading(false);
         setInstallGuideError(null);
         setDownloadError(null);
         setConnectError(null);
     }
   }, [installGuideVisible, currentHost]);
+
+  const handleCloseInstallGuide = () => {
+    setInstallGuideVisible(false);
+    setDownloading(false);
+  };
 
   // Handle Terminal Socket
   useEffect(() => {
@@ -204,6 +211,7 @@ const HostList: React.FC = () => {
   };
 
   const handleDownloadPackage = async (host: Host) => {
+    setDownloading(true);
     try {
         setDownloadError(null);
         const guide = installGuide && currentHost?.id === host.id
@@ -219,6 +227,8 @@ const HostList: React.FC = () => {
         const errorText = error?.response?.data?.message || error?.message || '请检查服务端资源配置';
         setDownloadError(errorText);
         message.error(`下载失败：${errorText}`);
+    } finally {
+        setDownloading(false);
     }
   };
 
@@ -407,7 +417,8 @@ const HostList: React.FC = () => {
         downloadError={downloadError}
         connectError={connectError}
         connecting={connecting}
-        onClose={() => setInstallGuideVisible(false)}
+        downloading={downloading}
+        onClose={handleCloseInstallGuide}
         onDownload={() => currentHost && handleDownloadPackage(currentHost)}
         onConnect={() => currentHost && handleConnect(currentHost.id)}
       />
