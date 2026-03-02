@@ -1,45 +1,39 @@
-## 📋 Description
-<!-- Describe your changes in detail -->
+## Summary
+<!-- 用 2-4 句话说明这次变更解决了什么问题，以及为什么要改。 -->
 
-## 🔗 Related Issue
-<!-- Link to the related issue(s) -->
-Closes #
+## Related Issue
+<!-- 关联需求、缺陷或任务，没有就写 N/A。 -->
+- Closes #
 
-## 🎯 Type of Change
-<!-- What type of change does your code introduce? -->
-- [ ] 🐛 Bug fix (non-breaking change which fixes an issue)
-- [ ] ✨ New feature (non-breaking change which adds functionality)
-- [ ] 💥 Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] 📚 Documentation update
-- [ ] 🎨 Style/formatting changes
-- [ ] ♻️ Code refactoring
-- [ ] ⚡ Performance improvement
-- [ ] 🧪 Test addition/update
+## Change Type
+- [ ] Feature
+- [ ] Bugfix
+- [ ] Refactor
+- [ ] Docs
+- [ ] CI/CD
+- [ ] Breaking change
 
-## ✅ Checklist
-<!-- Go through all the following points, and put an `x` in all the boxes that apply. -->
-- [ ] My code follows the code style of this project
-- [ ] I have performed a self-review of my own code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-- [ ] Any dependent changes have been merged and published in downstream modules
-
-## 🧪 Testing
-<!-- Describe how you tested your changes -->
-
-## 📸 Screenshots (if applicable)
-<!-- Add screenshots to demonstrate the changes -->
-
-## 📝 Additional Notes
-<!-- Add any additional notes for reviewers -->
-
-## 🏷️ Module Tags
-<!-- Select affected modules -->
+## Scope
 - [ ] Frontend
 - [ ] Server
 - [ ] Agent
 - [ ] Documentation
-- [ ] CI/CD
+- [ ] Workflow / Release
+
+## Validation
+<!-- 列出你本地执行过的命令和结果。 -->
+```bash
+```
+
+## Reviewer Checklist
+- [ ] 变更范围清晰，目标明确
+- [ ] 核心实现已自查
+- [ ] 测试或验证方式已补充
+- [ ] 文档已同步，或确认无需更新
+- [ ] 风险、回滚方式和影响范围已说明
+
+## Risk and Rollback
+<!-- 描述潜在风险、受影响模块、回滚方式。 -->
+
+## Notes
+<!-- 需要 reviewer 特别关注的点，没有可写 N/A。 -->
