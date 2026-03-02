@@ -3,6 +3,7 @@ import axios from 'axios';
 import type { Host, Environment, PageParams, ListResponse, HostInstallGuide } from '../types';
 
 const HOST_PACKAGE_API_PATH = /^\/(?:api\/)?infra\/hosts\/[^/]+\/package(?:\?.*)?$/;
+const GITHUB_RELEASES_URL = /^https:\/\/github\.com\/[^/]+\/[^/]+\/releases\//;
 
 // Environments
 export const queryEnvironments = async (params?: PageParams): Promise<Environment[] | ListResponse<Environment>> => {
@@ -107,6 +108,12 @@ export const getInstallGuide = (id: string): Promise<HostInstallGuide> => {
 };
 
 export const resolveHostPackageDownloadUrl = (downloadUrl: string): string => {
+  // GitHub releases URL - use as-is
+  if (GITHUB_RELEASES_URL.test(downloadUrl)) {
+    return downloadUrl;
+  }
+  
+  // Legacy API path - validate and normalize
   if (!HOST_PACKAGE_API_PATH.test(downloadUrl)) {
     throw new Error('安装引导返回了无效的部署包地址');
   }
@@ -115,8 +122,13 @@ export const resolveHostPackageDownloadUrl = (downloadUrl: string): string => {
 };
 
 export const downloadHostPackage = async (downloadUrl: string, fileName: string): Promise<void> => {
-  const token = localStorage.getItem('token');
-  const response = await axios.get(resolveHostPackageDownloadUrl(downloadUrl), {
+  const resolvedUrl = resolveHostPackageDownloadUrl(downloadUrl);
+  const isGitHubUrl = GITHUB_RELEASES_URL.test(resolvedUrl);
+  
+  // GitHub releases don't need auth token
+  const token = isGitHubUrl ? null : localStorage.getItem('token');
+  
+  const response = await axios.get(resolvedUrl, {
     responseType: 'blob',
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });

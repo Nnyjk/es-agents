@@ -152,18 +152,161 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
   # ============================================
-  # Release - Run after deploy
+  # Build Host Agent Packages - Run on push to main
+  # ============================================
+  build_host_packages:
+    name: Build Host Agent Packages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: pr_checks
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: agent/go.mod
+          cache-dependency-path: agent/go.sum
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+
+      - name: Build Linux amd64 binary
+        working-directory: ./agent
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o dist/host-agent-linux-amd64 ./cmd/host-agent
+          TARGET_GLIBC_VERSION=2.34 bash scripts/verify-linux-compat.sh dist/host-agent-linux-amd64
+
+      - name: Build Windows amd64 binary
+        working-directory: ./agent
+        run: |
+          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -o dist/host-agent-windows-amd64.exe ./cmd/host-agent
+
+      - name: Build macOS amd64 binary
+        working-directory: ./agent
+        run: |
+          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -trimpath -o dist/host-agent-macos-amd64 ./cmd/host-agent
+
+      - name: Build macOS arm64 binary
+        working-directory: ./agent
+        run: |
+          CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -trimpath -o dist/host-agent-macos-arm64 ./cmd/host-agent
+
+      - name: Create Linux package
+        run: |
+          mkdir -p packages/linux
+          cp agent/dist/host-agent-linux-amd64 packages/linux/host-agent
+          cp server/scripts/host-agent/install.sh packages/linux/
+          cp server/scripts/host-agent/start.sh packages/linux/
+          cp server/scripts/host-agent/stop.sh packages/linux/
+          cp server/scripts/host-agent/update.sh packages/linux/
+          chmod +x packages/linux/*
+          tar -czf host-agent-linux-amd64.tar.gz -C packages/linux .
+
+      - name: Create Windows package
+        run: |
+          mkdir -p packages/windows
+          cp agent/dist/host-agent-windows-amd64.exe packages/windows/host-agent.exe
+          cp server/scripts/host-agent/install.bat packages/windows/
+          cp server/scripts/host-agent/start.bat packages/windows/
+          cp server/scripts/host-agent/stop.bat packages/windows/
+          cp server/scripts/host-agent/update.bat packages/windows/
+          cd packages/windows && zip -r ../../host-agent-windows-amd64.zip .
+
+      - name: Create macOS amd64 package
+        run: |
+          mkdir -p packages/macos-amd64
+          cp agent/dist/host-agent-macos-amd64 packages/macos-amd64/host-agent
+          cp server/scripts/host-agent/install.sh packages/macos-amd64/
+          cp server/scripts/host-agent/start.sh packages/macos-amd64/
+          cp server/scripts/host-agent/stop.sh packages/macos-amd64/
+          cp server/scripts/host-agent/update.sh packages/macos-amd64/
+          chmod +x packages/macos-amd64/*
+          tar -czf host-agent-macos-amd64.tar.gz -C packages/macos-amd64 .
+
+      - name: Create macOS arm64 package
+        run: |
+          mkdir -p packages/macos-arm64
+          cp agent/dist/host-agent-macos-arm64 packages/macos-arm64/host-agent
+          cp server/scripts/host-agent/install.sh packages/macos-arm64/
+          cp server/scripts/host-agent/start.sh packages/macos-arm64/
+          cp server/scripts/host-agent/stop.sh packages/macos-arm64/
+          cp server/scripts/host-agent/update.sh packages/macos-arm64/
+          chmod +x packages/macos-arm64/*
+          tar -czf host-agent-macos-arm64.tar.gz -C packages/macos-arm64 .
+
+      - name: Upload Linux package
+        uses: actions/upload-artifact@v4
+        with:
+          name: host-agent-linux-amd64
+          path: host-agent-linux-amd64.tar.gz
+          retention-days: 1
+
+      - name: Upload Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: host-agent-windows-amd64
+          path: host-agent-windows-amd64.zip
+          retention-days: 1
+
+      - name: Upload macOS amd64 package
+        uses: actions/upload-artifact@v4
+        with:
+          name: host-agent-macos-amd64
+          path: host-agent-macos-amd64.tar.gz
+          retention-days: 1
+
+      - name: Upload macOS arm64 package
+        uses: actions/upload-artifact@v4
+        with:
+          name: host-agent-macos-arm64
+          path: host-agent-macos-arm64.tar.gz
+          retention-days: 1
+
+  # ============================================
+  # Release - Run after deploy and build_host_packages
   # ============================================
   release:
     name: Release
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    needs: deploy
+    needs:
+      - deploy
+      - build_host_packages
     steps:
       - name: Download deployment bundle
         uses: actions/download-artifact@v4
         with:
           name: production-bundle
+          path: ./release-assets
+
+      - name: Download Linux package
+        uses: actions/download-artifact@v4
+        with:
+          name: host-agent-linux-amd64
+          path: ./release-assets
+
+      - name: Download Windows package
+        uses: actions/download-artifact@v4
+        with:
+          name: host-agent-windows-amd64
+          path: ./release-assets
+
+      - name: Download macOS amd64 package
+        uses: actions/download-artifact@v4
+        with:
+          name: host-agent-macos-amd64
+          path: ./release-assets
+
+      - name: Download macOS arm64 package
+        uses: actions/download-artifact@v4
+        with:
+          name: host-agent-macos-arm64
           path: ./release-assets
 
       - name: Create GitHub release
@@ -172,7 +315,12 @@ jobs:
           tag_name: main-${{ github.run_number }}
           name: main-${{ github.run_number }}
           generate_release_notes: true
-          files: ./release-assets/production-bundle-${{ github.sha }}.tar.gz
+          files: |
+            ./release-assets/production-bundle-${{ github.sha }}.tar.gz
+            ./release-assets/host-agent-linux-amd64.tar.gz
+            ./release-assets/host-agent-windows-amd64.zip
+            ./release-assets/host-agent-macos-amd64.tar.gz
+            ./release-assets/host-agent-macos-arm64.tar.gz
 
   # ============================================
   # Notify - Run after release

@@ -18,6 +18,7 @@ export interface HostInstallGuide {
   packageFileName: string;
   startCommand: string;
   stopCommand: string;
+  uninstallCommand: string;
   updateCommand: string;
   logPath: string;
   pidFile: string;

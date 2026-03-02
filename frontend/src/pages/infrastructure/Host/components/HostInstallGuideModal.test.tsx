@@ -14,6 +14,7 @@ const baseGuide: HostInstallGuide = {
   packageFileName: 'host-agent-linux.tar.gz',
   startCommand: './start.sh',
   stopCommand: './stop.sh',
+  uninstallCommand: './uninstall.sh',
   updateCommand: './update.sh <new-package-dir>',
   logPath: './logs/host-agent.log',
   pidFile: './host-agent.pid',
@@ -47,7 +48,7 @@ describe('buildInstallGuidePresentation', () => {
     const presentation = buildInstallGuidePresentation(baseGuide);
 
     expect(presentation.unpackCommand).toBe('mkdir -p ./host-agent && tar -xzf host-agent-linux.tar.gz -C ./host-agent');
-    expect(presentation.steps[2].description).toContain('保留现有 config.yaml');
+    expect(presentation.steps[2].description).toContain('创建 config.yaml');
     expect(presentation.steps[3].description).toContain('后台方式启动 Agent');
   });
 
@@ -58,6 +59,7 @@ describe('buildInstallGuidePresentation', () => {
       packageFileName: 'host-agent-windows.zip',
       startCommand: 'start.bat',
       stopCommand: 'stop.bat',
+      uninstallCommand: 'uninstall.bat',
       updateCommand: 'update.bat <new-package-dir>',
       logPath: '.\\logs\\host-agent.log',
       pidFile: '.\\host-agent.pid',

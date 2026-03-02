@@ -39,8 +39,11 @@ export const buildInstallGuidePresentation = (guide: HostInstallGuide): InstallG
       },
       {
         key: 'config',
-        title: '3. 确认配置',
-        description: '部署包中的 config.yaml 已写入当前主机身份信息。升级时执行更新命令会保留现有 config.yaml，无需重新填写密钥。',
+        title: '3. 创建配置文件',
+        description: '在 host-agent 目录中创建 config.yaml 文件，填入主机身份信息。',
+        command: windows
+          ? `@"\nhost_id: ${guide.hostId}\nsecret_key: ${guide.secretKey}\n"@ | Out-File -FilePath .\\host-agent\\config.yaml -Encoding utf8`
+          : `cat > ./host-agent/config.yaml <<EOF\nhost_id: ${guide.hostId}\nsecret_key: ${guide.secretKey}\nEOF`,
       },
       {
         key: 'start',
@@ -51,7 +54,7 @@ export const buildInstallGuidePresentation = (guide: HostInstallGuide): InstallG
       {
         key: 'connect',
         title: '5. 发起连接验证',
-        description: 'Agent 后台启动后，回到当前弹窗点击“连接 Host Agent”由服务端主动验证连接。',
+        description: 'Agent 后台启动后，回到当前弹窗点击"连接 Host Agent"由服务端主动验证连接。',
       },
     ],
   };
