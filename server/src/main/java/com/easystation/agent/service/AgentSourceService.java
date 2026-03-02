@@ -16,7 +16,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
-import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -350,9 +350,9 @@ public class AgentSourceService {
         headers.forEach(builder::header);
 
         try {
-            HttpResponse<InputStream> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream());
+            HttpResponse<byte[]> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
-                return response.body();
+                return new ByteArrayInputStream(response.body());
             }
 
             String upstreamError = readResponseBody(response.body());
@@ -381,21 +381,16 @@ public class AgentSourceService {
         }
     }
 
-    private String readResponseBody(InputStream body) {
-        if (body == null) {
+    private String readResponseBody(byte[] body) {
+        if (body == null || body.length == 0) {
             return "";
         }
-        try (InputStream input = body; ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            input.transferTo(output);
-            String responseBody = output.toString(StandardCharsets.UTF_8);
-            responseBody = responseBody.replaceAll("\\s+", " ").trim();
-            if (responseBody.length() > 500) {
-                return responseBody.substring(0, 500) + "...";
-            }
-            return responseBody;
-        } catch (IOException e) {
-            return "failed to read upstream error body: " + e.getMessage();
+        String responseBody = new String(body, StandardCharsets.UTF_8);
+        responseBody = responseBody.replaceAll("\\s+", " ").trim();
+        if (responseBody.length() > 500) {
+            return responseBody.substring(0, 500) + "...";
         }
+        return responseBody;
     }
 
     private Map<String, String> resolveAuthHeaders(AgentCredential credential, AgentSourceType sourceType) {
