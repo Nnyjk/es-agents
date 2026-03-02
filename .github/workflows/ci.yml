@@ -180,7 +180,7 @@ jobs:
         working-directory: ./agent
         run: |
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o dist/host-agent-linux-amd64 ./cmd/host-agent
-          TARGET_GLIBC_VERSION=2.34 bash scripts/verify-linux-compat.sh dist/host-agent-linux-amd64
+          TARGET_GLIBC_VERSION=2.34 bash agent/scripts/verify-linux-compat.sh dist/host-agent-linux-amd64
 
       - name: Build Windows amd64 binary
         working-directory: ./agent
