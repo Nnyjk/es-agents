@@ -253,7 +253,14 @@ public class HostService {
     }
 
     private String getPackageFileName(OsType osType) {
-        return "host-agent-" + osType.name().toLowerCase() + (osType == OsType.WINDOWS ? ".zip" : ".tar.gz");
+        if (osType == OsType.WINDOWS) {
+            return "host-agent-windows.zip";
+        } else if (osType == OsType.MACOS) {
+            return "host-agent-macos.tar.gz";
+        } else {
+            // LINUX and LINUX_DOCKER
+            return "host-agent-linux.tar.gz";
+        }
     }
 
     private HostRecord toDto(Host host) {
