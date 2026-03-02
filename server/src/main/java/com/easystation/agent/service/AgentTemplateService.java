@@ -15,10 +15,12 @@ import com.easystation.agent.record.AgentTemplateRecord;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,9 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class AgentTemplateService {
+
+    @Inject
+    AgentSourceService agentSourceService;
 
     public List<AgentTemplateRecord> list(String osType, String sourceType) {
         StringBuilder query = new StringBuilder("1=1");
@@ -113,6 +118,26 @@ public class AgentTemplateService {
         if (!AgentTemplate.deleteById(id)) {
             throw new WebApplicationException("Agent Template not found", Response.Status.NOT_FOUND);
         }
+    }
+
+    /**
+     * Download agent package for a template.
+     * Delegates to AgentSourceService for unified download handling.
+     * 
+     * @param templateId Template ID
+     * @param fileNameOut Output array to receive the file name (length 1)
+     * @return InputStream of the agent package
+     */
+    public InputStream download(UUID templateId, String[] fileNameOut) {
+        AgentTemplate template = AgentTemplate.findById(templateId);
+        if (template == null) {
+            throw new WebApplicationException("Agent Template not found", Response.Status.NOT_FOUND);
+        }
+        if (template.source == null) {
+            throw new WebApplicationException("Template has no source configured", Response.Status.BAD_REQUEST);
+        }
+        // Delegate to AgentSourceService for unified download handling
+        return agentSourceService.getSourceStream(template.source.id, fileNameOut);
     }
 
     private AgentTemplateRecord toDto(AgentTemplate template) {

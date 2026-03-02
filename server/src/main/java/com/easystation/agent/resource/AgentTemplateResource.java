@@ -8,6 +8,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.io.InputStream;
 import java.util.UUID;
 
 @Path("/agents/templates")
@@ -50,5 +51,23 @@ public class AgentTemplateResource {
     public Response delete(@PathParam("id") UUID id) {
         agentTemplateService.delete(id);
         return Response.noContent().build();
+    }
+
+    /**
+     * Download agent package for a template.
+     * This provides a unified download entry point for all agent resource types.
+     * The actual download logic is handled by AgentSourceService based on the
+     * source type configured for this template (HTTP, GitLab, Maven, Nextcloud, Local).
+     */
+    @GET
+    @Path("/{id}/download")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response download(@PathParam("id") UUID id) {
+        String[] fileName = new String[1];
+        InputStream is = agentTemplateService.download(id, fileName);
+        
+        return Response.ok(is)
+                .header("Content-Disposition", "attachment; filename=\"" + fileName[0] + "\"")
+                .build();
     }
 }
