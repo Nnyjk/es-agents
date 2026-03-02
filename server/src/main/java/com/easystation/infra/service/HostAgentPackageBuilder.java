@@ -2,9 +2,13 @@ package com.easystation.infra.service;
 
 import com.easystation.agent.domain.enums.OsType;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -15,33 +19,72 @@ import java.util.zip.ZipOutputStream;
 public class HostAgentPackageBuilder {
 
     public void writePackage(
-            ZipOutputStream zos,
+            OutputStream output,
             HostAgentResourceResolver.ResolvedHostAgentResource resource,
             InputStream binaryStream,
             String configContent
     ) throws IOException {
-        addFile(zos, resource.fileName(), binaryStream);
-        addText(zos, "config.yaml", configContent);
-
         Map<String, String> scripts = resource.osType() == OsType.WINDOWS
                 ? windowsScripts(resource.fileName())
                 : linuxScripts(resource.fileName());
 
-        for (Map.Entry<String, String> script : scripts.entrySet()) {
-            addText(zos, script.getKey(), script.getValue());
+        if (resource.osType() == OsType.WINDOWS) {
+            try (ZipOutputStream zos = new ZipOutputStream(output)) {
+                addZipFile(zos, resource.fileName(), binaryStream);
+                addZipText(zos, "config.yaml", configContent);
+
+                for (Map.Entry<String, String> script : scripts.entrySet()) {
+                    addZipText(zos, script.getKey(), script.getValue());
+                }
+            }
+            return;
+        }
+
+        try (GzipCompressorOutputStream gzipOutputStream = new GzipCompressorOutputStream(output);
+             TarArchiveOutputStream tarOutputStream = new TarArchiveOutputStream(gzipOutputStream)) {
+            tarOutputStream.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
+
+            addTarFile(tarOutputStream, resource.fileName(), binaryStream, 0755);
+            addTarText(tarOutputStream, "config.yaml", configContent, 0644);
+
+            for (Map.Entry<String, String> script : scripts.entrySet()) {
+                addTarText(tarOutputStream, script.getKey(), script.getValue(), 0755);
+            }
         }
     }
 
-    private void addFile(ZipOutputStream zos, String name, InputStream content) throws IOException {
+    private void addZipFile(ZipOutputStream zos, String name, InputStream content) throws IOException {
         zos.putNextEntry(new ZipEntry(name));
         content.transferTo(zos);
         zos.closeEntry();
     }
 
-    private void addText(ZipOutputStream zos, String name, String content) throws IOException {
+    private void addZipText(ZipOutputStream zos, String name, String content) throws IOException {
         zos.putNextEntry(new ZipEntry(name));
         zos.write(content.getBytes(StandardCharsets.UTF_8));
         zos.closeEntry();
+    }
+
+    private void addTarFile(TarArchiveOutputStream tarOutputStream, String name, InputStream content, int mode)
+            throws IOException {
+        TarArchiveEntry entry = new TarArchiveEntry(name);
+        byte[] data = content.readAllBytes();
+        entry.setSize(data.length);
+        entry.setMode(mode);
+        tarOutputStream.putArchiveEntry(entry);
+        tarOutputStream.write(data);
+        tarOutputStream.closeArchiveEntry();
+    }
+
+    private void addTarText(TarArchiveOutputStream tarOutputStream, String name, String content, int mode)
+            throws IOException {
+        byte[] data = content.getBytes(StandardCharsets.UTF_8);
+        TarArchiveEntry entry = new TarArchiveEntry(name);
+        entry.setSize(data.length);
+        entry.setMode(mode);
+        tarOutputStream.putArchiveEntry(entry);
+        tarOutputStream.write(data);
+        tarOutputStream.closeArchiveEntry();
     }
 
     private Map<String, String> linuxScripts(String binaryName) {

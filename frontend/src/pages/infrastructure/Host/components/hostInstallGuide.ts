@@ -20,7 +20,7 @@ export const buildInstallGuidePresentation = (guide: HostInstallGuide): InstallG
   const osLabel = windows ? 'Windows' : guide.source.osType === 'MACOS' ? 'macOS' : 'Linux';
   const unpackCommand = windows
     ? `Expand-Archive -Path ${guide.packageFileName} -DestinationPath .\\host-agent`
-    : `unzip ${guide.packageFileName} -d ./host-agent`;
+    : `mkdir -p ./host-agent && tar -xzf ${guide.packageFileName} -C ./host-agent`;
 
   return {
     osLabel,

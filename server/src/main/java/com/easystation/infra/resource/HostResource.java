@@ -8,7 +8,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
-import java.nio.file.Files;
 import java.util.UUID;
 
 @Path("/infra/hosts")
@@ -70,9 +69,10 @@ public class HostResource {
         }
 
         StreamingOutput stream = hostService.downloadPackage(id, sourceId);
+        String packageFileName = hostService.getPackageFileName(id);
 
         return Response.ok(stream)
-                .header("Content-Disposition", "attachment; filename=\"host-agent-" + id + ".zip\"")
+                .header("Content-Disposition", "attachment; filename=\"" + packageFileName + "\"")
                 .build();
     }
 }

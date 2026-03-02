@@ -2,6 +2,7 @@ package com.easystation.infra.service;
 
 import com.easystation.agent.service.AgentSourceService;
 import com.easystation.agent.domain.AgentTemplate;
+import com.easystation.agent.domain.enums.OsType;
 import com.easystation.infra.domain.Environment;
 import com.easystation.infra.domain.Host;
 import com.easystation.infra.domain.enums.HostStatus;
@@ -16,13 +17,9 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 import io.quarkus.logging.Log;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @ApplicationScoped
 public class HostService {
@@ -142,9 +139,9 @@ public class HostService {
         }
 
         HostAgentResourceResolver.ResolvedHostAgentResource resource = resolveHostAgentResource(host);
-        boolean windows = resource.osType() == com.easystation.agent.domain.enums.OsType.WINDOWS;
+        boolean windows = resource.osType() == OsType.WINDOWS;
         String downloadUrl = "/api/infra/hosts/" + host.getId() + "/package?sourceId=" + resource.sourceId();
-        String packageFileName = "host-agent-" + resource.osType().name().toLowerCase() + ".zip";
+        String packageFileName = getPackageFileName(resource.osType());
         String installCommand = windows ? "install.bat" : "./install.sh";
         String startCommand = windows ? "start.bat" : "./start.sh";
         String stopCommand = windows ? "stop.bat" : "./stop.sh";
@@ -191,9 +188,8 @@ public class HostService {
         String configContent = generateConfigFile(host);
 
         return output -> {
-            try (ZipOutputStream zos = new ZipOutputStream(output);
-                 sourceStream) {
-                packageBuilder.writePackage(zos, resource, sourceStream, configContent);
+            try (sourceStream) {
+                packageBuilder.writePackage(output, resource, sourceStream, configContent);
             } catch (Exception e) {
                 Log.errorf("Failed to create package for host %s: %s", id, e.getMessage());
                 throw new WebApplicationException("Failed to create package", e);
@@ -207,6 +203,14 @@ public class HostService {
             throw new WebApplicationException("Host not found", Response.Status.NOT_FOUND);
         }
         return generateConfigFile(host);
+    }
+
+    public String getPackageFileName(UUID id) {
+        Host host = Host.findById(id);
+        if (host == null) {
+            throw new WebApplicationException("Host not found", Response.Status.NOT_FOUND);
+        }
+        return getPackageFileName(resolveHostAgentResource(host).osType());
     }
 
     private String generateConfigFile(Host host) {
@@ -236,6 +240,10 @@ public class HostService {
                 ))
                 .toList();
         return resourceResolver.resolve(host.getOs(), candidates);
+    }
+
+    private String getPackageFileName(OsType osType) {
+        return "host-agent-" + osType.name().toLowerCase() + (osType == OsType.WINDOWS ? ".zip" : ".tar.gz");
     }
 
     private HostRecord toDto(Host host) {

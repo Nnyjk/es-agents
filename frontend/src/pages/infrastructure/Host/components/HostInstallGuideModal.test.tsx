@@ -11,7 +11,7 @@ const baseGuide: HostInstallGuide = {
   installScript: './install.sh',
   dockerCommand: '',
   downloadUrl: '/api/infra/hosts/host-1/package?sourceId=source-1',
-  packageFileName: 'host-agent-linux.zip',
+  packageFileName: 'host-agent-linux.tar.gz',
   startCommand: './start.sh',
   stopCommand: './stop.sh',
   updateCommand: './update.sh <new-package-dir>',
@@ -43,10 +43,10 @@ describe('resolveHostPackageDownloadUrl', () => {
 });
 
 describe('buildInstallGuidePresentation', () => {
-  it('builds linux install steps with unzip and background start guidance', () => {
+  it('builds linux install steps with tar and background start guidance', () => {
     const presentation = buildInstallGuidePresentation(baseGuide);
 
-    expect(presentation.unpackCommand).toBe('unzip host-agent-linux.zip -d ./host-agent');
+    expect(presentation.unpackCommand).toBe('mkdir -p ./host-agent && tar -xzf host-agent-linux.tar.gz -C ./host-agent');
     expect(presentation.steps[2].description).toContain('保留现有 config.yaml');
     expect(presentation.steps[3].description).toContain('后台方式启动 Agent');
   });
@@ -90,7 +90,7 @@ describe('HostInstallGuideModal', () => {
       />,
     );
 
-    expect(screen.getByText('下载 host-agent-linux.zip')).toBeInTheDocument();
+    expect(screen.getByText('下载 host-agent-linux.tar.gz')).toBeInTheDocument();
     expect(screen.getByText('2. 解压部署包')).toBeInTheDocument();
     expect(screen.getByText('5. 发起连接验证')).toBeInTheDocument();
     expect(screen.getByText('./install.sh')).toBeInTheDocument();
