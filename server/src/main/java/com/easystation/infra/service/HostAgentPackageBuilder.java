@@ -102,7 +102,7 @@ public class HostAgentPackageBuilder {
                 set -eu
 
                 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
-                exec "$SCRIPT_DIR/start.sh"
+                "$SCRIPT_DIR/start.sh"
                 """;
     }
 
@@ -166,10 +166,7 @@ public class HostAgentPackageBuilder {
                 SOURCE_DIR="${1:-$SCRIPT_DIR}"
                 BINARY_NAME="%s"
 
-                if [ -x "$SCRIPT_DIR/stop.sh" ]; then
-                  "$SCRIPT_DIR/stop.sh" || true
-                fi
-
+                # Extract and replace binaries and scripts (except config.yaml)
                 for FILE in "$BINARY_NAME" install.sh start.sh stop.sh update.sh; do
                   if [ ! -f "$SOURCE_DIR/$FILE" ]; then
                     continue

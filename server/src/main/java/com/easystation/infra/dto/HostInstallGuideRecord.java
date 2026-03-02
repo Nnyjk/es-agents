@@ -11,6 +11,7 @@ public record HostInstallGuideRecord(
     String packageFileName,
     String startCommand,
     String stopCommand,
+    String uninstallCommand,
     String updateCommand,
     String logPath,
     String pidFile,

@@ -140,8 +140,7 @@ public class HostService {
 
         HostAgentResourceResolver.ResolvedHostAgentResource resource = resolveHostAgentResource(host);
         boolean windows = resource.osType() == OsType.WINDOWS;
-        // Use GitHub releases URL for pre-built packages to avoid 502 errors from on-the-fly package building
-        String downloadUrl = buildGitHubReleaseDownloadUrl(resource.osType());
+        String downloadUrl = "/api/infra/hosts/" + host.getId() + "/package?sourceId=" + resource.sourceId();
         String packageFileName = getPackageFileName(resource.osType());
         String installCommand = windows ? "install.bat" : "./install.sh";
         String startCommand = windows ? "start.bat" : "./start.sh";
@@ -169,15 +168,6 @@ public class HostService {
                         resource.osType().name()
                 )
         );
-    }
-
-    /**
-     * Build GitHub releases download URL for host agent package.
-     * Uses 'latest' tag to always get the most recent stable release.
-     */
-    private String buildGitHubReleaseDownloadUrl(OsType osType) {
-        String fileName = getPackageFileName(osType);
-        return "https://github.com/Nnyjk/es-agents/releases/latest/download/" + fileName;
     }
 
     public StreamingOutput downloadPackage(UUID id, UUID sourceId) {

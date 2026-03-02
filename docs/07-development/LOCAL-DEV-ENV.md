@@ -221,7 +221,7 @@ cd agent
 go run ./cmd/host-agent --config ./.dev/config.yaml
 ```
 
-`host-agent` 当前按纯 Go 静态构建维护，本地调试和 CI 均直接使用 `CGO_ENABLED=0` 构建，不再单独维护 GLIBC 基线检查链路。
+`host-agent` 按纯 Go 静态构建维护，使用 `CGO_ENABLED=0` 和构建标签 `netgo osusergo` 确保无 GLIBC 依赖。CI 包含 `verify-linux-compat.sh` 脚本验证二进制文件为静态链接，本地开发可选运行该脚本验证构建结果。
 
 ## 本地调试脚本
 
