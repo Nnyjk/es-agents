@@ -342,6 +342,10 @@ public class AgentSourceService {
             .uri(URI.create(url))
             .GET();
 
+        if (isGitHubUrl(url)) {
+            builder.header("User-Agent", "easy-station-agent/1.0");
+        }
+
         Map<String, String> headers = resolveAuthHeaders(credential, sourceType);
         headers.forEach(builder::header);
 
@@ -350,12 +354,47 @@ public class AgentSourceService {
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
                 return response.body();
             }
-            throw new WebApplicationException("Failed to download from URL: " + response.statusCode(), Response.Status.BAD_GATEWAY);
+
+            String upstreamError = readResponseBody(response.body());
+            String message = "Failed to download from URL. Upstream status: " + response.statusCode();
+            if (!upstreamError.isBlank()) {
+                message += ", details: " + upstreamError;
+            }
+            throw new WebApplicationException(message, Response.Status.BAD_GATEWAY);
         } catch (IOException e) {
-            throw new WebApplicationException("Failed to download from URL: " + e.getMessage(), Response.Status.BAD_GATEWAY);
+            throw new WebApplicationException("Failed to download from URL. Upstream IO error: " + e.getMessage(), Response.Status.BAD_GATEWAY);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new WebApplicationException("Download interrupted", Response.Status.BAD_GATEWAY);
+        }
+    }
+
+    private boolean isGitHubUrl(String url) {
+        try {
+            String host = URI.create(url).getHost();
+            if (host == null) {
+                return false;
+            }
+            return "github.com".equalsIgnoreCase(host) || "api.github.com".equalsIgnoreCase(host) || host.endsWith(".github.com");
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    private String readResponseBody(InputStream body) {
+        if (body == null) {
+            return "";
+        }
+        try (InputStream input = body; ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            input.transferTo(output);
+            String responseBody = output.toString(StandardCharsets.UTF_8);
+            responseBody = responseBody.replaceAll("\\s+", " ").trim();
+            if (responseBody.length() > 500) {
+                return responseBody.substring(0, 500) + "...";
+            }
+            return responseBody;
+        } catch (IOException e) {
+            return "failed to read upstream error body: " + e.getMessage();
         }
     }
 
