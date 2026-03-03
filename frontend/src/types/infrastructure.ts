@@ -1,4 +1,9 @@
-export type HostStatus = 'UNCONNECTED' | 'OFFLINE' | 'ONLINE' | 'EXCEPTION' | 'MAINTENANCE';
+export type HostStatus =
+  | "UNCONNECTED"
+  | "OFFLINE"
+  | "ONLINE"
+  | "EXCEPTION"
+  | "MAINTENANCE";
 
 export interface Environment {
   id: string;

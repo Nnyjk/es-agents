@@ -20,7 +20,7 @@ export interface LoginResult {
 export interface User {
   id: string;
   username: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'LOCKED';
+  status: "ACTIVE" | "INACTIVE" | "LOCKED";
   roles: Role[];
   roleIds?: string[];
   password?: string;
@@ -40,19 +40,19 @@ export interface Module {
   parentId?: string;
   name: string;
   code: string;
-  type: 'DIRECTORY' | 'MENU' | 'BUTTON';
+  type: "DIRECTORY" | "MENU" | "BUTTON";
   path?: string;
   icon?: string;
   sortOrder?: number;
   children?: Module[];
 }
 
-import { Host } from './infrastructure';
+import { Host } from "./infrastructure";
 
 export interface AgentCredential {
   id: string;
   name: string;
-  type: 'STATIC_TOKEN' | 'API_TOKEN' | 'SCRIPT_TOKEN' | 'SSO_TOKEN';
+  type: "STATIC_TOKEN" | "API_TOKEN" | "SCRIPT_TOKEN" | "SSO_TOKEN";
   config: string;
   createdAt: string;
   updatedAt: string;
@@ -61,13 +61,13 @@ export interface AgentCredential {
 export interface AgentCredentialSimple {
   id: string;
   name: string;
-  type: 'STATIC_TOKEN' | 'API_TOKEN' | 'SCRIPT_TOKEN' | 'SSO_TOKEN';
+  type: "STATIC_TOKEN" | "API_TOKEN" | "SCRIPT_TOKEN" | "SSO_TOKEN";
 }
 
 export interface AgentRepository {
   id: string;
   name: string;
-  type: 'GITLAB' | 'MAVEN' | 'NEXTCLOUD';
+  type: "GITLAB" | "MAVEN" | "NEXTCLOUD";
   baseUrl: string;
   projectPath: string;
   defaultBranch?: string;
@@ -80,13 +80,22 @@ export interface AgentRepository {
 export interface AgentRepositorySimple {
   id: string;
   name: string;
-  type: 'GITLAB' | 'MAVEN' | 'NEXTCLOUD';
+  type: "GITLAB" | "MAVEN" | "NEXTCLOUD";
 }
 
 export interface AgentResource {
   id: string;
   name: string;
-  type: 'GITLAB' | 'MAVEN' | 'NEXTCLOUD' | 'GIT' | 'DOCKER' | 'HTTPS' | 'HTTP' | 'LOCAL' | 'ALIYUN';
+  type:
+    | "GITLAB"
+    | "MAVEN"
+    | "NEXTCLOUD"
+    | "GIT"
+    | "DOCKER"
+    | "HTTPS"
+    | "HTTP"
+    | "LOCAL"
+    | "ALIYUN";
   config: string;
   repository?: AgentRepositorySimple;
   repositoryId?: string;
@@ -124,7 +133,7 @@ export interface AgentInstance {
   hostId?: string; // Form usage
   template: AgentTemplate;
   templateId?: string; // Form usage
-  status: 'OFFLINE' | 'ONLINE' | 'BUSY' | 'UNCONFIGURED';
+  status: "OFFLINE" | "ONLINE" | "BUSY" | "UNCONFIGURED";
   version?: string;
   lastHeartbeatTime?: string;
   createdAt: string;
@@ -148,4 +157,4 @@ export interface ListResponse<T> {
 }
 
 // 基础设施相关类型
-export * from './infrastructure';
+export * from "./infrastructure";

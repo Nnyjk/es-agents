@@ -4,13 +4,13 @@
 
 ## 系统要求
 
-| 组件 | 版本要求 | 说明 |
-|------|----------|------|
-| Node.js | 20.x | 前端开发 |
-| Java | 21.x | 服务端开发 (Temurin 推荐) |
-| Go | 1.23+ | Agent 开发 |
-| Maven | 3.8+ | 服务端构建 |
-| Git | 2.x+ | 版本控制 |
+| 组件    | 版本要求 | 说明                      |
+| ------- | -------- | ------------------------- |
+| Node.js | 20.x     | 前端开发                  |
+| Java    | 21.x     | 服务端开发 (Temurin 推荐) |
+| Go      | 1.23+    | Agent 开发                |
+| Maven   | 3.8+     | 服务端构建                |
+| Git     | 2.x+     | 版本控制                  |
 
 ## 环境安装
 
@@ -227,12 +227,12 @@ go run ./cmd/host-agent --config ./.dev/config.yaml
 
 仓库根目录提供以下脚本：
 
-| 脚本 | 作用 |
-|------|------|
-| `scripts/dev-frontend.sh` | 安装前端依赖（如缺失）并启动 Vite 开发服务器 |
-| `scripts/dev-server.sh` | 设置本地数据库默认值并启动 Quarkus dev mode |
-| `scripts/dev-host-agent-config.sh` | 生成 `agent/.dev/config.yaml` |
-| `scripts/dev-host-agent.sh` | 使用调试配置启动 HostAgent |
+| 脚本                               | 作用                                         |
+| ---------------------------------- | -------------------------------------------- |
+| `scripts/dev-frontend.sh`          | 安装前端依赖（如缺失）并启动 Vite 开发服务器 |
+| `scripts/dev-server.sh`            | 设置本地数据库默认值并启动 Quarkus dev mode  |
+| `scripts/dev-host-agent-config.sh` | 生成 `agent/.dev/config.yaml`                |
+| `scripts/dev-host-agent.sh`        | 使用调试配置启动 HostAgent                   |
 
 `scripts/dev-host-agent-config.sh` 支持可选输出路径参数：
 
@@ -285,6 +285,7 @@ echo "✅ All checks passed!"
 ### Frontend
 
 **Q: npm install 失败**
+
 ```bash
 # 清理缓存
 npm cache clean --force
@@ -293,6 +294,7 @@ npm ci --legacy-peer-deps
 ```
 
 **Q: TypeScript 类型错误**
+
 ```bash
 # 检查 TypeScript 配置
 npx tsc --showConfig
@@ -301,6 +303,7 @@ npx tsc --showConfig
 ### Server
 
 **Q: Maven 构建失败**
+
 ```bash
 # 清理并重新构建
 mvn clean
@@ -308,6 +311,7 @@ mvn -B -DskipTests package --file server/pom.xml
 ```
 
 **Q: Java 版本不匹配**
+
 ```bash
 # 检查当前 Java 版本
 java --version
@@ -318,6 +322,7 @@ sdk use java 21.0.2-tem
 ### Agent
 
 **Q: Go 模块下载失败**
+
 ```bash
 # 清理模块缓存
 go clean -modcache
@@ -325,6 +330,7 @@ go mod download
 ```
 
 **Q: HostAgent 启动失败或配置不生效**
+
 ```bash
 # 重新生成本地配置
 ./scripts/dev-host-agent-config.sh
@@ -383,6 +389,7 @@ _最后更新：2026-03-02_
 ```
 
 **使用场景**：
+
 - 提交 PR 前的完整验证
 - 开发过程中阶段性检查
 - CI 失败后的本地复现
@@ -397,11 +404,13 @@ _最后更新：2026-03-02_
 ```
 
 **检查内容**：
+
 - 修改的 Go 文件语法检查（`go vet`）
 - 修改的 TypeScript 文件格式检查（Prettier）
 - 合并标记检测
 
 **使用场景**：
+
 - commit 前快速验证
 - 开发过程中频繁检查
 
@@ -422,6 +431,7 @@ git config core.hooksPath .githooks
 安装后，每次 commit 会自动运行 `quick-check.sh`。
 
 **跳过检查**（不推荐）：
+
 ```bash
 git commit --no-verify -m "your message"
 ```

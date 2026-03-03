@@ -1,6 +1,7 @@
 # 文档总览（Docs Index）
 
 ## 推荐阅读顺序
+
 1. 项目现状分析：`docs/00-overview/PROJECT-ANALYSIS.md`
 2. 需求主文档（唯一事实来源 / SSOT）：`docs/01-requirements/easy-station-requirements.md`
 3. 需求收敛方案（Issue #3）：`docs/00-overview/DOC-RESTRUCTURE-PLAN.md`
@@ -12,6 +13,7 @@
 9. **本地开发 / 调试**：`docs/07-development/LOCAL-DEV-ENV.md`（新开发者必读）
 
 ## 文档域说明
+
 - `00-overview/`：文档导航入口、结构方案与阅读指引。
 - `01-requirements/`：产品与功能需求（业务视角）；其中 `easy-station-requirements.md` 为需求主文档，`01/02/03` 为引用页。
 - `02-governance/`：研发规则与协作约束。

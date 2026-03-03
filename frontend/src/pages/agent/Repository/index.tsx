@@ -1,16 +1,22 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { PlusOutlined } from '@ant-design/icons';
-import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { ProTable } from '@ant-design/pro-components';
-import { Button, message, Popconfirm, Form, Select, Input } from 'antd';
-import { DrawerForm } from '../../../components/DrawerForm';
-import { queryAgentRepositories, saveAgentRepository, removeAgentRepository, queryAgentCredentials } from '../../../services/agent';
-import type { AgentRepository, AgentCredential } from '../../../types';
+import React, { useRef, useState, useEffect } from "react";
+import { PlusOutlined } from "@ant-design/icons";
+import type { ActionType, ProColumns } from "@ant-design/pro-components";
+import { ProTable } from "@ant-design/pro-components";
+import { Button, message, Popconfirm, Form, Select, Input } from "antd";
+import { DrawerForm } from "../../../components/DrawerForm";
+import {
+  queryAgentRepositories,
+  saveAgentRepository,
+  removeAgentRepository,
+  queryAgentCredentials,
+} from "../../../services/agent";
+import type { AgentRepository, AgentCredential } from "../../../types";
 
 const AgentRepositoryList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [editingItem, setEditingItem] = useState<Partial<AgentRepository> | null>(null);
+  const [editingItem, setEditingItem] =
+    useState<Partial<AgentRepository> | null>(null);
   const [credentials, setCredentials] = useState<AgentCredential[]>([]);
 
   useEffect(() => {
@@ -19,43 +25,43 @@ const AgentRepositoryList: React.FC = () => {
 
   const columns: ProColumns<AgentRepository>[] = [
     {
-      title: '仓库名称',
-      dataIndex: 'name',
+      title: "仓库名称",
+      dataIndex: "name",
       ellipsis: true,
       copyable: true,
     },
     {
-      title: '类型',
-      dataIndex: 'type',
+      title: "类型",
+      dataIndex: "type",
       valueEnum: {
-        GITLAB: { text: 'GitLab', status: 'Processing' },
-        MAVEN: { text: 'Maven 仓库', status: 'Success' },
-        NEXTCLOUD: { text: 'Nextcloud', status: 'Default' },
+        GITLAB: { text: "GitLab", status: "Processing" },
+        MAVEN: { text: "Maven 仓库", status: "Success" },
+        NEXTCLOUD: { text: "Nextcloud", status: "Default" },
       },
     },
     {
-      title: '基础地址',
-      dataIndex: 'baseUrl',
+      title: "基础地址",
+      dataIndex: "baseUrl",
       ellipsis: true,
     },
     {
-      title: '项目路径',
-      dataIndex: 'projectPath',
+      title: "项目路径",
+      dataIndex: "projectPath",
       ellipsis: true,
     },
     {
-      title: '默认分支',
-      dataIndex: 'defaultBranch',
+      title: "默认分支",
+      dataIndex: "defaultBranch",
       search: false,
     },
     {
-      title: '关联凭证',
-      dataIndex: 'credential',
-      render: (_value, record) => record.credential?.name || '-',
+      title: "关联凭证",
+      dataIndex: "credential",
+      render: (_value, record) => record.credential?.name || "-",
     },
     {
-      title: '操作',
-      valueType: 'option',
+      title: "操作",
+      valueType: "option",
       render: (_text, record, _, action) => [
         <a
           key="edit"
@@ -71,11 +77,11 @@ const AgentRepositoryList: React.FC = () => {
           title="确定删除该仓库吗？"
           onConfirm={async () => {
             await removeAgentRepository(record.id);
-            message.success('删除成功');
+            message.success("删除成功");
             action?.reload();
           }}
         >
-          <a style={{ color: 'red' }}>删除</a>
+          <a style={{ color: "red" }}>删除</a>
         </Popconfirm>,
       ],
     },
@@ -83,7 +89,7 @@ const AgentRepositoryList: React.FC = () => {
 
   const buildInitialValues = () => {
     if (!editingItem) {
-      return { type: 'GITLAB' };
+      return { type: "GITLAB" };
     }
     return {
       ...editingItem,
@@ -103,13 +109,13 @@ const AgentRepositoryList: React.FC = () => {
         credentialId: data.credentialId,
       };
       await saveAgentRepository(payload);
-      message.success('保存成功');
+      message.success("保存成功");
       setDrawerVisible(false);
       setEditingItem(null);
       actionRef.current?.reload();
     } catch (error) {
       console.error(error);
-      message.error('保存失败');
+      message.error("保存失败");
     }
   };
 
@@ -150,7 +156,7 @@ const AgentRepositoryList: React.FC = () => {
 
       <DrawerForm
         visible={drawerVisible}
-        title={editingItem ? '编辑仓库' : '新建仓库'}
+        title={editingItem ? "编辑仓库" : "新建仓库"}
         width={600}
         onClose={handleClose}
         onSave={handleSave}
@@ -169,7 +175,11 @@ const AgentRepositoryList: React.FC = () => {
         <Form.Item name="baseUrl" label="基础地址" rules={[{ required: true }]}>
           <Input placeholder="例如：https://git.dev.yd" />
         </Form.Item>
-        <Form.Item name="projectPath" label="项目路径" rules={[{ required: true }]}>
+        <Form.Item
+          name="projectPath"
+          label="项目路径"
+          rules={[{ required: true }]}
+        >
           <Input placeholder="例如：group/project" />
         </Form.Item>
         <Form.Item name="defaultBranch" label="默认分支">
@@ -177,7 +187,7 @@ const AgentRepositoryList: React.FC = () => {
         </Form.Item>
         <Form.Item name="credentialId" label="关联凭证">
           <Select placeholder="可选：选择凭证" allowClear>
-            {credentials.map(credential => (
+            {credentials.map((credential) => (
               <Select.Option key={credential.id} value={credential.id}>
                 {credential.name} ({credential.type})
               </Select.Option>

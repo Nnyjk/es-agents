@@ -40,10 +40,10 @@ jobs:
           # Frontend
           npm ci --legacy-peer-deps
           npm --prefix frontend run build
-          
+
           # Server
           mvn -B -DskipTests package --file server/pom.xml
-          
+
           # Agent (all platforms)
           cd agent
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-linux-amd64 ./cmd/host-agent
@@ -59,19 +59,19 @@ jobs:
           cp server/target/*.jar dist/deploy/
           cp agent/dist/host-agent-linux-amd64 dist/deploy/
           tar -czf production-bundle-${{ github.sha }}.tar.gz -C dist deploy
-          
+
           # Platform packages
           mkdir -p packages/linux && cp agent/dist/host-agent-linux-amd64 packages/linux/host-agent
           chmod +x packages/linux/*
           tar -czf host-agent-linux-amd64.tar.gz -C packages/linux .
-          
+
           mkdir -p packages/windows && cp agent/dist/host-agent-windows-amd64.exe packages/windows/host-agent.exe
           cd packages/windows && zip -r ../../host-agent-windows-amd64.zip .
-          
+
           mkdir -p packages/macos && cp agent/dist/host-agent-macos-amd64 packages/macos/host-agent
           chmod +x packages/macos/*
           tar -czf host-agent-macos-amd64.tar.gz -C packages/macos .
-          
+
           mkdir -p packages/macos-arm64 && cp agent/dist/host-agent-macos-arm64 packages/macos-arm64/host-agent
           chmod +x packages/macos-arm64/*
           tar -czf host-agent-macos-arm64.tar.gz -C packages/macos-arm64 .

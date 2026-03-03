@@ -1,18 +1,28 @@
-import request from '../utils/request';
-import axios from 'axios';
-import type { Host, Environment, PageParams, ListResponse, HostInstallGuide } from '../types';
+import request from "../utils/request";
+import axios from "axios";
+import type {
+  Host,
+  Environment,
+  PageParams,
+  ListResponse,
+  HostInstallGuide,
+} from "../types";
 
 // Environments
-export const queryEnvironments = async (params?: PageParams): Promise<Environment[] | ListResponse<Environment>> => {
+export const queryEnvironments = async (
+  params?: PageParams,
+): Promise<Environment[] | ListResponse<Environment>> => {
   // 暂时直接返回列表，如果后端支持分页则返回 ListResponse
-  return request.get('/infra/environments', { params });
+  return request.get("/infra/environments", { params });
 };
 
-export const saveEnvironment = (data: Partial<Environment>): Promise<Environment> => {
+export const saveEnvironment = (
+  data: Partial<Environment>,
+): Promise<Environment> => {
   if (data.id) {
     return request.put(`/infra/environments/${data.id}`, data);
   }
-  return request.post('/infra/environments', data);
+  return request.post("/infra/environments", data);
 };
 
 export const removeEnvironment = (id: string): Promise<void> => {
@@ -20,13 +30,15 @@ export const removeEnvironment = (id: string): Promise<void> => {
 };
 
 // Hosts
-export const queryHosts = async (params?: PageParams): Promise<Host[] | ListResponse<Host>> => {
+export const queryHosts = async (
+  params?: PageParams,
+): Promise<Host[] | ListResponse<Host>> => {
   type HostApi = {
     id: string;
     name: string;
     hostname: string;
     os?: string;
-    status: Host['status'];
+    status: Host["status"];
     environmentId?: string;
     environmentName?: string;
     environment?: { id?: string; name?: string };
@@ -40,7 +52,9 @@ export const queryHosts = async (params?: PageParams): Promise<Host[] | ListResp
     updatedAt?: string;
   };
 
-  const res = (await request.get('/infra/hosts', { params })) as unknown as HostApi[] | ListResponse<HostApi>;
+  const res = (await request.get("/infra/hosts", { params })) as unknown as
+    | HostApi[]
+    | ListResponse<HostApi>;
   const normalizeHost = (item: HostApi): Host => ({
     id: item.id,
     name: item.name,
@@ -89,7 +103,7 @@ export const saveHost = (data: Partial<Host>): Promise<Host> => {
   if (data.id) {
     return request.put(`/infra/hosts/${data.id}`, payload);
   }
-  return request.post('/infra/hosts', payload);
+  return request.post("/infra/hosts", payload);
 };
 
 export const removeHost = (id: string): Promise<void> => {
@@ -113,18 +127,18 @@ export const getInstallGuide = (id: string): Promise<HostInstallGuide> => {
 export const downloadHostPackage = async (
   downloadUrl: string | null | undefined,
   githubReleaseUrl: string | null | undefined,
-  fileName: string
+  fileName: string,
 ): Promise<void> => {
   // Prefer GitHub Releases URL if available (avoids 502 errors from server proxy)
   if (githubReleaseUrl && githubReleaseUrl.trim()) {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     const response = await axios.get(githubReleaseUrl, {
-      responseType: 'blob',
+      responseType: "blob",
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     });
 
     const blobUrl = window.URL.createObjectURL(response.data);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = blobUrl;
     link.download = fileName;
     document.body.appendChild(link);
@@ -136,19 +150,21 @@ export const downloadHostPackage = async (
 
   // Fallback to API endpoint
   if (!downloadUrl) {
-    throw new Error('缺少下载地址');
+    throw new Error("缺少下载地址");
   }
-  
-  const apiUrl = downloadUrl.startsWith('/api/') ? downloadUrl : `/api${downloadUrl}`;
-  const token = localStorage.getItem('token');
-  
+
+  const apiUrl = downloadUrl.startsWith("/api/")
+    ? downloadUrl
+    : `/api${downloadUrl}`;
+  const token = localStorage.getItem("token");
+
   const response = await axios.get(apiUrl, {
-    responseType: 'blob',
+    responseType: "blob",
     headers: token ? { Authorization: `Bearer ${token}` } : undefined,
   });
 
   const blobUrl = window.URL.createObjectURL(response.data);
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   link.href = blobUrl;
   link.download = fileName;
   document.body.appendChild(link);
@@ -158,12 +174,13 @@ export const downloadHostPackage = async (
 };
 
 // Host package download URL validation and normalization
-const HOST_PACKAGE_DOWNLOAD_API_PATH = /^\/(?:api\/)?infra\/hosts\/[^/]+\/package(?:\?.*)?$/;
+const HOST_PACKAGE_DOWNLOAD_API_PATH =
+  /^\/(?:api\/)?infra\/hosts\/[^/]+\/package(?:\?.*)?$/;
 
 export const resolveHostPackageDownloadUrl = (downloadUrl: string): string => {
   if (!HOST_PACKAGE_DOWNLOAD_API_PATH.test(downloadUrl)) {
-    throw new Error('安装引导返回了无效的部署包地址');
+    throw new Error("安装引导返回了无效的部署包地址");
   }
 
-  return downloadUrl.startsWith('/api/') ? downloadUrl : `/api${downloadUrl}`;
+  return downloadUrl.startsWith("/api/") ? downloadUrl : `/api${downloadUrl}`;
 };
