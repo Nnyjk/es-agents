@@ -45,11 +45,18 @@ jobs:
           mvn -B -DskipTests package --file server/pom.xml
 
           # Agent (all platforms)
-          cd agent
+          cd $GITHUB_WORKSPACE/agent
+          mkdir -p dist
+          echo "Building Linux amd64..."
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-linux-amd64 ./cmd/host-agent
+          echo "Building Windows amd64..."
           CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-windows-amd64.exe ./cmd/host-agent
+          echo "Building macOS amd64..."
           CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-macos-amd64 ./cmd/host-agent
+          echo "Building macOS arm64..."
           CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-macos-arm64 ./cmd/host-agent
+          echo "All builds complete. Contents:"
+          ls -la dist/
 
       - name: Package artifacts
         run: |
