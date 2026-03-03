@@ -1,12 +1,18 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { PlusOutlined } from '@ant-design/icons';
-import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { ProTable } from '@ant-design/pro-components';
-import { Button, message, Popconfirm, Tag, Form, Input, Select } from 'antd';
-import { DrawerForm } from '../../../components/DrawerForm';
-import { getUsers, createUser, updateUser, deleteUser, changeUserStatus } from '../../../services/user';
-import { getRoles } from '../../../services/role';
-import type { User, Role } from '../../../types';
+import React, { useRef, useState, useEffect } from "react";
+import { PlusOutlined } from "@ant-design/icons";
+import type { ActionType, ProColumns } from "@ant-design/pro-components";
+import { ProTable } from "@ant-design/pro-components";
+import { Button, message, Popconfirm, Tag, Form, Input, Select } from "antd";
+import { DrawerForm } from "../../../components/DrawerForm";
+import {
+  getUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+  changeUserStatus,
+} from "../../../services/user";
+import { getRoles } from "../../../services/role";
+import type { User, Role } from "../../../types";
 
 const UserList: React.FC = () => {
   const actionRef = useRef<ActionType>();
@@ -29,38 +35,38 @@ const UserList: React.FC = () => {
 
   const columns: ProColumns<User>[] = [
     {
-      title: '用户名',
-      dataIndex: 'username',
+      title: "用户名",
+      dataIndex: "username",
       copyable: true,
       ellipsis: true,
       formItemProps: {
-        rules: [{ required: true, message: '此项为必填项' }],
+        rules: [{ required: true, message: "此项为必填项" }],
       },
     },
     {
-      title: '密码',
-      dataIndex: 'password',
+      title: "密码",
+      dataIndex: "password",
       hideInTable: true,
       hideInSearch: true,
-      valueType: 'password',
+      valueType: "password",
       formItemProps: {
-        rules: [{ required: true, message: '此项为必填项' }],
+        rules: [{ required: true, message: "此项为必填项" }],
       },
       // Only show in create
-      hideInForm: false, 
+      hideInForm: false,
     },
     {
-      title: '状态',
-      dataIndex: 'status',
+      title: "状态",
+      dataIndex: "status",
       valueEnum: {
-        ACTIVE: { text: '正常', status: 'Success' },
-        INACTIVE: { text: '停用', status: 'Error' },
-        LOCKED: { text: '锁定', status: 'Warning' },
+        ACTIVE: { text: "正常", status: "Success" },
+        INACTIVE: { text: "停用", status: "Error" },
+        LOCKED: { text: "锁定", status: "Warning" },
       },
     },
     {
-      title: '角色',
-      dataIndex: 'roles',
+      title: "角色",
+      dataIndex: "roles",
       hideInForm: true,
       hideInSearch: true,
       render: (_, record) => (
@@ -72,21 +78,21 @@ const UserList: React.FC = () => {
       ),
     },
     {
-      title: '角色设置',
-      dataIndex: 'roleIds',
+      title: "角色设置",
+      dataIndex: "roleIds",
       hideInTable: true,
       hideInSearch: true,
-      valueType: 'select',
-      fieldProps: { mode: 'multiple' },
+      valueType: "select",
+      fieldProps: { mode: "multiple" },
       request: async () => {
         const roles = await getRoles();
         return roles.map((r: Role) => ({ label: r.name, value: r.id }));
       },
     },
     {
-      title: '操作',
-      valueType: 'option',
-      key: 'option',
+      title: "操作",
+      valueType: "option",
+      key: "option",
       render: (_text, record, _, action) => [
         <a
           key="editable"
@@ -102,23 +108,33 @@ const UserList: React.FC = () => {
           title="确定删除吗?"
           onConfirm={async () => {
             await deleteUser(record.id);
-            message.success('删除成功');
+            message.success("删除成功");
             action?.reload();
           }}
         >
-          <a style={{ color: 'red' }}>删除</a>
+          <a style={{ color: "red" }}>删除</a>
         </Popconfirm>,
-        record.status === 'ACTIVE' ? (
-           <a key="stop" onClick={async () => {
-             await changeUserStatus(record.id, 'INACTIVE');
-             action?.reload();
-           }}>停用</a>
+        record.status === "ACTIVE" ? (
+          <a
+            key="stop"
+            onClick={async () => {
+              await changeUserStatus(record.id, "INACTIVE");
+              action?.reload();
+            }}
+          >
+            停用
+          </a>
         ) : (
-           <a key="start" onClick={async () => {
-             await changeUserStatus(record.id, 'ACTIVE');
-             action?.reload();
-           }}>启用</a>
-        )
+          <a
+            key="start"
+            onClick={async () => {
+              await changeUserStatus(record.id, "ACTIVE");
+              action?.reload();
+            }}
+          >
+            启用
+          </a>
+        ),
       ],
     },
   ];
@@ -126,10 +142,10 @@ const UserList: React.FC = () => {
   const handleSave = async (data: any) => {
     if (editingItem) {
       await updateUser(editingItem.id, data);
-      message.success('更新成功');
+      message.success("更新成功");
     } else {
       await createUser(data);
-      message.success('创建成功');
+      message.success("创建成功");
     }
     setDrawerVisible(false);
     setEditingItem(null);
@@ -155,16 +171,16 @@ const UserList: React.FC = () => {
           };
         }}
         editable={{
-          type: 'multiple',
+          type: "multiple",
           onSave: async (_key, row) => {
-             const { id, ...rest } = row;
-             await updateUser(id, rest);
-             message.success('更新成功');
+            const { id, ...rest } = row;
+            await updateUser(id, rest);
+            message.success("更新成功");
           },
         }}
         rowKey="id"
         search={{
-          labelWidth: 'auto',
+          labelWidth: "auto",
         }}
         toolBarRender={() => [
           <Button
@@ -183,11 +199,11 @@ const UserList: React.FC = () => {
 
       <DrawerForm
         visible={drawerVisible}
-        title={editingItem ? '编辑用户' : '新建用户'}
+        title={editingItem ? "编辑用户" : "新建用户"}
         width={600}
         onClose={handleClose}
         onSave={handleSave}
-        initialValues={editingItem || { status: 'ACTIVE' }}
+        initialValues={editingItem || { status: "ACTIVE" }}
       >
         <Form.Item name="username" label="用户名" rules={[{ required: true }]}>
           <Input placeholder="请输入用户名" />
@@ -206,8 +222,10 @@ const UserList: React.FC = () => {
         </Form.Item>
         <Form.Item name="roleIds" label="角色">
           <Select mode="multiple" placeholder="请选择角色">
-            {roles.map(role => (
-              <Select.Option key={role.id} value={role.id}>{role.name}</Select.Option>
+            {roles.map((role) => (
+              <Select.Option key={role.id} value={role.id}>
+                {role.name}
+              </Select.Option>
             ))}
           </Select>
         </Form.Item>

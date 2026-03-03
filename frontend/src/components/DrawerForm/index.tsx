@@ -1,5 +1,5 @@
-import React from 'react';
-import { Drawer, Button, Form, Space } from 'antd';
+import React from "react";
+import { Drawer, Button, Form, Space } from "antd";
 
 interface DrawerFormProps {
   visible: boolean;
@@ -35,7 +35,7 @@ const DrawerForm: React.FC<DrawerFormProps> = ({
       const values = await form.validateFields();
       await onSave(values);
     } catch (error) {
-      console.error('表单验证失败:', error);
+      console.error("表单验证失败:", error);
     }
   };
 

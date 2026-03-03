@@ -270,6 +270,7 @@ public class HostAgentPackageBuilder {
                 if [ -n "$CONFIG_BACKUP" ] && [ -f "$CONFIG_BACKUP" ]; then
                   echo "Restoring $CONFIG_FILE..."
                   mv "$CONFIG_BACKUP" "$SCRIPT_DIR/$CONFIG_FILE"
+                  echo "config.yaml preserved"
                 fi
 
                 # Make scripts executable

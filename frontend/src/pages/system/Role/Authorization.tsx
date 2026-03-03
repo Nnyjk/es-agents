@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Drawer, Tree, Button, message, Spin, Space } from 'antd';
-import { useParams, useNavigate } from 'react-router-dom';
-import { getRole, updateRole } from '../../../services/role';
-import { getModules } from '../../../services/module';
-import type { Module } from '../../../types';
+import React, { useEffect, useState } from "react";
+import { Drawer, Tree, Button, message, Spin, Space } from "antd";
+import { useParams, useNavigate } from "react-router-dom";
+import { getRole, updateRole } from "../../../services/role";
+import { getModules } from "../../../services/module";
+import type { Module } from "../../../types";
 
 interface TreeNode {
   key: string;
@@ -31,57 +31,56 @@ const Authorization: React.FC = () => {
     try {
       const [modules, roleData] = await Promise.all([
         getModules(),
-        getRole(id)
+        getRole(id),
       ]);
-      
+
       const tree = convertToTree(modules);
       setTreeData(tree);
-      
+
       // setRole(roleData);
       setCheckedKeys(roleData.moduleIds || []);
-      
     } catch (error) {
       console.error(error);
-      message.error('加载数据失败');
+      message.error("加载数据失败");
     } finally {
       setLoading(false);
     }
   };
 
   const convertToTree = (list: Module[]): TreeNode[] => {
-      const map: Record<string, number> = {};
-      const roots: TreeNode[] = [];
-      const nodeList: TreeNode[] = list.map(item => ({ 
-          key: item.id, 
-          title: item.name, 
-          children: [] 
-      }));
+    const map: Record<string, number> = {};
+    const roots: TreeNode[] = [];
+    const nodeList: TreeNode[] = list.map((item) => ({
+      key: item.id,
+      title: item.name,
+      children: [],
+    }));
 
-      nodeList.forEach((item, i) => {
-        map[item.key] = i;
-      });
-      
-      list.forEach((item, i) => {
-          const node = nodeList[i];
-          if (item.parentId && map[item.parentId] !== undefined) {
-             nodeList[map[item.parentId]].children.push(node);
-          } else {
-             roots.push(node);
-          }
-      });
-      return roots;
+    nodeList.forEach((item, i) => {
+      map[item.key] = i;
+    });
+
+    list.forEach((item, i) => {
+      const node = nodeList[i];
+      if (item.parentId && map[item.parentId] !== undefined) {
+        nodeList[map[item.parentId]].children.push(node);
+      } else {
+        roots.push(node);
+      }
+    });
+    return roots;
   };
 
   const handleSave = async () => {
-      if (!id) return;
-      try {
-          await updateRole(id, { moduleIds: checkedKeys as string[] });
-          message.success('权限保存成功');
-          navigate('/roles');
-      } catch (error) {
-          console.error(error);
-          message.error('保存失败');
-      }
+    if (!id) return;
+    try {
+      await updateRole(id, { moduleIds: checkedKeys as string[] });
+      message.success("权限保存成功");
+      navigate("/roles");
+    } catch (error) {
+      console.error(error);
+      message.error("保存失败");
+    }
   };
 
   return (
@@ -92,15 +91,15 @@ const Authorization: React.FC = () => {
       width={560}
       onClose={() => {
         setOpen(false);
-        navigate('/roles');
+        navigate("/roles");
       }}
       destroyOnClose
-      extra={(
+      extra={
         <Space>
           <Button
             onClick={() => {
               setOpen(false);
-              navigate('/roles');
+              navigate("/roles");
             }}
           >
             取消
@@ -109,9 +108,11 @@ const Authorization: React.FC = () => {
             保存
           </Button>
         </Space>
-      )}
+      }
     >
-      {loading ? <Spin /> : (
+      {loading ? (
+        <Spin />
+      ) : (
         <Tree
           checkable
           treeData={treeData}

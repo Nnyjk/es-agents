@@ -5,10 +5,12 @@
 ## 前置条件
 
 1. **Server 端已启动**
+
    - 监听端口：8080（默认）
    - WebSocket 路径：`/ws/console/{hostId}`
 
 2. **HostAgent 已部署**
+
    - 监听端口：9090（默认）
    - WebSocket 路径：`/ws`
 
@@ -23,12 +25,13 @@
 在 Server 数据库中确认 Host 记录：
 
 ```sql
-SELECT id, name, hostname, gatewayUrl, listenPort, status, "secretKey" 
-FROM infra_host 
+SELECT id, name, hostname, gatewayUrl, listenPort, status, "secretKey"
+FROM infra_host
 WHERE name = 'your-host-name';
 ```
 
 **关键字段检查：**
+
 - `gatewayUrl`: Server 连接 HostAgent 的地址（如 `http://192.168.1.100:9090`）
 - `listenPort`: HostAgent 监听端口（默认 9090）
 - `secretKey`: 用于 HMAC 认证的密钥
@@ -49,6 +52,7 @@ netstat -ano | findstr 9090
 ```
 
 **预期输出：**
+
 - HostAgent 进程正在运行
 - 端口 9090 处于 LISTEN 状态
 
@@ -65,6 +69,7 @@ wscat -c ws://192.168.1.100:9090/ws -H "X-Agent-Secret: your-secret-key"
 ```
 
 **预期结果：**
+
 - 连接成功建立
 - 可以发送和接收消息
 
@@ -78,6 +83,7 @@ curl -X POST http://localhost:8080/infra/hosts/{hostId}/connect \
 ```
 
 **预期响应：**
+
 - HTTP 200 OK
 - Host 状态更新为 `ONLINE`
 
@@ -91,6 +97,7 @@ tail -f server/logs/server.log | grep -i heartbeat
 ```
 
 **预期日志：**
+
 ```
 [INFO] Heartbeat received from host {hostId}
 [INFO] Updated host {hostId} lastHeartbeat timestamp
@@ -105,6 +112,7 @@ tail -f server/logs/server.log | grep -i heartbeat
 3. 检查是否能收到执行结果
 
 **预期结果：**
+
 - 命令成功执行
 - 返回输出内容
 
@@ -115,11 +123,13 @@ tail -f server/logs/server.log | grep -i heartbeat
 **症状：** Server 无法连接到 HostAgent
 
 **可能原因：**
+
 - 防火墙阻止连接
 - HostAgent 未启动
 - `gatewayUrl` 配置错误
 
 **解决方案：**
+
 ```bash
 # 检查防火墙
 sudo ufw status  # Ubuntu
@@ -134,10 +144,12 @@ sudo ufw allow 9090/tcp
 **症状：** WebSocket 连接被拒绝，错误 401
 
 **可能原因：**
+
 - `secretKey` 不匹配
 - 请求头格式错误
 
 **解决方案：**
+
 1. 确认数据库中的 `secretKey` 与 HostAgent 配置一致
 2. 检查请求头名称：`X-Agent-Secret`（区分大小写）
 
@@ -146,11 +158,13 @@ sudo ufw allow 9090/tcp
 **症状：** Host 状态频繁在 ONLINE/OFFLINE 之间切换
 
 **可能原因：**
+
 - 网络不稳定
 - 心跳间隔设置过短
 - HostAgent 负载过高
 
 **解决方案：**
+
 1. 调整心跳间隔（默认 30 秒）：
    ```sql
    UPDATE infra_host SET "heartbeatInterval" = 60 WHERE id = '{hostId}';
@@ -163,10 +177,12 @@ sudo ufw allow 9090/tcp
 **症状：** 连接建立后立即关闭
 
 **可能原因：**
+
 - 协议版本不匹配
 - 消息格式错误
 
 **解决方案：**
+
 1. 确认 Server 和 HostAgent 使用相同的协议版本（v2.0）
 2. 检查消息信封格式是否符合规范
 
@@ -186,10 +202,12 @@ sudo ufw allow 9090/tcp
 ## 安全建议
 
 1. **生产环境必须使用 WSS**
+
    - 配置 SSL 证书
    - 更新 `gatewayUrl` 为 `wss://` 协议
 
 2. **定期轮换密钥**
+
    - 建议每 90 天更新一次 `secretKey`
    - 更新后重启 HostAgent
 

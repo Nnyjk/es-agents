@@ -1,13 +1,29 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { PlusOutlined } from '@ant-design/icons';
-import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { ProTable } from '@ant-design/pro-components';
-import { Button, message, Popconfirm, Form, Input, Drawer, Tree, Spin, Space } from 'antd';
-import { useNavigate, useParams } from 'react-router-dom';
-import { DrawerForm } from '../../../components/DrawerForm';
-import { getRoles, createRole, updateRole, deleteRole, getRole } from '../../../services/role';
-import { getModules } from '../../../services/module';
-import type { Role, Module } from '../../../types';
+import React, { useEffect, useRef, useState } from "react";
+import { PlusOutlined } from "@ant-design/icons";
+import type { ActionType, ProColumns } from "@ant-design/pro-components";
+import { ProTable } from "@ant-design/pro-components";
+import {
+  Button,
+  message,
+  Popconfirm,
+  Form,
+  Input,
+  Drawer,
+  Tree,
+  Spin,
+  Space,
+} from "antd";
+import { useNavigate, useParams } from "react-router-dom";
+import { DrawerForm } from "../../../components/DrawerForm";
+import {
+  getRoles,
+  createRole,
+  updateRole,
+  deleteRole,
+  getRole,
+} from "../../../services/role";
+import { getModules } from "../../../services/module";
+import type { Role, Module } from "../../../types";
 
 interface TreeNode {
   key: string;
@@ -28,28 +44,25 @@ const RoleList: React.FC = () => {
 
   const columns: ProColumns<Role>[] = [
     {
-      title: '角色编码',
-      dataIndex: 'code',
+      title: "角色编码",
+      dataIndex: "code",
       copyable: true,
     },
     {
-      title: '角色名称',
-      dataIndex: 'name',
+      title: "角色名称",
+      dataIndex: "name",
     },
     {
-      title: '描述',
-      dataIndex: 'description',
+      title: "描述",
+      dataIndex: "description",
       hideInSearch: true,
     },
     {
-      title: '操作',
-      valueType: 'option',
-      key: 'option',
+      title: "操作",
+      valueType: "option",
+      key: "option",
       render: (_text, record, _, action) => [
-        <a
-          key="auth"
-          onClick={() => navigate(`/roles/auth/${record.id}`)}
-        >
+        <a key="auth" onClick={() => navigate(`/roles/auth/${record.id}`)}>
           授权
         </a>,
         <a
@@ -66,11 +79,11 @@ const RoleList: React.FC = () => {
           title="确定删除吗?"
           onConfirm={async () => {
             await deleteRole(record.id);
-            message.success('删除成功');
+            message.success("删除成功");
             action?.reload();
           }}
         >
-          <a style={{ color: 'red' }}>删除</a>
+          <a style={{ color: "red" }}>删除</a>
         </Popconfirm>,
       ],
     },
@@ -79,10 +92,10 @@ const RoleList: React.FC = () => {
   const handleSave = async (data: any) => {
     if (editingItem) {
       await updateRole(editingItem.id, data);
-      message.success('更新成功');
+      message.success("更新成功");
     } else {
       await createRole(data);
-      message.success('创建成功');
+      message.success("创建成功");
     }
     setDrawerVisible(false);
     setEditingItem(null);
@@ -97,7 +110,7 @@ const RoleList: React.FC = () => {
   const convertToTree = (list: Module[]): TreeNode[] => {
     const map: Record<string, number> = {};
     const roots: TreeNode[] = [];
-    const nodeList: TreeNode[] = list.map(item => ({
+    const nodeList: TreeNode[] = list.map((item) => ({
       key: item.id,
       title: item.name,
       children: [],
@@ -121,12 +134,15 @@ const RoleList: React.FC = () => {
   const loadAuthorization = async (roleId: string) => {
     setAuthLoading(true);
     try {
-      const [modules, roleData] = await Promise.all([getModules(), getRole(roleId)]);
+      const [modules, roleData] = await Promise.all([
+        getModules(),
+        getRole(roleId),
+      ]);
       setAuthTreeData(convertToTree(modules));
       setAuthCheckedKeys(roleData.moduleIds || []);
     } catch (error) {
       console.error(error);
-      message.error('加载数据失败');
+      message.error("加载数据失败");
     } finally {
       setAuthLoading(false);
     }
@@ -145,7 +161,7 @@ const RoleList: React.FC = () => {
 
   const handleAuthClose = () => {
     setAuthDrawerVisible(false);
-    navigate('/roles');
+    navigate("/roles");
   };
 
   const handleAuthSave = async () => {
@@ -153,12 +169,12 @@ const RoleList: React.FC = () => {
     setAuthLoading(true);
     try {
       await updateRole(id, { moduleIds: authCheckedKeys as string[] });
-      message.success('权限保存成功');
+      message.success("权限保存成功");
       handleAuthClose();
       actionRef.current?.reload();
     } catch (error) {
       console.error(error);
-      message.error('保存失败');
+      message.error("保存失败");
       setAuthLoading(false);
     }
   };
@@ -177,16 +193,16 @@ const RoleList: React.FC = () => {
           };
         }}
         editable={{
-          type: 'multiple',
+          type: "multiple",
           onSave: async (_key, row) => {
-             const { id, ...rest } = row;
-             await updateRole(id, rest);
-             message.success('更新成功');
+            const { id, ...rest } = row;
+            await updateRole(id, rest);
+            message.success("更新成功");
           },
         }}
         rowKey="id"
         search={{
-          labelWidth: 'auto',
+          labelWidth: "auto",
         }}
         toolBarRender={() => [
           <Button
@@ -205,7 +221,7 @@ const RoleList: React.FC = () => {
 
       <DrawerForm
         visible={drawerVisible}
-        title={editingItem ? '编辑角色' : '新建角色'}
+        title={editingItem ? "编辑角色" : "新建角色"}
         width={600}
         onClose={handleClose}
         onSave={handleSave}
@@ -229,16 +245,22 @@ const RoleList: React.FC = () => {
         width={560}
         onClose={handleAuthClose}
         destroyOnClose
-        extra={(
+        extra={
           <Space>
             <Button onClick={handleAuthClose}>取消</Button>
-            <Button type="primary" onClick={handleAuthSave} loading={authLoading}>
+            <Button
+              type="primary"
+              onClick={handleAuthSave}
+              loading={authLoading}
+            >
               保存
             </Button>
           </Space>
-        )}
+        }
       >
-        {authLoading ? <Spin /> : (
+        {authLoading ? (
+          <Spin />
+        ) : (
           <Tree
             checkable
             treeData={authTreeData}

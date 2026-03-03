@@ -46,6 +46,7 @@ public class HostAgentResourceResolver {
         return switch (normalized) {
             case "LINUX" -> OsType.LINUX;
             case "WINDOWS", "WIN" -> OsType.WINDOWS;
+            case "MACOS", "DARWIN" -> OsType.MACOS;
             case "LINUX_DOCKER", "DOCKER" -> OsType.LINUX_DOCKER;
             default -> throw new WebApplicationException(
                     "Unsupported host OS for HostAgent package: " + hostOs,

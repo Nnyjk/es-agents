@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { ProLayout, PageContainer } from '@ant-design/pro-components';
-import { Dropdown } from 'antd';
-import { 
-  LogoutOutlined, 
-  UserOutlined, 
-  TeamOutlined, 
-  AppstoreOutlined, 
-  SettingOutlined, 
-  CloudServerOutlined 
-} from '@ant-design/icons';
-import { logout, getRoutes, RouteItem } from '../services/auth';
+import React, { useState, useEffect } from "react";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { ProLayout, PageContainer } from "@ant-design/pro-components";
+import { Dropdown } from "antd";
+import {
+  LogoutOutlined,
+  UserOutlined,
+  TeamOutlined,
+  AppstoreOutlined,
+  SettingOutlined,
+  CloudServerOutlined,
+} from "@ant-design/icons";
+import { logout, getRoutes, RouteItem } from "../services/auth";
 
 // Icon mapper
 const IconMap: Record<string, React.ReactNode> = {
@@ -35,9 +35,9 @@ const BasicLayout: React.FC = () => {
   const [userInfo, setUserInfo] = useState<any>(null);
 
   useEffect(() => {
-    const userStr = localStorage.getItem('userInfo');
+    const userStr = localStorage.getItem("userInfo");
     if (!userStr) {
-      navigate('/login');
+      navigate("/login");
     } else {
       setUserInfo(JSON.parse(userStr));
     }
@@ -56,7 +56,7 @@ const BasicLayout: React.FC = () => {
             const routes = await getRoutes();
             return loopMenuItem(routes);
           } catch (e) {
-            console.error('Fetch menu failed', e);
+            console.error("Fetch menu failed", e);
             return [];
           }
         },
@@ -64,20 +64,20 @@ const BasicLayout: React.FC = () => {
       layout="mix"
       splitMenus={false}
       avatarProps={{
-        src: 'https://gw.alipayobjects.com/zos/antfincdn/efFD%24IOql2/weixintupian_20170331104822.jpg',
-        title: userInfo?.username || 'User',
+        src: "https://gw.alipayobjects.com/zos/antfincdn/efFD%24IOql2/weixintupian_20170331104822.jpg",
+        title: userInfo?.username || "User",
         render: (_props, dom) => {
           return (
             <Dropdown
               menu={{
                 items: [
                   {
-                    key: 'logout',
+                    key: "logout",
                     icon: <LogoutOutlined />,
-                    label: '退出登录',
+                    label: "退出登录",
                     onClick: () => {
                       logout();
-                      navigate('/login');
+                      navigate("/login");
                     },
                   },
                 ],
@@ -91,8 +91,8 @@ const BasicLayout: React.FC = () => {
       menuItemRender={(item, dom) => (
         <a
           onClick={() => {
-            setPathname(item.path || '/');
-            navigate(item.path || '/');
+            setPathname(item.path || "/");
+            navigate(item.path || "/");
           }}
         >
           {dom}
