@@ -22,7 +22,7 @@
 - Release job 步骤合并，减少重复 setup
 
 ### 2. ✅ GLIBC 依赖检查
-**完成情况**: 无需修改
+**完成情况**: 无需修改（已在之前提交中完成）
 
 **验证结果**:
 - `agent/go.mod` 无 CGO 依赖
@@ -30,19 +30,26 @@
 - `verify-linux-compat.sh` 已移除 GLIBC 符号检查
 - 二进制为纯静态链接，无 GLIBC 依赖
 
-### 3. ⏳ 本地调试环境
-**完成情况**: 部分完成
+### 3. ✅ 本地调试环境
+**完成情况**: 已完成
 
-**已就绪**:
+**已安装**:
 - ✅ Node.js v22.22.0
 - ✅ Go 1.23.0
+- ✅ OpenJDK 21.0.6 (Temurin) — 从 Adoptium 下载安装
+- ✅ Maven 3.9.9 — 从 Apache Archive 下载安装
+
+**环境配置**:
+```bash
+export JAVA_HOME=/opt/java/jdk-21.0.6+7
+export M2_HOME=/opt/apache-maven-3.9.9
+export PATH=$JAVA_HOME/bin:$M2_HOME/bin:$PATH
+```
+
+**测试结果**:
 - ✅ frontend 测试通过
 - ✅ agent 测试通过
-
-**待解决**:
-- ❌ OpenJDK 21 — 网络问题导致 apt 安装失败
-  - 腾讯云镜像源连接超时
-  - 建议：检查网络或使用 SDKMAN 安装
+- ⚠️ server 测试失败（main 分支已存问题，非本次引入）
 
 ---
 
@@ -50,12 +57,26 @@
 
 **PR**: https://github.com/Nnyjk/es-agents/pull/8
 **Branch**: chore/simplify-github-actions-20260303
-**Commit**: a1b1d66
+**Commits**:
+- a1b1d66: ci: simplify GitHub Actions workflow structure
+- 7461737: fix: add MACOS to OsType enum and format code
 
 ---
 
-_更新时间: 2026-03-03 08:36_
+## CI 状态
+
+| Job | 状态 | 备注 |
+|-----|------|------|
+| frontend | ✅ 成功 | |
+| agent | ✅ 成功 | |
+| lint | ✅ 成功 | |
+| server | ❌ 失败 | **预存问题**: main 分支也有此测试失败 |
+
+**Server 失败原因**:
+- `HostAgentPackageBuilderTest.windowsPackageUsesBackgroundProcessAndLeavesPidAndLogs`
+- `ZipException: no current ZIP entry`
+- 这是 main 分支已存在的 bug，非本次引入
 
 ---
 
-_创建时间: 2026-03-03 08:32_
+_更新时间: 2026-03-03 08:55_
