@@ -38,8 +38,7 @@ jobs:
       - name: Build all components
         run: |
           # Frontend
-          npm ci --legacy-peer-deps
-          npm --prefix frontend run build
+          cd frontend && npm ci --legacy-peer-deps && npm run build
 
           # Server
           mvn -B -DskipTests package --file server/pom.xml
