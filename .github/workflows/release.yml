@@ -44,17 +44,13 @@ jobs:
           cd $GITHUB_WORKSPACE
           mvn -B -DskipTests package --file server/pom.xml
 
-          # Agent (all platforms)
+          # Agent (Linux + Windows only, macOS temporarily disabled)
           cd $GITHUB_WORKSPACE/agent
           mkdir -p dist
           echo "Building Linux amd64..."
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-linux-amd64 ./cmd/host-agent
           echo "Building Windows amd64..."
           CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-windows-amd64.exe ./cmd/host-agent
-          echo "Building macOS amd64..."
-          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-macos-amd64 ./cmd/host-agent
-          echo "Building macOS arm64..."
-          CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-macos-arm64 ./cmd/host-agent
           echo "All builds complete. Contents:"
           ls -la dist/
 
@@ -75,14 +71,6 @@ jobs:
           mkdir -p packages/windows && cp agent/dist/host-agent-windows-amd64.exe packages/windows/host-agent.exe
           cd packages/windows && zip -r ../../host-agent-windows-amd64.zip .
 
-          mkdir -p packages/macos && cp agent/dist/host-agent-macos-amd64 packages/macos/host-agent
-          chmod +x packages/macos/*
-          tar -czf host-agent-macos-amd64.tar.gz -C packages/macos .
-
-          mkdir -p packages/macos-arm64 && cp agent/dist/host-agent-macos-arm64 packages/macos-arm64/host-agent
-          chmod +x packages/macos-arm64/*
-          tar -czf host-agent-macos-arm64.tar.gz -C packages/macos-arm64 .
-
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: main-${{ github.run_number }}
@@ -92,5 +80,3 @@ jobs:
             production-bundle-${{ github.sha }}.tar.gz
             host-agent-linux-amd64.tar.gz
             host-agent-windows-amd64.zip
-            host-agent-macos-amd64.tar.gz
-            host-agent-macos-arm64.tar.gz
