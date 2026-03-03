@@ -40,7 +40,8 @@ jobs:
           # Frontend
           cd frontend && npm ci --legacy-peer-deps && npm run build
 
-          # Server
+          # Server (from repo root)
+          cd $GITHUB_WORKSPACE
           mvn -B -DskipTests package --file server/pom.xml
 
           # Agent (all platforms)
