@@ -10,8 +10,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
+
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -74,20 +76,28 @@ class HostAgentPackageBuilderTest {
 
     private Map<String, String> buildPackage(HostAgentResourceResolver.ResolvedHostAgentResource resource) throws IOException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        try (ZipOutputStream zos = new ZipOutputStream(bytes)) {
-            builder.writePackage(
-                    zos,
-                    resource,
-                    new ByteArrayInputStream("agent-binary".getBytes(StandardCharsets.UTF_8)),
-                    "host_id: test-host\nsecret_key: secret\n"
-            );
-        }
+        builder.writePackage(
+                bytes,
+                resource,
+                new ByteArrayInputStream("agent-binary".getBytes(StandardCharsets.UTF_8)),
+                "host_id: test-host\nsecret_key: secret\n"
+        );
 
         Map<String, String> entries = new HashMap<>();
-        try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
-            java.util.zip.ZipEntry entry;
-            while ((entry = zis.getNextEntry()) != null) {
-                entries.put(entry.getName(), new String(zis.readAllBytes(), StandardCharsets.UTF_8));
+        if (resource.osType() == OsType.WINDOWS) {
+            try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+                java.util.zip.ZipEntry entry;
+                while ((entry = zis.getNextEntry()) != null) {
+                    entries.put(entry.getName(), new String(zis.readAllBytes(), StandardCharsets.UTF_8));
+                }
+            }
+        } else {
+            try (GZIPInputStream gzip = new GZIPInputStream(new ByteArrayInputStream(bytes.toByteArray()));
+                 TarArchiveInputStream tar = new TarArchiveInputStream(gzip)) {
+                org.apache.commons.compress.archivers.tar.TarArchiveEntry entry;
+                while ((entry = tar.getNextTarEntry()) != null) {
+                    entries.put(entry.getName(), new String(tar.readAllBytes(), StandardCharsets.UTF_8));
+                }
             }
         }
         return entries;
