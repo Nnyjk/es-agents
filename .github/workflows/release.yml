@@ -1,8 +1,6 @@
-name: CI
+name: Release
 
 on:
-  pull_request:
-    branches: [main]
   push:
     branches: [main]
 
@@ -10,62 +8,11 @@ permissions:
   contents: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: release-${{ github.sha }}
   cancel-in-progress: true
 
 jobs:
-  # PR Checks
-  pr-checks:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
-
-      - run: npm ci --legacy-peer-deps
-        working-directory: ./frontend
-
-      - run: |
-          npm run build
-          npm test
-          npx tsc --noEmit
-        working-directory: ./frontend
-
-      - uses: actions/setup-java@v4
-        with:
-          java-version: "21"
-          distribution: temurin
-          cache: maven
-
-      - run: mvn -B test --file server/pom.xml
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: agent/go.mod
-          cache-dependency-path: agent/go.sum
-
-      - run: |
-          go test -v ./...
-          go vet ./...
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o bin/host-agent ./cmd/host-agent
-          bash scripts/verify-linux-compat.sh bin/host-agent
-        working-directory: ./agent
-
-      - run: |
-          npx --yes prettier@3.5.3 --check ".github/**/*.{yml,yaml,md}" "docs/**/*.md" "frontend/src/**/*.{ts,tsx}"
-          if grep -R -nE --exclude-dir=.git "^(<<<<<<<|=======|>>>>>>>)" .; then
-            echo "Unresolved merge markers detected."
-            exit 1
-          fi
-
-  # Build & Release
-  release:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  build-and-release:
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -88,38 +35,43 @@ jobs:
           go-version-file: agent/go.mod
           cache-dependency-path: agent/go.sum
 
-      - run: npm ci --legacy-peer-deps
-        working-directory: ./frontend
-
-      - run: |
+      - name: Build all components
+        run: |
+          # Frontend
+          npm ci --legacy-peer-deps
           npm --prefix frontend run build
+          
+          # Server
           mvn -B -DskipTests package --file server/pom.xml
+          
+          # Agent (all platforms)
           cd agent
           CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-linux-amd64 ./cmd/host-agent
           CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-windows-amd64.exe ./cmd/host-agent
           CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-macos-amd64 ./cmd/host-agent
           CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-macos-arm64 ./cmd/host-agent
-          cd ..
 
-      - run: |
+      - name: Package artifacts
+        run: |
+          # Production bundle
           mkdir -p dist/deploy/frontend
           cp -R frontend/dist/. dist/deploy/frontend/
           cp server/target/*.jar dist/deploy/
           cp agent/dist/host-agent-linux-amd64 dist/deploy/
           tar -czf production-bundle-${{ github.sha }}.tar.gz -C dist deploy
-
-      - run: |
+          
+          # Platform packages
           mkdir -p packages/linux && cp agent/dist/host-agent-linux-amd64 packages/linux/host-agent
           chmod +x packages/linux/*
           tar -czf host-agent-linux-amd64.tar.gz -C packages/linux .
-
+          
           mkdir -p packages/windows && cp agent/dist/host-agent-windows-amd64.exe packages/windows/host-agent.exe
           cd packages/windows && zip -r ../../host-agent-windows-amd64.zip .
-
+          
           mkdir -p packages/macos && cp agent/dist/host-agent-macos-amd64 packages/macos/host-agent
           chmod +x packages/macos/*
           tar -czf host-agent-macos-amd64.tar.gz -C packages/macos .
-
+          
           mkdir -p packages/macos-arm64 && cp agent/dist/host-agent-macos-arm64 packages/macos-arm64/host-agent
           chmod +x packages/macos-arm64/*
           tar -czf host-agent-macos-arm64.tar.gz -C packages/macos-arm64 .
