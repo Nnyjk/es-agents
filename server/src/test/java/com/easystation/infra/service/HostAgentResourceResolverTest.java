@@ -55,7 +55,7 @@ class HostAgentResourceResolverTest {
     void rejectsUnsupportedHostOs() {
         WebApplicationException error = assertThrows(
                 WebApplicationException.class,
-                () -> resolver.resolve("macos", List.of())
+                () -> resolver.resolve("freebsd", List.of())
         );
 
         assertEquals(400, error.getResponse().getStatus());
