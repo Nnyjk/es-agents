@@ -1,0 +1,30 @@
+repos:
+  - repo: local
+    hooks:
+      - id: frontend-pre-commit
+        name: Frontend pre-commit checks (build + test + typecheck)
+        entry: bash scripts/pre-commit/frontend.sh
+        language: system
+        pass_filenames: false
+        files: ^frontend/
+
+      - id: server-pre-commit
+        name: Server pre-commit checks (test + package)
+        entry: bash scripts/pre-commit/server.sh
+        language: system
+        pass_filenames: false
+        files: ^server/
+
+      - id: agent-pre-commit
+        name: Agent pre-commit checks (test + vet + build)
+        entry: bash scripts/pre-commit/agent.sh
+        language: system
+        pass_filenames: false
+        files: ^agent/
+
+      - id: repo-lint
+        name: Repository lint checks
+        entry: bash scripts/pre-commit/repo-lint.sh
+        language: system
+        pass_filenames: false
+        files: ^(\.github/|docs/|frontend/src/)

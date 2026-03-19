@@ -57,6 +57,18 @@ docs: update API documentation
 
 ### 提交前检查
 
+### Pre-commit（推荐）
+
+本仓库提供了覆盖 **frontend / server / agent** 三端的 pre-commit 检查。
+
+```bash
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files
+```
+
+对应检查脚本位于 `scripts/pre-commit/`。
+
 1. **代码风格**
 
    ```bash
