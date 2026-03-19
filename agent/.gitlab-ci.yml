@@ -9,7 +9,7 @@ variables:
   COLLECTION_REPO_URL: "https://git.dev.yd/yangxiao/easy-station-collection.git"
   COLLECTION_BRANCH: "main"
   COLLECTION_DIR: "artifacts"
-  GITLAB_PROJECT_TOKEN: "glpat-sYRwTSBG2D27LRbutLSn"
+  GITLAB_PROJECT_TOKEN: ""
   INTERNAL_CA_CERT_PATH: "/usr/local/share/ca-certificates/internal-ca.crt"
   INTERNAL_CA_CERT_SOURCE: "rootCA.pem"
 
