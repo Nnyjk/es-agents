@@ -11,4 +11,4 @@ echo "[frontend] test"
 npm --prefix frontend run test
 
 echo "[frontend] type check"
-npx --yes tsc --project frontend/tsconfig.json --noEmit
+npm --prefix frontend exec -- tsc --noEmit --project frontend/tsconfig.json
