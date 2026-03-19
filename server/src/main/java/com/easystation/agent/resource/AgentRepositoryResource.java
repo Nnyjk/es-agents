@@ -1,6 +1,6 @@
 package com.easystation.agent.resource;
 
-import com.easystation.agent.record.AgentRepositoryRecord;
+import com.easystation.agent.dto.AgentRepositoryRecord;
 import com.easystation.agent.service.AgentRepositoryService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
