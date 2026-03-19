@@ -22,7 +22,6 @@ work/
 .factorypath
 *.iml
 
-**/test/
 
 # Trae
 .trae/

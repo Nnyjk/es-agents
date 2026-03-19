@@ -1,0 +1,88 @@
+name: "🐛 Bug Report"
+description: "报告一个缺陷，帮助我们快速定位并修复问题"
+title: "[BUG] "
+labels:
+  - bug
+  - status/review
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！请尽量完整填写以下信息，便于我们更快复现并修复。
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug 描述
+      description: 清晰描述当前问题与实际现象。
+      placeholder: 例如：点击“发布”后页面一直 loading，10 秒后报 500。
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      description: 按步骤描述复现路径。
+      placeholder: |
+        1. 打开...
+        2. 点击...
+        3. 输入...
+        4. 看到报错...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为
+      description: 描述你预期发生的结果。
+      placeholder: 例如：发布成功并显示“创建成功”。
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志与截图
+      description: 请附上报错日志、控制台截图或接口响应（可脱敏）。
+      placeholder: 粘贴日志、截图链接、HAR 文件说明等。
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: 影响模块
+      description: 请选择最主要的影响范围。
+      options:
+        - module/frontend
+        - module/server
+        - module/agent
+        - module/docs
+        - 其他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 优先级
+      options:
+        - priority/critical
+        - priority/high
+        - priority/medium
+        - priority/low
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: 环境信息
+      description: 例如 OS / 浏览器 / 应用版本 / 部署环境
+      placeholder: Ubuntu 22.04, Chrome 123, app v1.2.3, staging
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 补充信息
+      description: 其他可能相关的信息。

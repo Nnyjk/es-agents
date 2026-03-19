@@ -4,9 +4,8 @@
 
 ## Related Issue
 
-<!-- 关联需求、缺陷或任务，没有就写 N/A。 -->
-
 - Closes #
+- Ref #
 
 ## Change Type
 
@@ -25,13 +24,32 @@
 - [ ] Documentation
 - [ ] Workflow / Release
 
+## What Changed
+
+<!-- 用 bullet 列出主要改动点，便于 reviewer 快速浏览。 -->
+
+-
+
 ## Validation
 
-<!-- 列出你本地执行过的命令和结果。 -->
+<!-- 列出本地执行过的命令和结果。 -->
 
 ```bash
-
+# e.g.
+# npm --prefix frontend run build
+# mvn -B test --file server/pom.xml
+# go test ./... (in agent)
 ```
+
+## Screenshot / Demo (if applicable)
+
+<!-- UI 或交互改动请附图/录屏；无则写 N/A。 -->
+
+## Risk and Rollback
+
+- **风险评估**:
+- **影响范围**:
+- **回滚方式**:
 
 ## Reviewer Checklist
 
@@ -40,10 +58,7 @@
 - [ ] 测试或验证方式已补充
 - [ ] 文档已同步，或确认无需更新
 - [ ] 风险、回滚方式和影响范围已说明
-
-## Risk and Rollback
-
-<!-- 描述潜在风险、受影响模块、回滚方式。 -->
+- [ ] Labels 已正确设置（module/_, priority/_, status/\*）
 
 ## Notes
 
