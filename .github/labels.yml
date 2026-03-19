@@ -1,0 +1,63 @@
+- name: bug
+  color: "d73a4a"
+  description: 缺陷与异常行为
+
+- name: enhancement
+  color: "a2eeef"
+  description: 功能增强与优化建议
+
+- name: documentation
+  color: "0075ca"
+  description: 文档相关改动
+
+- name: codex
+  color: "5319e7"
+  description: 由 Codex 执行或维护
+
+- name: Nn 任务
+  color: "1d76db"
+  description: 由 Nn 系统下发的任务
+
+- name: status/in-progress
+  color: "fbca04"
+  description: 任务进行中
+
+- name: status/review
+  color: "0e8a16"
+  description: 等待审核
+
+- name: status/blocked
+  color: "b60205"
+  description: 任务被阻塞
+
+- name: priority/critical
+  color: "b60205"
+  description: 最高优先级，需立即处理
+
+- name: priority/high
+  color: "d93f0b"
+  description: 高优先级
+
+- name: priority/medium
+  color: "fbca04"
+  description: 中优先级
+
+- name: priority/low
+  color: "0e8a16"
+  description: 低优先级
+
+- name: module/frontend
+  color: "c2e0c6"
+  description: 前端模块
+
+- name: module/server
+  color: "bfd4f2"
+  description: 服务端模块
+
+- name: module/agent
+  color: "f9d0c4"
+  description: Agent 模块
+
+- name: module/docs
+  color: "fef2c0"
+  description: 文档模块
