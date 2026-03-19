@@ -147,15 +147,10 @@ public class AgentInstanceService {
 
         return tasks.stream().map(task -> new AgentTaskRecord(
             task.id,
-            task.agentInstance.getId(),
-            task.agentInstance.getTemplate().getName(),
             task.command.name,
+            task.agentInstance.getTemplate().getScript(),
             task.args,
-            task.result,
-            task.status,
-            null, // durationMs - not available
-            task.createdAt,
-            task.updatedAt
+            task.timeout
         )).toList();
     }
 
