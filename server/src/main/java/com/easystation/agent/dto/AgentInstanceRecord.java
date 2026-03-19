@@ -1,4 +1,4 @@
-package com.easystation.agent.record;
+package com.easystation.agent.dto;
 
 import com.easystation.agent.domain.enums.AgentStatus;
 import jakarta.validation.constraints.NotNull;
@@ -32,5 +32,17 @@ public record AgentInstanceRecord(
         @NotNull
         UUID commandId,
         String args
+    ) {}
+
+    public record Deploy(
+        @NotNull
+        String version
+    ) {}
+
+    public record DeployResult(
+        UUID instanceId,
+        AgentStatus status,
+        String message,
+        LocalDateTime deployedAt
     ) {}
 }
