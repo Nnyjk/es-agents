@@ -148,9 +148,9 @@ public class AgentInstanceService {
         return tasks.stream().map(task -> new AgentTaskRecord(
             task.id,
             task.command.name,
-            task.agentInstance.getTemplate().getScript(),
+            task.command.script,
             task.args,
-            task.timeout
+            task.command.timeout
         )).toList();
     }
 
