@@ -5,12 +5,10 @@
 ## 前置条件
 
 1. **Server 端已启动**
-
    - 监听端口：8080（默认）
    - WebSocket 路径：`/ws/console/{hostId}`
 
 2. **HostAgent 已部署**
-
    - 监听端口：9090（默认）
    - WebSocket 路径：`/ws`
 
@@ -202,12 +200,10 @@ sudo ufw allow 9090/tcp
 ## 安全建议
 
 1. **生产环境必须使用 WSS**
-
    - 配置 SSL 证书
    - 更新 `gatewayUrl` 为 `wss://` 协议
 
 2. **定期轮换密钥**
-
    - 建议每 90 天更新一次 `secretKey`
    - 更新后重启 HostAgent
 
