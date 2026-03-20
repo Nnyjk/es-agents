@@ -21,13 +21,6 @@ const templateTypeLabels: Record<string, string> = {
   PLUGIN: "插件",
 };
 
-const templateTypeColors: Record<string, string> = {
-  DOCKER: "blue",
-  GREEN: "green",
-  ORANGE: "orange",
-  PURPLE: "purple",
-};
-
 export const DeployConfig: React.FC<DeployConfigProps> = ({
   host,
   value,
