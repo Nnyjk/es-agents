@@ -1,7 +1,7 @@
 package com.easystation.agent.resource;
 
 import com.easystation.agent.domain.enums.AgentTaskStatus;
-import com.easystation.agent.record.AgentInstanceRecord;
+import com.easystation.agent.dto.AgentInstanceRecord;
 import com.easystation.agent.record.AgentTaskRecord;
 import com.easystation.agent.service.AgentInstanceService;
 import jakarta.inject.Inject;
