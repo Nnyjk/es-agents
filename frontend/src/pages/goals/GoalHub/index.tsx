@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Row, Col, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
-import { RocketOutlined, TerminalOutlined, FolderOutlined } from "@ant-design/icons";
+import { RocketOutlined, CodeOutlined, FolderOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
@@ -56,7 +56,7 @@ const GoalHub: React.FC = () => {
             onClick={() => {}}
           >
             <div style={{ fontSize: 48, color: "#52c41a", marginBottom: 16 }}>
-              <TerminalOutlined />
+              <CodeOutlined />
             </div>
             <Title level={4} style={{ marginBottom: 8 }}>执行命令</Title>
             <Text type="secondary">即将上线</Text>
