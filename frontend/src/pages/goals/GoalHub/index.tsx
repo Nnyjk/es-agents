@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Row, Col, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
-import { RocketOutlined } from "@ant-design/icons";
+import { RocketOutlined, TerminalOutlined, FolderOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
@@ -32,32 +32,6 @@ const GoalCard: React.FC<GoalCardProps> = ({ title, description, icon, path, col
 };
 
 const GoalHub: React.FC = () => {
-  const navigate = useNavigate();
-  
-  const goals = [
-    {
-      title: "部署 Agent",
-      description: "选择环境与主机，部署 Agent 到目标服务器",
-      icon: <RocketOutlined />,
-      path: "/goals/deploy-agent",
-      color: "#1890ff",
-    },
-    {
-      title: "执行命令",
-      description: "在指定主机上执行预设或自定义命令",
-      icon: <TerminalOutlined />,
-      path: "/agents/commands",
-      color: "#52c41a",
-    },
-    {
-      title: "管理资源",
-      description: "管理 Agent 运行时所需的文件和配置资源",
-      icon: <FolderOutlined />,
-      path: "/agents/resources",
-      color: "#faad14",
-    },
-  ];
-
   return (
     <div style={{ padding: "0 24px" }}>
       <Title level={2} style={{ marginBottom: 24 }}>目标中心</Title>
@@ -105,9 +79,5 @@ const GoalHub: React.FC = () => {
     </div>
   );
 };
-
-// 临时定义缺失的图标
-const TerminalOutlined = () => <span>⌨️</span>;
-const FolderOutlined = () => <span>📁</span>;
 
 export default GoalHub;
