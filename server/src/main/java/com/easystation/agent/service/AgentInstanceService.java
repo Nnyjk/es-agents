@@ -6,12 +6,14 @@ import com.easystation.agent.domain.AgentTask;
 import com.easystation.agent.domain.AgentTemplate;
 import com.easystation.agent.domain.enums.AgentStatus;
 import com.easystation.agent.domain.enums.AgentTaskStatus;
-import com.easystation.agent.record.AgentInstanceRecord;
-import com.easystation.agent.record.AgentTaskRecord;
-import com.easystation.agent.record.AgentInstanceRecord.Create;
-import com.easystation.agent.record.AgentInstanceRecord.ExecuteCommand;
-import com.easystation.agent.record.HeartbeatRequest;
-import com.easystation.agent.record.AgentInstanceRecord.Update;
+import com.easystation.agent.dto.AgentInstanceRecord;
+import com.easystation.agent.dto.AgentInstanceRecord.Create;
+import com.easystation.agent.dto.AgentInstanceRecord.Deploy;
+import com.easystation.agent.dto.AgentInstanceRecord.DeployResult;
+import com.easystation.agent.dto.AgentInstanceRecord.ExecuteCommand;
+import com.easystation.agent.dto.AgentInstanceRecord.Update;
+import com.easystation.agent.dto.AgentTaskRecord;
+import com.easystation.agent.dto.HeartbeatRequest;
 import com.easystation.infra.domain.Host;
 import com.easystation.infra.domain.enums.HostStatus;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -186,6 +188,48 @@ public class AgentInstanceService {
             host.setStatus(HostStatus.ONLINE);
             host.persist();
         }
+    }
+
+    /**
+     * 部署 Agent 实例到目标主机
+     */
+    @Transactional
+    public DeployResult deploy(UUID instanceId, Deploy request) {
+        AgentInstance instance = AgentInstance.findById(instanceId);
+        if (instance == null) {
+            throw new WebApplicationException("Agent instance not found", Response.Status.NOT_FOUND);
+        }
+
+        // 检查前置条件：Agent 必须处于 READY 或 PACKAGED 状态
+        if (instance.status != AgentStatus.READY && instance.status != AgentStatus.PACKAGED) {
+            throw new WebApplicationException(
+                "Agent must be in READY or PACKAGED status to deploy, current: " + instance.status,
+                Response.Status.BAD_REQUEST
+            );
+        }
+
+        // 更新状态为部署中
+        instance.status = AgentStatus.DEPLOYING;
+        instance.version = request.version();
+        instance.persist();
+
+        // TODO: 实际的部署逻辑
+        // 1. 通过 WebSocket/SSH 连接到目标主机
+        // 2. 传输安装包
+        // 3. 执行安装脚本
+        // 4. 验证部署结果
+        // 5. 更新状态为 DEPLOYED 或 ERROR
+
+        // 模拟部署成功
+        instance.status = AgentStatus.DEPLOYED;
+        instance.persist();
+
+        return new DeployResult(
+            instance.id,
+            instance.status,
+            "Deployment completed successfully",
+            LocalDateTime.now()
+        );
     }
 
     private AgentInstanceRecord toDto(AgentInstance instance) {

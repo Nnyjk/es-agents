@@ -1,6 +1,6 @@
 package com.easystation.agent.resource;
 
-import com.easystation.agent.record.HeartbeatRequest;
+import com.easystation.agent.dto.HeartbeatRequest;
 import com.easystation.agent.service.AgentInstanceService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;

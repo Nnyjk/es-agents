@@ -2,7 +2,7 @@ package com.easystation.agent.service;
 
 import com.easystation.agent.domain.AgentCommand;
 import com.easystation.agent.domain.AgentTemplate;
-import com.easystation.agent.record.AgentCommandRecord;
+import com.easystation.agent.dto.AgentCommandRecord;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;

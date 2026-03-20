@@ -1,6 +1,6 @@
 package com.easystation.agent.resource;
 
-import com.easystation.agent.record.AgentCredentialRecord;
+import com.easystation.agent.dto.AgentCredentialRecord;
 import com.easystation.agent.service.AgentCredentialService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;

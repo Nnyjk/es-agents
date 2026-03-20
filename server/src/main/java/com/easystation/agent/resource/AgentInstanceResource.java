@@ -1,6 +1,7 @@
 package com.easystation.agent.resource;
 
-import com.easystation.agent.record.AgentInstanceRecord;
+import com.easystation.agent.dto.AgentInstanceRecord;
+import com.easystation.agent.dto.AgentInstanceRecord.Deploy;
 import com.easystation.agent.service.AgentInstanceService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -54,5 +55,13 @@ public class AgentInstanceResource {
     public Response executeCommand(@PathParam("id") UUID id, @Valid AgentInstanceRecord.ExecuteCommand dto) {
         agentInstanceService.executeCommand(id, dto);
         return Response.accepted().build();
+    }
+
+    @POST
+    @Path("/{id}/deploy")
+    public Response deploy(@PathParam("id") UUID id, @Valid Deploy dto) {
+        return Response.accepted()
+                .entity(agentInstanceService.deploy(id, dto))
+                .build();
     }
 }

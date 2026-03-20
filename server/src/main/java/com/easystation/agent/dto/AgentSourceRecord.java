@@ -1,4 +1,4 @@
-package com.easystation.agent.record;
+package com.easystation.agent.dto;
 
 import com.easystation.agent.domain.enums.AgentSourceType;
 import jakarta.validation.constraints.NotBlank;

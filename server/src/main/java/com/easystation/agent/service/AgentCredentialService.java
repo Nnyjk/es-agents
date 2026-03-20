@@ -3,7 +3,7 @@ package com.easystation.agent.service;
 import com.easystation.agent.domain.AgentCredential;
 import com.easystation.agent.domain.AgentRepository;
 import com.easystation.agent.domain.AgentSource;
-import com.easystation.agent.record.AgentCredentialRecord;
+import com.easystation.agent.dto.AgentCredentialRecord;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;

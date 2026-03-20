@@ -1,6 +1,6 @@
 package com.easystation.infra.socket;
 
-import com.easystation.agent.record.HeartbeatRequest;
+import com.easystation.agent.dto.HeartbeatRequest;
 import com.easystation.agent.service.AgentLogService;
 import com.easystation.agent.websocket.ConsoleWebSocket;
 import com.easystation.common.config.AgentConfig;

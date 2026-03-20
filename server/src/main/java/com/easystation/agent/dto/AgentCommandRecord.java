@@ -1,4 +1,4 @@
-package com.easystation.agent.record;
+package com.easystation.agent.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import java.util.UUID;
