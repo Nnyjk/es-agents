@@ -60,9 +60,7 @@ export const DeployResult: React.FC<DeployResultProps> = ({
         title={isSuccess ? "部署成功!" : "部署失败"}
         subTitle={
           result.message ||
-          (isSuccess
-            ? "Agent 已成功部署到目标主机"
-            : "请检查错误信息")
+          (isSuccess ? "Agent 已成功部署到目标主机" : "请检查错误信息")
         }
       >
         {isSuccess && (
