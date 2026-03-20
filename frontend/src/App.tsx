@@ -18,8 +18,8 @@ import AgentCredentialList from "./pages/agent/Credential";
 import AgentRepositoryList from "./pages/agent/Repository";
 import EnvironmentList from "./pages/infrastructure/Environment";
 import HostList from "./pages/infrastructure/Host";
-// import GoalHub from "./pages/goals/GoalHub";
-// import DeploymentWizard from "./pages/goals/DeploymentWizard";
+import GoalHub from "./pages/goals/GoalHub";
+import DeploymentWizard from "./pages/goals/DeploymentWizard";
 
 const App: React.FC = () => {
   return (
