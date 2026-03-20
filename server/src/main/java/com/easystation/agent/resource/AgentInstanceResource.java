@@ -1,7 +1,8 @@
 package com.easystation.agent.resource;
 
-import com.easystation.agent.dto.AgentInstanceRecord;
-import com.easystation.agent.dto.AgentInstanceRecord.Deploy;
+import com.easystation.agent.domain.enums.AgentTaskStatus;
+import com.easystation.agent.record.AgentInstanceRecord;
+import com.easystation.agent.record.AgentTaskRecord;
 import com.easystation.agent.service.AgentInstanceService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -9,6 +10,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Path("/agents/instances")
@@ -59,9 +61,37 @@ public class AgentInstanceResource {
 
     @POST
     @Path("/{id}/deploy")
-    public Response deploy(@PathParam("id") UUID id, @Valid Deploy dto) {
+    public Response deploy(@PathParam("id") UUID id, @Valid AgentInstanceRecord.Deploy dto) {
         return Response.accepted()
                 .entity(agentInstanceService.deploy(id, dto))
                 .build();
+    }
+
+    @GET
+    @Path("/{id}/tasks")
+    public Response getTaskHistory(
+            @PathParam("id") UUID id,
+            @QueryParam("status") AgentTaskStatus status,
+            @QueryParam("startTime") LocalDateTime startTime,
+            @QueryParam("endTime") LocalDateTime endTime,
+            @QueryParam("page") @DefaultValue("0") int page,
+            @QueryParam("size") @DefaultValue("20") int size) {
+        return Response.ok(agentInstanceService.queryTaskHistory(id, status, startTime, endTime, page, size)).build();
+    }
+
+    @GET
+    @Path("/{id}/tasks/count")
+    public Response countTaskHistory(
+            @PathParam("id") UUID id,
+            @QueryParam("status") AgentTaskStatus status,
+            @QueryParam("startTime") LocalDateTime startTime,
+            @QueryParam("endTime") LocalDateTime endTime) {
+        return Response.ok(agentInstanceService.countTaskHistory(id, status, startTime, endTime)).build();
+    }
+
+    @GET
+    @Path("/tasks/{taskId}")
+    public Response getTaskDetail(@PathParam("taskId") UUID taskId) {
+        return Response.ok(agentInstanceService.getTaskDetail(taskId)).build();
     }
 }
