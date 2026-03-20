@@ -1,6 +1,7 @@
 package com.easystation.infra.socket;
 
 import com.easystation.agent.dto.HeartbeatRequest;
+import com.easystation.agent.event.TaskResultEvent;
 import com.easystation.agent.service.AgentLogService;
 import com.easystation.agent.websocket.ConsoleWebSocket;
 import com.easystation.common.config.AgentConfig;
@@ -18,7 +19,7 @@ import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-import jakarta.transaction.Transactional;
+import jakarta.enterprise.event.Event;
 import jakarta.websocket.ClientEndpointConfig;
 import jakarta.websocket.ContainerProvider;
 import jakarta.websocket.Endpoint;
@@ -56,6 +57,9 @@ public class AgentConnectionManager {
     @Inject
     @Named("agentConnectionExecutor")
     ExecutorService executor;
+
+    @Inject
+    Event<TaskResultEvent> taskResultEvent;
 
     private final Map<UUID, Session> sessions = new ConcurrentHashMap<>();
     private final Set<UUID> connecting = ConcurrentHashMap.newKeySet();
@@ -360,9 +364,19 @@ public class AgentConnectionManager {
                 String status = content.path("status").asText("UNKNOWN");
                 int exitCode = content.path("exitCode").asInt(-1);
                 long durationMs = content.path("durationMs").asLong(-1);
+                String output = content.path("output").asText(null);
                 String summary = String.format("EXEC_RESULT requestId=%s status=%s exitCode=%d durationMs=%d", requestId, status, exitCode, durationMs);
                 agentLogService.appendLog(hostId, summary);
                 Log.infof("Exec result received host=%s requestId=%s status=%s exitCode=%d durationMs=%d", hostId, requestId, status, exitCode, durationMs);
+                
+                // Fire event to update task status
+                try {
+                    UUID taskId = UUID.fromString(requestId);
+                    taskResultEvent.fire(new TaskResultEvent(taskId, status, exitCode, durationMs, output));
+                } catch (IllegalArgumentException e) {
+                    Log.warnf("Invalid requestId format: %s", requestId);
+                }
+                
                 consoleWebSocket.broadcastLog(hostId.toString(), message);
                 return;
             }

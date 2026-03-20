@@ -26,7 +26,7 @@ public class AgentTask extends PanacheEntityBase {
     public AgentInstance agentInstance;
 
     @ManyToOne
-    @JoinColumn(name = "command_id", nullable = false)
+    @JoinColumn(name = "command_id")
     public AgentCommand command;
 
     @Enumerated(EnumType.STRING)
@@ -37,6 +37,12 @@ public class AgentTask extends PanacheEntityBase {
 
     @Column(columnDefinition = "TEXT")
     public String result;
+
+    @Column(name = "exit_code")
+    public Integer exitCode;
+
+    @Column(name = "duration_ms")
+    public Long durationMs;
 
     @CreationTimestamp
     public LocalDateTime createdAt;
