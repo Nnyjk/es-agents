@@ -10,6 +10,9 @@ import type {
   ListResponse,
   AgentCredential,
   AgentRepository,
+  DeployParams,
+  DeployResult,
+  AgentTask,
 } from "../types";
 
 const AGENT_TEMPLATE_DOWNLOAD_API_PATH =
@@ -60,6 +63,21 @@ export const saveAgentInstance = (
 
 export const removeAgentInstance = (id: string): Promise<void> => {
   return request.delete(`/agents/instances/${id}`);
+};
+
+// Agent 部署
+export const deployAgentInstance = (
+  id: string,
+  data: DeployParams,
+): Promise<DeployResult> => {
+  return request.post(`/agents/instances/${id}/deploy`, data);
+};
+
+export const getAgentTaskHistory = async (
+  instanceId: string,
+): Promise<AgentTask[]> => {
+  const response = await request.get(`/agents/instances/${instanceId}/tasks`);
+  return response.data || response;
 };
 
 export const executeAgentCommand = (
