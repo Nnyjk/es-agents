@@ -74,9 +74,9 @@ export const SelectHost: React.FC<SelectHostProps> = ({
         image={Empty.PRESENTED_IMAGE_SIMPLE}
       >
         {environmentId ? (
-          <Text type="secondary">所选环境下没有主机，请在基础设施 > 主机中添加</Text>
+          <Text type="secondary">所选环境下没有主机，请在基础设施 {'>'} 主机中添加</Text>
         ) : (
-          <Text type="secondary">请先在基础设施 > 主机中添加主机</Text>
+          <Text type="secondary">请先在基础设施 {'>'} 主机中添加主机</Text>
         )}
       </Empty>
     );

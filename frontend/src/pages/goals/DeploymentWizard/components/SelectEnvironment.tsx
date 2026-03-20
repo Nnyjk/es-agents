@@ -48,7 +48,7 @@ export const SelectEnvironment: React.FC<SelectEnvironmentProps> = ({
         description="暂无可用环境"
         image={Empty.PRESENTED_IMAGE_SIMPLE}
       >
-        <Text type="secondary">请先在基础设施 > 环境中创建环境</Text>
+        <Text type="secondary">请先在基础设施 {'>'} 环境中创建环境</Text>
       </Empty>
     );
   }
