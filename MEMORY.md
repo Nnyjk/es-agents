@@ -24,6 +24,8 @@
 - 2026-03-19：需求规划，识别 6 个功能缺口并创建 Issue
 - 2026-03-20 01:00：需求规划复审，确认核心功能缺口状态，暂无新增 Issue
 - 2026-03-20 11:45：代码审查 `feature/issue-64-deployment-agent-wizard`，发现严重 bug (DeployConfig.tsx:145 备注字段绑定错误)，需修复后合并
+- 2026-03-20 14:45：代码审查 PR #68，CI 失败（Prettier 格式化问题），需修复后合并
+- 2026-03-20 15:00：需求规划，识别 4 个关键功能缺口并创建 Issue (#76-79)
 
 ## 功能缺口（2026-03-19 规划）
 
@@ -51,6 +53,10 @@
 | #31 | 缺失：系统审计日志 API | medium | 🆕 新建 |
 | #33 | 缺失：前端目标驱动 Goal Hub 页面 | high | 🆕 新建 |
 | #34 | 缺失：部署流程向导前端 | high | 🆕 新建 |
+| #76 | feat(server): Agent 模板 CRUD 管理 API | high | 🆕 新建 |
+| #77 | feat(server): Agent 实例与绑定管理 API | high | 🆕 新建 |
+| #78 | feat(server): Host Agent WebSocket 连接管理 | high | 🆕 新建 |
+| #79 | feat(agent): Agent Plugin 注册与发现机制 | high | 🆕 新建 |
 | #35 | 缺失：Agent 资源来源拉取与解析 | medium | 🆕 新建 |
 | #36 | 缺失：主机可达性检查 API | medium | 🆕 新建 |
 | #37 | 缺失：Agent 命令执行能力后端 API | high | 🆕 新建 |
