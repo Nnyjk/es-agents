@@ -64,6 +64,20 @@ export interface AgentCredentialSimple {
   type: "STATIC_TOKEN" | "API_TOKEN" | "SCRIPT_TOKEN" | "SSO_TOKEN";
 }
 
+export type AgentTaskStatus = "PENDING" | "RUNNING" | "SUCCESS" | "FAILED";
+
+export interface AgentTask {
+  id: string;
+  instanceId: string;
+  taskType: string;
+  status: AgentTaskStatus;
+  input: Record<string, any>;
+  output?: string;
+  error?: string;
+  startedAt: string;
+  completedAt?: string;
+}
+
 export interface AgentRepository {
   id: string;
   name: string;
@@ -127,17 +141,40 @@ export interface AgentTemplate {
   updatedAt: string;
 }
 
+export type AgentStatus =
+  | "OFFLINE"
+  | "ONLINE"
+  | "BUSY"
+  | "UNCONFIGURED"
+  | "DEPLOYING"
+  | "DEPLOYED"
+  | "EXCEPTION";
+
 export interface AgentInstance {
   id: string;
   host: Host;
   hostId?: string; // Form usage
   template: AgentTemplate;
   templateId?: string; // Form usage
-  status: "OFFLINE" | "ONLINE" | "BUSY" | "UNCONFIGURED";
+  status: AgentStatus;
   version?: string;
   lastHeartbeatTime?: string;
+  deployedAt?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+// 部署相关类型
+export interface DeployParams {
+  version: string;
+  remarks?: string;
+}
+
+export interface DeployResult {
+  instanceId: string;
+  status: AgentStatus;
+  message: string;
+  deployedAt: string;
 }
 
 export interface ExecuteCommandParams {
