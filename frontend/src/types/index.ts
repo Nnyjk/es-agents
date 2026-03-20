@@ -196,5 +196,80 @@ export interface ListResponse<T> {
   success: boolean;
 }
 
+// 告警相关类型
+export type AlertLevel = "INFO" | "WARNING" | "ERROR" | "CRITICAL";
+export type AlertStatus = "ACTIVE" | "ACKNOWLEDGED" | "RESOLVED" | "IGNORED";
+export type AlertRuleStatus = "ENABLED" | "DISABLED";
+export type AlertChannelType = "EMAIL" | "WEBHOOK" | "DINGTALK" | "WECHAT" | "SLACK";
+
+export interface Alert {
+  id: string;
+  ruleId?: string;
+  ruleName?: string;
+  level: AlertLevel;
+  title: string;
+  content: string;
+  source: string;
+  status: AlertStatus;
+  labels?: Record<string, string>;
+  acknowledgedBy?: string;
+  acknowledgedAt?: string;
+  resolvedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AlertRule {
+  id: string;
+  name: string;
+  description?: string;
+  level: AlertLevel;
+  source: string;
+  condition: string;
+  duration: number;
+  channels: AlertChannel[];
+  channelIds?: string[];
+  status: AlertRuleStatus;
+  labels?: Record<string, string>;
+  silencePeriod?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AlertChannel {
+  id: string;
+  name: string;
+  type: AlertChannelType;
+  config: string;
+  description?: string;
+  status: "ENABLED" | "DISABLED";
+  lastTestAt?: string;
+  lastTestResult?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AlertStatistics {
+  total: number;
+  active: number;
+  acknowledged: number;
+  resolved: number;
+  ignored: number;
+  byLevel: Record<AlertLevel, number>;
+}
+
+export interface AlertRuleTestResult {
+  success: boolean;
+  message: string;
+  matchedCount: number;
+  sampleAlerts?: Alert[];
+}
+
+export interface AlertChannelTestResult {
+  success: boolean;
+  message: string;
+  responseTime?: number;
+}
+
 // 基础设施相关类型
 export * from "./infrastructure";
