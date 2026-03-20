@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { SelectEnvironment } from "./components/SelectEnvironment";
 import { SelectHost } from "./components/SelectHost";
 import { DeployConfig } from "./components/DeployConfig";
-import { DeployExecution } from "./components/DeployExecution";
+import DeployExecution from "./components/DeployExecution";
 import { DeployResult } from "./components/DeployResult";
 import type { Environment, Host, AgentTemplate, DeployParams, DeployResult as DeployResultType } from "../../../types";
 
@@ -19,7 +19,7 @@ const steps = [
 const DeploymentWizard: React.FC = () => {
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
-  const [_loading, setLoading] = useState(false);
+  const [_loading, _setLoading] = useState(false);
   
   // Wizard state
   const [selectedEnv, setSelectedEnv] = useState<Environment | null>(null);
