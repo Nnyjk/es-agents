@@ -1,82 +1,57 @@
 name: Release
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (e.g., v1.0.0)"
+        required: true
+        type: string
 
 permissions:
   contents: write
 
-concurrency:
-  group: release-${{ github.sha }}
-  cancel-in-progress: true
-
 jobs:
-  build-and-release:
+  build:
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Build Frontend
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
+      - run: |
+          cd frontend
+          npm ci --legacy-peer-deps
+          npm run build
 
-      - uses: actions/setup-java@v4
+      - name: Build Server
+        uses: actions/setup-java@v4
         with:
           java-version: "21"
           distribution: temurin
           cache: maven
+      - run: mvn -B package -DskipTests --file server/pom.xml
 
-      - uses: actions/setup-go@v5
+      - name: Build Agent
+        uses: actions/setup-go@v5
         with:
           go-version-file: agent/go.mod
           cache-dependency-path: agent/go.sum
+      - run: |
+          cd agent
+          go build -o esa-agent ./cmd/agent
 
-      - name: Build all components
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Frontend
-          cd frontend && npm ci --legacy-peer-deps && npm run build
-
-          # Server (from repo root)
-          cd $GITHUB_WORKSPACE
-          mvn -B -DskipTests package --file server/pom.xml
-
-          # Agent (Linux + Windows only, macOS temporarily disabled)
-          cd $GITHUB_WORKSPACE/agent
-          mkdir -p dist
-          echo "Building Linux amd64..."
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-linux-amd64 ./cmd/host-agent
-          echo "Building Windows amd64..."
-          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o dist/host-agent-windows-amd64.exe ./cmd/host-agent
-          echo "All builds complete. Contents:"
-          ls -la dist/
-
-      - name: Package artifacts
-        run: |
-          # Production bundle
-          mkdir -p dist/deploy/frontend
-          cp -R frontend/dist/. dist/deploy/frontend/
-          cp server/target/*.jar dist/deploy/
-          cp agent/dist/host-agent-linux-amd64 dist/deploy/
-          tar -czf production-bundle-${{ github.sha }}.tar.gz -C dist deploy
-
-          # Platform packages
-          mkdir -p packages/linux && cp agent/dist/host-agent-linux-amd64 packages/linux/host-agent
-          chmod +x packages/linux/*
-          tar -czf host-agent-linux-amd64.tar.gz -C packages/linux .
-
-          mkdir -p packages/windows && cp agent/dist/host-agent-windows-amd64.exe packages/windows/host-agent.exe
-          cd packages/windows && zip -r ../../host-agent-windows-amd64.zip .
-
-      - uses: softprops/action-gh-release@v2
-        with:
-          tag_name: main-${{ github.run_number }}
-          name: Release ${{ github.run_number }}
-          generate_release_notes: true
-          files: |
-            production-bundle-${{ github.sha }}.tar.gz
-            host-agent-linux-amd64.tar.gz
-            host-agent-windows-amd64.zip
+          gh release create "${{ inputs.version }}" \
+            --title "Release ${{ inputs.version }}" \
+            --generate-notes \
+            ./frontend/dist/* \
+            ./server/target/*.jar \
+            ./agent/esa-agent

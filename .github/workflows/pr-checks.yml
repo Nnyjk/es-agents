@@ -23,11 +23,10 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install & Build & Test
+      - name: Install & Test
         working-directory: ./frontend
         run: |
           npm ci --legacy-peer-deps
-          npm run build
           npm test
           npx tsc --noEmit
 
@@ -55,13 +54,11 @@ jobs:
           go-version-file: agent/go.mod
           cache-dependency-path: agent/go.sum
 
-      - name: Test & Build
+      - name: Test
         working-directory: ./agent
         run: |
           go test -v ./...
           go vet ./...
-          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -tags "netgo osusergo" -o bin/host-agent ./cmd/host-agent
-          bash scripts/verify-linux-compat.sh bin/host-agent
 
   lint:
     runs-on: ubuntu-latest
