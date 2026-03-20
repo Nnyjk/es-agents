@@ -68,10 +68,10 @@ public class AgentCommandService {
             throw new WebApplicationException("Command not found", Response.Status.NOT_FOUND);
         }
         
-        if (dto.name() != null) cmd.setName(dto.name());
-        if (dto.script() != null) cmd.setScript(dto.script());
-        if (dto.timeout() != null) cmd.setTimeout(dto.timeout());
-        if (dto.defaultArgs() != null) cmd.setDefaultArgs(dto.defaultArgs());
+        if (dto.name() != null) cmd.name = dto.name();
+        if (dto.script() != null) cmd.script = dto.script();
+        if (dto.timeout() != null) cmd.timeout = dto.timeout();
+        if (dto.defaultArgs() != null) cmd.defaultArgs = dto.defaultArgs();
         
         return toDto(cmd);
     }
