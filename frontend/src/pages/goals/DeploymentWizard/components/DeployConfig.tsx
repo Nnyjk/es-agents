@@ -74,7 +74,9 @@ export const DeployConfig: React.FC<DeployConfigProps> = ({
     <div>
       <Card title="部署目标" style={{ marginBottom: 16 }}>
         <Descriptions column={2} size="small">
-          <Descriptions.Item label="主机名称">{host.name}</Descriptions.Item>
+          <Descriptions.Item label="主机名称">
+            {host.name}
+          </Descriptions.Item>
           <Descriptions.Item label="主机地址">
             {host.hostname}
           </Descriptions.Item>
