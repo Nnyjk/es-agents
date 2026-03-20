@@ -1,6 +1,7 @@
 # Server-HostAgent 联通性验证指南
 
-本文档用于指导在正式部署前验证 Server 与 HostAgent 之间的联通性。
+本文档用于指导在正式部署前验证 Server 与 HostAgent 之间的
+联通性。
 
 ## 前置条件
 
@@ -32,7 +33,8 @@ WHERE name = 'your-host-name';
 
 **关键字段检查：**
 
-- `gatewayUrl`: Server 连接 HostAgent 的地址（如 `http://192.168.1.100:9090`）
+- `gatewayUrl`: Server 连接 HostAgent 的地址
+  （如 `http://192.168.1.100:9090`）
 - `listenPort`: HostAgent 监听端口（默认 9090）
 - `secretKey`: 用于 HMAC 认证的密钥
 - `status`: 应为 `UNCONNECTED`（初始状态）
