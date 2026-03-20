@@ -16,10 +16,15 @@ import AgentCommandList from "./pages/agent/Command";
 import AgentResourceList from "./pages/agent/Resource";
 import AgentCredentialList from "./pages/agent/Credential";
 import AgentRepositoryList from "./pages/agent/Repository";
+import CommandExecute from "./pages/agent/CommandExecute";
+import CommandHistory from "./pages/agent/CommandHistory";
 import EnvironmentList from "./pages/infrastructure/Environment";
 import HostList from "./pages/infrastructure/Host";
 import GoalHub from "./pages/goals/GoalHub";
 import DeploymentWizard from "./pages/goals/DeploymentWizard";
+import AlertList from "./pages/alert/AlertList";
+import AlertRulePage from "./pages/alert/AlertRule";
+import AlertChannelPage from "./pages/alert/AlertChannel";
 
 const App: React.FC = () => {
   return (
@@ -36,11 +41,18 @@ const App: React.FC = () => {
             <Route path="resources" element={<AgentResourceList />} />
             <Route path="credentials" element={<AgentCredentialList />} />
             <Route path="repositories" element={<AgentRepositoryList />} />
+            <Route path="execute" element={<CommandExecute />} />
+            <Route path="history" element={<CommandHistory />} />
           </Route>
           <Route path="infra">
             <Route path="envs" element={<EnvironmentList />} />
             <Route path="hosts" element={<HostList />} />
             <Route index element={<Navigate to="envs" replace />} />
+          </Route>
+          <Route path="alerts">
+            <Route index element={<AlertList />} />
+            <Route path="rules" element={<AlertRulePage />} />
+            <Route path="channels" element={<AlertChannelPage />} />
           </Route>
           <Route path="users" element={<UserList />} />
           <Route path="roles" element={<RoleList />} />

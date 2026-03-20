@@ -185,6 +185,38 @@ export interface ExecuteCommandParams {
   args?: string;
 }
 
+// Agent 任务相关类型
+export type AgentTaskStatus = "PENDING" | "RUNNING" | "SUCCESS" | "FAILED" | "CANCELLED" | "TIMEOUT";
+
+export interface AgentTask {
+  id: string;
+  agentInstanceId: string;
+  agentInstanceName?: string;
+  commandName?: string;
+  commandId?: string;
+  args?: string;
+  result?: string;
+  status: AgentTaskStatus;
+  durationMs?: number;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface AgentTaskQueryParams {
+  agentInstanceId?: string;
+  status?: AgentTaskStatus;
+  startTime?: string;
+  endTime?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface ExecuteCommandForm {
+  agentInstanceId: string;
+  commandId: string;
+  args?: string;
+}
+
 export interface PageParams {
   current?: number;
   pageSize?: number;
