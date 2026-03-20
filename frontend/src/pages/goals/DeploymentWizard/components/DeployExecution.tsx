@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Result, Spin, Card, Typography, Steps, Alert } from "antd";
+import { Result, Spin, Card, Steps, Alert } from "antd";
 import { CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined, SyncOutlined } from "@ant-design/icons";
 import { deployAgentInstance, saveAgentInstance } from "../../../../services/agent";
 import type { Host, AgentTemplate, DeployParams, DeployResult as DeployResultType } from "../../../../types";
@@ -20,7 +20,7 @@ const DeployExecution: React.FC<DeployExecutionProps> = ({
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"pending" | "creating" | "deploying" | "success" | "failed">("pending");
   const [logs, setLogs] = useState<string[]>([]);
-  const [instanceId, setInstanceId] = useState<string | null>(null);
+  const [_instanceId, setInstanceId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const addLog = (message: string) => {

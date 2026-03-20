@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, Steps, Button, message, Result, Spin } from "antd";
+import { Card, Steps, Button, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { SelectEnvironment } from "./components/SelectEnvironment";
 import { SelectHost } from "./components/SelectHost";
@@ -19,7 +19,7 @@ const steps = [
 const DeploymentWizard: React.FC = () => {
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [_loading, setLoading] = useState(false);
   
   // Wizard state
   const [selectedEnv, setSelectedEnv] = useState<Environment | null>(null);

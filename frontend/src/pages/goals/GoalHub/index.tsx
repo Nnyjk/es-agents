@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, Row, Col, Typography, Button } from "antd";
 import { useNavigate } from "react-router-dom";
-import { RocketOutlined, SettingOutlined, ClusterOutlined, SafetyOutlined, MonitorOutlined } from "@ant-design/icons";
+import { RocketOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 

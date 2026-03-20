@@ -1,6 +1,6 @@
 import React from "react";
-import { Result, Button, Card, Descriptions, Tag, Space } from "antd";
-import { CheckCircleOutlined, CloseCircleOutlined, RocketOutlined, HomeOutlined, ReloadOutlined } from "@ant-design/icons";
+import { Result, Button, Descriptions, Tag, Space } from "antd";
+import { CheckCircleOutlined, CloseCircleOutlined, RocketOutlined, ReloadOutlined } from "@ant-design/icons";
 import type { DeployResult as DeployResultType } from "../../../../types";
 
 interface DeployResultProps {
