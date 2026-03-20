@@ -12,7 +12,7 @@ import com.easystation.agent.dto.AgentInstanceRecord.Deploy;
 import com.easystation.agent.dto.AgentInstanceRecord.DeployResult;
 import com.easystation.agent.dto.AgentInstanceRecord.ExecuteCommand;
 import com.easystation.agent.dto.AgentInstanceRecord.Update;
-import com.easystation.agent.dto.AgentTaskRecord;
+import com.easystation.agent.record.AgentTaskRecord;
 import com.easystation.agent.dto.HeartbeatRequest;
 import com.easystation.infra.domain.Host;
 import com.easystation.infra.domain.enums.HostStatus;
@@ -147,10 +147,15 @@ public class AgentInstanceService {
 
         return tasks.stream().map(task -> new AgentTaskRecord(
             task.id,
+            task.agentInstance.getId(),
+            task.agentInstance.getTemplate().getName(),
             task.command.name,
-            task.command.script,
             task.args,
-            task.command.timeout
+            task.result,
+            task.status,
+            null, // durationMs - not available
+            task.createdAt,
+            task.updatedAt
         )).toList();
     }
 
@@ -229,6 +234,92 @@ public class AgentInstanceService {
             instance.status,
             "Deployment completed successfully",
             LocalDateTime.now()
+        );
+    }
+
+    public List<AgentTaskRecord> queryTaskHistory(UUID agentInstanceId, AgentTaskStatus status, LocalDateTime startTime, LocalDateTime endTime, int page, int size) {
+        StringBuilder query = new StringBuilder("1=1");
+        List<Object> params = new ArrayList<>();
+
+        if (agentInstanceId != null) {
+            query.append(" and agentInstance.id = ?").append(params.size() + 1);
+            params.add(agentInstanceId);
+        }
+
+        if (status != null) {
+            query.append(" and status = ?").append(params.size() + 1);
+            params.add(status);
+        }
+
+        if (startTime != null) {
+            query.append(" and createdAt >= ?").append(params.size() + 1);
+            params.add(startTime);
+        }
+
+        if (endTime != null) {
+            query.append(" and createdAt <= ?").append(params.size() + 1);
+            params.add(endTime);
+        }
+
+        query.append(" order by createdAt desc");
+
+        List<AgentTask> tasks = AgentTask.find(query.toString(), params.toArray()).page(page, size).list();
+
+        return tasks.stream().map(this::toTaskRecord).toList();
+    }
+
+    public AgentTaskRecord getTaskDetail(UUID taskId) {
+        AgentTask task = AgentTask.findById(taskId);
+        if (task == null) {
+            throw new WebApplicationException("Task not found", Response.Status.NOT_FOUND);
+        }
+        return toTaskRecord(task);
+    }
+
+    public long countTaskHistory(UUID agentInstanceId, AgentTaskStatus status, LocalDateTime startTime, LocalDateTime endTime) {
+        StringBuilder query = new StringBuilder("1=1");
+        List<Object> params = new ArrayList<>();
+
+        if (agentInstanceId != null) {
+            query.append(" and agentInstance.id = ?").append(params.size() + 1);
+            params.add(agentInstanceId);
+        }
+
+        if (status != null) {
+            query.append(" and status = ?").append(params.size() + 1);
+            params.add(status);
+        }
+
+        if (startTime != null) {
+            query.append(" and createdAt >= ?").append(params.size() + 1);
+            params.add(startTime);
+        }
+
+        if (endTime != null) {
+            query.append(" and createdAt <= ?").append(params.size() + 1);
+            params.add(endTime);
+        }
+
+        return AgentTask.count(query.toString(), params.toArray());
+    }
+
+    private AgentTaskRecord toTaskRecord(AgentTask task) {
+        Long durationMs = null;
+        if (task.updatedAt != null && task.createdAt != null) {
+            durationMs = java.time.Duration.between(task.createdAt, task.updatedAt).toMillis();
+        }
+
+        return new AgentTaskRecord(
+            task.id,
+            task.agentInstance.id,
+            task.agentInstance.host.name,
+            task.command.name,
+            task.args,
+            task.result,
+            task.status,
+            durationMs,
+            task.createdAt,
+            task.updatedAt
         );
     }
 
