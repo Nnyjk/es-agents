@@ -46,3 +46,13 @@ agent/vendor/
 
 # Trae
 .trae/
+
+# Agent Workspace Files (should not be in repo)
+MEMORY.md
+memory/
+*.memory.md
+
+# Tool outputs
+pr-body.md
+pr-comment*.md
+tool_result/
