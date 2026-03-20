@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Result, Spin, Card, Typography, Steps, Alert } from "antd";
 import { CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined, SyncOutlined } from "@ant-design/icons";
 import { deployAgentInstance, saveAgentInstance } from "../../../../services/agent";
-import type { Host, AgentTemplate, DeployParams, AgentInstance, DeployResult as DeployResultType } from "../../../../types";
-
-const { Text } = Typography;
+import type { Host, AgentTemplate, DeployParams, DeployResult as DeployResultType } from "../../../../types";
 
 interface DeployExecutionProps {
   host: Host | null;

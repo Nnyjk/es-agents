@@ -18,8 +18,7 @@ import AgentCredentialList from "./pages/agent/Credential";
 import AgentRepositoryList from "./pages/agent/Repository";
 import EnvironmentList from "./pages/infrastructure/Environment";
 import HostList from "./pages/infrastructure/Host";
-import GoalHub from "./pages/goals/GoalHub";
-import DeploymentWizard from "./pages/goals/DeploymentWizard";
+const Placeholder: React.FC = () => <div>Coming Soon</div>;
 
 const App: React.FC = () => {
   return (
@@ -46,8 +45,8 @@ const App: React.FC = () => {
           <Route path="roles" element={<RoleList />} />
           <Route path="roles/auth/:id" element={<RoleList />} />
           <Route path="modules" element={<ModuleList />} />
-          <Route path="goals" element={<GoalHub />} />
-          <Route path="goals/deploy" element={<DeploymentWizard />} />
+          <Route path="goals" element={<Placeholder />} />
+          <Route path="goals/deploy" element={<Placeholder />} />
         </Route>
       </Routes>
     </Router>
