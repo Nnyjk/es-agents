@@ -38,7 +38,7 @@ export const DeployConfig: React.FC<DeployConfigProps> = ({
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      const data = await queryAgentTemplates({ current: 1, pageSize: 100 });
+      const data = await queryAgentTemplates({});
       const templateList = Array.isArray(data) ? data : (data as any)?.data || [];
       setTemplates(templateList);
     } catch (error) {

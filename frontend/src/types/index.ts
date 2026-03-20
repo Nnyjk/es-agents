@@ -133,10 +133,13 @@ export interface AgentTemplate {
   id: string;
   name: string;
   description?: string;
+  type: "DOCKER" | "EXECUTABLE" | "SCRIPT" | "PLUGIN";
   osType?: string;
   source?: AgentResource;
+  sourceType?: string;
   sourceId?: string;
   commands?: AgentCommand[];
+  version?: string;
   createdAt: string;
   updatedAt: string;
 }
