@@ -1,6 +1,11 @@
 import React from "react";
 import { Result, Button, Descriptions, Tag, Space } from "antd";
-import { CheckCircleOutlined, CloseCircleOutlined, RocketOutlined, ReloadOutlined } from "@ant-design/icons";
+import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  RocketOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import type { DeployResult as DeployResultType } from "../../../../types";
 
 interface DeployResultProps {
@@ -45,13 +50,24 @@ export const DeployResult: React.FC<DeployResultProps> = ({
   return (
     <div>
       <Result
-        icon={isSuccess ? <CheckCircleOutlined style={{ color: "#52c41a" }} /> : <CloseCircleOutlined style={{ color: "#ff4d4f" }} />}
+        icon={
+          isSuccess ? (
+            <CheckCircleOutlined style={{ color: "#52c41a" }} />
+          ) : (
+            <CloseCircleOutlined style={{ color: "#ff4d4f" }} />
+          )
+        }
         title={isSuccess ? "部署成功!" : "部署失败"}
-        subTitle={result.message || (isSuccess ? "Agent 已成功部署到目标主机" : "请检查错误信息")}
+        subTitle={
+          result.message ||
+          (isSuccess ? "Agent 已成功部署到目标主机" : "请检查错误信息")
+        }
       >
         {isSuccess && (
           <Descriptions column={2} bordered size="small">
-            <Descriptions.Item label="实例 ID">{result.instanceId}</Descriptions.Item>
+            <Descriptions.Item label="实例 ID">
+              {result.instanceId}
+            </Descriptions.Item>
             <Descriptions.Item label="状态">
               <Tag color={statusColors[result.status] || "default"}>
                 {statusText[result.status] || result.status}
@@ -64,9 +80,13 @@ export const DeployResult: React.FC<DeployResultProps> = ({
             )}
           </Descriptions>
         )}
-        
+
         <Space style={{ marginTop: 24 }}>
-          <Button type="primary" onClick={onGoToAgents} icon={<RocketOutlined />}>
+          <Button
+            type="primary"
+            onClick={onGoToAgents}
+            icon={<RocketOutlined />}
+          >
             查看 Agent 列表
           </Button>
           <Button onClick={onReset} icon={<ReloadOutlined />}>
