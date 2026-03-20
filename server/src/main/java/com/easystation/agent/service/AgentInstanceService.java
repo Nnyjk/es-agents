@@ -12,7 +12,7 @@ import com.easystation.agent.dto.AgentInstanceRecord.Deploy;
 import com.easystation.agent.dto.AgentInstanceRecord.DeployResult;
 import com.easystation.agent.dto.AgentInstanceRecord.ExecuteCommand;
 import com.easystation.agent.dto.AgentInstanceRecord.Update;
-import com.easystation.agent.dto.AgentTaskRecord;
+import com.easystation.agent.record.AgentTaskRecord;
 import com.easystation.agent.dto.HeartbeatRequest;
 import com.easystation.infra.domain.Host;
 import com.easystation.infra.domain.enums.HostStatus;
