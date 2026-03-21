@@ -61,8 +61,3 @@ export interface Host {
   createdAt?: string;
   updatedAt?: string;
 }
-  heartbeatInterval?: number;
-  gatewayUrl?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
