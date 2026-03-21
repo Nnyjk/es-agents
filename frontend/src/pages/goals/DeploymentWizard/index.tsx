@@ -6,7 +6,13 @@ import { SelectHost } from "./components/SelectHost";
 import { DeployConfig } from "./components/DeployConfig";
 import DeployExecution from "./components/DeployExecution";
 import { DeployResult } from "./components/DeployResult";
-import type { Environment, Host, AgentTemplate, DeployParams, DeployResult as DeployResultType } from "../../../types";
+import type {
+  Environment,
+  Host,
+  AgentTemplate,
+  DeployParams,
+  DeployResult as DeployResultType,
+} from "../../../types";
 
 const steps = [
   { title: "选择环境", description: "选择目标部署环境" },
@@ -20,13 +26,18 @@ const DeploymentWizard: React.FC = () => {
   const navigate = useNavigate();
   const [current, setCurrent] = useState(0);
   const [_loading, _setLoading] = useState(false);
-  
+
   // Wizard state
   const [selectedEnv, setSelectedEnv] = useState<Environment | null>(null);
   const [selectedHost, setSelectedHost] = useState<Host | null>(null);
-  const [selectedTemplate, setSelectedTemplate] = useState<AgentTemplate | null>(null);
-  const [deployParams, setDeployParams] = useState<DeployParams>({ version: "" });
-  const [deployResult, setDeployResult] = useState<DeployResultType | null>(null);
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<AgentTemplate | null>(null);
+  const [deployParams, setDeployParams] = useState<DeployParams>({
+    version: "",
+  });
+  const [deployResult, setDeployResult] = useState<DeployResultType | null>(
+    null,
+  );
 
   const handleNext = () => {
     // Validation before moving to next step
@@ -70,10 +81,7 @@ const DeploymentWizard: React.FC = () => {
     switch (current) {
       case 0:
         return (
-          <SelectEnvironment
-            value={selectedEnv}
-            onChange={setSelectedEnv}
-          />
+          <SelectEnvironment value={selectedEnv} onChange={setSelectedEnv} />
         );
       case 1:
         return (
@@ -120,14 +128,8 @@ const DeploymentWizard: React.FC = () => {
 
   return (
     <Card>
-      <Steps
-        current={current}
-        items={steps}
-        style={{ marginBottom: 24 }}
-      />
-      <div style={{ minHeight: 400 }}>
-        {renderStepContent()}
-      </div>
+      <Steps current={current} items={steps} style={{ marginBottom: 24 }} />
+      <div style={{ minHeight: 400 }}>{renderStepContent()}</div>
       {current < 4 && (
         <div style={{ marginTop: 24, textAlign: "right" }}>
           {current > 0 && (
