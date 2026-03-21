@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Form, Card, Select, Input, Typography, Divider, Descriptions, Alert } from "antd";
+import {
+  Form,
+  Card,
+  Select,
+  Input,
+  Typography,
+  Divider,
+  Descriptions,
+  Alert,
+} from "antd";
 import { queryAgentTemplates } from "../../../../services/agent";
 import type { AgentTemplate, Host, DeployParams } from "../../../../types";
 
@@ -39,7 +48,9 @@ export const DeployConfig: React.FC<DeployConfigProps> = ({
     try {
       setLoading(true);
       const data = await queryAgentTemplates({});
-      const templateList = Array.isArray(data) ? data : (data as any)?.data || [];
+      const templateList = Array.isArray(data)
+        ? data
+        : (data as any)?.data || [];
       setTemplates(templateList);
     } catch (error) {
       console.error("Failed to fetch templates:", error);
@@ -64,8 +75,12 @@ export const DeployConfig: React.FC<DeployConfigProps> = ({
       <Card title="部署目标" style={{ marginBottom: 16 }}>
         <Descriptions column={2} size="small">
           <Descriptions.Item label="主机名称">{host.name}</Descriptions.Item>
-          <Descriptions.Item label="主机地址">{host.hostname}</Descriptions.Item>
-          <Descriptions.Item label="操作系统">{host.os || "未知"}</Descriptions.Item>
+          <Descriptions.Item label="主机地址">
+            {host.hostname}
+          </Descriptions.Item>
+          <Descriptions.Item label="操作系统">
+            {host.os || "未知"}
+          </Descriptions.Item>
           <Descriptions.Item label="状态">{host.status}</Descriptions.Item>
         </Descriptions>
       </Card>
@@ -111,10 +126,14 @@ export const DeployConfig: React.FC<DeployConfigProps> = ({
                   {templateTypeLabels[value.type] || value.type}
                 </Descriptions.Item>
                 {value.version && (
-                  <Descriptions.Item label="版本">{value.version}</Descriptions.Item>
+                  <Descriptions.Item label="版本">
+                    {value.version}
+                  </Descriptions.Item>
                 )}
                 {value.description && (
-                  <Descriptions.Item label="描述">{value.description}</Descriptions.Item>
+                  <Descriptions.Item label="描述">
+                    {value.description}
+                  </Descriptions.Item>
                 )}
               </Descriptions>
             </>
@@ -128,7 +147,9 @@ export const DeployConfig: React.FC<DeployConfigProps> = ({
             <Input
               placeholder="例如: latest, v1.0.0"
               value={deployParams.version}
-              onChange={(e) => onParamsChange({ ...deployParams, version: e.target.value })}
+              onChange={(e) =>
+                onParamsChange({ ...deployParams, version: e.target.value })
+              }
             />
           </Form.Item>
           <Form.Item label="备注">
@@ -136,7 +157,9 @@ export const DeployConfig: React.FC<DeployConfigProps> = ({
               placeholder="可选填写部署备注"
               rows={2}
               value={deployParams.remarks || ""}
-              onChange={(e) => onParamsChange({ ...deployParams, remarks: e.target.value })}
+              onChange={(e) =>
+                onParamsChange({ ...deployParams, remarks: e.target.value })
+              }
             />
           </Form.Item>
         </Form>
