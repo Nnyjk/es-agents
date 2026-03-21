@@ -37,13 +37,13 @@ import {
   ignoreAlert,
   batchAlertAction,
   getAlertStatistics,
+  type AlertQueryParams,
 } from "@/services/alert";
 import type {
   Alert,
   AlertLevel,
   AlertStatus,
   AlertStatistics,
-  AlertQueryParams,
 } from "@/types";
 
 const { RangePicker } = DatePicker;

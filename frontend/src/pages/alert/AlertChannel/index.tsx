@@ -41,13 +41,13 @@ import {
   enableAlertChannel,
   disableAlertChannel,
   testAlertChannel,
+  type AlertChannelQueryParams,
+  type AlertChannelCreateParams,
+  type AlertChannelUpdateParams,
 } from "@/services/alert";
 import type {
   AlertChannel,
   AlertChannelType,
-  AlertChannelQueryParams,
-  AlertChannelCreateParams,
-  AlertChannelUpdateParams,
 } from "@/types";
 
 const { Option } = Select;

@@ -39,14 +39,14 @@ import {
   disableAlertRule,
   testAlertRule,
   getAlertChannels,
+  type AlertRuleQueryParams,
+  type AlertRuleCreateParams,
+  type AlertRuleUpdateParams,
 } from "@/services/alert";
 import type {
   AlertRule,
   AlertLevel,
   AlertRuleStatus,
-  AlertRuleQueryParams,
-  AlertRuleCreateParams,
-  AlertRuleUpdateParams,
   AlertChannel,
 } from "@/types";
 
