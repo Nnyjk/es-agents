@@ -44,11 +44,13 @@ export const SelectHost: React.FC<SelectHostProps> = ({
   const fetchHosts = async () => {
     try {
       setLoading(true);
-      const params = environmentId ? { environmentId, current: 1, pageSize: 100 } : { current: 1, pageSize: 100 };
+      const params = environmentId
+        ? { environmentId, current: 1, pageSize: 100 }
+        : { current: 1, pageSize: 100 };
       const data = await queryHosts(params);
       const hostList = Array.isArray(data) ? data : (data as any)?.data || [];
       // Filter by environment if provided
-      const filtered = environmentId 
+      const filtered = environmentId
         ? hostList.filter((h: Host) => h.environmentId === environmentId)
         : hostList;
       setHosts(filtered);
@@ -69,14 +71,13 @@ export const SelectHost: React.FC<SelectHostProps> = ({
 
   if (hosts.length === 0) {
     return (
-      <Empty
-        description="暂无可用主机"
-        image={Empty.PRESENTED_IMAGE_SIMPLE}
-      >
+      <Empty description="暂无可用主机" image={Empty.PRESENTED_IMAGE_SIMPLE}>
         {environmentId ? (
-          <Text type="secondary">所选环境下没有主机，请在基础设施 {'>'} 主机中添加</Text>
+          <Text type="secondary">
+            所选环境下没有主机，请在基础设施 {">"} 主机中添加
+          </Text>
         ) : (
-          <Text type="secondary">请先在基础设施 {'>'} 主机中添加主机</Text>
+          <Text type="secondary">请先在基础设施 {">"} 主机中添加主机</Text>
         )}
       </Empty>
     );
