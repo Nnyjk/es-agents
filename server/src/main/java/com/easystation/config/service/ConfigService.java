@@ -301,13 +301,15 @@ public class ConfigService {
     }
 
     public List<ConfigRecord.ConfigGroup> listGroups() {
-        List<Object[]> results = ConfigItem.<Object[]>find("select \"group\", count(*) from ConfigItem where active = true group by \"group\"").project(Object[].class).list();
+        List<Object[]> results = ConfigItem.find("select c.group, count(c) from ConfigItem c where c.active = true group by c.group")
+                .project(Object[].class)
+                .list();
 
         List<ConfigRecord.ConfigGroup> groups = new ArrayList<>();
         for (Object[] row : results) {
             String group = (String) row[0];
             Long count = (Long) row[1];
-            List<ConfigItem> configs = ConfigItem.<ConfigItem>find("\"group\" = ?1 and active = ?2", group, true).list();
+            List<ConfigItem> configs = ConfigItem.find("`group` = ?1 and active = ?2", group, true).list();
             groups.add(new ConfigRecord.ConfigGroup(
                     group,
                     count,
