@@ -16,7 +16,6 @@ import {
   Tag,
   Space,
   Badge,
-  Select,
   ColorPicker,
   Modal,
   Descriptions,
@@ -230,7 +229,7 @@ const EnvironmentList: React.FC = () => {
       title: "状态",
       dataIndex: "status",
       key: "status",
-      render: (status) => {
+      render: (status: string) => {
         const statusConfig: Record<string, { color: string; text: string }> = {
           UNCONNECTED: { color: "default", text: "未连接" },
           OFFLINE: { color: "error", text: "离线" },
