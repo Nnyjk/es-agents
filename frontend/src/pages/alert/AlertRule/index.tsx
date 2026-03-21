@@ -10,10 +10,8 @@ import {
   Input,
   Select,
   InputNumber,
-  Switch,
   message,
   Popconfirm,
-  Tabs,
   Row,
   Col,
 } from "antd";

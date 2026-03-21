@@ -16,6 +16,7 @@ import {
   Divider,
   Typography,
   Result,
+  Switch,
 } from "antd";
 import {
   PlusOutlined,
@@ -293,7 +294,7 @@ const AlertChannelPage: React.FC = () => {
               label="@所有人"
               valuePropName="checked"
             >
-              <Tag checkable>是</Tag>
+              <Switch />
             </Form.Item>
           </>
         );

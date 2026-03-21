@@ -188,6 +188,7 @@ export interface ExecuteCommandParams {
 export interface PageParams {
   current?: number;
   pageSize?: number;
+  page?: number;
 }
 
 export interface ListResponse<T> {
