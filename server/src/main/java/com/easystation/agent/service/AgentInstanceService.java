@@ -57,6 +57,9 @@ public class AgentInstanceService {
         if (host == null) throw new WebApplicationException("Host not found", Response.Status.BAD_REQUEST);
         if (template == null) throw new WebApplicationException("Template not found", Response.Status.BAD_REQUEST);
 
+        // Validate host reachability for binding
+        validateHostReachability(host);
+
         AgentInstance instance = new AgentInstance();
         instance.setHost(host);
         instance.setTemplate(template);
@@ -75,12 +78,20 @@ public class AgentInstanceService {
         
         if (dto.hostId() != null) {
             Host host = Host.findById(dto.hostId());
-            if (host != null) instance.setHost(host);
+            if (host == null) {
+                throw new WebApplicationException("Host not found", Response.Status.BAD_REQUEST);
+            }
+            // Validate host reachability for binding
+            validateHostReachability(host);
+            instance.setHost(host);
         }
         
         if (dto.templateId() != null) {
             AgentTemplate template = AgentTemplate.findById(dto.templateId());
-            if (template != null) instance.setTemplate(template);
+            if (template == null) {
+                throw new WebApplicationException("Template not found", Response.Status.BAD_REQUEST);
+            }
+            instance.setTemplate(template);
         }
         
         return toDto(instance);
@@ -335,5 +346,21 @@ public class AgentInstanceService {
             instance.createdAt,
             instance.updatedAt
         );
+    }
+
+    /**
+     * Validate host reachability for instance binding.
+     * Host should be ONLINE or at least have a valid gatewayUrl configured.
+     */
+    private void validateHostReachability(Host host) {
+        // Check if host has gatewayUrl configured
+        if (host.getGatewayUrl() == null || host.getGatewayUrl().isBlank()) {
+            throw new WebApplicationException(
+                "Host does not have gatewayUrl configured. Cannot bind instance to unreachable host.",
+                Response.Status.BAD_REQUEST
+            );
+        }
+        // Note: We allow binding to OFFLINE hosts as they might come online later.
+        // The actual connection will be attempted when deployment is triggered.
     }
 }
