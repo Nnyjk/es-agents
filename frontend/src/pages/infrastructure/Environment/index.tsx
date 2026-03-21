@@ -32,7 +32,6 @@ import {
 } from "../../../services/infra";
 import type { Environment, Host } from "../../../types";
 
-const { Option } = Select;
 const { Text } = Typography;
 
 const EnvironmentList: React.FC = () => {
@@ -117,7 +116,7 @@ const EnvironmentList: React.FC = () => {
       dataIndex: "name",
       key: "name",
       width: 150,
-      render: (text: string, record: Environment) => (
+      render: (text, record) => (
         <Space>
           {record.color && (
             <Tag
@@ -147,7 +146,7 @@ const EnvironmentList: React.FC = () => {
       key: "hostCount",
       width: 100,
       align: "center",
-      render: (_, record: Environment) => (
+      render: (_, record) => (
         <Badge
           count={hostCounts[record.id] || 0}
           showZero
@@ -160,7 +159,7 @@ const EnvironmentList: React.FC = () => {
       dataIndex: "enabled",
       key: "enabled",
       width: 80,
-      render: (enabled: boolean) => (
+      render: (enabled) => (
         <Tag color={enabled !== false ? "success" : "default"}>
           {enabled !== false ? "启用" : "禁用"}
         </Tag>
@@ -231,7 +230,7 @@ const EnvironmentList: React.FC = () => {
       title: "状态",
       dataIndex: "status",
       key: "status",
-      render: (status: string) => {
+      render: (status) => {
         const statusConfig: Record<string, { color: string; text: string }> = {
           UNCONNECTED: { color: "default", text: "未连接" },
           OFFLINE: { color: "error", text: "离线" },
@@ -290,12 +289,12 @@ const EnvironmentList: React.FC = () => {
 
       <DrawerForm
         title={editingItem ? "编辑环境" : "新建环境"}
-        open={drawerVisible}
+        visible={drawerVisible}
         onClose={() => {
           setDrawerVisible(false);
           setEditingItem(null);
         }}
-        onFinish={handleSave}
+        onSave={handleSave}
         initialValues={editingItem || { enabled: true }}
       >
         <Form.Item

@@ -24,7 +24,6 @@ import {
   Modal,
   Descriptions,
   Typography,
-  Badge,
 } from "antd";
 import Editor from "@monaco-editor/react";
 import { DrawerForm } from "@/components/DrawerForm";
@@ -318,7 +317,7 @@ const HostList: React.FC = () => {
       dataIndex: "agentVersion",
       hideInSearch: true,
       hideInForm: true,
-      render: (text: string) => (text ? <Tag color="blue">{text}</Tag> : "-"),
+      render: (text) => (text ? <Tag color="blue">{text}</Tag> : "-"),
     },
     {
       title: "最后心跳",
