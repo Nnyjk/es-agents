@@ -31,7 +31,13 @@ import {
   getAgentTask,
 } from "@/services/agent";
 import { queryHosts } from "@/services/infra";
-import type { AgentInstance, AgentCommand, AgentTask, Host, ListResponse } from "@/types";
+import type {
+  AgentInstance,
+  AgentCommand,
+  AgentTask,
+  Host,
+  ListResponse,
+} from "@/types";
 
 const { Option } = Select;
 const { TextArea } = Input;
