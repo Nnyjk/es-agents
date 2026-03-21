@@ -48,7 +48,7 @@ const extractFileName = (contentDisposition?: string | null): string | null => {
 
 // Agent Instances
 export const queryAgentInstances = (
-  params?: PageParams,
+  params?: PageParams & { hostId?: string },
 ): Promise<AgentInstance[] | ListResponse<AgentInstance>> => {
   return request.get("/agents/instances", { params });
 };

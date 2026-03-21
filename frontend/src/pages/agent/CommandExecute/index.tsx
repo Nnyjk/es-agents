@@ -12,7 +12,10 @@ import {
   Tag,
   Row,
   Col,
+  Typography,
 } from "antd";
+
+const { Paragraph } = Typography;
 import {
   PlayCircleOutlined,
   StopOutlined,
@@ -28,7 +31,7 @@ import {
   getAgentTask,
 } from "@/services/agent";
 import { queryHosts } from "@/services/infra";
-import type { AgentInstance, AgentCommand, AgentTask, Host } from "@/types";
+import type { AgentInstance, AgentCommand, AgentTask, Host, ListResponse } from "@/types";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -50,11 +53,11 @@ const CommandExecute: React.FC = () => {
   // 加载主机列表
   useEffect(() => {
     queryHosts().then((res) => {
-      const hostList = Array.isArray(res) ? res : res.data || [];
+      const hostList = Array.isArray(res) ? res : (res as ListResponse<Host>).data || [];
       setHosts(hostList);
     });
     queryAgentCommands().then((res) => {
-      const cmdList = Array.isArray(res) ? res : res.data || [];
+      const cmdList = Array.isArray(res) ? res : (res as ListResponse<AgentCommand>).data || [];
       setCommands(cmdList);
     });
   }, []);
@@ -63,7 +66,7 @@ const CommandExecute: React.FC = () => {
   useEffect(() => {
     if (selectedHostId) {
       queryAgentInstances({ hostId: selectedHostId }).then((res) => {
-        const instanceList = Array.isArray(res) ? res : res.data || [];
+        const instanceList = Array.isArray(res) ? res : (res as ListResponse<AgentInstance>).data || [];
         setInstances(instanceList);
       });
     } else {
