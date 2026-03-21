@@ -5,6 +5,8 @@ import {
   CodeOutlined,
   LinkOutlined,
   ApiOutlined,
+  EyeOutlined,
+  DesktopOutlined,
 } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
@@ -17,6 +19,11 @@ import {
   Select,
   Drawer,
   InputNumber,
+  Tag,
+  Space,
+  Modal,
+  Descriptions,
+  Typography,
 } from "antd";
 import Editor from "@monaco-editor/react";
 import { DrawerForm } from "@/components/DrawerForm";
@@ -35,6 +42,8 @@ import type { Host, Environment, HostInstallGuide } from "@/types";
 import { XTerm } from "xterm-for-react";
 import { FitAddon } from "xterm-addon-fit";
 
+const { Text } = Typography;
+
 const HostList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [drawerVisible, setDrawerVisible] = useState(false);
@@ -42,6 +51,7 @@ const HostList: React.FC = () => {
   const [terminalVisible, setTerminalVisible] = useState(false);
   const [installGuideVisible, setInstallGuideVisible] = useState(false);
   const [cmdModalVisible, setCmdModalVisible] = useState(false);
+  const [detailVisible, setDetailVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<Host> | null>(null);
   const [environments, setEnvironments] = useState<Environment[]>([]);
   const [configContent, setConfigContent] = useState("");
@@ -303,6 +313,13 @@ const HostList: React.FC = () => {
     { title: "地址", dataIndex: "hostname" },
     { title: "系统", dataIndex: "os", hideInForm: true },
     {
+      title: "Agent版本",
+      dataIndex: "agentVersion",
+      hideInSearch: true,
+      hideInForm: true,
+      render: (text) => (text ? <Tag color="blue">{text}</Tag> : "-"),
+    },
+    {
       title: "最后心跳",
       dataIndex: "lastHeartbeat",
       valueType: "dateTime",
@@ -329,33 +346,54 @@ const HostList: React.FC = () => {
     {
       title: "操作",
       valueType: "option",
-      width: 350,
+      width: 400,
       render: (_, record) => {
         const isOnline = record.status === "ONLINE";
         return [
+          <Button
+            key="detail"
+            type="link"
+            size="small"
+            icon={<EyeOutlined />}
+            onClick={() => {
+              setCurrentHost(record);
+              setDetailVisible(true);
+            }}
+          >
+            详情
+          </Button>,
           isOnline ? (
-            <a
+            <Button
               key="terminal"
+              type="link"
+              size="small"
+              icon={<CodeOutlined />}
               onClick={() => {
                 setCurrentHost(record);
                 setTerminalVisible(true);
               }}
             >
-              <CodeOutlined /> 终端
-            </a>
+              终端
+            </Button>
           ) : (
-            <a
+            <Button
               key="access"
+              type="link"
+              size="small"
+              icon={<LinkOutlined />}
               onClick={() => {
                 setCurrentHost(record);
                 setInstallGuideVisible(true);
               }}
             >
-              <LinkOutlined /> 接入
-            </a>
+              接入
+            </Button>
           ),
-          <a
+          <Button
             key="config"
+            type="link"
+            size="small"
+            icon={<SettingOutlined />}
             onClick={() => {
               setCurrentHost(record);
               setConfigContent(record.config || "");
@@ -363,26 +401,30 @@ const HostList: React.FC = () => {
               setConfigDrawerVisible(true);
             }}
           >
-            <SettingOutlined /> 配置
-          </a>,
-          <a
+            配置
+          </Button>,
+          <Button
             key="edit"
+            type="link"
+            size="small"
             onClick={() => {
               setEditingItem({
                 ...record,
-                environmentId: record.environmentId || record.environment?.id, // Flatten for form
+                environmentId: record.environmentId || record.environment?.id,
               });
               setDrawerVisible(true);
             }}
           >
             编辑
-          </a>,
+          </Button>,
           <Popconfirm
             key="delete"
             title="确定删除?"
             onConfirm={() => handleDelete(record.id)}
           >
-            <a style={{ color: "red" }}>删除</a>
+            <Button type="link" size="small" danger>
+              删除
+            </Button>
           </Popconfirm>,
         ];
       },
@@ -549,6 +591,99 @@ const HostList: React.FC = () => {
         onExecute={handleExecuteCommand}
         hostOs={currentHost?.os}
       />
+
+      {/* Host Detail Modal */}
+      <Modal
+        title={
+          <Space>
+            <DesktopOutlined />
+            <span>{currentHost?.name} - 主机详情</span>
+          </Space>
+        }
+        open={detailVisible}
+        onCancel={() => setDetailVisible(false)}
+        footer={null}
+        width={700}
+      >
+        {currentHost && (
+          <Descriptions column={2} bordered size="small">
+            <Descriptions.Item label="主机名称">
+              {currentHost.name}
+            </Descriptions.Item>
+            <Descriptions.Item label="地址">
+              <Text copyable>{currentHost.hostname}</Text>
+            </Descriptions.Item>
+            <Descriptions.Item label="操作系统">
+              {currentHost.os || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="CPU">
+              {currentHost.cpuInfo || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="内存">
+              {currentHost.memInfo || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Agent版本">
+              {currentHost.agentVersion ? (
+                <Tag color="blue">{currentHost.agentVersion}</Tag>
+              ) : (
+                "-"
+              )}
+            </Descriptions.Item>
+            <Descriptions.Item label="所属环境">
+              {currentHost.environmentName ||
+                currentHost.environment?.name ||
+                "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="状态">
+              <Tag
+                color={
+                  currentHost.status === "ONLINE"
+                    ? "success"
+                    : currentHost.status === "OFFLINE"
+                      ? "error"
+                      : currentHost.status === "EXCEPTION"
+                        ? "warning"
+                        : "default"
+                }
+              >
+                {currentHost.status === "ONLINE"
+                  ? "在线"
+                  : currentHost.status === "OFFLINE"
+                    ? "离线"
+                    : currentHost.status === "EXCEPTION"
+                      ? "异常"
+                      : currentHost.status === "MAINTENANCE"
+                        ? "维护中"
+                        : "未接入"}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="最后心跳">
+              {currentHost.lastHeartbeat
+                ? new Date(currentHost.lastHeartbeat).toLocaleString()
+                : "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="心跳间隔">
+              {currentHost.heartbeatInterval
+                ? `${currentHost.heartbeatInterval}秒`
+                : "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="网关地址">
+              {currentHost.gatewayUrl || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="监听端口">
+              {currentHost.listenPort || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="描述" span={2}>
+              {currentHost.description || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="创建时间" span={2}>
+              {currentHost.createdAt
+                ? new Date(currentHost.createdAt).toLocaleString()
+                : "-"}
+            </Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
     </>
   );
 };

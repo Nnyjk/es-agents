@@ -10,6 +10,9 @@ export interface Environment {
   code: string;
   name: string;
   description?: string;
+  enabled?: boolean;
+  color?: string;
+  hostCount?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -41,6 +44,8 @@ export interface Host {
   name: string;
   hostname: string;
   os?: string;
+  cpuInfo?: string;
+  memInfo?: string;
   environment?: Partial<Environment>;
   environmentId?: string;
   environmentName?: string;
@@ -51,6 +56,8 @@ export interface Host {
   config?: string;
   heartbeatInterval?: number;
   gatewayUrl?: string;
+  listenPort?: number;
+  agentVersion?: string;
   createdAt?: string;
   updatedAt?: string;
 }
