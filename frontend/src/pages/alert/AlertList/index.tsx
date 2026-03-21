@@ -38,12 +38,7 @@ import {
   getAlertStatistics,
   type AlertQueryParams,
 } from "@/services/alert";
-import type {
-  Alert,
-  AlertLevel,
-  AlertStatus,
-  AlertStatistics,
-} from "@/types";
+import type { Alert, AlertLevel, AlertStatus, AlertStatistics } from "@/types";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;

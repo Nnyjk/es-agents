@@ -46,10 +46,7 @@ import {
   type AlertChannelCreateParams,
   type AlertChannelUpdateParams,
 } from "@/services/alert";
-import type {
-  AlertChannel,
-  AlertChannelType,
-} from "@/types";
+import type { AlertChannel, AlertChannelType } from "@/types";
 
 const { Option } = Select;
 const { TextArea } = Input;
