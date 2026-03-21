@@ -51,8 +51,7 @@ public class TaskExecution extends PanacheEntityBase {
     @Column(columnDefinition = "TEXT")
     public String logs;
 
-    @Column(name = "error_message")
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "error_message", columnDefinition = "TEXT")
     public String errorMessage;
 
     @Column(name = "retry_count")
