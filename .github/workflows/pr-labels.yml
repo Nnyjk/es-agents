@@ -37,9 +37,9 @@ jobs:
           script: |
             const conclusion = context.payload.workflow_run.conclusion;
             const prNumber = context.payload.workflow_run.pull_requests[0]?.number;
-
+            
             if (!prNumber) return;
-
+            
             if (conclusion === 'failure') {
               // CI 失败，添加 ci:failed 标签
               await github.rest.issues.addLabels({
