@@ -67,7 +67,10 @@ jobs:
 
       - name: Check formatting & merge markers
         run: |
-          npx --yes prettier@3.5.3 --check ".github/**/*.{yml,yaml,md}" "docs/**/*.md" "frontend/src/**/*.{ts,tsx}"
+          npx --yes prettier@3.5.3 --check \
+            ".github/**/*.{yml,yaml,md}" \
+            "docs/**/*.md" \
+            "frontend/src/**/*.{ts,tsx}"
           if grep -R -nE --exclude-dir=.git "^(<<<<<<<|=======|>>>>>>>)" .; then
             echo "Unresolved merge markers detected."
             exit 1
