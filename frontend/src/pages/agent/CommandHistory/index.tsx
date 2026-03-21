@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Table,
@@ -11,10 +11,7 @@ import {
   DatePicker,
   message,
   Typography,
-  Tabs,
   Descriptions,
-  Row,
-  Col,
 } from "antd";
 import {
   SearchOutlined,
@@ -37,7 +34,7 @@ import type {
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const { Text, Paragraph } = Typography;
+const { Text } = Typography;
 
 const statusConfig: Record<AgentTaskStatus, { color: string; text: string }> = {
   PENDING: { color: "default", text: "等待中" },
