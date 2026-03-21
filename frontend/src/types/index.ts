@@ -200,7 +200,12 @@ export interface ListResponse<T> {
 export type AlertLevel = "INFO" | "WARNING" | "ERROR" | "CRITICAL";
 export type AlertStatus = "ACTIVE" | "ACKNOWLEDGED" | "RESOLVED" | "IGNORED";
 export type AlertRuleStatus = "ENABLED" | "DISABLED";
-export type AlertChannelType = "EMAIL" | "WEBHOOK" | "DINGTALK" | "WECHAT" | "SLACK";
+export type AlertChannelType =
+  | "EMAIL"
+  | "WEBHOOK"
+  | "DINGTALK"
+  | "WECHAT"
+  | "SLACK";
 
 export interface Alert {
   id: string;

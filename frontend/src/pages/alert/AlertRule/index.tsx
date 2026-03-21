@@ -220,7 +220,9 @@ const AlertRulePage: React.FC = () => {
       key: "condition",
       ellipsis: true,
       render: (text: string) => (
-        <code style={{ background: "#f5f5f5", padding: "2px 6px", borderRadius: 4 }}>
+        <code
+          style={{ background: "#f5f5f5", padding: "2px 6px", borderRadius: 4 }}
+        >
           {text}
         </code>
       ),
@@ -251,7 +253,9 @@ const AlertRulePage: React.FC = () => {
       render: (channels: AlertChannel[]) => (
         <Space size={4}>
           {channels?.slice(0, 2).map((c) => (
-            <Tag key={c.id} color="blue">{c.name}</Tag>
+            <Tag key={c.id} color="blue">
+              {c.name}
+            </Tag>
           ))}
           {channels?.length > 2 && <Tag>+{channels.length - 2}</Tag>}
         </Space>
@@ -270,21 +274,40 @@ const AlertRulePage: React.FC = () => {
       width: 200,
       render: (_, record) => (
         <Space size="small">
-          <Button type="link" size="small" icon={<EditOutlined />} onClick={() => handleEdit(record.id)}>
+          <Button
+            type="link"
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record.id)}
+          >
             编辑
           </Button>
-          <Button type="link" size="small" icon={<PlayCircleOutlined />} onClick={() => handleTest(record.id)}>
+          <Button
+            type="link"
+            size="small"
+            icon={<PlayCircleOutlined />}
+            onClick={() => handleTest(record.id)}
+          >
             测试
           </Button>
           <Button
             type="link"
             size="small"
-            icon={record.status === "ENABLED" ? <StopOutlined /> : <CheckCircleOutlined />}
+            icon={
+              record.status === "ENABLED" ? (
+                <StopOutlined />
+              ) : (
+                <CheckCircleOutlined />
+              )
+            }
             onClick={() => handleToggleStatus(record)}
           >
             {record.status === "ENABLED" ? "禁用" : "启用"}
           </Button>
-          <Popconfirm title="确定删除该规则吗？" onConfirm={() => handleDelete(record.id)}>
+          <Popconfirm
+            title="确定删除该规则吗？"
+            onConfirm={() => handleDelete(record.id)}
+          >
             <Button type="link" size="small" danger icon={<DeleteOutlined />}>
               删除
             </Button>
@@ -336,12 +359,20 @@ const AlertRulePage: React.FC = () => {
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item name="name" label="规则名称" rules={[{ required: true }]}>
+              <Form.Item
+                name="name"
+                label="规则名称"
+                rules={[{ required: true }]}
+              >
                 <Input placeholder="请输入规则名称" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="level" label="告警级别" rules={[{ required: true }]}>
+              <Form.Item
+                name="level"
+                label="告警级别"
+                rules={[{ required: true }]}
+              >
                 <Select>
                   <Option value="INFO">信息</Option>
                   <Option value="WARNING">警告</Option>
@@ -353,17 +384,29 @@ const AlertRulePage: React.FC = () => {
           </Row>
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item name="source" label="来源" rules={[{ required: true }]}>
+              <Form.Item
+                name="source"
+                label="来源"
+                rules={[{ required: true }]}
+              >
                 <Input placeholder="如: agent, deployment, system" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item name="duration" label="持续时间(秒)" rules={[{ required: true }]}>
+              <Form.Item
+                name="duration"
+                label="持续时间(秒)"
+                rules={[{ required: true }]}
+              >
                 <InputNumber min={0} style={{ width: "100%" }} />
               </Form.Item>
             </Col>
           </Row>
-          <Form.Item name="condition" label="触发条件" rules={[{ required: true }]}>
+          <Form.Item
+            name="condition"
+            label="触发条件"
+            rules={[{ required: true }]}
+          >
             <TextArea rows={3} placeholder="如: cpu_usage > 80" />
           </Form.Item>
           <Form.Item name="description" label="描述">
@@ -381,7 +424,11 @@ const AlertRulePage: React.FC = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="silencePeriod" label="静默周期(分钟)">
-                <InputNumber min={0} style={{ width: "100%" }} placeholder="相同告警的静默时间" />
+                <InputNumber
+                  min={0}
+                  style={{ width: "100%" }}
+                  placeholder="相同告警的静默时间"
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -394,7 +441,10 @@ const AlertRulePage: React.FC = () => {
             </Col>
           </Row>
           <Form.Item name="labels" label="标签(JSON格式)">
-            <TextArea rows={2} placeholder='{"env": "prod", "service": "api"}' />
+            <TextArea
+              rows={2}
+              placeholder='{"env": "prod", "service": "api"}'
+            />
           </Form.Item>
         </Form>
       </Modal>

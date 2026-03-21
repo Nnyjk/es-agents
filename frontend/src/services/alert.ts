@@ -31,7 +31,7 @@ export interface AlertListResponse extends ListResponse<Alert> {
 }
 
 export const getAlerts = async (
-  params: AlertQueryParams
+  params: AlertQueryParams,
 ): Promise<AlertListResponse> => {
   const response = await request.get<AlertListResponse>("/alerts", { params });
   return response.data;
@@ -42,23 +42,17 @@ export const getAlert = async (id: string): Promise<Alert> => {
   return response.data;
 };
 
-export const acknowledgeAlert = async (
-  id: string
-): Promise<Alert> => {
+export const acknowledgeAlert = async (id: string): Promise<Alert> => {
   const response = await request.post<Alert>(`/alerts/${id}/acknowledge`);
   return response.data;
 };
 
-export const resolveAlert = async (
-  id: string
-): Promise<Alert> => {
+export const resolveAlert = async (id: string): Promise<Alert> => {
   const response = await request.post<Alert>(`/alerts/${id}/resolve`);
   return response.data;
 };
 
-export const ignoreAlert = async (
-  id: string
-): Promise<Alert> => {
+export const ignoreAlert = async (id: string): Promise<Alert> => {
   const response = await request.post<Alert>(`/alerts/${id}/ignore`);
   return response.data;
 };
@@ -69,12 +63,12 @@ export interface BatchAlertActionParams {
 }
 
 export const batchAlertAction = async (
-  params: BatchAlertActionParams
+  params: BatchAlertActionParams,
 ): Promise<{ success: boolean; affectedCount: number }> => {
-  const response = await request.post<{ success: boolean; affectedCount: number }>(
-    "/alerts/batch",
-    params
-  );
+  const response = await request.post<{
+    success: boolean;
+    affectedCount: number;
+  }>("/alerts/batch", params);
   return response.data;
 };
 
@@ -119,9 +113,11 @@ export interface AlertRuleUpdateParams {
 }
 
 export const getAlertRules = async (
-  params: AlertRuleQueryParams
+  params: AlertRuleQueryParams,
 ): Promise<ListResponse<AlertRule>> => {
-  const response = await request.get<ListResponse<AlertRule>>("/alert-rules", { params });
+  const response = await request.get<ListResponse<AlertRule>>("/alert-rules", {
+    params,
+  });
   return response.data;
 };
 
@@ -131,7 +127,7 @@ export const getAlertRule = async (id: string): Promise<AlertRule> => {
 };
 
 export const createAlertRule = async (
-  params: AlertRuleCreateParams
+  params: AlertRuleCreateParams,
 ): Promise<AlertRule> => {
   const response = await request.post<AlertRule>("/alert-rules", params);
   return response.data;
@@ -139,7 +135,7 @@ export const createAlertRule = async (
 
 export const updateAlertRule = async (
   id: string,
-  params: AlertRuleUpdateParams
+  params: AlertRuleUpdateParams,
 ): Promise<AlertRule> => {
   const response = await request.put<AlertRule>(`/alert-rules/${id}`, params);
   return response.data;
@@ -160,10 +156,10 @@ export const disableAlertRule = async (id: string): Promise<AlertRule> => {
 };
 
 export const testAlertRule = async (
-  id: string
+  id: string,
 ): Promise<AlertRuleTestResult> => {
   const response = await request.post<AlertRuleTestResult>(
-    `/alert-rules/${id}/test`
+    `/alert-rules/${id}/test`,
   );
   return response.data;
 };
@@ -193,11 +189,14 @@ export interface AlertChannelUpdateParams {
 }
 
 export const getAlertChannels = async (
-  params: AlertChannelQueryParams
+  params: AlertChannelQueryParams,
 ): Promise<ListResponse<AlertChannel>> => {
-  const response = await request.get<ListResponse<AlertChannel>>("/alert-channels", {
-    params,
-  });
+  const response = await request.get<ListResponse<AlertChannel>>(
+    "/alert-channels",
+    {
+      params,
+    },
+  );
   return response.data;
 };
 
@@ -207,7 +206,7 @@ export const getAlertChannel = async (id: string): Promise<AlertChannel> => {
 };
 
 export const createAlertChannel = async (
-  params: AlertChannelCreateParams
+  params: AlertChannelCreateParams,
 ): Promise<AlertChannel> => {
   const response = await request.post<AlertChannel>("/alert-channels", params);
   return response.data;
@@ -215,9 +214,12 @@ export const createAlertChannel = async (
 
 export const updateAlertChannel = async (
   id: string,
-  params: AlertChannelUpdateParams
+  params: AlertChannelUpdateParams,
 ): Promise<AlertChannel> => {
-  const response = await request.put<AlertChannel>(`/alert-channels/${id}`, params);
+  const response = await request.put<AlertChannel>(
+    `/alert-channels/${id}`,
+    params,
+  );
   return response.data;
 };
 
@@ -227,23 +229,25 @@ export const deleteAlertChannel = async (id: string): Promise<void> => {
 
 export const enableAlertChannel = async (id: string): Promise<AlertChannel> => {
   const response = await request.post<AlertChannel>(
-    `/alert-channels/${id}/enable`
+    `/alert-channels/${id}/enable`,
   );
   return response.data;
 };
 
-export const disableAlertChannel = async (id: string): Promise<AlertChannel> => {
+export const disableAlertChannel = async (
+  id: string,
+): Promise<AlertChannel> => {
   const response = await request.post<AlertChannel>(
-    `/alert-channels/${id}/disable`
+    `/alert-channels/${id}/disable`,
   );
   return response.data;
 };
 
 export const testAlertChannel = async (
-  id: string
+  id: string,
 ): Promise<AlertChannelTestResult> => {
   const response = await request.post<AlertChannelTestResult>(
-    `/alert-channels/${id}/test`
+    `/alert-channels/${id}/test`,
   );
   return response.data;
 };

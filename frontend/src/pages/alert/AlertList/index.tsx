@@ -50,11 +50,18 @@ const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Text } = Typography;
 
-const levelConfig: Record<AlertLevel, { color: string; icon: React.ReactNode; text: string }> = {
+const levelConfig: Record<
+  AlertLevel,
+  { color: string; icon: React.ReactNode; text: string }
+> = {
   INFO: { color: "processing", icon: <InfoCircleOutlined />, text: "信息" },
   WARNING: { color: "warning", icon: <WarningOutlined />, text: "警告" },
   ERROR: { color: "error", icon: <CloseCircleOutlined />, text: "错误" },
-  CRITICAL: { color: "magenta", icon: <ExclamationCircleOutlined />, text: "严重" },
+  CRITICAL: {
+    color: "magenta",
+    icon: <ExclamationCircleOutlined />,
+    text: "严重",
+  },
 };
 
 const statusConfig: Record<AlertStatus, { color: string; text: string }> = {
@@ -131,7 +138,10 @@ const AlertList: React.FC = () => {
     });
   };
 
-  const handleAction = async (id: string, action: "acknowledge" | "resolve" | "ignore") => {
+  const handleAction = async (
+    id: string,
+    action: "acknowledge" | "resolve" | "ignore",
+  ) => {
     try {
       switch (action) {
         case "acknowledge":
@@ -154,7 +164,9 @@ const AlertList: React.FC = () => {
     }
   };
 
-  const handleBatchAction = async (action: "acknowledge" | "resolve" | "ignore") => {
+  const handleBatchAction = async (
+    action: "acknowledge" | "resolve" | "ignore",
+  ) => {
     if (selectedRowKeys.length === 0) {
       message.warning("请先选择告警");
       return;
@@ -197,7 +209,12 @@ const AlertList: React.FC = () => {
       key: "title",
       ellipsis: true,
       render: (text: string, record: Alert) => (
-        <a onClick={() => { setSelectedAlert(record); setDetailVisible(true); }}>
+        <a
+          onClick={() => {
+            setSelectedAlert(record);
+            setDetailVisible(true);
+          }}
+        >
           {text}
         </a>
       ),
@@ -215,7 +232,9 @@ const AlertList: React.FC = () => {
       key: "status",
       width: 100,
       render: (status: AlertStatus) => (
-        <Tag color={statusConfig[status].color}>{statusConfig[status].text}</Tag>
+        <Tag color={statusConfig[status].color}>
+          {statusConfig[status].text}
+        </Tag>
       ),
     },
     {
@@ -233,21 +252,38 @@ const AlertList: React.FC = () => {
         <Space size="small">
           {record.status === "ACTIVE" && (
             <>
-              <Button type="link" size="small" onClick={() => handleAction(record.id, "acknowledge")}>
+              <Button
+                type="link"
+                size="small"
+                onClick={() => handleAction(record.id, "acknowledge")}
+              >
                 确认
               </Button>
-              <Button type="link" size="small" onClick={() => handleAction(record.id, "resolve")}>
+              <Button
+                type="link"
+                size="small"
+                onClick={() => handleAction(record.id, "resolve")}
+              >
                 解决
               </Button>
             </>
           )}
           {record.status === "ACKNOWLEDGED" && (
-            <Button type="link" size="small" onClick={() => handleAction(record.id, "resolve")}>
+            <Button
+              type="link"
+              size="small"
+              onClick={() => handleAction(record.id, "resolve")}
+            >
               解决
             </Button>
           )}
           {record.status !== "IGNORED" && (
-            <Button type="link" size="small" danger onClick={() => handleAction(record.id, "ignore")}>
+            <Button
+              type="link"
+              size="small"
+              danger
+              onClick={() => handleAction(record.id, "ignore")}
+            >
               忽略
             </Button>
           )}
@@ -313,7 +349,11 @@ const AlertList: React.FC = () => {
       <Card style={{ marginBottom: 16 }}>
         <Form layout="inline" onFinish={handleSearch} onReset={handleReset}>
           <Form.Item name="keyword">
-            <Input placeholder="搜索告警标题" style={{ width: 200 }} allowClear />
+            <Input
+              placeholder="搜索告警标题"
+              style={{ width: 200 }}
+              allowClear
+            />
           </Form.Item>
           <Form.Item name="level">
             <Select placeholder="告警级别" style={{ width: 120 }} allowClear>
@@ -371,7 +411,10 @@ const AlertList: React.FC = () => {
                 <Button>批量操作 ({selectedRowKeys.length})</Button>
               </Dropdown>
             )}
-            <Button icon={<ReloadOutlined />} onClick={() => fetchAlerts(queryParams)}>
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={() => fetchAlerts(queryParams)}
+            >
               刷新
             </Button>
           </Space>
@@ -407,38 +450,73 @@ const AlertList: React.FC = () => {
       >
         {selectedAlert && (
           <div>
-            <p><strong>级别：</strong>
-              <Tag icon={levelConfig[selectedAlert.level].icon} color={levelConfig[selectedAlert.level].color}>
+            <p>
+              <strong>级别：</strong>
+              <Tag
+                icon={levelConfig[selectedAlert.level].icon}
+                color={levelConfig[selectedAlert.level].color}
+              >
                 {levelConfig[selectedAlert.level].text}
               </Tag>
             </p>
-            <p><strong>标题：</strong>{selectedAlert.title}</p>
-            <p><strong>来源：</strong>{selectedAlert.source}</p>
-            <p><strong>状态：</strong>
+            <p>
+              <strong>标题：</strong>
+              {selectedAlert.title}
+            </p>
+            <p>
+              <strong>来源：</strong>
+              {selectedAlert.source}
+            </p>
+            <p>
+              <strong>状态：</strong>
               <Tag color={statusConfig[selectedAlert.status].color}>
                 {statusConfig[selectedAlert.status].text}
               </Tag>
             </p>
-            <p><strong>内容：</strong></p>
-            <div style={{ background: "#f5f5f5", padding: 12, borderRadius: 4 }}>
-              <Text style={{ whiteSpace: "pre-wrap" }}>{selectedAlert.content}</Text>
+            <p>
+              <strong>内容：</strong>
+            </p>
+            <div
+              style={{ background: "#f5f5f5", padding: 12, borderRadius: 4 }}
+            >
+              <Text style={{ whiteSpace: "pre-wrap" }}>
+                {selectedAlert.content}
+              </Text>
             </div>
-            {selectedAlert.labels && Object.keys(selectedAlert.labels).length > 0 && (
-              <>
-                <p><strong>标签：</strong></p>
-                <div>
-                  {Object.entries(selectedAlert.labels).map(([key, value]) => (
-                    <Tag key={key}>{key}={value}</Tag>
-                  ))}
-                </div>
-              </>
-            )}
-            <p><strong>触发时间：</strong>{dayjs(selectedAlert.createdAt).format("YYYY-MM-DD HH:mm:ss")}</p>
+            {selectedAlert.labels &&
+              Object.keys(selectedAlert.labels).length > 0 && (
+                <>
+                  <p>
+                    <strong>标签：</strong>
+                  </p>
+                  <div>
+                    {Object.entries(selectedAlert.labels).map(
+                      ([key, value]) => (
+                        <Tag key={key}>
+                          {key}={value}
+                        </Tag>
+                      ),
+                    )}
+                  </div>
+                </>
+              )}
+            <p>
+              <strong>触发时间：</strong>
+              {dayjs(selectedAlert.createdAt).format("YYYY-MM-DD HH:mm:ss")}
+            </p>
             {selectedAlert.acknowledgedBy && (
-              <p><strong>确认人：</strong>{selectedAlert.acknowledgedBy}</p>
+              <p>
+                <strong>确认人：</strong>
+                {selectedAlert.acknowledgedBy}
+              </p>
             )}
             {selectedAlert.acknowledgedAt && (
-              <p><strong>确认时间：</strong>{dayjs(selectedAlert.acknowledgedAt).format("YYYY-MM-DD HH:mm:ss")}</p>
+              <p>
+                <strong>确认时间：</strong>
+                {dayjs(selectedAlert.acknowledgedAt).format(
+                  "YYYY-MM-DD HH:mm:ss",
+                )}
+              </p>
             )}
           </div>
         )}
