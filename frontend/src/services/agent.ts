@@ -13,6 +13,7 @@ import type {
   DeployParams,
   DeployResult,
   AgentTask,
+  AgentTaskQueryParams,
 } from "../types";
 
 const AGENT_TEMPLATE_DOWNLOAD_API_PATH =
@@ -47,7 +48,7 @@ const extractFileName = (contentDisposition?: string | null): string | null => {
 
 // Agent Instances
 export const queryAgentInstances = (
-  params?: PageParams,
+  params?: PageParams & { hostId?: string },
 ): Promise<AgentInstance[] | ListResponse<AgentInstance>> => {
   return request.get("/agents/instances", { params });
 };
@@ -210,4 +211,42 @@ export const saveAgentRepository = (
 
 export const removeAgentRepository = (id: string): Promise<void> => {
   return request.delete(`/agents/repositories/${id}`);
+};
+
+// Agent Tasks - 命令执行与任务查询
+export const executeCommand = async (
+  instanceId: string,
+  params: ExecuteCommandParams,
+): Promise<AgentTask> => {
+  const response = await request.post<AgentTask>(
+    `/agents/instances/${instanceId}/execute`,
+    params,
+  );
+  return response.data;
+};
+
+export const getAgentTask = async (taskId: string): Promise<AgentTask> => {
+  const response = await request.get<AgentTask>(`/agents/tasks/${taskId}`);
+  return response.data;
+};
+
+export const queryAgentTasks = async (
+  params: AgentTaskQueryParams,
+): Promise<ListResponse<AgentTask>> => {
+  const response = await request.get<ListResponse<AgentTask>>("/agents/tasks", {
+    params,
+  });
+  return response.data;
+};
+
+export const cancelAgentTask = async (taskId: string): Promise<AgentTask> => {
+  const response = await request.post<AgentTask>(
+    `/agents/tasks/${taskId}/cancel`,
+  );
+  return response.data;
+};
+
+export const getAgentTaskLogs = async (taskId: string): Promise<string> => {
+  const response = await request.get<string>(`/agents/tasks/${taskId}/logs`);
+  return response.data;
 };

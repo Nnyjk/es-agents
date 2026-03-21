@@ -64,20 +64,6 @@ export interface AgentCredentialSimple {
   type: "STATIC_TOKEN" | "API_TOKEN" | "SCRIPT_TOKEN" | "SSO_TOKEN";
 }
 
-export type AgentTaskStatus = "PENDING" | "RUNNING" | "SUCCESS" | "FAILED";
-
-export interface AgentTask {
-  id: string;
-  instanceId: string;
-  taskType: string;
-  status: AgentTaskStatus;
-  input: Record<string, any>;
-  output?: string;
-  error?: string;
-  startedAt: string;
-  completedAt?: string;
-}
-
 export interface AgentRepository {
   id: string;
   name: string;
@@ -181,6 +167,44 @@ export interface DeployResult {
 }
 
 export interface ExecuteCommandParams {
+  commandId: string;
+  args?: string;
+}
+
+// Agent 任务相关类型
+export type AgentTaskStatus =
+  | "PENDING"
+  | "RUNNING"
+  | "SUCCESS"
+  | "FAILED"
+  | "CANCELLED"
+  | "TIMEOUT";
+
+export interface AgentTask {
+  id: string;
+  agentInstanceId: string;
+  agentInstanceName?: string;
+  commandName?: string;
+  commandId?: string;
+  args?: string;
+  result?: string;
+  status: AgentTaskStatus;
+  durationMs?: number;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface AgentTaskQueryParams {
+  agentInstanceId?: string;
+  status?: AgentTaskStatus;
+  startTime?: string;
+  endTime?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface ExecuteCommandForm {
+  agentInstanceId: string;
   commandId: string;
   args?: string;
 }

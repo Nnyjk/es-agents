@@ -16,6 +16,8 @@ import AgentCommandList from "./pages/agent/Command";
 import AgentResourceList from "./pages/agent/Resource";
 import AgentCredentialList from "./pages/agent/Credential";
 import AgentRepositoryList from "./pages/agent/Repository";
+import CommandExecute from "./pages/agent/CommandExecute";
+import CommandHistory from "./pages/agent/CommandHistory";
 import EnvironmentList from "./pages/infrastructure/Environment";
 import HostList from "./pages/infrastructure/Host";
 import GoalHub from "./pages/goals/GoalHub";
@@ -39,6 +41,8 @@ const App: React.FC = () => {
             <Route path="resources" element={<AgentResourceList />} />
             <Route path="credentials" element={<AgentCredentialList />} />
             <Route path="repositories" element={<AgentRepositoryList />} />
+            <Route path="execute" element={<CommandExecute />} />
+            <Route path="history" element={<CommandHistory />} />
           </Route>
           <Route path="infra">
             <Route path="envs" element={<EnvironmentList />} />
