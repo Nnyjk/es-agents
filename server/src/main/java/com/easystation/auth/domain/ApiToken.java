@@ -1,5 +1,6 @@
 package com.easystation.auth.domain;
 
+import com.easystation.auth.domain.enums.TokenScope;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import lombok.Getter;
