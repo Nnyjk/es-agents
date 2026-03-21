@@ -34,12 +34,7 @@ import {
   queryAgentTasks,
 } from "@/services/agent";
 import { queryHosts } from "@/services/infra";
-import type {
-  AgentInstance,
-  AgentCommand,
-  AgentTask,
-  Host,
-} from "@/types";
+import type { AgentInstance, AgentCommand, AgentTask, Host } from "@/types";
 
 const { Option } = Select;
 const { Text, Paragraph } = Typography;
@@ -54,7 +49,9 @@ const CommandExecute: React.FC = () => {
   const [executing, setExecuting] = useState(false);
   const [currentTask, setCurrentTask] = useState<AgentTask | null>(null);
   const [output, setOutput] = useState<string>("");
-  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(null);
+  const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(
+    null,
+  );
   const outputRef = useRef<HTMLPreElement>(null);
 
   // 加载主机列表
@@ -110,7 +107,10 @@ const CommandExecute: React.FC = () => {
       });
 
       setCurrentTask(task);
-      setOutput((prev) => `${prev}[${dayjs().format("HH:mm:ss")}] 任务已创建: ${task.id}\n`);
+      setOutput(
+        (prev) =>
+          `${prev}[${dayjs().format("HH:mm:ss")}] 任务已创建: ${task.id}\n`,
+      );
 
       // 开始轮询任务状态
       const interval = setInterval(async () => {
@@ -119,25 +119,39 @@ const CommandExecute: React.FC = () => {
           setCurrentTask(updatedTask);
 
           if (updatedTask.status === "RUNNING") {
-            setOutput((prev) => `${prev}[${dayjs().format("HH:mm:ss")}] 命令执行中...\n`);
+            setOutput(
+              (prev) =>
+                `${prev}[${dayjs().format("HH:mm:ss")}] 命令执行中...\n`,
+            );
           } else if (updatedTask.status === "SUCCESS") {
-            setOutput((prev) => `${prev}[${dayjs().format("HH:mm:ss")}] 执行成功 (${updatedTask.durationMs}ms)\n`);
+            setOutput(
+              (prev) =>
+                `${prev}[${dayjs().format("HH:mm:ss")}] 执行成功 (${updatedTask.durationMs}ms)\n`,
+            );
             if (updatedTask.result) {
-              setOutput((prev) => `${prev}\n--- 输出结果 ---\n${updatedTask.result}\n`);
+              setOutput(
+                (prev) => `${prev}\n--- 输出结果 ---\n${updatedTask.result}\n`,
+              );
             }
             clearInterval(interval);
             setPollingInterval(null);
             setExecuting(false);
           } else if (updatedTask.status === "FAILED") {
-            setOutput((prev) => `${prev}[${dayjs().format("HH:mm:ss")}] 执行失败\n`);
+            setOutput(
+              (prev) => `${prev}[${dayjs().format("HH:mm:ss")}] 执行失败\n`,
+            );
             if (updatedTask.result) {
-              setOutput((prev) => `${prev}\n--- 错误信息 ---\n${updatedTask.result}\n`);
+              setOutput(
+                (prev) => `${prev}\n--- 错误信息 ---\n${updatedTask.result}\n`,
+              );
             }
             clearInterval(interval);
             setPollingInterval(null);
             setExecuting(false);
           } else if (updatedTask.status === "TIMEOUT") {
-            setOutput((prev) => `${prev}[${dayjs().format("HH:mm:ss")}] 执行超时\n`);
+            setOutput(
+              (prev) => `${prev}[${dayjs().format("HH:mm:ss")}] 执行超时\n`,
+            );
             clearInterval(interval);
             setPollingInterval(null);
             setExecuting(false);
@@ -216,7 +230,9 @@ const CommandExecute: React.FC = () => {
                 rules={[{ required: true, message: "请选择 Agent 实例" }]}
               >
                 <Select
-                  placeholder={selectedHostId ? "选择 Agent 实例" : "请先选择主机"}
+                  placeholder={
+                    selectedHostId ? "选择 Agent 实例" : "请先选择主机"
+                  }
                   disabled={!selectedHostId}
                   showSearch
                   optionFilterProp="children"
@@ -234,7 +250,11 @@ const CommandExecute: React.FC = () => {
                 label="命令模板"
                 rules={[{ required: true, message: "请选择命令模板" }]}
               >
-                <Select placeholder="选择命令模板" showSearch optionFilterProp="children">
+                <Select
+                  placeholder="选择命令模板"
+                  showSearch
+                  optionFilterProp="children"
+                >
                   {commands.map((c) => (
                     <Option key={c.id} value={c.id}>
                       {c.name}
@@ -244,10 +264,7 @@ const CommandExecute: React.FC = () => {
               </Form.Item>
 
               <Form.Item name="args" label="命令参数">
-                <TextArea
-                  rows={3}
-                  placeholder="输入命令参数（可选）"
-                />
+                <TextArea rows={3} placeholder="输入命令参数（可选）" />
               </Form.Item>
 
               <Form.Item>
@@ -262,7 +279,11 @@ const CommandExecute: React.FC = () => {
                     执行命令
                   </Button>
                   {executing && (
-                    <Button icon={<StopOutlined />} onClick={handleCancel} danger>
+                    <Button
+                      icon={<StopOutlined />}
+                      onClick={handleCancel}
+                      danger
+                    >
                       取消
                     </Button>
                   )}
@@ -322,7 +343,13 @@ const CommandExecute: React.FC = () => {
               <>
                 <Divider>执行结果</Divider>
                 <Paragraph>
-                  <pre style={{ background: "#f5f5f5", padding: 12, borderRadius: 4 }}>
+                  <pre
+                    style={{
+                      background: "#f5f5f5",
+                      padding: 12,
+                      borderRadius: 4,
+                    }}
+                  >
                     {currentTask.result}
                   </pre>
                 </Paragraph>

@@ -26,10 +26,7 @@ import {
 import type { ColumnsType } from "antd/es/table";
 import { PageContainer } from "@ant-design/pro-components";
 import dayjs from "dayjs";
-import {
-  queryAgentTasks,
-  getAgentTask,
-} from "@/services/agent";
+import { queryAgentTasks, getAgentTask } from "@/services/agent";
 import { queryAgentInstances } from "@/services/agent";
 import type {
   AgentTask,
@@ -155,9 +152,7 @@ const CommandHistory: React.FC = () => {
       key: "commandName",
       width: 150,
       ellipsis: true,
-      render: (text: string) => (
-        <Tag color="blue">{text || "-"}</Tag>
-      ),
+      render: (text: string) => <Tag color="blue">{text || "-"}</Tag>,
     },
     {
       title: "参数",
@@ -173,7 +168,10 @@ const CommandHistory: React.FC = () => {
       key: "status",
       width: 100,
       render: (status: AgentTaskStatus) => {
-        const config = statusConfig[status] || { color: "default", text: status };
+        const config = statusConfig[status] || {
+          color: "default",
+          text: status,
+        };
         return <Tag color={config.color}>{config.text}</Tag>;
       },
     },
@@ -242,7 +240,11 @@ const CommandHistory: React.FC = () => {
           </Form.Item>
           <Form.Item>
             <Space>
-              <Button type="primary" icon={<SearchOutlined />} htmlType="submit">
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                htmlType="submit"
+              >
                 查询
               </Button>
               <Button htmlType="reset">重置</Button>
@@ -307,7 +309,8 @@ const CommandHistory: React.FC = () => {
               </Descriptions.Item>
               <Descriptions.Item label="状态">
                 <Tag color={statusConfig[selectedTask.status]?.color}>
-                  {statusConfig[selectedTask.status]?.text || selectedTask.status}
+                  {statusConfig[selectedTask.status]?.text ||
+                    selectedTask.status}
                 </Tag>
               </Descriptions.Item>
               <Descriptions.Item label="耗时">
@@ -347,7 +350,13 @@ const CommandHistory: React.FC = () => {
                     fontSize: 13,
                   }}
                 >
-                  <pre style={{ margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-all" }}>
+                  <pre
+                    style={{
+                      margin: 0,
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-all",
+                    }}
+                  >
                     {selectedTask.result}
                   </pre>
                 </div>
@@ -360,10 +369,10 @@ const CommandHistory: React.FC = () => {
   );
 };
 
-const Divider: React.FC<{ orientation?: "left" | "right" | "center"; children: React.ReactNode }> = ({
-  orientation = "left",
-  children,
-}) => (
+const Divider: React.FC<{
+  orientation?: "left" | "right" | "center";
+  children: React.ReactNode;
+}> = ({ orientation = "left", children }) => (
   <div
     style={{
       display: "flex",
@@ -374,13 +383,19 @@ const Divider: React.FC<{ orientation?: "left" | "right" | "center"; children: R
     }}
   >
     {orientation === "right" && (
-      <div style={{ flex: 1, height: 1, background: "#e8e8e8", marginRight: 16 }} />
+      <div
+        style={{ flex: 1, height: 1, background: "#e8e8e8", marginRight: 16 }}
+      />
     )}
     {orientation === "left" && (
-      <div style={{ flex: 1, height: 1, background: "#e8e8e8", marginRight: 16 }} />
+      <div
+        style={{ flex: 1, height: 1, background: "#e8e8e8", marginRight: 16 }}
+      />
     )}
     {children}
-    <div style={{ flex: 1, height: 1, background: "#e8e8e8", marginLeft: 16 }} />
+    <div
+      style={{ flex: 1, height: 1, background: "#e8e8e8", marginLeft: 16 }}
+    />
   </div>
 );
 

@@ -186,7 +186,13 @@ export interface ExecuteCommandParams {
 }
 
 // Agent 任务相关类型
-export type AgentTaskStatus = "PENDING" | "RUNNING" | "SUCCESS" | "FAILED" | "CANCELLED" | "TIMEOUT";
+export type AgentTaskStatus =
+  | "PENDING"
+  | "RUNNING"
+  | "SUCCESS"
+  | "FAILED"
+  | "CANCELLED"
+  | "TIMEOUT";
 
 export interface AgentTask {
   id: string;
