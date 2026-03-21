@@ -62,6 +62,11 @@ public class AgentTemplateService {
 
     @Transactional
     public AgentTemplateRecord create(AgentTemplateRecord.Create dto) {
+        // Validate template name uniqueness
+        if (AgentTemplate.find("name", dto.name()).firstResult() != null) {
+            throw new WebApplicationException("Agent Template with name '" + dto.name() + "' already exists", Response.Status.CONFLICT);
+        }
+
         AgentSource source = AgentSource.findById(dto.sourceId());
         if (source == null) {
             throw new WebApplicationException("Agent Source not found", Response.Status.BAD_REQUEST);
@@ -97,8 +102,15 @@ public class AgentTemplateService {
         if (template == null) {
             throw new WebApplicationException("Agent Template not found", Response.Status.NOT_FOUND);
         }
-        
-        if (dto.name() != null) template.setName(dto.name());
+
+        // Validate name uniqueness if updating name
+        if (dto.name() != null && !dto.name().equals(template.name)) {
+            AgentTemplate existing = AgentTemplate.find("name", dto.name()).firstResult();
+            if (existing != null && !existing.id.equals(id)) {
+                throw new WebApplicationException("Agent Template with name '" + dto.name() + "' already exists", Response.Status.CONFLICT);
+            }
+            template.setName(dto.name());
+        }
         if (dto.description() != null) template.setDescription(dto.description());
         if (dto.osType() != null) template.setOsType(OsType.valueOf(dto.osType()));
         
