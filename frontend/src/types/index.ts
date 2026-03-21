@@ -64,20 +64,6 @@ export interface AgentCredentialSimple {
   type: "STATIC_TOKEN" | "API_TOKEN" | "SCRIPT_TOKEN" | "SSO_TOKEN";
 }
 
-export type AgentTaskStatus = "PENDING" | "RUNNING" | "SUCCESS" | "FAILED";
-
-export interface AgentTask {
-  id: string;
-  instanceId: string;
-  taskType: string;
-  status: AgentTaskStatus;
-  input: Record<string, any>;
-  output?: string;
-  error?: string;
-  startedAt: string;
-  completedAt?: string;
-}
-
 export interface AgentRepository {
   id: string;
   name: string;

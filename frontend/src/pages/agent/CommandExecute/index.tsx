@@ -7,21 +7,16 @@ import {
   Button,
   Space,
   message,
-  Typography,
   Divider,
   Spin,
   Tag,
   Row,
   Col,
-  Tabs,
-  Table,
-  Alert,
 } from "antd";
 import {
   PlayCircleOutlined,
   StopOutlined,
   ClearOutlined,
-  HistoryOutlined,
   CodeOutlined,
 } from "@ant-design/icons";
 import { PageContainer } from "@ant-design/pro-components";
@@ -31,13 +26,11 @@ import {
   queryAgentCommands,
   executeCommand,
   getAgentTask,
-  queryAgentTasks,
 } from "@/services/agent";
 import { queryHosts } from "@/services/infra";
 import type { AgentInstance, AgentCommand, AgentTask, Host } from "@/types";
 
 const { Option } = Select;
-const { Text, Paragraph } = Typography;
 const { TextArea } = Input;
 
 const CommandExecute: React.FC = () => {
