@@ -7,6 +7,7 @@ import com.easystation.scheduler.enums.ExecutionStatus;
 import com.easystation.scheduler.enums.TaskStatus;
 import com.easystation.scheduler.enums.TaskType;
 import io.quarkus.logging.Log;
+import io.quarkus.panache.common.Sort;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
