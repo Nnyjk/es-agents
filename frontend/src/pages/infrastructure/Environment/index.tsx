@@ -1,5 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
-import { PlusOutlined, EyeOutlined, EnvironmentOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EyeOutlined,
+  EnvironmentOutlined,
+} from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import {
@@ -34,7 +38,9 @@ const { Text } = Typography;
 const EnvironmentList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [editingItem, setEditingItem] = useState<Partial<Environment> | null>(null);
+  const [editingItem, setEditingItem] = useState<Partial<Environment> | null>(
+    null,
+  );
   const [detailVisible, setDetailVisible] = useState(false);
   const [selectedEnv, setSelectedEnv] = useState<Environment | null>(null);
   const [envHosts, setEnvHosts] = useState<Host[]>([]);
@@ -48,7 +54,7 @@ const EnvironmentList: React.FC = () => {
         const res = await queryHosts();
         const hostList = Array.isArray(res) ? res : res.data || [];
         setHosts(hostList);
-        
+
         // 计算每个环境的主机数量
         const counts: Record<string, number> = {};
         hostList.forEach((host) => {
@@ -70,7 +76,10 @@ const EnvironmentList: React.FC = () => {
       const saveData = {
         ...editingItem,
         ...data,
-        color: typeof data.color === 'string' ? data.color : data.color?.toHexString?.() || data.color,
+        color:
+          typeof data.color === "string"
+            ? data.color
+            : data.color?.toHexString?.() || data.color,
       };
       await saveEnvironment(saveData);
       message.success("保存成功");
@@ -96,7 +105,7 @@ const EnvironmentList: React.FC = () => {
     setSelectedEnv(env);
     // 筛选该环境下的主机
     const envHostList = hosts.filter(
-      (h) => h.environmentId === env.id || h.environment?.id === env.id
+      (h) => h.environmentId === env.id || h.environment?.id === env.id,
     );
     setEnvHosts(envHostList);
     setDetailVisible(true);
@@ -111,7 +120,10 @@ const EnvironmentList: React.FC = () => {
       render: (text: string, record: Environment) => (
         <Space>
           {record.color && (
-            <Tag color={record.color} style={{ width: 8, height: 8, borderRadius: 4, padding: 0 }} />
+            <Tag
+              color={record.color}
+              style={{ width: 8, height: 8, borderRadius: 4, padding: 0 }}
+            />
           )}
           <a onClick={() => handleViewDetail(record)}>{text}</a>
         </Space>
@@ -227,7 +239,10 @@ const EnvironmentList: React.FC = () => {
           EXCEPTION: { color: "warning", text: "异常" },
           MAINTENANCE: { color: "processing", text: "维护中" },
         };
-        const config = statusConfig[status] || { color: "default", text: status };
+        const config = statusConfig[status] || {
+          color: "default",
+          text: status,
+        };
         return <Tag color={config.color}>{config.text}</Tag>;
       },
     },
@@ -330,14 +345,25 @@ const EnvironmentList: React.FC = () => {
       >
         {selectedEnv && (
           <>
-            <Descriptions column={2} bordered size="small" style={{ marginBottom: 16 }}>
-              <Descriptions.Item label="名称">{selectedEnv.name}</Descriptions.Item>
+            <Descriptions
+              column={2}
+              bordered
+              size="small"
+              style={{ marginBottom: 16 }}
+            >
+              <Descriptions.Item label="名称">
+                {selectedEnv.name}
+              </Descriptions.Item>
               <Descriptions.Item label="代码">
                 <Text copyable>{selectedEnv.code}</Text>
               </Descriptions.Item>
-              <Descriptions.Item label="描述">{selectedEnv.description || "-"}</Descriptions.Item>
+              <Descriptions.Item label="描述">
+                {selectedEnv.description || "-"}
+              </Descriptions.Item>
               <Descriptions.Item label="状态">
-                <Tag color={selectedEnv.enabled !== false ? "success" : "default"}>
+                <Tag
+                  color={selectedEnv.enabled !== false ? "success" : "default"}
+                >
                   {selectedEnv.enabled !== false ? "启用" : "禁用"}
                 </Tag>
               </Descriptions.Item>
@@ -349,7 +375,9 @@ const EnvironmentList: React.FC = () => {
                 />
               </Descriptions.Item>
               <Descriptions.Item label="创建时间">
-                {selectedEnv.createdAt ? new Date(selectedEnv.createdAt).toLocaleString() : "-"}
+                {selectedEnv.createdAt
+                  ? new Date(selectedEnv.createdAt).toLocaleString()
+                  : "-"}
               </Descriptions.Item>
             </Descriptions>
 

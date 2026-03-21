@@ -318,7 +318,7 @@ const HostList: React.FC = () => {
       dataIndex: "agentVersion",
       hideInSearch: true,
       hideInForm: true,
-      render: (text: string) => text ? <Tag color="blue">{text}</Tag> : "-",
+      render: (text: string) => (text ? <Tag color="blue">{text}</Tag> : "-"),
     },
     {
       title: "最后心跳",
@@ -608,13 +608,21 @@ const HostList: React.FC = () => {
       >
         {currentHost && (
           <Descriptions column={2} bordered size="small">
-            <Descriptions.Item label="主机名称">{currentHost.name}</Descriptions.Item>
+            <Descriptions.Item label="主机名称">
+              {currentHost.name}
+            </Descriptions.Item>
             <Descriptions.Item label="地址">
               <Text copyable>{currentHost.hostname}</Text>
             </Descriptions.Item>
-            <Descriptions.Item label="操作系统">{currentHost.os || "-"}</Descriptions.Item>
-            <Descriptions.Item label="CPU">{currentHost.cpuInfo || "-"}</Descriptions.Item>
-            <Descriptions.Item label="内存">{currentHost.memInfo || "-"}</Descriptions.Item>
+            <Descriptions.Item label="操作系统">
+              {currentHost.os || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="CPU">
+              {currentHost.cpuInfo || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="内存">
+              {currentHost.memInfo || "-"}
+            </Descriptions.Item>
             <Descriptions.Item label="Agent版本">
               {currentHost.agentVersion ? (
                 <Tag color="blue">{currentHost.agentVersion}</Tag>
@@ -623,7 +631,9 @@ const HostList: React.FC = () => {
               )}
             </Descriptions.Item>
             <Descriptions.Item label="所属环境">
-              {currentHost.environmentName || currentHost.environment?.name || "-"}
+              {currentHost.environmentName ||
+                currentHost.environment?.name ||
+                "-"}
             </Descriptions.Item>
             <Descriptions.Item label="状态">
               <Tag
@@ -631,21 +641,21 @@ const HostList: React.FC = () => {
                   currentHost.status === "ONLINE"
                     ? "success"
                     : currentHost.status === "OFFLINE"
-                    ? "error"
-                    : currentHost.status === "EXCEPTION"
-                    ? "warning"
-                    : "default"
+                      ? "error"
+                      : currentHost.status === "EXCEPTION"
+                        ? "warning"
+                        : "default"
                 }
               >
                 {currentHost.status === "ONLINE"
                   ? "在线"
                   : currentHost.status === "OFFLINE"
-                  ? "离线"
-                  : currentHost.status === "EXCEPTION"
-                  ? "异常"
-                  : currentHost.status === "MAINTENANCE"
-                  ? "维护中"
-                  : "未接入"}
+                    ? "离线"
+                    : currentHost.status === "EXCEPTION"
+                      ? "异常"
+                      : currentHost.status === "MAINTENANCE"
+                        ? "维护中"
+                        : "未接入"}
               </Tag>
             </Descriptions.Item>
             <Descriptions.Item label="最后心跳">
@@ -654,10 +664,16 @@ const HostList: React.FC = () => {
                 : "-"}
             </Descriptions.Item>
             <Descriptions.Item label="心跳间隔">
-              {currentHost.heartbeatInterval ? `${currentHost.heartbeatInterval}秒` : "-"}
+              {currentHost.heartbeatInterval
+                ? `${currentHost.heartbeatInterval}秒`
+                : "-"}
             </Descriptions.Item>
-            <Descriptions.Item label="网关地址">{currentHost.gatewayUrl || "-"}</Descriptions.Item>
-            <Descriptions.Item label="监听端口">{currentHost.listenPort || "-"}</Descriptions.Item>
+            <Descriptions.Item label="网关地址">
+              {currentHost.gatewayUrl || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="监听端口">
+              {currentHost.listenPort || "-"}
+            </Descriptions.Item>
             <Descriptions.Item label="描述" span={2}>
               {currentHost.description || "-"}
             </Descriptions.Item>
