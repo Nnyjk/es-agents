@@ -72,8 +72,13 @@ export const deleteBaselineTask = async (id: string): Promise<void> => {
   await request.delete(`${API_PREFIX}/baseline/tasks/${id}`);
 };
 
-export const executeBaselineTask = async (id: string): Promise<void> => {
-  await request.post(`${API_PREFIX}/baseline/tasks/${id}/execute`);
+export const executeBaselineTask = async (
+  id: string,
+): Promise<BaselineResult> => {
+  const response = await request.post(
+    `${API_PREFIX}/baseline/tasks/${id}/execute`,
+  );
+  return response.data;
 };
 
 export const getBaselineResult = async (
@@ -97,9 +102,7 @@ export const getBaselineTemplates = async (
 export const getBaselineTemplate = async (
   id: string,
 ): Promise<BaselineTemplate> => {
-  const response = await request.get(
-    `${API_PREFIX}/baseline/templates/${id}`,
-  );
+  const response = await request.get(`${API_PREFIX}/baseline/templates/${id}`);
   return response.data;
 };
 
@@ -147,7 +150,9 @@ export const createVulnerabilityScanTask = async (
   return response.data;
 };
 
-export const deleteVulnerabilityScanTask = async (id: string): Promise<void> => {
+export const deleteVulnerabilityScanTask = async (
+  id: string,
+): Promise<void> => {
   await request.delete(`${API_PREFIX}/vulnerability/tasks/${id}`);
 };
 

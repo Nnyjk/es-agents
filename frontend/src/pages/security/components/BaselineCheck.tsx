@@ -319,12 +319,7 @@ const BaselineCheck: React.FC = () => {
             title="确定删除此任务吗？"
             onConfirm={() => handleDelete(record.id)}
           >
-            <Button
-              type="link"
-              size="small"
-              danger
-              icon={<DeleteOutlined />}
-            />
+            <Button type="link" size="small" danger icon={<DeleteOutlined />} />
           </Popconfirm>
         </Space>
       ),
@@ -494,10 +489,7 @@ const BaselineCheck: React.FC = () => {
                 <Badge status="success" text={currentResult.compliantCount} />
               </Descriptions.Item>
               <Descriptions.Item label="不合规项">
-                <Badge
-                  status="error"
-                  text={currentResult.nonCompliantCount}
-                />
+                <Badge status="error" text={currentResult.nonCompliantCount} />
               </Descriptions.Item>
               <Descriptions.Item label="合规率" span={2}>
                 <Progress

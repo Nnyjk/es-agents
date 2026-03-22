@@ -62,6 +62,11 @@ export interface BaselineResult {
   endTime?: string;
   status: "running" | "completed" | "failed";
   items: BaselineCheckItem[];
+  // Aliases for compatibility
+  totalCount?: number;
+  compliantCount?: number;
+  nonCompliantCount?: number;
+  duration?: number;
 }
 
 export interface BaselineReport {
@@ -272,27 +277,41 @@ export interface AssessmentDocument {
     | "self-assessment"
     | "gap-analysis"
     | "other";
-  format: "pdf" | "word" | "excel" | "pdf-template";
-  status: "draft" | "generating" | "completed" | "expired";
+  format?: "pdf" | "word" | "excel" | "pdf-template";
+  status: "draft" | "pending" | "generating" | "completed" | "expired";
+  category?: string;
+  version?: string;
+  evidence?: AssessmentEvidence[];
   generatedAt?: string;
   generatedBy?: string;
+  generatedByName?: string;
   downloadUrl?: string;
   expiresAt?: string;
   description?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AssessmentEvidence {
+  id: string;
+  name: string;
+  type: string;
+  url: string;
+  uploadedAt: string;
+  uploadedBy: string;
 }
 
 export interface AssessmentQuestion {
   id: string;
   category: string;
   question: string;
-  answer?: string;
+  answer?: string | null;
+  evidence?: string | null;
   status: "pending" | "answered" | "confirmed";
   askedBy?: string;
   askedByName?: string;
   askedAt?: string;
-  answeredBy?: string;
+  answeredBy?: string | null;
   answeredByName?: string;
   answeredAt?: string;
   attachments?: string[];
@@ -307,24 +326,41 @@ export interface RemediationTask {
   priority: "critical" | "high" | "medium" | "low";
   status: "pending" | "in-progress" | "completed" | "verified";
   assignedTo?: string;
+  assignee?: string;
   assignedToName?: string;
   dueDate?: string;
   completedAt?: string;
   verifiedAt?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
   createdBy: string;
   createdByName?: string;
   notes?: string;
+  progress?: number;
+  comments?: Array<{
+    user: string;
+    content: string;
+    time: string;
+  }>;
 }
 
 export interface AssessmentProgress {
-  total: number;
-  completed: number;
-  pending: number;
-  inProgress: number;
-  percentage: number;
-  categories: {
+  totalDocuments?: number;
+  completedDocuments?: number;
+  totalQuestions?: number;
+  answeredQuestions?: number;
+  totalTasks?: number;
+  completedTasks?: number;
+  overallProgress?: number;
+  phase?: string;
+  startDate?: string;
+  expectedEndDate?: string;
+  total?: number;
+  completed?: number;
+  pending?: number;
+  inProgress?: number;
+  percentage?: number;
+  categories?: {
     name: string;
     total: number;
     completed: number;
@@ -382,7 +418,7 @@ export interface CheckItemRequest {
 
 export interface GenerateDocumentRequest {
   type: AssessmentDocument["type"];
-  format: AssessmentDocument["format"];
+  format?: AssessmentDocument["format"];
   name?: string;
   description?: string;
 }

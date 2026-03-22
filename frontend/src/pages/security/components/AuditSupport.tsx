@@ -64,7 +64,9 @@ const AuditSupport: React.FC = () => {
   const [taskModalVisible, setTaskModalVisible] = useState(false);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [questionModalVisible, setQuestionModalVisible] = useState(false);
-  const [currentDoc, setCurrentDoc] = useState<AssessmentDocument | null>(null);
+  const [_currentDoc, setCurrentDoc] = useState<AssessmentDocument | null>(
+    null,
+  );
   const [currentTask, setCurrentTask] = useState<RemediationTask | null>(null);
   const [currentQuestion, setCurrentQuestion] =
     useState<AssessmentQuestion | null>(null);
@@ -137,7 +139,7 @@ const AuditSupport: React.FC = () => {
   const fetchQuestions = async () => {
     try {
       const data = await getAssessmentQuestions();
-      setQuestions(data);
+      setQuestions(data.data || []);
     } catch {
       setQuestions([
         {
@@ -173,7 +175,7 @@ const AuditSupport: React.FC = () => {
   const fetchTasks = async () => {
     try {
       const data = await getRemediationTasks();
-      setTasks(data);
+      setTasks(data.data || []);
     } catch {
       setTasks([
         {
@@ -241,12 +243,7 @@ const AuditSupport: React.FC = () => {
   }) => {
     try {
       await generateAssessmentDocument({
-        type: values.type as
-          | "registration"
-          | "design"
-          | "policy"
-          | "report"
-          | "evidence",
+        type: values.type as AssessmentDocument["type"],
         name: values.name,
       });
       message.success("文档生成中，请稍后刷新查看");
@@ -269,8 +266,8 @@ const AuditSupport: React.FC = () => {
       await createRemediationTask({
         title: values.title,
         description: values.description,
-        priority: values.priority as "high" | "medium" | "low",
-        assignee: values.assignee,
+        priority: values.priority as "critical" | "high" | "medium" | "low",
+        assignedTo: values.assignee,
         dueDate: values.dueDate,
       });
       message.success("整改任务创建成功");
@@ -282,13 +279,9 @@ const AuditSupport: React.FC = () => {
     }
   };
 
-  const handleUpdateTaskStatus = async (
-    taskId: string,
-    status: string,
-  ) => {
+  const handleUpdateTaskStatus = async (taskId: string, status: string) => {
     try {
-      await updateRemediationTask({
-        taskId,
+      await updateRemediationTask(taskId, {
         status: status as "pending" | "in-progress" | "completed" | "verified",
       });
       message.success("状态更新成功");
@@ -304,11 +297,11 @@ const AuditSupport: React.FC = () => {
   }) => {
     if (!currentQuestion) return;
     try {
-      await answerAssessmentQuestion({
-        questionId: currentQuestion.id,
-        answer: values.answer,
-        evidence: values.evidence,
-      });
+      await answerAssessmentQuestion(
+        currentQuestion.id,
+        values.answer,
+        values.evidence ? [values.evidence] : undefined,
+      );
       message.success("回答已提交");
       setQuestionModalVisible(false);
       questionForm.resetFields();
@@ -575,7 +568,7 @@ const AuditSupport: React.FC = () => {
             setCurrentQuestion(record);
             setQuestionModalVisible(true);
           }}
-          disabled={record.status === "verified"}
+          disabled={record.status === "confirmed"}
         >
           {record.status === "pending" ? "回答" : "编辑"}
         </Button>
@@ -622,7 +615,8 @@ const AuditSupport: React.FC = () => {
                 <Card size="small">
                   <div style={{ textAlign: "center" }}>
                     <div style={{ fontSize: 24, fontWeight: "bold" }}>
-                      {progress?.completedDocuments || 0}/{progress?.totalDocuments || 0}
+                      {progress?.completedDocuments || 0}/
+                      {progress?.totalDocuments || 0}
                     </div>
                     <div style={{ color: "#666" }}>文档资料</div>
                   </div>
@@ -632,7 +626,8 @@ const AuditSupport: React.FC = () => {
                 <Card size="small">
                   <div style={{ textAlign: "center" }}>
                     <div style={{ fontSize: 24, fontWeight: "bold" }}>
-                      {progress?.answeredQuestions || 0}/{progress?.totalQuestions || 0}
+                      {progress?.answeredQuestions || 0}/
+                      {progress?.totalQuestions || 0}
                     </div>
                     <div style={{ color: "#666" }}>测评问答</div>
                   </div>
@@ -642,7 +637,8 @@ const AuditSupport: React.FC = () => {
                 <Card size="small">
                   <div style={{ textAlign: "center" }}>
                     <div style={{ fontSize: 24, fontWeight: "bold" }}>
-                      {progress?.completedTasks || 0}/{progress?.totalTasks || 0}
+                      {progress?.completedTasks || 0}/
+                      {progress?.totalTasks || 0}
                     </div>
                     <div style={{ color: "#666" }}>整改任务</div>
                   </div>
@@ -651,9 +647,7 @@ const AuditSupport: React.FC = () => {
               <Col span={6}>
                 <Card size="small">
                   <div style={{ textAlign: "center" }}>
-                    <div style={{ fontSize: 14, color: "#666" }}>
-                      计划周期
-                    </div>
+                    <div style={{ fontSize: 14, color: "#666" }}>计划周期</div>
                     <div style={{ marginTop: 4 }}>
                       {progress?.startDate} ~ {progress?.expectedEndDate}
                     </div>
@@ -740,7 +734,10 @@ const AuditSupport: React.FC = () => {
                 title="整改任务"
                 extra={
                   <Space>
-                    <Button icon={<ReloadOutlined />} onClick={() => fetchTasks()}>
+                    <Button
+                      icon={<ReloadOutlined />}
+                      onClick={() => fetchTasks()}
+                    >
                       刷新
                     </Button>
                     <Button
@@ -782,9 +779,21 @@ const AuditSupport: React.FC = () => {
                 <List
                   header={<div>已上传材料</div>}
                   dataSource={[
-                    { name: "系统架构图.png", size: "2.3MB", time: "2024-01-10" },
-                    { name: "网络拓扑图.pdf", size: "1.5MB", time: "2024-01-10" },
-                    { name: "安全策略配置.docx", size: "500KB", time: "2024-01-12" },
+                    {
+                      name: "系统架构图.png",
+                      size: "2.3MB",
+                      time: "2024-01-10",
+                    },
+                    {
+                      name: "网络拓扑图.pdf",
+                      size: "1.5MB",
+                      time: "2024-01-10",
+                    },
+                    {
+                      name: "安全策略配置.docx",
+                      size: "500KB",
+                      time: "2024-01-12",
+                    },
                   ]}
                   renderItem={(item) => (
                     <List.Item

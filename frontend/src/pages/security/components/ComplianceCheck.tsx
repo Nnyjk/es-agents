@@ -13,20 +13,15 @@ import {
   Tabs,
   Tooltip,
   Progress,
-  Row,
-  Col,
   Descriptions,
-  List,
-  Collapse,
 } from "antd";
 import {
   PlusOutlined,
   EyeOutlined,
   ReloadOutlined,
   CheckCircleOutlined,
-  FileTextOutlined,
+  CloseCircleOutlined,
   DownloadOutlined,
-  CheckOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
@@ -44,8 +39,6 @@ import type {
   ComplianceCheckItem,
   ComplianceStandard,
 } from "../../../types/security";
-
-const { TextArea } = Input;
 
 const ComplianceCheck: React.FC = () => {
   const [checks, setChecks] = useState<ComplianceSelfCheck[]>([]);
@@ -228,7 +221,6 @@ const ComplianceCheck: React.FC = () => {
 
   const handleCreate = async (values: { name: string; standardId: string }) => {
     try {
-      const standard = standards.find((s) => s.id === values.standardId);
       await createComplianceSelfCheck({
         name: values.name,
         standardId: values.standardId,
@@ -267,7 +259,7 @@ const ComplianceCheck: React.FC = () => {
   ) => {
     if (!currentCheck) return;
     try {
-      await submitCheckItem(currentCheck.id, itemId, { status });
+      await submitCheckItem(currentCheck.id, itemId, { itemId, status });
       message.success("提交成功");
       fetchCheckItems(currentCheck.id);
     } catch {
@@ -293,10 +285,7 @@ const ComplianceCheck: React.FC = () => {
   };
 
   const getStatusTag = (status: string) => {
-    const statusConfig: Record<
-      string,
-      { color: string; text: string }
-    > = {
+    const statusConfig: Record<string, { color: string; text: string }> = {
       pending: { color: "default", text: "待执行" },
       "in-progress": { color: "processing", text: "进行中" },
       completed: { color: "success", text: "已完成" },
