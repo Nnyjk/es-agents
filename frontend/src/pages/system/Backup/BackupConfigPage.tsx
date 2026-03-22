@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { PlusOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable, ProForm } from "@ant-design/pro-components";
 import {
@@ -45,7 +45,7 @@ const BackupConfigPage: React.FC = () => {
   const [testingStorage, setTestingStorage] = useState<number | null>(null);
 
   // 告警配置相关
-  const [alertConfig, setAlertConfig] = useState<BackupAlertConfig | null>(null);
+  const [_alertConfig, setAlertConfig] = useState<BackupAlertConfig | null>(null);
   const [alertForm] = Form.useForm();
   const [alertLoading, setAlertLoading] = useState(false);
 

@@ -1,12 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
-import { ReloadOutlined, WarningOutlined, CloudRestoreOutlined } from "@ant-design/icons";
+import { ReloadOutlined, WarningOutlined, CloudSyncOutlined } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import {
   Button,
   message,
   Tag,
-  Space,
   Modal,
   Steps,
   Select,
@@ -16,6 +15,7 @@ import {
   Progress,
   Typography,
   Card,
+  Popconfirm,
 } from "antd";
 import {
   getBackupRecords,
@@ -265,7 +265,7 @@ const RestorePage: React.FC = () => {
           <Button
             key="restore"
             type="primary"
-            icon={<CloudRestoreOutlined />}
+            icon={<CloudSyncOutlined />}
             onClick={handleStartWizard}
           >
             新建恢复任务

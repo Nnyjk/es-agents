@@ -10,11 +10,9 @@ import {
   Space,
   Tooltip,
   Badge,
-  Form,
   Input,
   Select,
   InputNumber,
-  Switch,
 } from "antd";
 import { DrawerForm } from "../../../components/DrawerForm";
 import {
@@ -122,7 +120,7 @@ const BackupTaskList: React.FC = () => {
         message.success("创建成功");
       }
       setDrawerVisible(false);
-      actionRef.current?.Reload();
+      actionRef.current?.reload();
       return true;
     } catch (error) {
       message.error(editingItem ? "更新失败" : "创建失败");

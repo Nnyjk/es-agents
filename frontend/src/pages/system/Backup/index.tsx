@@ -3,7 +3,7 @@ import { Tabs } from "antd";
 import {
   ScheduleOutlined,
   FileTextOutlined,
-  CloudRestoreOutlined,
+  CloudSyncOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
 import BackupTaskList from "./BackupTaskList";
@@ -43,7 +43,7 @@ const BackupManagement: React.FC = () => {
           key: "restore",
           label: (
             <span>
-              <CloudRestoreOutlined />
+              <CloudSyncOutlined />
               数据恢复
             </span>
           ),

@@ -9,10 +9,8 @@ import {
   Tag,
   Space,
   Tooltip,
-  Badge,
   Modal,
   Descriptions,
-  Progress,
 } from "antd";
 import {
   getBackupRecords,
@@ -20,7 +18,7 @@ import {
   validateBackupRecord,
   downloadBackupRecord,
 } from "../../../services/backup";
-import type { BackupRecord, BackupRecordStatus, BackupType, BackupContent, StorageType } from "../../../types/backup";
+import type { BackupRecord, BackupRecordStatus, BackupType, BackupContent } from "../../../types/backup";
 
 const statusColors: Record<BackupRecordStatus, string> = {
   RUNNING: "processing",
