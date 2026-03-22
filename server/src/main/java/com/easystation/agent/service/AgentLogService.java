@@ -329,13 +329,16 @@ public class AgentLogService {
             return null;
         }
 
-        Long durationMs = null;
-        if (task.startedAt != null && task.completedAt != null) {
-            durationMs = java.time.Duration.between(task.startedAt, task.completedAt).toMillis();
-        }
-
         String taskType = task.command != null ? "COMMAND" : "DEPLOY";
         String taskName = task.command != null ? task.command.name : "Deploy";
+        
+        // 如果 exitCode 非零，将 result 视为错误信息
+        String error = null;
+        String output = task.result;
+        if (task.exitCode != null && task.exitCode != 0) {
+            error = task.result;
+            output = null;
+        }
 
         return new TaskLogRecord(
             task.id,
@@ -343,11 +346,11 @@ public class AgentLogService {
             taskName,
             task.status != null ? task.status.name() : "UNKNOWN",
             task.exitCode,
-            durationMs,
-            task.result,
-            task.error,
-            task.startedAt,
-            task.completedAt
+            task.durationMs,
+            output,
+            error,
+            task.createdAt,
+            task.updatedAt
         );
     }
 
