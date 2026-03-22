@@ -24,7 +24,8 @@ import OtherConfigPage from "./OtherConfigPage";
 
 const SystemSettings: React.FC = () => {
   const [loading, setLoading] = useState(true);
-  const [settingsData, setSettingsData] = useState<SystemSettingsResponse | null>(null);
+  const [settingsData, setSettingsData] =
+    useState<SystemSettingsResponse | null>(null);
   const [activeKey, setActiveKey] = useState("basic");
 
   const fetchSettings = async () => {
@@ -50,14 +51,18 @@ const SystemSettings: React.FC = () => {
   if (loading) {
     return (
       <Card>
-        <Spin tip="加载中..." style={{ display: "flex", justifyContent: "center", padding: 100 }} />
+        <Spin
+          tip="加载中..."
+          style={{ display: "flex", justifyContent: "center", padding: 100 }}
+        />
       </Card>
     );
   }
 
   const basicData: SystemBasicSettings | undefined = settingsData?.basic;
   const securityData: SecuritySettings | undefined = settingsData?.security;
-  const maintenanceData: MaintenanceSettings | undefined = settingsData?.maintenance;
+  const maintenanceData: MaintenanceSettings | undefined =
+    settingsData?.maintenance;
   const emailData: EmailConfig | undefined = settingsData?.email;
   const storageData: StorageGlobalConfig | undefined = settingsData?.storage;
   const featureData: FeatureFlags | undefined = settingsData?.features;
@@ -72,9 +77,7 @@ const SystemSettings: React.FC = () => {
           基础设置
         </span>
       ),
-      children: (
-        <BasicSettingsPage data={basicData} onUpdate={handleUpdate} />
-      ),
+      children: <BasicSettingsPage data={basicData} onUpdate={handleUpdate} />,
     },
     {
       key: "security",
@@ -97,7 +100,10 @@ const SystemSettings: React.FC = () => {
         </span>
       ),
       children: (
-        <MaintenanceSettingsPage data={maintenanceData} onUpdate={handleUpdate} />
+        <MaintenanceSettingsPage
+          data={maintenanceData}
+          onUpdate={handleUpdate}
+        />
       ),
     },
     {
@@ -122,11 +128,7 @@ const SystemSettings: React.FC = () => {
 
   return (
     <Card title="系统全局设置">
-      <Tabs
-        activeKey={activeKey}
-        onChange={setActiveKey}
-        items={tabItems}
-      />
+      <Tabs activeKey={activeKey} onChange={setActiveKey} items={tabItems} />
     </Card>
   );
 };

@@ -22,7 +22,7 @@ import {
   CloudServerOutlined,
   FunctionOutlined,
   FileTextOutlined,
-  TestOutlined,
+  ThunderboltOutlined,
 } from "@ant-design/icons";
 import type {
   EmailConfig,
@@ -80,7 +80,16 @@ const OtherConfigPage: React.FC<OtherConfigPageProps> = ({
     if (logData) {
       logForm.setFieldsValue(logData);
     }
-  }, [emailData, storageData, featureData, logData, emailForm, storageForm, featureForm, logForm]);
+  }, [
+    emailData,
+    storageData,
+    featureData,
+    logData,
+    emailForm,
+    storageForm,
+    featureForm,
+    logForm,
+  ]);
 
   const handleEmailSubmit = async (values: EmailConfig) => {
     setEmailLoading(true);
@@ -182,339 +191,404 @@ const OtherConfigPage: React.FC<OtherConfigPageProps> = ({
   ];
 
   return (
-    <Tabs
-      defaultActiveKey="email"
-      items={[
-        {
-          key: "email",
-          label: (
-            <span>
-              <MailOutlined />
-              邮件服务
-            </span>
-          ),
-          children: (
-            <Card>
-              <Form form={emailForm} layout="vertical" onFinish={handleEmailSubmit}>
-                <Row gutter={16}>
-                  <Col span={6}>
-                    <Form.Item name="enabled" label="启用邮件服务" valuePropName="checked">
-                      <Switch checkedChildren="开启" unCheckedChildren="关闭" />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item
-                      name="smtpHost"
-                      label="SMTP服务器"
-                      rules={[{ required: true, message: "请输入SMTP服务器地址" }]}
-                    >
-                      <Input placeholder="如：smtp.example.com" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={6}>
-                    <Form.Item
-                      name="smtpPort"
-                      label="端口"
-                      rules={[{ required: true, message: "请输入端口" }]}
-                    >
-                      <InputNumber min={1} max={65535} style={{ width: "100%" }} />
-                    </Form.Item>
-                  </Col>
-                  <Col span={6}>
-                    <Form.Item name="useTls" label="使用TLS" valuePropName="checked">
-                      <Switch checkedChildren="是" unCheckedChildren="否" />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item
-                      name="smtpUsername"
-                      label="用户名"
-                      rules={[{ required: true, message: "请输入用户名" }]}
-                    >
-                      <Input placeholder="SMTP登录用户名" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item name="smtpPassword" label="密码">
-                      <Input.Password placeholder="SMTP登录密码" />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item
-                      name="senderEmail"
-                      label="发件人邮箱"
-                      rules={[
-                        { required: true, message: "请输入发件人邮箱" },
-                        { type: "email", message: "请输入有效的邮箱地址" },
-                      ]}
-                    >
-                      <Input placeholder="noreply@example.com" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item name="senderName" label="发件人名称">
-                      <Input placeholder="系统通知" />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Form.Item>
-                  <Space>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      icon={<SaveOutlined />}
-                      loading={emailLoading}
-                    >
-                      保存配置
-                    </Button>
-                    <Button
-                      icon={<TestOutlined />}
-                      onClick={() => setTestEmailModalVisible(true)}
-                    >
-                      测试连接
-                    </Button>
-                  </Space>
-                </Form.Item>
-              </Form>
-            </Card>
-          ),
-        },
-        {
-          key: "storage",
-          label: (
-            <span>
-              <CloudServerOutlined />
-              存储服务
-            </span>
-          ),
-          children: (
-            <Card>
-              <Form form={storageForm} layout="vertical" onFinish={handleStorageSubmit}>
-                <Row gutter={16}>
-                  <Col span={8}>
-                    <Form.Item
-                      name="defaultStorageType"
-                      label="默认存储类型"
-                      rules={[{ required: true, message: "请选择存储类型" }]}
-                    >
-                      <Select
-                        options={[
-                          { value: "LOCAL", label: "本地存储" },
-                          { value: "S3", label: "AWS S3" },
-                          { value: "MINIO", label: "MinIO" },
-                        ]}
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item
-                      name="maxFileSize"
-                      label="最大文件大小(MB)"
-                    >
-                      <InputNumber min={1} max={10240} style={{ width: "100%" }} />
-                    </Form.Item>
-                  </Col>
-                  <Col span={8}>
-                    <Form.Item name="allowedFileTypes" label="允许的文件类型">
-                      <Select
-                        mode="tags"
-                        placeholder="如：jpg,png,pdf"
-                        style={{ width: "100%" }}
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Divider orientation="left">本地存储配置</Divider>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item name="localStoragePath" label="存储路径">
-                      <Input placeholder="如：/data/uploads" />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Divider orientation="left">对象存储配置 (S3/MinIO)</Divider>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item name="s3Endpoint" label="Endpoint">
-                      <Input placeholder="如：https://s3.amazonaws.com" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={6}>
-                    <Form.Item name="s3Region" label="Region">
-                      <Input placeholder="如：us-east-1" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={6}>
-                    <Form.Item name="s3Bucket" label="Bucket">
-                      <Input placeholder="存储桶名称" />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item name="s3AccessKey" label="Access Key">
-                      <Input placeholder="Access Key ID" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item name="s3SecretKey" label="Secret Key">
-                      <Input.Password placeholder="Secret Access Key" />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Form.Item>
-                  <Space>
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      icon={<SaveOutlined />}
-                      loading={storageLoading}
-                    >
-                      保存配置
-                    </Button>
-                    <Button
-                      icon={<TestOutlined />}
-                      loading={testStorageLoading}
-                      onClick={handleTestStorage}
-                    >
-                      测试连接
-                    </Button>
-                  </Space>
-                </Form.Item>
-              </Form>
-            </Card>
-          ),
-        },
-        {
-          key: "features",
-          label: (
-            <span>
-              <FunctionOutlined />
-              功能开关
-            </span>
-          ),
-          children: (
-            <Card>
-              <Alert
-                message="关闭功能模块后，相关菜单和功能将被隐藏，不影响已有数据"
-                type="info"
-                showIcon
-                style={{ marginBottom: 16 }}
-              />
-              <Form form={featureForm} layout="vertical" onFinish={handleFeatureSubmit}>
-                <Row gutter={[16, 8]}>
-                  {featureOptions.map((option) => (
-                    <Col span={6} key={option.key}>
-                      <Form.Item name={option.key as keyof FeatureFlags} label={option.label} valuePropName="checked">
-                        <Switch checkedChildren="开启" unCheckedChildren="关闭" />
+    <>
+      <Tabs
+        defaultActiveKey="email"
+        items={[
+          {
+            key: "email",
+            label: (
+              <span>
+                <MailOutlined />
+                邮件服务
+              </span>
+            ),
+            children: (
+              <Card>
+                <Form
+                  form={emailForm}
+                  layout="vertical"
+                  onFinish={handleEmailSubmit}
+                >
+                  <Row gutter={16}>
+                    <Col span={6}>
+                      <Form.Item
+                        name="enabled"
+                        label="启用邮件服务"
+                        valuePropName="checked"
+                      >
+                        <Switch
+                          checkedChildren="开启"
+                          unCheckedChildren="关闭"
+                        />
                       </Form.Item>
                     </Col>
-                  ))}
-                </Row>
-                <Form.Item>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    icon={<SaveOutlined />}
-                    loading={featureLoading}
-                  >
-                    保存设置
-                  </Button>
-                </Form.Item>
-              </Form>
-            </Card>
-          ),
-        },
-        {
-          key: "log",
-          label: (
-            <span>
-              <FileTextOutlined />
-              日志配置
-            </span>
-          ),
-          children: (
-            <Card>
-              <Form form={logForm} layout="vertical" onFinish={handleLogSubmit}>
-                <Row gutter={16}>
-                  <Col span={6}>
-                    <Form.Item name="logLevel" label="日志级别">
-                      <Select
-                        options={[
-                          { value: "DEBUG", label: "DEBUG" },
-                          { value: "INFO", label: "INFO" },
-                          { value: "WARN", label: "WARN" },
-                          { value: "ERROR", label: "ERROR" },
+                  </Row>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item
+                        name="smtpHost"
+                        label="SMTP服务器"
+                        rules={[
+                          { required: true, message: "请输入SMTP服务器地址" },
                         ]}
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col span={6}>
-                    <Form.Item name="logRetentionDays" label="日志保留天数">
-                      <InputNumber min={1} max={365} style={{ width: "100%" }} />
-                    </Form.Item>
-                  </Col>
-                  <Col span={6}>
-                    <Form.Item name="maxLogSize" label="最大日志大小(MB)">
-                      <InputNumber min={1} max={10240} style={{ width: "100%" }} />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Divider orientation="left">审计日志</Divider>
-                <Row gutter={16}>
-                  <Col span={6}>
-                    <Form.Item name="enableAuditLog" label="启用审计日志" valuePropName="checked">
-                      <Switch checkedChildren="开启" unCheckedChildren="关闭" />
-                    </Form.Item>
-                  </Col>
-                  <Col span={6}>
-                    <Form.Item name="auditLogRetentionDays" label="审计日志保留天数">
-                      <InputNumber min={1} max={365} style={{ width: "100%" }} />
-                    </Form.Item>
-                  </Col>
-                </Row>
-                <Form.Item>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    icon={<SaveOutlined />}
-                    loading={logLoading}
-                  >
-                    保存配置
-                  </Button>
-                </Form.Item>
-              </Form>
-            </Card>
-          ),
-        },
-      ]}
-    />
-    <Modal
-      title="测试邮件连接"
-      open={testEmailModalVisible}
-      onCancel={() => {
-        setTestEmailModalVisible(false);
-        setTestEmailAddress("");
-      }}
-      onOk={handleTestEmail}
-      confirmLoading={testEmailLoading}
-      okText="发送测试邮件"
-      cancelText="取消"
-    >
-      <Form.Item label="收件人邮箱">
-        <Input
-          placeholder="请输入接收测试邮件的邮箱地址"
-          value={testEmailAddress}
-          onChange={(e) => setTestEmailAddress(e.target.value)}
-        />
-      </Form.Item>
-    </Modal>
+                      >
+                        <Input placeholder="如：smtp.example.com" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                      <Form.Item
+                        name="smtpPort"
+                        label="端口"
+                        rules={[{ required: true, message: "请输入端口" }]}
+                      >
+                        <InputNumber
+                          min={1}
+                          max={65535}
+                          style={{ width: "100%" }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                      <Form.Item
+                        name="useTls"
+                        label="使用TLS"
+                        valuePropName="checked"
+                      >
+                        <Switch checkedChildren="是" unCheckedChildren="否" />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item
+                        name="smtpUsername"
+                        label="用户名"
+                        rules={[{ required: true, message: "请输入用户名" }]}
+                      >
+                        <Input placeholder="SMTP登录用户名" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item name="smtpPassword" label="密码">
+                        <Input.Password placeholder="SMTP登录密码" />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item
+                        name="senderEmail"
+                        label="发件人邮箱"
+                        rules={[
+                          { required: true, message: "请输入发件人邮箱" },
+                          { type: "email", message: "请输入有效的邮箱地址" },
+                        ]}
+                      >
+                        <Input placeholder="noreply@example.com" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item name="senderName" label="发件人名称">
+                        <Input placeholder="系统通知" />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Form.Item>
+                    <Space>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        icon={<SaveOutlined />}
+                        loading={emailLoading}
+                      >
+                        保存配置
+                      </Button>
+                      <Button
+                        icon={<ThunderboltOutlined />}
+                        onClick={() => setTestEmailModalVisible(true)}
+                      >
+                        测试连接
+                      </Button>
+                    </Space>
+                  </Form.Item>
+                </Form>
+              </Card>
+            ),
+          },
+          {
+            key: "storage",
+            label: (
+              <span>
+                <CloudServerOutlined />
+                存储服务
+              </span>
+            ),
+            children: (
+              <Card>
+                <Form
+                  form={storageForm}
+                  layout="vertical"
+                  onFinish={handleStorageSubmit}
+                >
+                  <Row gutter={16}>
+                    <Col span={8}>
+                      <Form.Item
+                        name="defaultStorageType"
+                        label="默认存储类型"
+                        rules={[{ required: true, message: "请选择存储类型" }]}
+                      >
+                        <Select
+                          options={[
+                            { value: "LOCAL", label: "本地存储" },
+                            { value: "S3", label: "AWS S3" },
+                            { value: "MINIO", label: "MinIO" },
+                          ]}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                      <Form.Item name="maxFileSize" label="最大文件大小(MB)">
+                        <InputNumber
+                          min={1}
+                          max={10240}
+                          style={{ width: "100%" }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={8}>
+                      <Form.Item name="allowedFileTypes" label="允许的文件类型">
+                        <Select
+                          mode="tags"
+                          placeholder="如：jpg,png,pdf"
+                          style={{ width: "100%" }}
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Divider orientation="left">本地存储配置</Divider>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item name="localStoragePath" label="存储路径">
+                        <Input placeholder="如：/data/uploads" />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Divider orientation="left">对象存储配置 (S3/MinIO)</Divider>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item name="s3Endpoint" label="Endpoint">
+                        <Input placeholder="如：https://s3.amazonaws.com" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                      <Form.Item name="s3Region" label="Region">
+                        <Input placeholder="如：us-east-1" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                      <Form.Item name="s3Bucket" label="Bucket">
+                        <Input placeholder="存储桶名称" />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item name="s3AccessKey" label="Access Key">
+                        <Input placeholder="Access Key ID" />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item name="s3SecretKey" label="Secret Key">
+                        <Input.Password placeholder="Secret Access Key" />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Form.Item>
+                    <Space>
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        icon={<SaveOutlined />}
+                        loading={storageLoading}
+                      >
+                        保存配置
+                      </Button>
+                      <Button
+                        icon={<ThunderboltOutlined />}
+                        loading={testStorageLoading}
+                        onClick={handleTestStorage}
+                      >
+                        测试连接
+                      </Button>
+                    </Space>
+                  </Form.Item>
+                </Form>
+              </Card>
+            ),
+          },
+          {
+            key: "features",
+            label: (
+              <span>
+                <FunctionOutlined />
+                功能开关
+              </span>
+            ),
+            children: (
+              <Card>
+                <Alert
+                  message="关闭功能模块后，相关菜单和功能将被隐藏，不影响已有数据"
+                  type="info"
+                  showIcon
+                  style={{ marginBottom: 16 }}
+                />
+                <Form
+                  form={featureForm}
+                  layout="vertical"
+                  onFinish={handleFeatureSubmit}
+                >
+                  <Row gutter={[16, 8]}>
+                    {featureOptions.map((option) => (
+                      <Col span={6} key={option.key}>
+                        <Form.Item
+                          name={option.key as keyof FeatureFlags}
+                          label={option.label}
+                          valuePropName="checked"
+                        >
+                          <Switch
+                            checkedChildren="开启"
+                            unCheckedChildren="关闭"
+                          />
+                        </Form.Item>
+                      </Col>
+                    ))}
+                  </Row>
+                  <Form.Item>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      icon={<SaveOutlined />}
+                      loading={featureLoading}
+                    >
+                      保存设置
+                    </Button>
+                  </Form.Item>
+                </Form>
+              </Card>
+            ),
+          },
+          {
+            key: "log",
+            label: (
+              <span>
+                <FileTextOutlined />
+                日志配置
+              </span>
+            ),
+            children: (
+              <Card>
+                <Form
+                  form={logForm}
+                  layout="vertical"
+                  onFinish={handleLogSubmit}
+                >
+                  <Row gutter={16}>
+                    <Col span={6}>
+                      <Form.Item name="logLevel" label="日志级别">
+                        <Select
+                          options={[
+                            { value: "DEBUG", label: "DEBUG" },
+                            { value: "INFO", label: "INFO" },
+                            { value: "WARN", label: "WARN" },
+                            { value: "ERROR", label: "ERROR" },
+                          ]}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                      <Form.Item name="logRetentionDays" label="日志保留天数">
+                        <InputNumber
+                          min={1}
+                          max={365}
+                          style={{ width: "100%" }}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                      <Form.Item name="maxLogSize" label="最大日志大小(MB)">
+                        <InputNumber
+                          min={1}
+                          max={10240}
+                          style={{ width: "100%" }}
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Divider orientation="left">审计日志</Divider>
+                  <Row gutter={16}>
+                    <Col span={6}>
+                      <Form.Item
+                        name="enableAuditLog"
+                        label="启用审计日志"
+                        valuePropName="checked"
+                      >
+                        <Switch
+                          checkedChildren="开启"
+                          unCheckedChildren="关闭"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={6}>
+                      <Form.Item
+                        name="auditLogRetentionDays"
+                        label="审计日志保留天数"
+                      >
+                        <InputNumber
+                          min={1}
+                          max={365}
+                          style={{ width: "100%" }}
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Form.Item>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      icon={<SaveOutlined />}
+                      loading={logLoading}
+                    >
+                      保存配置
+                    </Button>
+                  </Form.Item>
+                </Form>
+              </Card>
+            ),
+          },
+        ]}
+      />
+      <Modal
+        title="测试邮件连接"
+        open={testEmailModalVisible}
+        onCancel={() => {
+          setTestEmailModalVisible(false);
+          setTestEmailAddress("");
+        }}
+        onOk={handleTestEmail}
+        confirmLoading={testEmailLoading}
+        okText="发送测试邮件"
+        cancelText="取消"
+      >
+        <Form.Item label="收件人邮箱">
+          <Input
+            placeholder="请输入接收测试邮件的邮箱地址"
+            value={testEmailAddress}
+            onChange={(e) => setTestEmailAddress(e.target.value)}
+          />
+        </Form.Item>
+      </Modal>
+    </>
   );
 };
 

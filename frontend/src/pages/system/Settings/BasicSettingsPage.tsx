@@ -27,7 +27,10 @@ interface BasicSettingsPageProps {
   onUpdate: () => void;
 }
 
-const BasicSettingsPage: React.FC<BasicSettingsPageProps> = ({ data, onUpdate }) => {
+const BasicSettingsPage: React.FC<BasicSettingsPageProps> = ({
+  data,
+  onUpdate,
+}) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = React.useState(false);
 

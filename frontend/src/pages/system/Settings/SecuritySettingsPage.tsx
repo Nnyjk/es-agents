@@ -4,7 +4,6 @@ import {
   InputNumber,
   Switch,
   Button,
-  Space,
   message,
   Card,
   Row,
@@ -13,7 +12,6 @@ import {
   Modal,
   Form as AntForm,
   Input,
-  Select,
   Popconfirm,
   Divider,
   Alert,
@@ -325,12 +323,20 @@ const SecuritySettingsPage: React.FC<SecuritySettingsPageProps> = ({
             />
             <Row gutter={16} style={{ marginBottom: 16 }}>
               <Col span={6}>
-                <Form.Item name="ipWhitelistEnabled" label="启用IP白名单" valuePropName="checked">
+                <Form.Item
+                  name="ipWhitelistEnabled"
+                  label="启用IP白名单"
+                  valuePropName="checked"
+                >
                   <Switch checkedChildren="开启" unCheckedChildren="关闭" />
                 </Form.Item>
               </Col>
               <Col span={6}>
-                <Form.Item name="ipBlacklistEnabled" label="启用IP黑名单" valuePropName="checked">
+                <Form.Item
+                  name="ipBlacklistEnabled"
+                  label="启用IP黑名单"
+                  valuePropName="checked"
+                >
                   <Switch checkedChildren="开启" unCheckedChildren="关闭" />
                 </Form.Item>
               </Col>
@@ -412,7 +418,8 @@ const SecuritySettingsPage: React.FC<SecuritySettingsPageProps> = ({
               { required: true, message: "请输入IP范围" },
               {
                 pattern: /^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/,
-                message: "请输入有效的IP地址或CIDR格式，如192.168.1.1或192.168.1.0/24",
+                message:
+                  "请输入有效的IP地址或CIDR格式，如192.168.1.1或192.168.1.0/24",
               },
             ]}
           >

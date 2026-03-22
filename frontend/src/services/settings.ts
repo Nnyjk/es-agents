@@ -1,10 +1,9 @@
 /**
  * 系统全局设置 API 服务
  */
-import request from "./request";
+import request from "../utils/request";
 import type {
   SystemSettingsResponse,
-  SystemSettingsRequest,
   IpAccessRule,
   IpAccessRuleRequest,
   SystemOperationLog,
@@ -26,7 +25,7 @@ export async function getSystemSettings(): Promise<SystemSettingsResponse> {
  * 更新基础信息设置
  */
 export async function updateBasicSettings(
-  data: Partial<SystemSettingsResponse["basic"]>
+  data: Partial<SystemSettingsResponse["basic"]>,
 ): Promise<void> {
   await request.put(`${BASE_URL}/basic`, data);
 }
@@ -35,7 +34,7 @@ export async function updateBasicSettings(
  * 更新安全设置
  */
 export async function updateSecuritySettings(
-  data: Partial<SystemSettingsResponse["security"]>
+  data: Partial<SystemSettingsResponse["security"]>,
 ): Promise<void> {
   await request.put(`${BASE_URL}/security`, data);
 }
@@ -44,7 +43,7 @@ export async function updateSecuritySettings(
  * 更新维护设置
  */
 export async function updateMaintenanceSettings(
-  data: Partial<SystemSettingsResponse["maintenance"]>
+  data: Partial<SystemSettingsResponse["maintenance"]>,
 ): Promise<void> {
   await request.put(`${BASE_URL}/maintenance`, data);
 }
@@ -53,7 +52,7 @@ export async function updateMaintenanceSettings(
  * 更新邮件配置
  */
 export async function updateEmailConfig(
-  data: Partial<SystemSettingsResponse["email"]>
+  data: Partial<SystemSettingsResponse["email"]>,
 ): Promise<void> {
   await request.put(`${BASE_URL}/email`, data);
 }
@@ -62,11 +61,11 @@ export async function updateEmailConfig(
  * 测试邮件连接
  */
 export async function testEmailConnection(
-  recipient: string
+  recipient: string,
 ): Promise<{ success: boolean; message: string }> {
   const response = await request.post<{ success: boolean; message: string }>(
     `${BASE_URL}/email/test`,
-    { recipient }
+    { recipient },
   );
   return response.data;
 }
@@ -75,7 +74,7 @@ export async function testEmailConnection(
  * 更新存储配置
  */
 export async function updateStorageConfig(
-  data: Partial<SystemSettingsResponse["storage"]>
+  data: Partial<SystemSettingsResponse["storage"]>,
 ): Promise<void> {
   await request.put(`${BASE_URL}/storage`, data);
 }
@@ -88,7 +87,7 @@ export async function testStorageConnection(): Promise<{
   message: string;
 }> {
   const response = await request.post<{ success: boolean; message: string }>(
-    `${BASE_URL}/storage/test`
+    `${BASE_URL}/storage/test`,
   );
   return response.data;
 }
@@ -97,7 +96,7 @@ export async function testStorageConnection(): Promise<{
  * 更新功能开关
  */
 export async function updateFeatureFlags(
-  data: Partial<SystemSettingsResponse["features"]>
+  data: Partial<SystemSettingsResponse["features"]>,
 ): Promise<void> {
   await request.put(`${BASE_URL}/features`, data);
 }
@@ -106,7 +105,7 @@ export async function updateFeatureFlags(
  * 更新日志配置
  */
 export async function updateLogConfig(
-  data: Partial<SystemSettingsResponse["log"]>
+  data: Partial<SystemSettingsResponse["log"]>,
 ): Promise<void> {
   await request.put(`${BASE_URL}/log`, data);
 }
@@ -115,7 +114,9 @@ export async function updateLogConfig(
  * 获取 IP 白名单列表
  */
 export async function getIpWhitelist(): Promise<IpAccessRule[]> {
-  const response = await request.get<IpAccessRule[]>(`${BASE_URL}/ip/whitelist`);
+  const response = await request.get<IpAccessRule[]>(
+    `${BASE_URL}/ip/whitelist`,
+  );
   return response.data;
 }
 
@@ -123,15 +124,22 @@ export async function getIpWhitelist(): Promise<IpAccessRule[]> {
  * 获取 IP 黑名单列表
  */
 export async function getIpBlacklist(): Promise<IpAccessRule[]> {
-  const response = await request.get<IpAccessRule[]>(`${BASE_URL}/ip/blacklist`);
+  const response = await request.get<IpAccessRule[]>(
+    `${BASE_URL}/ip/blacklist`,
+  );
   return response.data;
 }
 
 /**
  * 添加 IP 访问规则
  */
-export async function addIpAccessRule(data: IpAccessRuleRequest): Promise<IpAccessRule> {
-  const response = await request.post<IpAccessRule>(`${BASE_URL}/ip/rules`, data);
+export async function addIpAccessRule(
+  data: IpAccessRuleRequest,
+): Promise<IpAccessRule> {
+  const response = await request.post<IpAccessRule>(
+    `${BASE_URL}/ip/rules`,
+    data,
+  );
   return response.data;
 }
 
@@ -155,7 +163,7 @@ export async function getSystemStatus(): Promise<SystemStatus> {
  */
 export async function clearSystemCache(): Promise<CacheClearResult> {
   const response = await request.post<CacheClearResult>(
-    "/api/v1/system/cache/clear"
+    "/api/v1/system/cache/clear",
   );
   return response.data;
 }
@@ -171,19 +179,22 @@ export async function getOperationLogs(params: {
   startTime?: string;
   endTime?: string;
 }): Promise<{ list: SystemOperationLog[]; total: number }> {
-  const response = await request.get<{ list: SystemOperationLog[]; total: number }>(
-    "/api/v1/system/logs",
-    { params }
-  );
+  const response = await request.get<{
+    list: SystemOperationLog[];
+    total: number;
+  }>("/api/v1/system/logs", { params });
   return response.data;
 }
 
 /**
  * 重启系统服务
  */
-export async function restartSystem(): Promise<{ success: boolean; message: string }> {
+export async function restartSystem(): Promise<{
+  success: boolean;
+  message: string;
+}> {
   const response = await request.post<{ success: boolean; message: string }>(
-    "/api/v1/system/restart"
+    "/api/v1/system/restart",
   );
   return response.data;
 }

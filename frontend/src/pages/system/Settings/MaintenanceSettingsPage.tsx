@@ -26,8 +26,16 @@ import {
   CheckCircleOutlined,
   SyncOutlined,
 } from "@ant-design/icons";
-import type { MaintenanceSettings, SystemStatus, CacheClearResult } from "../../../types/settings";
-import { updateMaintenanceSettings, getSystemStatus, clearSystemCache } from "../../../services/settings";
+import type {
+  MaintenanceSettings,
+  SystemStatus,
+  CacheClearResult,
+} from "../../../types/settings";
+import {
+  updateMaintenanceSettings,
+  getSystemStatus,
+  clearSystemCache,
+} from "../../../services/settings";
 import dayjs from "dayjs";
 
 interface MaintenanceSettingsPageProps {
@@ -78,8 +86,24 @@ const MaintenanceSettingsPage: React.FC<MaintenanceSettingsPageProps> = ({
     try {
       const submitData = {
         ...values,
-        maintenanceStartTime: values.maintenanceStartTime?.toISOString(),
-        maintenanceEndTime: values.maintenanceEndTime?.toISOString(),
+        maintenanceStartTime:
+          values.maintenanceStartTime &&
+          typeof values.maintenanceStartTime === "object"
+            ? (
+                values.maintenanceStartTime as unknown as {
+                  toISOString: () => string;
+                }
+              ).toISOString()
+            : values.maintenanceStartTime,
+        maintenanceEndTime:
+          values.maintenanceEndTime &&
+          typeof values.maintenanceEndTime === "object"
+            ? (
+                values.maintenanceEndTime as unknown as {
+                  toISOString: () => string;
+                }
+              ).toISOString()
+            : values.maintenanceEndTime,
       };
       await updateMaintenanceSettings(submitData);
       message.success("维护设置保存成功");
@@ -103,7 +127,7 @@ const MaintenanceSettingsPage: React.FC<MaintenanceSettingsPageProps> = ({
         try {
           const result: CacheClearResult = await clearSystemCache();
           message.success(
-            `缓存清理成功，释放内存: ${result.freedMemoryFormatted}`
+            `缓存清理成功，释放内存: ${result.freedMemoryFormatted}`,
           );
           loadSystemStatus();
         } catch {
@@ -157,7 +181,11 @@ const MaintenanceSettingsPage: React.FC<MaintenanceSettingsPageProps> = ({
                   <Col span={6}>
                     <Statistic
                       title="数据库状态"
-                      value={systemStatus.databaseStatus === "HEALTHY" ? "正常" : "异常"}
+                      value={
+                        systemStatus.databaseStatus === "HEALTHY"
+                          ? "正常"
+                          : "异常"
+                      }
                       valueStyle={{
                         color:
                           systemStatus.databaseStatus === "HEALTHY"
@@ -176,7 +204,9 @@ const MaintenanceSettingsPage: React.FC<MaintenanceSettingsPageProps> = ({
                   <Col span={6}>
                     <Statistic
                       title="缓存状态"
-                      value={systemStatus.cacheStatus === "HEALTHY" ? "正常" : "异常"}
+                      value={
+                        systemStatus.cacheStatus === "HEALTHY" ? "正常" : "异常"
+                      }
                       valueStyle={{
                         color:
                           systemStatus.cacheStatus === "HEALTHY"
@@ -199,21 +229,27 @@ const MaintenanceSettingsPage: React.FC<MaintenanceSettingsPageProps> = ({
                     <div style={{ marginBottom: 8 }}>CPU使用率</div>
                     <Progress
                       percent={systemStatus.cpuUsage}
-                      status={systemStatus.cpuUsage > 80 ? "exception" : "active"}
+                      status={
+                        systemStatus.cpuUsage > 80 ? "exception" : "active"
+                      }
                     />
                   </Col>
                   <Col span={8}>
                     <div style={{ marginBottom: 8 }}>内存使用率</div>
                     <Progress
                       percent={systemStatus.memoryUsage}
-                      status={systemStatus.memoryUsage > 80 ? "exception" : "active"}
+                      status={
+                        systemStatus.memoryUsage > 80 ? "exception" : "active"
+                      }
                     />
                   </Col>
                   <Col span={8}>
                     <div style={{ marginBottom: 8 }}>磁盘使用率</div>
                     <Progress
                       percent={systemStatus.diskUsage}
-                      status={systemStatus.diskUsage > 80 ? "exception" : "active"}
+                      status={
+                        systemStatus.diskUsage > 80 ? "exception" : "active"
+                      }
                     />
                   </Col>
                 </Row>
