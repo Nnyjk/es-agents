@@ -28,7 +28,12 @@ import {
   getAlertConfig,
   updateAlertConfig,
 } from "../../../services/backup";
-import type { StorageConfig, StorageConfigRequest, StorageType, BackupAlertConfig } from "../../../types/backup";
+import type {
+  StorageConfig,
+  StorageConfigRequest,
+  StorageType,
+  BackupAlertConfig,
+} from "../../../types/backup";
 
 const storageTypeTexts: Record<StorageType, string> = {
   LOCAL: "本地存储",
@@ -41,11 +46,15 @@ const BackupConfigPage: React.FC = () => {
   // 存储配置相关
   const storageActionRef = useRef<ActionType>();
   const [storageDrawerVisible, setStorageDrawerVisible] = useState(false);
-  const [editingStorage, setEditingStorage] = useState<StorageConfig | null>(null);
+  const [editingStorage, setEditingStorage] = useState<StorageConfig | null>(
+    null,
+  );
   const [testingStorage, setTestingStorage] = useState<number | null>(null);
 
   // 告警配置相关
-  const [_alertConfig, setAlertConfig] = useState<BackupAlertConfig | null>(null);
+  const [_alertConfig, setAlertConfig] = useState<BackupAlertConfig | null>(
+    null,
+  );
   const [alertForm] = Form.useForm();
   const [alertLoading, setAlertLoading] = useState(false);
 
@@ -173,9 +182,7 @@ const BackupConfigPage: React.FC = () => {
       key: "isDefault",
       width: 80,
       render: (_, record) =>
-        record.isDefault ? (
-          <Tag color="blue">默认</Tag>
-        ) : null,
+        record.isDefault ? <Tag color="blue">默认</Tag> : null,
     },
     {
       title: "状态",
@@ -195,7 +202,11 @@ const BackupConfigPage: React.FC = () => {
       fixed: "right",
       render: (_, record) => (
         <Space size="small">
-          <Button type="link" size="small" onClick={() => handleEditStorage(record)}>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => handleEditStorage(record)}
+          >
             编辑
           </Button>
           <Button
@@ -232,11 +243,12 @@ const BackupConfigPage: React.FC = () => {
             >
               <Input placeholder="/data/backups" />
             </ProForm.Item>
-            <ProForm.Item
-              name={["config", "maxSize"]}
-              label="最大存储空间(GB)"
-            >
-              <InputNumber min={1} style={{ width: "100%" }} placeholder="不限制" />
+            <ProForm.Item name={["config", "maxSize"]} label="最大存储空间(GB)">
+              <InputNumber
+                min={1}
+                style={{ width: "100%" }}
+                placeholder="不限制"
+              />
             </ProForm.Item>
           </>
         );
@@ -250,10 +262,7 @@ const BackupConfigPage: React.FC = () => {
             >
               <Input placeholder="https://s3.amazonaws.com" />
             </ProForm.Item>
-            <ProForm.Item
-              name={["config", "region"]}
-              label="Region"
-            >
+            <ProForm.Item name={["config", "region"]} label="Region">
               <Input placeholder="us-east-1" />
             </ProForm.Item>
             <ProForm.Item
@@ -296,10 +305,7 @@ const BackupConfigPage: React.FC = () => {
             >
               <Input placeholder="/data/backups" />
             </ProForm.Item>
-            <ProForm.Item
-              name={["config", "mountOptions"]}
-              label="挂载选项"
-            >
+            <ProForm.Item name={["config", "mountOptions"]} label="挂载选项">
               <Input placeholder="rw,sync" />
             </ProForm.Item>
           </>
@@ -335,10 +341,7 @@ const BackupConfigPage: React.FC = () => {
             >
               <Input.Password />
             </ProForm.Item>
-            <ProForm.Item
-              name={["config", "path"]}
-              label="存储路径"
-            >
+            <ProForm.Item name={["config", "path"]} label="存储路径">
               <Input placeholder="/backups" />
             </ProForm.Item>
           </>
@@ -388,7 +391,9 @@ const BackupConfigPage: React.FC = () => {
           open={storageDrawerVisible}
           onClose={() => setStorageDrawerVisible(false)}
           onFinish={handleSubmitStorage}
-          initialValues={editingStorage || { storageType: "LOCAL", status: "ACTIVE" }}
+          initialValues={
+            editingStorage || { storageType: "LOCAL", status: "ACTIVE" }
+          }
           width={600}
         >
           <ProForm.Item
@@ -437,10 +442,18 @@ const BackupConfigPage: React.FC = () => {
             style={{ marginBottom: 24 }}
           />
           <Form form={alertForm} layout="vertical">
-            <Form.Item name="notifyOnSuccess" label="备份成功通知" valuePropName="checked">
+            <Form.Item
+              name="notifyOnSuccess"
+              label="备份成功通知"
+              valuePropName="checked"
+            >
               <Switch checkedChildren="开启" unCheckedChildren="关闭" />
             </Form.Item>
-            <Form.Item name="notifyOnFailure" label="备份失败通知" valuePropName="checked">
+            <Form.Item
+              name="notifyOnFailure"
+              label="备份失败通知"
+              valuePropName="checked"
+            >
               <Switch checkedChildren="开启" unCheckedChildren="关闭" />
             </Form.Item>
             <Divider />
@@ -459,7 +472,11 @@ const BackupConfigPage: React.FC = () => {
               />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" onClick={handleSaveAlertConfig} loading={alertLoading}>
+              <Button
+                type="primary"
+                onClick={handleSaveAlertConfig}
+                loading={alertLoading}
+              >
                 保存配置
               </Button>
             </Form.Item>

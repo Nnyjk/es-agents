@@ -1,5 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
-import { ReloadOutlined, WarningOutlined, CloudSyncOutlined } from "@ant-design/icons";
+import {
+  ReloadOutlined,
+  WarningOutlined,
+  CloudSyncOutlined,
+} from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import {
@@ -52,10 +56,13 @@ const RestorePage: React.FC = () => {
   const [wizardVisible, setWizardVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [backupRecords, setBackupRecords] = useState<BackupRecord[]>([]);
-  const [selectedBackup, setSelectedBackup] = useState<BackupRecord | null>(null);
+  const [selectedBackup, setSelectedBackup] = useState<BackupRecord | null>(
+    null,
+  );
   const [restoreScopes, setRestoreScopes] = useState<RestoreScope[]>([]);
   const [restoreLoading, setRestoreLoading] = useState(false);
-  const [currentRestoreTask, setCurrentRestoreTask] = useState<RestoreTask | null>(null);
+  const [currentRestoreTask, setCurrentRestoreTask] =
+    useState<RestoreTask | null>(null);
 
   useEffect(() => {
     if (wizardVisible) {
@@ -179,8 +186,8 @@ const RestorePage: React.FC = () => {
             record.status === "FAILED"
               ? "exception"
               : record.status === "SUCCESS"
-              ? "success"
-              : "active"
+                ? "success"
+                : "active"
           }
         />
       ),
@@ -309,11 +316,18 @@ const RestorePage: React.FC = () => {
               onChange={handleSelectBackup}
               showSearch
               filterOption={(input, option) =>
-                (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                (option?.label ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
               }
             />
             {selectedBackup && (
-              <Descriptions column={2} size="small" style={{ marginTop: 16 }} bordered>
+              <Descriptions
+                column={2}
+                size="small"
+                style={{ marginTop: 16 }}
+                bordered
+              >
                 <Descriptions.Item label="备份名称">
                   {selectedBackup.backupName}
                 </Descriptions.Item>
@@ -357,7 +371,12 @@ const RestorePage: React.FC = () => {
               onChange={(values) => setRestoreScopes(values as RestoreScope[])}
               style={{ marginTop: 16 }}
             />
-            <Descriptions column={2} size="small" style={{ marginTop: 24 }} bordered>
+            <Descriptions
+              column={2}
+              size="small"
+              style={{ marginTop: 24 }}
+              bordered
+            >
               <Descriptions.Item label="备份文件">
                 {selectedBackup?.backupName}
               </Descriptions.Item>
@@ -366,7 +385,10 @@ const RestorePage: React.FC = () => {
               </Descriptions.Item>
             </Descriptions>
             <div style={{ marginTop: 24, textAlign: "right" }}>
-              <Button style={{ marginRight: 8 }} onClick={() => setCurrentStep(0)}>
+              <Button
+                style={{ marginRight: 8 }}
+                onClick={() => setCurrentStep(0)}
+              >
                 上一步
               </Button>
               <Popconfirm
@@ -397,12 +419,17 @@ const RestorePage: React.FC = () => {
                     currentRestoreTask.status === "FAILED"
                       ? "exception"
                       : currentRestoreTask.status === "SUCCESS"
-                      ? "success"
-                      : "active"
+                        ? "success"
+                        : "active"
                   }
                   style={{ marginTop: 16 }}
                 />
-                <Descriptions column={2} size="small" style={{ marginTop: 24 }} bordered>
+                <Descriptions
+                  column={2}
+                  size="small"
+                  style={{ marginTop: 24 }}
+                  bordered
+                >
                   <Descriptions.Item label="备份文件">
                     {currentRestoreTask.backupName}
                   </Descriptions.Item>
@@ -430,7 +457,11 @@ const RestorePage: React.FC = () => {
             )}
             <div style={{ marginTop: 24, textAlign: "right" }}>
               {currentRestoreTask?.status === "RUNNING" && (
-                <Button danger onClick={handleCancelRestore} style={{ marginRight: 8 }}>
+                <Button
+                  danger
+                  onClick={handleCancelRestore}
+                  style={{ marginRight: 8 }}
+                >
                   取消恢复
                 </Button>
               )}

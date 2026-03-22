@@ -1,22 +1,22 @@
 /**
  * 备份任务状态
  */
-export type BackupTaskStatus = 'ENABLED' | 'DISABLED' | 'RUNNING' | 'ERROR';
+export type BackupTaskStatus = "ENABLED" | "DISABLED" | "RUNNING" | "ERROR";
 
 /**
  * 备份类型
  */
-export type BackupType = 'FULL' | 'INCREMENTAL' | 'DIFFERENTIAL';
+export type BackupType = "FULL" | "INCREMENTAL" | "DIFFERENTIAL";
 
 /**
  * 备份内容
  */
-export type BackupContent = 'DATABASE' | 'CONFIG' | 'LOGS' | 'ALL';
+export type BackupContent = "DATABASE" | "CONFIG" | "LOGS" | "ALL";
 
 /**
  * 存储类型
  */
-export type StorageType = 'LOCAL' | 'S3' | 'NFS' | 'FTP';
+export type StorageType = "LOCAL" | "S3" | "NFS" | "FTP";
 
 /**
  * 备份任务
@@ -35,7 +35,7 @@ export interface BackupTask {
   status: BackupTaskStatus;
   lastRunTime?: string;
   nextRunTime?: string;
-  lastRunStatus?: 'SUCCESS' | 'FAILED' | 'RUNNING';
+  lastRunStatus?: "SUCCESS" | "FAILED" | "RUNNING";
   createdAt: string;
   updatedAt: string;
 }
@@ -59,7 +59,12 @@ export interface BackupTaskRequest {
 /**
  * 备份记录状态
  */
-export type BackupRecordStatus = 'RUNNING' | 'SUCCESS' | 'FAILED' | 'VALIDATING' | 'INVALID';
+export type BackupRecordStatus =
+  | "RUNNING"
+  | "SUCCESS"
+  | "FAILED"
+  | "VALIDATING"
+  | "INVALID";
 
 /**
  * 备份记录
@@ -88,12 +93,12 @@ export interface BackupRecord {
 /**
  * 恢复任务状态
  */
-export type RestoreTaskStatus = 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED';
+export type RestoreTaskStatus = "PENDING" | "RUNNING" | "SUCCESS" | "FAILED";
 
 /**
  * 恢复范围
  */
-export type RestoreScope = 'DATABASE' | 'CONFIG' | 'LOGS' | 'ALL';
+export type RestoreScope = "DATABASE" | "CONFIG" | "LOGS" | "ALL";
 
 /**
  * 恢复任务
@@ -129,7 +134,7 @@ export interface StorageConfig {
   storageType: StorageType;
   config: Record<string, string>;
   isDefault: boolean;
-  status: 'ACTIVE' | 'INACTIVE';
+  status: "ACTIVE" | "INACTIVE";
   createdAt: string;
   updatedAt: string;
 }

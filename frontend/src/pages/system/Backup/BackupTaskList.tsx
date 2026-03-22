@@ -1,5 +1,9 @@
 import React, { useRef, useState } from "react";
-import { PlusOutlined, PlayCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  PlayCircleOutlined,
+  PauseCircleOutlined,
+} from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable, ProForm } from "@ant-design/pro-components";
 import {
@@ -24,7 +28,14 @@ import {
   disableBackupTask,
   triggerBackupTask,
 } from "../../../services/backup";
-import type { BackupTask, BackupTaskRequest, BackupTaskStatus, BackupType, BackupContent, StorageType } from "../../../types/backup";
+import type {
+  BackupTask,
+  BackupTaskRequest,
+  BackupTaskStatus,
+  BackupType,
+  BackupContent,
+  StorageType,
+} from "../../../types/backup";
 
 const statusColors: Record<BackupTaskStatus, string> = {
   ENABLED: "success",
@@ -194,15 +205,15 @@ const BackupTaskList: React.FC = () => {
                 record.lastRunStatus === "SUCCESS"
                   ? "success"
                   : record.lastRunStatus === "FAILED"
-                  ? "error"
-                  : "processing"
+                    ? "error"
+                    : "processing"
               }
               text={
                 record.lastRunStatus === "SUCCESS"
                   ? "成功"
                   : record.lastRunStatus === "FAILED"
-                  ? "失败"
-                  : "运行中"
+                    ? "失败"
+                    : "运行中"
               }
             />
           )}
@@ -313,7 +324,16 @@ const BackupTaskList: React.FC = () => {
         open={drawerVisible}
         onClose={() => setDrawerVisible(false)}
         onFinish={handleSubmit}
-        initialValues={editingItem || { backupType: "FULL", backupContent: "ALL", storageType: "LOCAL", status: "DISABLED", retentionDays: 30, maxBackups: 10 }}
+        initialValues={
+          editingItem || {
+            backupType: "FULL",
+            backupContent: "ALL",
+            storageType: "LOCAL",
+            status: "DISABLED",
+            retentionDays: 30,
+            maxBackups: 10,
+          }
+        }
         width={600}
       >
         <ProForm.Item
@@ -323,10 +343,7 @@ const BackupTaskList: React.FC = () => {
         >
           <Input placeholder="如：每日数据库备份" />
         </ProForm.Item>
-        <ProForm.Item
-          name="description"
-          label="任务描述"
-        >
+        <ProForm.Item name="description" label="任务描述">
           <Input.TextArea rows={2} placeholder="备份任务描述" />
         </ProForm.Item>
         <ProForm.Item
@@ -400,10 +417,7 @@ const BackupTaskList: React.FC = () => {
           <InputNumber min={1} style={{ width: "100%" }} addonAfter="份" />
         </ProForm.Item>
         {editingItem && (
-          <ProForm.Item
-            name="status"
-            label="状态"
-          >
+          <ProForm.Item name="status" label="状态">
             <Select
               options={[
                 { label: "已启用", value: "ENABLED" },

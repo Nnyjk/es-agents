@@ -1,5 +1,10 @@
 import React, { useRef, useState } from "react";
-import { DownloadOutlined, DeleteOutlined, SafetyOutlined, ReloadOutlined } from "@ant-design/icons";
+import {
+  DownloadOutlined,
+  DeleteOutlined,
+  SafetyOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import {
@@ -18,7 +23,12 @@ import {
   validateBackupRecord,
   downloadBackupRecord,
 } from "../../../services/backup";
-import type { BackupRecord, BackupRecordStatus, BackupType, BackupContent } from "../../../types/backup";
+import type {
+  BackupRecord,
+  BackupRecordStatus,
+  BackupType,
+  BackupContent,
+} from "../../../types/backup";
 
 const statusColors: Record<BackupRecordStatus, string> = {
   RUNNING: "processing",
@@ -307,7 +317,9 @@ const BackupRecordList: React.FC = () => {
             </Descriptions.Item>
             {currentRecord.errorMessage && (
               <Descriptions.Item label="错误信息" span={2}>
-                <span style={{ color: "#ff4d4f" }}>{currentRecord.errorMessage}</span>
+                <span style={{ color: "#ff4d4f" }}>
+                  {currentRecord.errorMessage}
+                </span>
               </Descriptions.Item>
             )}
           </Descriptions>

@@ -30,14 +30,19 @@ export const getBackupTask = (id: number): Promise<BackupTask> => {
 /**
  * 创建备份任务
  */
-export const createBackupTask = (data: BackupTaskRequest): Promise<BackupTask> => {
+export const createBackupTask = (
+  data: BackupTaskRequest,
+): Promise<BackupTask> => {
   return request.post("/api/backup/tasks", data);
 };
 
 /**
  * 更新备份任务
  */
-export const updateBackupTask = (id: number, data: BackupTaskRequest): Promise<BackupTask> => {
+export const updateBackupTask = (
+  id: number,
+  data: BackupTaskRequest,
+): Promise<BackupTask> => {
   return request.put(`/api/backup/tasks/${id}`, data);
 };
 
@@ -103,7 +108,9 @@ export const downloadBackupRecord = (id: number): string => {
 /**
  * 校验备份文件
  */
-export const validateBackupRecord = (id: number): Promise<{ valid: boolean; message: string }> => {
+export const validateBackupRecord = (
+  id: number,
+): Promise<{ valid: boolean; message: string }> => {
   return request.post(`/api/backup/records/${id}/validate`);
 };
 
@@ -112,7 +119,9 @@ export const validateBackupRecord = (id: number): Promise<{ valid: boolean; mess
 /**
  * 创建恢复任务
  */
-export const createRestoreTask = (data: RestoreTaskRequest): Promise<RestoreTask> => {
+export const createRestoreTask = (
+  data: RestoreTaskRequest,
+): Promise<RestoreTask> => {
   return request.post("/api/backup/restore", data);
 };
 
@@ -149,14 +158,19 @@ export const getStorageConfigs = (): Promise<StorageConfig[]> => {
 /**
  * 创建存储配置
  */
-export const createStorageConfig = (data: StorageConfigRequest): Promise<StorageConfig> => {
+export const createStorageConfig = (
+  data: StorageConfigRequest,
+): Promise<StorageConfig> => {
   return request.post("/api/backup/storage-configs", data);
 };
 
 /**
  * 更新存储配置
  */
-export const updateStorageConfig = (id: number, data: StorageConfigRequest): Promise<StorageConfig> => {
+export const updateStorageConfig = (
+  id: number,
+  data: StorageConfigRequest,
+): Promise<StorageConfig> => {
   return request.put(`/api/backup/storage-configs/${id}`, data);
 };
 
@@ -170,7 +184,9 @@ export const deleteStorageConfig = (id: number): Promise<void> => {
 /**
  * 测试存储配置连接
  */
-export const testStorageConfig = (id: number): Promise<{ success: boolean; message: string }> => {
+export const testStorageConfig = (
+  id: number,
+): Promise<{ success: boolean; message: string }> => {
   return request.post(`/api/backup/storage-configs/${id}/test`);
 };
 
@@ -186,7 +202,9 @@ export const getAlertConfig = (): Promise<BackupAlertConfig> => {
 /**
  * 更新告警配置
  */
-export const updateAlertConfig = (data: Partial<BackupAlertConfig>): Promise<BackupAlertConfig> => {
+export const updateAlertConfig = (
+  data: Partial<BackupAlertConfig>,
+): Promise<BackupAlertConfig> => {
   return request.put("/api/backup/alert-config", data);
 };
 
