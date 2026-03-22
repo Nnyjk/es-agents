@@ -334,15 +334,13 @@ public class AgentMetricService {
         }
 
         AlertEvent event = new AlertEvent();
-        event.eventType = AlertEventType.SYSTEM;
+        event.eventType = AlertEventType.CUSTOM;
         event.level = determineAlertLevel(request.metricType(), request.currentValue(), request.threshold());
-        event.status = AlertStatus.FIRING;
+        event.status = AlertStatus.PENDING;
         event.title = String.format("Agent %s 监控告警", agent.template != null ? agent.template.name : request.agentId());
         event.message = request.message();
-        event.sourceId = request.agentId();
-        event.sourceType = "AGENT";
-        event.labels = String.format("metric=%s,threshold=%.2f,current=%.2f",
-                request.metricType(), request.threshold(), request.currentValue());
+        event.resourceId = request.agentId();
+        event.resourceType = "AGENT";
         event.persist();
 
         Log.infof("Triggered alert for agent %s: %s", request.agentId(), request.message());
@@ -383,8 +381,8 @@ public class AgentMetricService {
     private AlertLevel determineAlertLevel(String metricType, double current, double threshold) {
         double ratio = current / threshold;
         if (ratio >= 1.5) return AlertLevel.CRITICAL;
-        if (ratio >= 1.2) return AlertLevel.HIGH;
-        return AlertLevel.MEDIUM;
+        if (ratio >= 1.2) return AlertLevel.ERROR;
+        return AlertLevel.WARNING;
     }
 
     /**
