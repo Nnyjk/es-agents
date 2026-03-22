@@ -128,7 +128,9 @@ const ApplicationPage: React.FC = () => {
 
   const handleConfigSubmit = async (values: Record<string, unknown>) => {
     if (currentApplication) {
-      await updateApplication(currentApplication.id, { config: values as unknown as Application["config"] });
+      await updateApplication(currentApplication.id, {
+        config: values as unknown as Application["config"],
+      });
       message.success("配置更新成功");
     }
     setConfigModalVisible(false);
