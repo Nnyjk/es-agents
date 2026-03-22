@@ -303,12 +303,12 @@ public class AgentTemplateService {
                 source.repository != null ? new AgentRepositoryRecord.Simple(
                         source.repository.id,
                         source.repository.name,
-                        source.repository.url
+                        source.repository.type
                 ) : null,
                 source.credential != null ? new AgentCredentialRecord.Simple(
                         source.credential.id,
                         source.credential.name,
-                        source.credential.type != null ? source.credential.type.name() : null
+                        source.credential.type
                 ) : null,
                 source.createdAt,
                 source.updatedAt
