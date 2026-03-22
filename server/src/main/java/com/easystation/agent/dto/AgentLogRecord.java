@@ -34,4 +34,44 @@ public record AgentLogRecord(
         int infoCount,
         int debugCount
     ) {}
+
+    /**
+     * 部署日志查询参数
+     */
+    public record DeploymentLogQuery(
+        UUID agentId,
+        UUID deploymentId,
+        Integer limit,
+        Integer offset,
+        LocalDateTime startTime,
+        LocalDateTime endTime
+    ) {}
+
+    /**
+     * 命令执行日志查询参数
+     */
+    public record CommandLogQuery(
+        UUID agentId,
+        UUID executionId,
+        Integer limit,
+        Integer offset,
+        LocalDateTime startTime,
+        LocalDateTime endTime
+    ) {}
+
+    /**
+     * 任务执行结果记录
+     */
+    public record TaskLogRecord(
+        UUID taskId,
+        String taskType,
+        String taskName,
+        String status,
+        Integer exitCode,
+        Long durationMs,
+        String output,
+        String error,
+        LocalDateTime startTime,
+        LocalDateTime endTime
+    ) {}
 }

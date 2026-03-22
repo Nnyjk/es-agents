@@ -6,12 +6,15 @@ import com.easystation.agent.domain.AgentTask;
 import com.easystation.agent.domain.AgentTemplate;
 import com.easystation.agent.domain.enums.AgentStatus;
 import com.easystation.agent.domain.enums.AgentTaskStatus;
+import com.easystation.agent.dto.AgentHealthRecord;
+import com.easystation.agent.dto.AgentHealthRecord.HealthStatus;
 import com.easystation.agent.dto.AgentInstanceRecord;
 import com.easystation.agent.dto.AgentInstanceRecord.Create;
 import com.easystation.agent.dto.AgentInstanceRecord.Deploy;
 import com.easystation.agent.dto.AgentInstanceRecord.DeployResult;
 import com.easystation.agent.dto.AgentInstanceRecord.ExecuteCommand;
 import com.easystation.agent.dto.AgentInstanceRecord.Update;
+import com.easystation.agent.dto.AgentRuntimeStatus;
 import com.easystation.agent.record.AgentTaskRecord;
 import com.easystation.agent.dto.HeartbeatRequest;
 import com.easystation.infra.domain.Host;
@@ -362,5 +365,181 @@ public class AgentInstanceService {
         }
         // Note: We allow binding to OFFLINE hosts as they might come online later.
         // The actual connection will be attempted when deployment is triggered.
+    }
+
+    /**
+     * 获取 Agent 实时运行状态
+     */
+    public AgentRuntimeStatus getRuntimeStatus(UUID id) {
+        AgentInstance instance = AgentInstance.findById(id);
+        if (instance == null) {
+            throw new WebApplicationException("Agent Instance not found", Response.Status.NOT_FOUND);
+        }
+
+        Long heartbeatAgeSeconds = null;
+        if (instance.lastHeartbeatTime != null) {
+            heartbeatAgeSeconds = java.time.Duration.between(
+                instance.lastHeartbeatTime, 
+                LocalDateTime.now()
+            ).getSeconds();
+        }
+
+        boolean isOnline = instance.status == AgentStatus.ONLINE || instance.status == AgentStatus.DEPLOYED;
+        String statusMessage = getStatusMessage(instance.status);
+
+        return new AgentRuntimeStatus(
+            instance.id,
+            instance.status,
+            instance.version,
+            instance.lastHeartbeatTime,
+            heartbeatAgeSeconds,
+            isOnline,
+            statusMessage,
+            instance.createdAt,
+            instance.updatedAt
+        );
+    }
+
+    /**
+     * 获取 Agent 健康度信息
+     */
+    public AgentHealthRecord getHealth(UUID id) {
+        AgentInstance instance = AgentInstance.findById(id);
+        if (instance == null) {
+            throw new WebApplicationException("Agent Instance not found", Response.Status.NOT_FOUND);
+        }
+
+        AgentHealthRecord.Builder builder = AgentHealthRecord.builder()
+            .id(instance.id)
+            .agentName(instance.template != null ? instance.template.name : "Unknown");
+
+        // 计算心跳年龄
+        Long heartbeatAgeSeconds = null;
+        if (instance.lastHeartbeatTime != null) {
+            heartbeatAgeSeconds = java.time.Duration.between(
+                instance.lastHeartbeatTime, 
+                LocalDateTime.now()
+            ).getSeconds();
+            builder.lastHeartbeatTime(instance.lastHeartbeatTime)
+                   .heartbeatAgeSeconds(heartbeatAgeSeconds);
+        }
+
+        // 查询最近24小时的任务统计
+        LocalDateTime since = LocalDateTime.now().minusHours(24);
+        long totalTasks = AgentTask.count("agentInstance.id = ?1 and createdAt >= ?2", id, since);
+        long successfulTasks = AgentTask.count(
+            "agentInstance.id = ?1 and createdAt >= ?2 and status = ?3", 
+            id, since, AgentTaskStatus.SUCCESS
+        );
+        long failedTasks = AgentTask.count(
+            "agentInstance.id = ?1 and createdAt >= ?2 and status = ?3", 
+            id, since, AgentTaskStatus.FAILED
+        );
+
+        builder.totalTasks24h(totalTasks)
+               .successfulTasks24h(successfulTasks)
+               .failedTasks24h(failedTasks);
+
+        // 查询最近成功和失败的任务时间
+        AgentTask lastSuccess = AgentTask.find(
+            "agentInstance.id = ?1 and status = ?2 order by createdAt desc", 
+            id, AgentTaskStatus.SUCCESS
+        ).firstResult();
+        if (lastSuccess != null) {
+            builder.lastSuccessfulTaskTime(lastSuccess.createdAt);
+        }
+
+        AgentTask lastFailed = AgentTask.find(
+            "agentInstance.id = ?1 and status = ?2 order by createdAt desc", 
+            id, AgentTaskStatus.FAILED
+        ).firstResult();
+        if (lastFailed != null) {
+            builder.lastFailedTaskTime(lastFailed.createdAt);
+        }
+
+        // 计算健康状态
+        HealthStatus healthStatus = calculateHealthStatus(
+            instance.status, 
+            heartbeatAgeSeconds, 
+            totalTasks, 
+            failedTasks,
+            builder
+        );
+        builder.status(healthStatus);
+
+        return builder.build();
+    }
+
+    /**
+     * 计算健康状态
+     */
+    private HealthStatus calculateHealthStatus(
+        AgentStatus status, 
+        Long heartbeatAgeSeconds, 
+        long totalTasks, 
+        long failedTasks,
+        AgentHealthRecord.Builder builder
+    ) {
+        List<String> issues = new ArrayList<>();
+
+        // 检查 Agent 状态
+        if (status == AgentStatus.ERROR) {
+            builder.addIssue("Agent is in ERROR state");
+            return HealthStatus.CRITICAL;
+        }
+
+        if (status == AgentStatus.OFFLINE || status == AgentStatus.UNCONFIGURED) {
+            builder.addIssue("Agent is " + status.name());
+            return HealthStatus.WARNING;
+        }
+
+        // 检查心跳
+        if (heartbeatAgeSeconds == null) {
+            builder.addIssue("No heartbeat received");
+            return HealthStatus.UNKNOWN;
+        }
+
+        if (heartbeatAgeSeconds > 300) { // 5分钟无心跳
+            builder.addIssue("Heartbeat timeout: " + heartbeatAgeSeconds + " seconds ago");
+            return HealthStatus.CRITICAL;
+        }
+
+        if (heartbeatAgeSeconds > 60) { // 1分钟无心跳
+            builder.addIssue("Heartbeat delayed: " + heartbeatAgeSeconds + " seconds ago");
+            return HealthStatus.WARNING;
+        }
+
+        // 检查任务失败率
+        if (totalTasks > 0) {
+            double failureRate = (double) failedTasks / totalTasks * 100;
+            if (failureRate > 50) {
+                builder.addIssue("High task failure rate: " + String.format("%.1f%%", failureRate));
+                return HealthStatus.CRITICAL;
+            }
+            if (failureRate > 20) {
+                builder.addIssue("Elevated task failure rate: " + String.format("%.1f%%", failureRate));
+                return HealthStatus.WARNING;
+            }
+        }
+
+        return HealthStatus.HEALTHY;
+    }
+
+    /**
+     * 获取状态描述信息
+     */
+    private String getStatusMessage(AgentStatus status) {
+        return switch (status) {
+            case UNCONFIGURED -> "Agent not configured";
+            case PREPARING -> "Agent preparing";
+            case READY -> "Agent ready for deployment";
+            case PACKAGING -> "Agent packaging";
+            case PACKAGED -> "Agent packaged";
+            case DEPLOYING -> "Agent deploying";
+            case DEPLOYED -> "Agent deployed";
+            case ONLINE -> "Agent online";
+            case OFFLINE -> "Agent offline";
+            case ERROR -> "Agent error";
+        };
     }
 }
