@@ -139,7 +139,7 @@ const ReleasePage: React.FC = () => {
 
   const renderDeployProgress = (record: Release) => {
     if (record.status !== "deploying" || !record.deployProgress) return null;
-    
+
     const progress = record.deployProgress;
     const percent = Math.round(
       (progress.deployedInstances / progress.totalInstances) * 100,
@@ -149,8 +149,7 @@ const ReleasePage: React.FC = () => {
       <div style={{ marginTop: 8 }}>
         <Progress percent={percent} status="active" size="small" />
         <div style={{ fontSize: 12, color: "#666" }}>
-          已部署: {progress.deployedInstances}/
-            {progress.totalInstances} 实例
+          已部署: {progress.deployedInstances}/{progress.totalInstances} 实例
         </div>
       </div>
     );
@@ -187,9 +186,7 @@ const ReleasePage: React.FC = () => {
         patch: { text: "补丁版本" },
         hotfix: { text: "热修复" },
       },
-      render: (_, record) => (
-        <Tag color="blue">{typeLabels[record.type]}</Tag>
-      ),
+      render: (_, record) => <Tag color="blue">{typeLabels[record.type]}</Tag>,
     },
     {
       title: "环境",

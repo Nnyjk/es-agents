@@ -69,9 +69,9 @@ const EnvironmentPage: React.FC = () => {
   const [currentEnvironment, setCurrentEnvironment] =
     useState<Environment | null>(null);
   const [resources, setResources] = useState<EnvironmentResource | null>(null);
-  const [applications, setApplications] = useState<
-    EnvironmentApplication[]
-  >([]);
+  const [applications, setApplications] = useState<EnvironmentApplication[]>(
+    [],
+  );
   const actionRef = useRef<ActionType>();
 
   const handleAdd = () => {

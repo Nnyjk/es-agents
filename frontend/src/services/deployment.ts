@@ -42,7 +42,7 @@ export async function getApplication(id: string): Promise<Application> {
 export async function createApplication(
   data: Omit<
     Application,
-    "id" | "createdAt" | "updatedAt" | "currentVersion" | "environments",
+    "id" | "createdAt" | "updatedAt" | "currentVersion" | "environments"
   >,
 ): Promise<Application> {
   return request.post("/api/deployment/applications", data);
@@ -110,7 +110,7 @@ export async function createPipeline(
     | "updatedAt"
     | "status"
     | "lastExecutionAt"
-    | "applicationName",
+    | "applicationName"
   >,
 ): Promise<Pipeline> {
   return request.post("/api/deployment/pipelines", data);
@@ -205,7 +205,7 @@ export async function createRelease(
     | "environmentName"
     | "status"
     | "createdAt"
-    | "updatedAt",
+    | "updatedAt"
   >,
 ): Promise<Release> {
   return request.post("/api/deployment/releases", data);
@@ -279,7 +279,7 @@ export async function createEnvironment(
     | "updatedAt"
     | "applicationCount"
     | "resourceUsage"
-    | "healthStatus",
+    | "healthStatus"
   >,
 ): Promise<Environment> {
   return request.post("/api/deployment/environments", data);

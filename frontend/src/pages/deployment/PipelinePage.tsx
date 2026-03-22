@@ -151,9 +151,7 @@ const PipelinePage: React.FC = () => {
       );
       message.success("更新成功");
     } else {
-      await createPipeline(
-        values as Parameters<typeof createPipeline>[0],
-      );
+      await createPipeline(values as Parameters<typeof createPipeline>[0]);
       message.success("创建成功");
     }
     setModalVisible(false);
