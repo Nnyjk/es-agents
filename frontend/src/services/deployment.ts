@@ -40,7 +40,10 @@ export async function getApplication(id: string): Promise<Application> {
  * 创建应用
  */
 export async function createApplication(
-  data: Omit<Application, "id" | "createdAt" | "updatedAt" | "currentVersion" | "environments">,
+  data: Omit<
+    Application,
+    "id" | "createdAt" | "updatedAt" | "currentVersion" | "environments",
+  >,
 ): Promise<Application> {
   return request.post("/api/deployment/applications", data);
 }
@@ -100,7 +103,15 @@ export async function getPipeline(id: string): Promise<Pipeline> {
  * 创建流水线
  */
 export async function createPipeline(
-  data: Omit<Pipeline, "id" | "createdAt" | "updatedAt" | "status" | "lastExecutionAt" | "applicationName">,
+  data: Omit<
+    Pipeline,
+    | "id"
+    | "createdAt"
+    | "updatedAt"
+    | "status"
+    | "lastExecutionAt"
+    | "applicationName",
+  >,
 ): Promise<Pipeline> {
   return request.post("/api/deployment/pipelines", data);
 }
@@ -186,7 +197,16 @@ export async function getReleaseDetail(id: string): Promise<Release> {
  * 创建发布
  */
 export async function createRelease(
-  data: Omit<Release, "id" | "releaseId" | "applicationName" | "environmentName" | "status" | "createdAt" | "updatedAt">,
+  data: Omit<
+    Release,
+    | "id"
+    | "releaseId"
+    | "applicationName"
+    | "environmentName"
+    | "status"
+    | "createdAt"
+    | "updatedAt",
+  >,
 ): Promise<Release> {
   return request.post("/api/deployment/releases", data);
 }
@@ -222,7 +242,9 @@ export async function rollbackRelease(id: string): Promise<Release> {
 /**
  * 获取发布历史
  */
-export async function getReleaseHistory(applicationId: string): Promise<Release[]> {
+export async function getReleaseHistory(
+  applicationId: string,
+): Promise<Release[]> {
   return request.get(`/api/deployment/releases/history`, {
     params: { applicationId },
   });
@@ -250,7 +272,15 @@ export async function getEnvironment(id: string): Promise<Environment> {
  * 创建环境
  */
 export async function createEnvironment(
-  data: Omit<Environment, "id" | "createdAt" | "updatedAt" | "applicationCount" | "resourceUsage" | "healthStatus">,
+  data: Omit<
+    Environment,
+    | "id"
+    | "createdAt"
+    | "updatedAt"
+    | "applicationCount"
+    | "resourceUsage"
+    | "healthStatus",
+  >,
 ): Promise<Environment> {
   return request.post("/api/deployment/environments", data);
 }
@@ -275,13 +305,17 @@ export async function deleteEnvironment(id: string): Promise<void> {
 /**
  * 获取环境资源使用情况
  */
-export async function getEnvironmentResources(id: string): Promise<EnvironmentResource> {
+export async function getEnvironmentResources(
+  id: string,
+): Promise<EnvironmentResource> {
   return request.get(`/api/deployment/environments/${id}/resources`);
 }
 
 /**
  * 获取环境应用列表
  */
-export async function getEnvironmentApplications(id: string): Promise<EnvironmentApplication[]> {
+export async function getEnvironmentApplications(
+  id: string,
+): Promise<EnvironmentApplication[]> {
   return request.get(`/api/deployment/environments/${id}/applications`);
 }

@@ -43,7 +43,11 @@ import {
   getEnvironmentResources,
   getEnvironmentApplications,
 } from "@/services/deployment";
-import type { Environment, EnvironmentResource, EnvironmentApplication } from "@/types/deployment";
+import type {
+  Environment,
+  EnvironmentResource,
+  EnvironmentApplication,
+} from "@/types/deployment";
 
 const typeColors: Record<string, string> = {
   dev: "blue",
@@ -65,7 +69,9 @@ const EnvironmentPage: React.FC = () => {
   const [currentEnvironment, setCurrentEnvironment] =
     useState<Environment | null>(null);
   const [resources, setResources] = useState<EnvironmentResource | null>(null);
-  const [applications, setApplications] = useState<EnvironmentApplication[]>([]);
+  const [applications, setApplications] = useState<
+    EnvironmentApplication[]
+  >([]);
   const actionRef = useRef<ActionType>();
 
   const handleAdd = () => {
@@ -97,10 +103,15 @@ const EnvironmentPage: React.FC = () => {
 
   const handleSubmit = async (values: Record<string, unknown>) => {
     if (currentEnvironment) {
-      await updateEnvironment(currentEnvironment.id, values as Parameters<typeof updateEnvironment>[1]);
+      await updateEnvironment(
+        currentEnvironment.id,
+        values as Parameters<typeof updateEnvironment>[1],
+      );
       message.success("更新成功");
     } else {
-      await createEnvironment(values as Parameters<typeof createEnvironment>[0]);
+      await createEnvironment(
+        values as Parameters<typeof createEnvironment>[0],
+      );
       message.success("创建成功");
     }
     setModalVisible(false);
@@ -109,7 +120,10 @@ const EnvironmentPage: React.FC = () => {
   };
 
   const renderHealthStatus = (status: string) => {
-    const statusConfig: Record<string, { color: string; icon: React.ReactNode }> = {
+    const statusConfig: Record<
+      string,
+      { color: string; icon: React.ReactNode }
+    > = {
       healthy: { color: "green", icon: <CheckCircleOutlined /> },
       unhealthy: { color: "red", icon: <CloseCircleOutlined /> },
       unknown: { color: "default", icon: <SyncOutlined /> },
@@ -117,7 +131,11 @@ const EnvironmentPage: React.FC = () => {
     const config = statusConfig[status] || statusConfig.unknown;
     return (
       <Tag color={config.color} icon={config.icon}>
-        {status === "healthy" ? "健康" : status === "unhealthy" ? "异常" : "未知"}
+        {status === "healthy"
+          ? "健康"
+          : status === "unhealthy"
+            ? "异常"
+            : "未知"}
       </Tag>
     );
   };
@@ -205,8 +223,20 @@ const EnvironmentPage: React.FC = () => {
         maintenance: { text: "维护中", status: "Warning" },
       },
       render: (_, record) => (
-        <Tag color={record.status === "active" ? "green" : record.status === "maintenance" ? "orange" : "default"}>
-          {record.status === "active" ? "活跃" : record.status === "maintenance" ? "维护中" : "未激活"}
+        <Tag
+          color={
+            record.status === "active"
+              ? "green"
+              : record.status === "maintenance"
+                ? "orange"
+                : "default"
+          }
+        >
+          {record.status === "active"
+            ? "活跃"
+            : record.status === "maintenance"
+              ? "维护中"
+              : "未激活"}
         </Tag>
       ),
     },
@@ -215,7 +245,8 @@ const EnvironmentPage: React.FC = () => {
       dataIndex: "healthStatus",
       width: 100,
       search: false,
-      render: (_, record) => renderHealthStatus(record.healthStatus || "unknown"),
+      render: (_, record) =>
+        renderHealthStatus(record.healthStatus || "unknown"),
     },
     {
       title: "操作",
@@ -305,7 +336,9 @@ const EnvironmentPage: React.FC = () => {
         open={modalVisible}
         onFinish={handleSubmit}
         onOpenChange={setModalVisible}
-        initialValues={currentEnvironment || { status: "active", autoDeploy: false }}
+        initialValues={
+          currentEnvironment || { status: "active", autoDeploy: false }
+        }
         modalProps={{
           destroyOnClose: true,
           width: 600,
@@ -370,7 +403,11 @@ const EnvironmentPage: React.FC = () => {
             <Descriptions column={2} bordered size="small">
               <Descriptions.Item label="环境名称">
                 <Badge
-                  status={currentEnvironment.status === "active" ? "success" : "default"}
+                  status={
+                    currentEnvironment.status === "active"
+                      ? "success"
+                      : "default"
+                  }
                 />
                 {currentEnvironment.name}
               </Descriptions.Item>
@@ -457,7 +494,9 @@ const EnvironmentPage: React.FC = () => {
                       suffix={`/ ${resources.memory.total} GB`}
                       valueStyle={{
                         color:
-                          (resources.memory.used / resources.memory.total) * 100 > 80
+                          (resources.memory.used / resources.memory.total) *
+                            100 >
+                          80
                             ? "#cf1322"
                             : "#3f8600",
                       }}
@@ -472,7 +511,9 @@ const EnvironmentPage: React.FC = () => {
                       suffix={`/ ${resources.storage.total} GB`}
                       valueStyle={{
                         color:
-                          (resources.storage.used / resources.storage.total) * 100 > 80
+                          (resources.storage.used / resources.storage.total) *
+                            100 >
+                          80
                             ? "#cf1322"
                             : "#3f8600",
                       }}
@@ -519,19 +560,22 @@ const EnvironmentPage: React.FC = () => {
                   title: "实例数",
                   dataIndex: "replicas",
                   width: 100,
-                  render: (_, record) => `${record.readyReplicas}/${record.replicas}`,
+                  render: (_, record) =>
+                    `${record.readyReplicas}/${record.replicas}`,
                 },
                 {
                   title: "健康状态",
                   dataIndex: "healthStatus",
                   width: 100,
-                  render: (_, record) => renderHealthStatus(record.healthStatus),
+                  render: (_, record) =>
+                    renderHealthStatus(record.healthStatus),
                 },
                 {
                   title: "最后更新",
                   dataIndex: "updatedAt",
                   width: 160,
-                  render: (_, record) => new Date(record.updatedAt).toLocaleString(),
+                  render: (_, record) =>
+                    new Date(record.updatedAt).toLocaleString(),
                 },
               ]}
               search={false}

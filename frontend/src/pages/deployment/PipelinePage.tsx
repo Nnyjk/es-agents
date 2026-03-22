@@ -123,7 +123,10 @@ const PipelinePage: React.FC = () => {
   const handleDetail = async (record: Pipeline) => {
     setCurrentPipeline(record);
     // 获取最新执行记录
-    const execs = await getPipelineExecutions(record.id, { current: 1, pageSize: 1 });
+    const execs = await getPipelineExecutions(record.id, {
+      current: 1,
+      pageSize: 1,
+    });
     if (execs.list.length > 0) {
       setCurrentExecution(execs.list[0]);
     }
@@ -132,17 +135,25 @@ const PipelinePage: React.FC = () => {
 
   const handleHistory = async (record: Pipeline) => {
     setCurrentPipeline(record);
-    const execs = await getPipelineExecutions(record.id, { current: 1, pageSize: 50 });
+    const execs = await getPipelineExecutions(record.id, {
+      current: 1,
+      pageSize: 50,
+    });
     setExecutions(execs.list);
     setHistoryDrawerVisible(true);
   };
 
   const handleSubmit = async (values: Record<string, unknown>) => {
     if (currentPipeline) {
-      await updatePipeline(currentPipeline.id, values as Parameters<typeof updatePipeline>[1]);
+      await updatePipeline(
+        currentPipeline.id,
+        values as Parameters<typeof updatePipeline>[1],
+      );
       message.success("更新成功");
     } else {
-      await createPipeline(values as Parameters<typeof createPipeline>[0]);
+      await createPipeline(
+        values as Parameters<typeof createPipeline>[0],
+      );
       message.success("创建成功");
     }
     setModalVisible(false);
@@ -405,7 +416,9 @@ const PipelinePage: React.FC = () => {
                 {currentPipeline.type}
               </Descriptions.Item>
               <Descriptions.Item label="状态">
-                <Tag color={statusColors[currentPipeline.status as PipelineStatus]}>
+                <Tag
+                  color={statusColors[currentPipeline.status as PipelineStatus]}
+                >
                   {statusLabels[currentPipeline.status as PipelineStatus]}
                 </Tag>
               </Descriptions.Item>
@@ -441,7 +454,11 @@ const PipelinePage: React.FC = () => {
                 </h4>
                 <Descriptions column={2} bordered size="small">
                   <Descriptions.Item label="状态">
-                    <Tag color={statusColors[currentExecution.status as PipelineStatus]}>
+                    <Tag
+                      color={
+                        statusColors[currentExecution.status as PipelineStatus]
+                      }
+                    >
                       {statusLabels[currentExecution.status as PipelineStatus]}
                     </Tag>
                   </Descriptions.Item>

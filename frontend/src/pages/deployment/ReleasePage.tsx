@@ -134,7 +134,8 @@ const ReleasePage: React.FC = () => {
   const canApprove = (record: Release) => record.status === "pending";
   const canReject = (record: Release) => record.status === "pending";
   const canDeploy = (record: Release) => record.status === "approved";
-  const canRollback = (record: Release) => record.status === "success" || record.status === "failed";
+  const canRollback = (record: Release) =>
+    record.status === "success" || record.status === "failed";
 
   const renderDeployProgress = (record: Release) => {
     if (record.status !== "deploying" || !record.deployProgress) return null;
@@ -148,7 +149,8 @@ const ReleasePage: React.FC = () => {
       <div style={{ marginTop: 8 }}>
         <Progress percent={percent} status="active" size="small" />
         <div style={{ fontSize: 12, color: "#666" }}>
-          已部署: {progress.deployedInstances}/{progress.totalInstances} 实例
+          已部署: {progress.deployedInstances}/
+            {progress.totalInstances} 实例
         </div>
       </div>
     );
@@ -536,15 +538,17 @@ const ReleasePage: React.FC = () => {
                 <Divider orientation="left">部署进度</Divider>
                 <Steps
                   current={currentRelease.deployProgress.currentStep}
-                  items={currentRelease.deployProgress.steps?.map((step, i) => ({
-                    title: step,
-                    status:
-                      i < currentRelease.deployProgress!.currentStep
-                        ? "finish"
-                        : i === currentRelease.deployProgress!.currentStep
-                          ? "process"
-                          : "wait",
-                  }))}
+                  items={currentRelease.deployProgress.steps?.map(
+                    (step, i) => ({
+                      title: step,
+                      status:
+                        i < currentRelease.deployProgress!.currentStep
+                          ? "finish"
+                          : i === currentRelease.deployProgress!.currentStep
+                            ? "process"
+                            : "wait",
+                    }),
+                  )}
                 />
               </>
             )}

@@ -10,12 +10,26 @@ export type ApplicationStatus = "active" | "inactive" | "archived";
 /**
  * 流水线状态
  */
-export type PipelineStatus = "pending" | "running" | "success" | "failed" | "cancelled" | "skipped";
+export type PipelineStatus =
+  | "pending"
+  | "running"
+  | "success"
+  | "failed"
+  | "cancelled"
+  | "skipped";
 
 /**
  * 发布状态
  */
-export type ReleaseStatus = "draft" | "pending" | "approved" | "deploying" | "success" | "failed" | "cancelled" | "rolled_back";
+export type ReleaseStatus =
+  | "draft"
+  | "pending"
+  | "approved"
+  | "deploying"
+  | "success"
+  | "failed"
+  | "cancelled"
+  | "rolled_back";
 
 /**
  * 发布类型
