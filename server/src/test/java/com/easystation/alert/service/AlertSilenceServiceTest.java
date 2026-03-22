@@ -25,15 +25,32 @@ class AlertSilenceServiceTest {
 
     @Test
     void matchEmptyCondition() {
-        boolean result = alertSilenceService.shouldSilence(
+        // 无条件（null）时应该匹配所有
+        assertTrue(alertSilenceService.matchCondition(
+                null,
                 AlertEventType.HOST_OFFLINE.name(),
                 AlertLevel.ERROR.name(),
                 "host-1",
                 Collections.emptyList()
-        );
+        ));
 
-        // 无条件时应该匹配所有
-        assertTrue(result);
+        // 空字符串条件也应该匹配所有
+        assertTrue(alertSilenceService.matchCondition(
+                "",
+                AlertEventType.HOST_OFFLINE.name(),
+                AlertLevel.ERROR.name(),
+                "host-1",
+                Collections.emptyList()
+        ));
+
+        // 空白字符串也应该匹配所有
+        assertTrue(alertSilenceService.matchCondition(
+                "   ",
+                AlertEventType.HOST_OFFLINE.name(),
+                AlertLevel.ERROR.name(),
+                "host-1",
+                Collections.emptyList()
+        ));
     }
 
     @Test
