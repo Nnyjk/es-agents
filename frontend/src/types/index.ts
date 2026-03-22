@@ -303,3 +303,6 @@ export interface AlertChannelTestResult {
 
 // 基础设施相关类型
 export * from "./infrastructure";
+
+// 备份恢复相关类型
+export * from "./backup";
