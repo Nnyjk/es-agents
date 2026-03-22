@@ -121,9 +121,10 @@ public class AlertSilenceService {
 
     /**
      * 匹配静默条件
+     * 包可见，便于测试
      */
-    private boolean matchCondition(String matchConditionJson, String eventType, String level,
-                                   String source, List<String> tags) {
+    boolean matchCondition(String matchConditionJson, String eventType, String level,
+                           String source, List<String> tags) {
         if (matchConditionJson == null || matchConditionJson.isBlank()) {
             return true; // 无条件表示匹配所有
         }
