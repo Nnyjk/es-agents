@@ -16,6 +16,7 @@ import {
   Steps,
   Timeline,
   Descriptions,
+  Typography,
 } from "antd";
 import type { ProColumns, ActionType } from "@ant-design/pro-components";
 import {
@@ -38,7 +39,12 @@ import {
   cancelPipeline,
   retryPipeline,
 } from "@/services/deployment";
-import type { Pipeline, PipelineExecution, PipelineStage, PipelineStatus } from "@/types/deployment";
+import type {
+  Pipeline,
+  PipelineExecution,
+  PipelineStage,
+  PipelineStatus,
+} from "@/types/deployment";
 
 const statusColors: Record<PipelineStatus, string> = {
   pending: "default",
@@ -218,7 +224,8 @@ const PipelinePage: React.FC = () => {
       render: (_, record) => {
         const canTrigger = record.status !== "running";
         const canCancel = record.status === "running";
-        const canRetry = record.status === "failed" || record.status === "cancelled";
+        const canRetry =
+          record.status === "failed" || record.status === "cancelled";
 
         return (
           <Space size="small">
