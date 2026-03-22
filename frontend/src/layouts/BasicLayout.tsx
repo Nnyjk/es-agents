@@ -72,6 +72,17 @@ const BasicLayout: React.FC = () => {
               menu={{
                 items: [
                   {
+                    key: "profile",
+                    icon: <UserOutlined />,
+                    label: "个人中心",
+                    onClick: () => {
+                      navigate("/profile");
+                    },
+                  },
+                  {
+                    type: "divider",
+                  },
+                  {
                     key: "logout",
                     icon: <LogoutOutlined />,
                     label: "退出登录",
