@@ -16,7 +16,6 @@ import {
   Row,
   Col,
   Descriptions,
-  Badge,
   List,
   Timeline,
   Upload,
@@ -30,9 +29,7 @@ import {
   DownloadOutlined,
   UploadOutlined,
   CheckCircleOutlined,
-  ClockCircleOutlined,
   ExclamationCircleOutlined,
-  SendOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { UploadProps } from "antd";
@@ -118,8 +115,8 @@ const AuditSupport: React.FC = () => {
           category: "技术文档",
           status: "pending",
           version: "1.0",
-          generatedAt: null,
-          generatedBy: null,
+          generatedAt: "",
+          generatedBy: "",
         },
         {
           id: "3",
@@ -128,8 +125,8 @@ const AuditSupport: React.FC = () => {
           category: "管理文档",
           status: "draft",
           version: "1.0",
-          generatedAt: null,
-          generatedBy: null,
+          generatedAt: "",
+          generatedBy: "",
         },
       ]);
     } finally {

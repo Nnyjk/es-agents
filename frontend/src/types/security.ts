@@ -52,16 +52,15 @@ export interface BaselineResult {
   id: string;
   taskId: string;
   taskName: string;
-  totalCount: number;
-  compliantCount: number;
-  nonCompliantCount: number;
-  notApplicableCount: number;
-  errorCount: number;
+  totalItems: number;
+  compliantItems: number;
+  nonCompliantItems: number;
+  notApplicableItems: number;
+  errorItems: number;
   complianceRate: number;
-  status: "completed" | "partial" | "failed";
-  startedAt: string;
-  completedAt?: string;
-  duration?: number;
+  startTime: string;
+  endTime?: string;
+  status: "running" | "completed" | "failed";
   items: BaselineCheckItem[];
 }
 
@@ -70,8 +69,15 @@ export interface BaselineReport {
   taskId: string;
   taskName: string;
   generatedAt: string;
+  generatedBy: string;
   format: "pdf" | "word" | "html";
-  downloadUrl?: string;
+  downloadUrl: string;
+  summary: {
+    totalItems: number;
+    compliantItems: number;
+    nonCompliantItems: number;
+    complianceRate: number;
+  };
 }
 
 // 漏洞扫描相关类型
@@ -80,12 +86,18 @@ export interface VulnerabilityScanTask {
   id: string;
   name: string;
   description?: string;
-  scanType: "host" | "web" | "database" | "container";
+  targetType: "host" | "network" | "web" | "database";
   targetIds: string[];
   targetNames?: string[];
-  scannerType: "nmap" | "nessus" | "openvas" | "custom";
-  status: "pending" | "running" | "completed" | "failed" | "cancelled";
+  scanType: "quick" | "full" | "custom";
+  scannerType: "nmap" | "nessus" | "openvas" | "awvs" | "custom";
   schedule?: string;
+  status: "pending" | "running" | "completed" | "failed" | "cancelled";
+  totalVulnerabilities?: number;
+  criticalCount?: number;
+  highCount?: number;
+  mediumCount?: number;
+  lowCount?: number;
   lastRunTime?: string;
   nextRunTime?: string;
   createdAt: string;
@@ -96,7 +108,9 @@ export interface VulnerabilityScanTask {
 
 export interface Vulnerability {
   id: string;
+  taskId: string;
   cveId?: string;
+  cnnvdId?: string;
   name: string;
   description: string;
   severity: "critical" | "high" | "medium" | "low" | "info";
@@ -141,47 +155,73 @@ export interface VulnerabilityStats {
   high: number;
   medium: number;
   low: number;
+  info: number;
+  newCount: number;
+  confirmedCount: number;
+  fixingCount: number;
+  fixedCount: number;
+  verifiedCount: number;
+  ignoredCount: number;
   fixRate: number;
-  avgFixTime?: number;
+  avgFixTime: number;
 }
 
 // 合规自查相关类型
 
-export interface ComplianceCheckItem {
+export interface ComplianceStandard {
   id: string;
-  code: string;
   name: string;
-  category: "technical" | "management";
-  domain: string;
-  requirement: string;
-  checkMethod: string;
-  evidence?: string;
-  status: "compliant" | "non-compliant" | "partial" | "not-applicable";
-  lastCheckedAt?: string;
-  checker?: string;
-  checkerName?: string;
-  notes?: string;
+  code: string;
+  version: string;
+  description?: string;
+  level: "level2" | "level3" | "level4";
+  category: "host" | "database" | "application" | "network" | "management";
+  itemCount: number;
+  isBuiltIn: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ComplianceSelfCheck {
   id: string;
   name: string;
+  standardId: string;
+  standardName: string;
   description?: string;
-  level: "level2" | "level3" | "level4";
-  status: "pending" | "in-progress" | "completed";
-  totalCount: number;
-  compliantCount: number;
-  nonCompliantCount: number;
-  partialCount: number;
-  notApplicableCount: number;
+  status: "pending" | "in-progress" | "completed" | "failed";
+  totalItems: number;
+  checkedItems: number;
+  compliantItems: number;
+  nonCompliantItems: number;
+  notApplicableItems: number;
   complianceRate: number;
-  startedAt?: string;
-  completedAt?: string;
+  startTime?: string;
+  endTime?: string;
   createdAt: string;
   updatedAt: string;
   createdBy: string;
   createdByName?: string;
-  items: ComplianceCheckItem[];
+}
+
+export interface ComplianceCheckItem {
+  id: string;
+  checkId: string;
+  standardItemId: string;
+  code: string;
+  name: string;
+  category: string;
+  description: string;
+  requirement: string;
+  checkMethod: string;
+  expectedValue: string;
+  actualValue?: string;
+  status: "pending" | "compliant" | "non-compliant" | "not-applicable";
+  severity: "critical" | "high" | "medium" | "low";
+  evidence?: string;
+  remarks?: string;
+  checkedAt?: string;
+  checkedBy?: string;
+  checkedByName?: string;
 }
 
 export interface ComplianceGapReport {
@@ -189,14 +229,24 @@ export interface ComplianceGapReport {
   checkId: string;
   checkName: string;
   generatedAt: string;
-  gaps: ComplianceGap[];
-  recommendations: string[];
-  downloadUrl?: string;
+  generatedBy: string;
+  format: "pdf" | "word" | "html";
+  downloadUrl: string;
+  summary: {
+    totalItems: number;
+    compliantItems: number;
+    nonCompliantItems: number;
+    notApplicableItems: number;
+    complianceRate: number;
+  };
+  gaps: ComplianceGapItem[];
 }
 
-export interface ComplianceGap {
-  itemCode: string;
-  itemName: string;
+export interface ComplianceGapItem {
+  id: string;
+  code: string;
+  name: string;
+  category: string;
   requirement: string;
   currentStatus: string;
   gap: string;
@@ -216,12 +266,21 @@ export interface AssessmentDocument {
     | "audit-log"
     | "incident-record"
     | "training-record"
+    | "registration"
+    | "design"
+    | "policy"
+    | "self-assessment"
+    | "gap-analysis"
     | "other";
   format: "pdf" | "word" | "excel" | "pdf-template";
-  generatedAt: string;
-  generatedBy: string;
+  status: "draft" | "generating" | "completed" | "expired";
+  generatedAt?: string;
+  generatedBy?: string;
   downloadUrl?: string;
   expiresAt?: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AssessmentQuestion {
@@ -246,30 +305,34 @@ export interface RemediationTask {
   title: string;
   description: string;
   priority: "critical" | "high" | "medium" | "low";
-  assignee?: string;
-  assigneeName?: string;
-  dueDate?: string;
   status: "pending" | "in-progress" | "completed" | "verified";
+  assignedTo?: string;
+  assignedToName?: string;
+  dueDate?: string;
+  completedAt?: string;
+  verifiedAt?: string;
   createdAt: string;
   updatedAt: string;
   createdBy: string;
   createdByName?: string;
-  completedAt?: string;
-  verifiedAt?: string;
   notes?: string;
 }
 
 export interface AssessmentProgress {
-  totalQuestions: number;
-  answeredQuestions: number;
-  confirmedQuestions: number;
-  totalRemediationTasks: number;
-  completedTasks: number;
-  overdueTasks: number;
-  estimatedCompletionDate?: string;
+  total: number;
+  completed: number;
+  pending: number;
+  inProgress: number;
+  percentage: number;
+  categories: {
+    name: string;
+    total: number;
+    completed: number;
+    percentage: number;
+  }[];
 }
 
-// API 请求/响应类型
+// 请求/响应类型
 
 export interface CreateBaselineTaskRequest {
   name: string;
@@ -284,65 +347,60 @@ export interface CreateBaselineTaskRequest {
 export interface UpdateBaselineTaskRequest {
   name?: string;
   description?: string;
-  templateId?: string;
-  targetIds?: string[];
-  environmentId?: string;
   schedule?: string;
-}
-
-export interface ExecuteBaselineTaskRequest {
-  taskId: string;
 }
 
 export interface CreateVulnerabilityScanRequest {
   name: string;
   description?: string;
-  scanType: "host" | "web" | "database" | "container";
+  targetType: "host" | "network" | "web" | "database";
   targetIds: string[];
-  scannerType: "nmap" | "nessus" | "openvas" | "custom";
+  scannerType: "nmap" | "nessus" | "openvas" | "awvs" | "custom";
   schedule?: string;
 }
 
 export interface UpdateVulnerabilityStatusRequest {
   vulnerabilityId: string;
-  status: "confirmed" | "fixing" | "fixed" | "verified" | "ignored";
+  status: "new" | "confirmed" | "fixing" | "fixed" | "verified" | "ignored";
   assignedTo?: string;
   notes?: string;
 }
 
 export interface CreateSelfCheckRequest {
   name: string;
+  standardId: string;
   description?: string;
-  level: "level2" | "level3" | "level4";
 }
 
 export interface CheckItemRequest {
-  checkId: string;
   itemId: string;
-  status: "compliant" | "non-compliant" | "partial" | "not-applicable";
+  status: "compliant" | "non-compliant" | "not-applicable";
+  actualValue?: string;
   evidence?: string;
-  notes?: string;
+  remarks?: string;
 }
 
 export interface GenerateDocumentRequest {
   type: AssessmentDocument["type"];
   format: AssessmentDocument["format"];
-  params?: Record<string, unknown>;
+  name?: string;
+  description?: string;
 }
 
 export interface CreateRemediationTaskRequest {
-  questionId?: string;
-  gapItemId?: string;
   title: string;
   description: string;
   priority: "critical" | "high" | "medium" | "low";
-  assignee?: string;
+  questionId?: string;
+  gapItemId?: string;
+  assignedTo?: string;
   dueDate?: string;
 }
 
 export interface PaginatedResponse<T> {
-  list: T[];
+  data: T[];
   total: number;
   page: number;
   pageSize: number;
+  totalPages: number;
 }

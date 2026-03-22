@@ -1,4 +1,4 @@
-import request from "./auth";
+import request from "../utils/request";
 import type {
   BaselineTask,
   BaselineTemplate,
@@ -8,6 +8,7 @@ import type {
   Vulnerability,
   VulnerabilityTrend,
   VulnerabilityStats,
+  ComplianceStandard,
   ComplianceSelfCheck,
   ComplianceCheckItem,
   ComplianceGapReport,
@@ -44,22 +45,15 @@ export const getBaselineTasks = async (
   return response.data;
 };
 
-export const getBaselineTask = async (
-  id: string,
-): Promise<BaselineTask> => {
-  const response = await request.get(
-    `${API_PREFIX}/baseline/tasks/${id}`,
-  );
+export const getBaselineTask = async (id: string): Promise<BaselineTask> => {
+  const response = await request.get(`${API_PREFIX}/baseline/tasks/${id}`);
   return response.data;
 };
 
 export const createBaselineTask = async (
   data: CreateBaselineTaskRequest,
 ): Promise<BaselineTask> => {
-  const response = await request.post(
-    `${API_PREFIX}/baseline/tasks`,
-    data,
-  );
+  const response = await request.post(`${API_PREFIX}/baseline/tasks`, data);
   return response.data;
 };
 
@@ -74,19 +68,12 @@ export const updateBaselineTask = async (
   return response.data;
 };
 
-export const deleteBaselineTask = async (
-  id: string,
-): Promise<void> => {
+export const deleteBaselineTask = async (id: string): Promise<void> => {
   await request.delete(`${API_PREFIX}/baseline/tasks/${id}`);
 };
 
-export const executeBaselineTask = async (
-  id: string,
-): Promise<BaselineResult> => {
-  const response = await request.post(
-    `${API_PREFIX}/baseline/tasks/${id}/execute`,
-  );
-  return response.data;
+export const executeBaselineTask = async (id: string): Promise<void> => {
+  await request.post(`${API_PREFIX}/baseline/tasks/${id}/execute`);
 };
 
 export const getBaselineResult = async (
@@ -101,10 +88,9 @@ export const getBaselineResult = async (
 export const getBaselineTemplates = async (
   params?: Partial<{ category: string; level: string }>,
 ): Promise<BaselineTemplate[]> => {
-  const response = await request.get(
-    `${API_PREFIX}/baseline/templates`,
-    { params },
-  );
+  const response = await request.get(`${API_PREFIX}/baseline/templates`, {
+    params,
+  });
   return response.data;
 };
 
@@ -135,22 +121,19 @@ export const getVulnerabilityScanTasks = async (
     page: number;
     pageSize: number;
     status: string;
-    scanType: string;
+    targetType: string;
   }>,
 ): Promise<PaginatedResponse<VulnerabilityScanTask>> => {
-  const response = await request.get(
-    `${API_PREFIX}/vulnerability/tasks`,
-    { params },
-  );
+  const response = await request.get(`${API_PREFIX}/vulnerability/tasks`, {
+    params,
+  });
   return response.data;
 };
 
 export const getVulnerabilityScanTask = async (
   id: string,
 ): Promise<VulnerabilityScanTask> => {
-  const response = await request.get(
-    `${API_PREFIX}/vulnerability/tasks/${id}`,
-  );
+  const response = await request.get(`${API_PREFIX}/vulnerability/tasks/${id}`);
   return response.data;
 };
 
@@ -164,29 +147,14 @@ export const createVulnerabilityScanTask = async (
   return response.data;
 };
 
-export const updateVulnerabilityScanTask = async (
-  id: string,
-  data: Partial<CreateVulnerabilityScanRequest>,
-): Promise<VulnerabilityScanTask> => {
-  const response = await request.put(
-    `${API_PREFIX}/vulnerability/tasks/${id}`,
-    data,
-  );
-  return response.data;
-};
-
-export const deleteVulnerabilityScanTask = async (
-  id: string,
-): Promise<void> => {
+export const deleteVulnerabilityScanTask = async (id: string): Promise<void> => {
   await request.delete(`${API_PREFIX}/vulnerability/tasks/${id}`);
 };
 
 export const executeVulnerabilityScanTask = async (
   id: string,
 ): Promise<void> => {
-  await request.post(
-    `${API_PREFIX}/vulnerability/tasks/${id}/execute`,
-  );
+  await request.post(`${API_PREFIX}/vulnerability/tasks/${id}/execute`);
 };
 
 export const getVulnerabilities = async (
@@ -195,22 +163,17 @@ export const getVulnerabilities = async (
     pageSize: number;
     severity: string;
     status: string;
-    search: string;
+    taskId: string;
   }>,
 ): Promise<PaginatedResponse<Vulnerability>> => {
-  const response = await request.get(
-    `${API_PREFIX}/vulnerability/list`,
-    { params },
-  );
+  const response = await request.get(`${API_PREFIX}/vulnerability/list`, {
+    params,
+  });
   return response.data;
 };
 
-export const getVulnerability = async (
-  id: string,
-): Promise<Vulnerability> => {
-  const response = await request.get(
-    `${API_PREFIX}/vulnerability/list/${id}`,
-  );
+export const getVulnerability = async (id: string): Promise<Vulnerability> => {
+  const response = await request.get(`${API_PREFIX}/vulnerability/list/${id}`);
   return response.data;
 };
 
@@ -225,93 +188,116 @@ export const updateVulnerabilityStatus = async (
 };
 
 export const getVulnerabilityStats = async (): Promise<VulnerabilityStats> => {
-  const response = await request.get(
-    `${API_PREFIX}/vulnerability/stats`,
-  );
+  const response = await request.get(`${API_PREFIX}/vulnerability/stats`);
   return response.data;
 };
 
 export const getVulnerabilityTrend = async (
   params?: Partial<{ days: number }>,
 ): Promise<VulnerabilityTrend[]> => {
-  const response = await request.get(
-    `${API_PREFIX}/vulnerability/trend`,
-    { params },
-  );
+  const response = await request.get(`${API_PREFIX}/vulnerability/trend`, {
+    params,
+  });
   return response.data;
 };
 
 // ==================== 合规自查 ====================
 
-export const getSelfChecks = async (
+export const getComplianceStandards = async (
+  params?: Partial<{ category: string; level: string }>,
+): Promise<ComplianceStandard[]> => {
+  const response = await request.get(`${API_PREFIX}/compliance/standards`, {
+    params,
+  });
+  return response.data;
+};
+
+export const getComplianceStandard = async (
+  id: string,
+): Promise<ComplianceStandard> => {
+  const response = await request.get(
+    `${API_PREFIX}/compliance/standards/${id}`,
+  );
+  return response.data;
+};
+
+export const getComplianceSelfChecks = async (
   params?: Partial<{
     page: number;
     pageSize: number;
     status: string;
-    level: string;
+    standardId: string;
   }>,
 ): Promise<PaginatedResponse<ComplianceSelfCheck>> => {
-  const response = await request.get(
-    `${API_PREFIX}/compliance/self-checks`,
-    { params },
-  );
+  const response = await request.get(`${API_PREFIX}/compliance/checks`, {
+    params,
+  });
   return response.data;
 };
 
-export const getSelfCheck = async (
+export const getComplianceSelfCheck = async (
   id: string,
 ): Promise<ComplianceSelfCheck> => {
-  const response = await request.get(
-    `${API_PREFIX}/compliance/self-checks/${id}`,
-  );
+  const response = await request.get(`${API_PREFIX}/compliance/checks/${id}`);
   return response.data;
 };
 
-export const createSelfCheck = async (
+export const createComplianceSelfCheck = async (
   data: CreateSelfCheckRequest,
 ): Promise<ComplianceSelfCheck> => {
-  const response = await request.post(
-    `${API_PREFIX}/compliance/self-checks`,
-    data,
+  const response = await request.post(`${API_PREFIX}/compliance/checks`, data);
+  return response.data;
+};
+
+export const deleteComplianceSelfCheck = async (id: string): Promise<void> => {
+  await request.delete(`${API_PREFIX}/compliance/checks/${id}`);
+};
+
+export const getComplianceCheckItems = async (
+  checkId: string,
+): Promise<ComplianceCheckItem[]> => {
+  const response = await request.get(
+    `${API_PREFIX}/compliance/checks/${checkId}/items`,
   );
   return response.data;
 };
 
-export const deleteSelfCheck = async (
-  id: string,
-): Promise<void> => {
-  await request.delete(
-    `${API_PREFIX}/compliance/self-checks/${id}`,
-  );
-};
-
-export const startSelfCheck = async (
-  id: string,
-): Promise<ComplianceSelfCheck> => {
-  const response = await request.post(
-    `${API_PREFIX}/compliance/self-checks/${id}/start`,
-  );
-  return response.data;
-};
-
-export const checkComplianceItem = async (
+export const submitCheckItem = async (
+  checkId: string,
+  itemId: string,
   data: CheckItemRequest,
 ): Promise<ComplianceCheckItem> => {
   const response = await request.put(
-    `${API_PREFIX}/compliance/self-checks/${data.checkId}/items/${data.itemId}`,
+    `${API_PREFIX}/compliance/checks/${checkId}/items/${itemId}`,
     data,
   );
+  return response.data;
+};
+
+export const getComplianceStats = async (): Promise<{
+  total: number;
+  completed: number;
+  complianceRate: number;
+}> => {
+  const response = await request.get(`${API_PREFIX}/compliance/stats`);
   return response.data;
 };
 
 export const generateGapReport = async (
   checkId: string,
+  format: "pdf" | "word" | "html",
 ): Promise<ComplianceGapReport> => {
   const response = await request.post(
-    `${API_PREFIX}/compliance/self-checks/${checkId}/gap-report`,
+    `${API_PREFIX}/compliance/checks/${checkId}/gap-report`,
+    { format },
   );
   return response.data;
 };
+
+// 别名导出，保持 API 一致性
+export const getComplianceChecks = getComplianceSelfChecks;
+export const createComplianceCheck = createComplianceSelfCheck;
+export const deleteComplianceCheck = deleteComplianceSelfCheck;
 
 // ==================== 等保测评 ====================
 
@@ -322,10 +308,9 @@ export const getAssessmentDocuments = async (
     type: string;
   }>,
 ): Promise<PaginatedResponse<AssessmentDocument>> => {
-  const response = await request.get(
-    `${API_PREFIX}/assessment/documents`,
-    { params },
-  );
+  const response = await request.get(`${API_PREFIX}/assessment/documents`, {
+    params,
+  });
   return response.data;
 };
 
@@ -339,18 +324,24 @@ export const generateDocument = async (
   return response.data;
 };
 
+export const downloadDocument = async (id: string): Promise<string> => {
+  const response = await request.get(
+    `${API_PREFIX}/assessment/documents/${id}/download`,
+  );
+  return response.data.downloadUrl;
+};
+
 export const getAssessmentQuestions = async (
   params?: Partial<{
     page: number;
     pageSize: number;
-    status: string;
     category: string;
+    status: string;
   }>,
 ): Promise<PaginatedResponse<AssessmentQuestion>> => {
-  const response = await request.get(
-    `${API_PREFIX}/assessment/questions`,
-    { params },
-  );
+  const response = await request.get(`${API_PREFIX}/assessment/questions`, {
+    params,
+  });
   return response.data;
 };
 
@@ -360,7 +351,7 @@ export const answerQuestion = async (
   attachments?: string[],
 ): Promise<AssessmentQuestion> => {
   const response = await request.put(
-    `${API_PREFIX}/assessment/questions/${questionId}/answer`,
+    `${API_PREFIX}/assessment/questions/${questionId}`,
     { answer, attachments },
   );
   return response.data;
@@ -372,40 +363,37 @@ export const getRemediationTasks = async (
     pageSize: number;
     status: string;
     priority: string;
-    assignee: string;
   }>,
 ): Promise<PaginatedResponse<RemediationTask>> => {
-  const response = await request.get(
-    `${API_PREFIX}/assessment/remediation-tasks`,
-    { params },
-  );
+  const response = await request.get(`${API_PREFIX}/remediation/tasks`, {
+    params,
+  });
   return response.data;
 };
 
 export const createRemediationTask = async (
   data: CreateRemediationTaskRequest,
 ): Promise<RemediationTask> => {
-  const response = await request.post(
-    `${API_PREFIX}/assessment/remediation-tasks`,
-    data,
-  );
+  const response = await request.post(`${API_PREFIX}/remediation/tasks`, data);
   return response.data;
 };
 
 export const updateRemediationTask = async (
   id: string,
-  data: Partial<CreateRemediationTaskRequest & { status: string; notes: string }>,
+  data: Partial<CreateRemediationTaskRequest & { status?: string }>,
 ): Promise<RemediationTask> => {
   const response = await request.put(
-    `${API_PREFIX}/assessment/remediation-tasks/${id}`,
+    `${API_PREFIX}/remediation/tasks/${id}`,
     data,
   );
   return response.data;
 };
 
 export const getAssessmentProgress = async (): Promise<AssessmentProgress> => {
-  const response = await request.get(
-    `${API_PREFIX}/assessment/progress`,
-  );
+  const response = await request.get(`${API_PREFIX}/assessment/progress`);
   return response.data;
 };
+
+// 别名导出，保持 API 一致性
+export const generateAssessmentDocument = generateDocument;
+export const answerAssessmentQuestion = answerQuestion;
