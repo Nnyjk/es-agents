@@ -20,9 +20,7 @@ import {
   Col,
   Statistic,
   Progress,
-  Typography,
   Divider,
-  Tooltip,
   Badge,
 } from "antd";
 import type { ProColumns, ActionType } from "@ant-design/pro-components";

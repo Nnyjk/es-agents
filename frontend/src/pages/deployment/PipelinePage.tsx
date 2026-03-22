@@ -16,11 +16,6 @@ import {
   Steps,
   Timeline,
   Descriptions,
-  Typography,
-  Badge,
-  Tooltip,
-  Progress,
-  Dropdown,
 } from "antd";
 import type { ProColumns, ActionType } from "@ant-design/pro-components";
 import {
@@ -28,12 +23,10 @@ import {
   EditOutlined,
   DeleteOutlined,
   PlayCircleOutlined,
-  CopyOutlined,
   HistoryOutlined,
   EyeOutlined,
   PauseCircleOutlined,
   ReloadOutlined,
-  SettingOutlined,
 } from "@ant-design/icons";
 import {
   getPipelines,
@@ -152,9 +145,11 @@ const PipelinePage: React.FC = () => {
   };
 
   const renderStageStatus = (stage: PipelineStage, status?: PipelineStatus) => {
-    const stageStatus = status || stage.status;
+    const stageStatus = status || stage.status || "pending";
     return (
-      <Tag color={statusColors[stageStatus]}>{statusLabels[stageStatus]}</Tag>
+      <Tag color={statusColors[stageStatus as PipelineStatus]}>
+        {statusLabels[stageStatus as PipelineStatus]}
+      </Tag>
     );
   };
 
@@ -203,8 +198,8 @@ const PipelinePage: React.FC = () => {
         failed: { text: "失败", status: "Error" },
       },
       render: (_, record) => (
-        <Tag color={statusColors[record.status]}>
-          {statusLabels[record.status]}
+        <Tag color={statusColors[record.status as PipelineStatus]}>
+          {statusLabels[record.status as PipelineStatus]}
         </Tag>
       ),
     },
@@ -403,8 +398,8 @@ const PipelinePage: React.FC = () => {
                 {currentPipeline.type}
               </Descriptions.Item>
               <Descriptions.Item label="状态">
-                <Tag color={statusColors[currentPipeline.status]}>
-                  {statusLabels[currentPipeline.status]}
+                <Tag color={statusColors[currentPipeline.status as PipelineStatus]}>
+                  {statusLabels[currentPipeline.status as PipelineStatus]}
                 </Tag>
               </Descriptions.Item>
               <Descriptions.Item label="触发方式">
@@ -420,7 +415,7 @@ const PipelinePage: React.FC = () => {
             <h4 style={{ marginTop: 16, marginBottom: 8 }}>阶段定义</h4>
             <Steps
               current={-1}
-              items={currentPipeline.stages?.map((stage, index) => ({
+              items={currentPipeline.stages?.map((stage) => ({
                 title: stage.name,
                 status: "wait",
                 description: (
@@ -439,8 +434,8 @@ const PipelinePage: React.FC = () => {
                 </h4>
                 <Descriptions column={2} bordered size="small">
                   <Descriptions.Item label="状态">
-                    <Tag color={statusColors[currentExecution.status]}>
-                      {statusLabels[currentExecution.status]}
+                    <Tag color={statusColors[currentExecution.status as PipelineStatus]}>
+                      {statusLabels[currentExecution.status as PipelineStatus]}
                     </Tag>
                   </Descriptions.Item>
                   <Descriptions.Item label="持续时间">
@@ -459,9 +454,9 @@ const PipelinePage: React.FC = () => {
                 </Descriptions>
 
                 <h4 style={{ marginTop: 16, marginBottom: 8 }}>执行阶段</h4>
-                {currentExecution.stages?.map((stage, index) => (
+                {currentExecution.stages?.map((stage, idx) => (
                   <div
-                    key={index}
+                    key={idx}
                     style={{
                       marginBottom: 8,
                       padding: 8,
@@ -527,8 +522,8 @@ const PipelinePage: React.FC = () => {
                   <span>
                     <b>#{exec.buildNumber}</b>
                   </span>
-                  <Tag color={statusColors[exec.status]}>
-                    {statusLabels[exec.status]}
+                  <Tag color={statusColors[exec.status as PipelineStatus]}>
+                    {statusLabels[exec.status as PipelineStatus]}
                   </Tag>
                 </div>
                 <div style={{ color: "#666", fontSize: 12 }}>

@@ -47,6 +47,21 @@ public class DeploymentRelease extends PanacheEntityBase {
 
     public String approver;
 
+    @Column(name = "change_log", columnDefinition = "TEXT")
+    public String changeLog;
+
+    @Column(name = "created_by")
+    public String createdBy;
+
+    @Column(name = "approved_by")
+    public String approvedBy;
+
+    @Column(name = "approved_at")
+    public LocalDateTime approvedAt;
+
+    @Column(name = "deployed_by")
+    public String deployedBy;
+
     @Column(name = "scheduled_at")
     public LocalDateTime scheduledAt;
 

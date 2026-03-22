@@ -17,7 +17,6 @@ import {
   Descriptions,
   Timeline,
   Typography,
-  Badge,
   Steps,
   Progress,
   Card,

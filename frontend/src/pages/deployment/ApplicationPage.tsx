@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   ProTable,
   ModalForm,
@@ -15,8 +15,6 @@ import {
   Descriptions,
   Drawer,
   Form,
-  Input,
-  Select,
   Tooltip,
 } from "antd";
 import type { ProColumns } from "@ant-design/pro-components";
@@ -24,7 +22,7 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  ArchiveOutlined,
+  InboxOutlined,
   SettingOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
@@ -63,7 +61,6 @@ const ApplicationPage: React.FC = () => {
   const [environments, setEnvironments] = useState<ApplicationEnvironment[]>(
     [],
   );
-  const [form] = Form.useForm();
   const [configForm] = Form.useForm();
 
   const handleAdd = () => {
@@ -259,7 +256,7 @@ const ApplicationPage: React.FC = () => {
             title="确定要归档此应用吗？"
             onConfirm={() => handleArchive(record.id)}
           >
-            <Button type="link" size="small" icon={<ArchiveOutlined />}>
+            <Button type="link" size="small" icon={<InboxOutlined />}>
               归档
             </Button>
           </Popconfirm>
