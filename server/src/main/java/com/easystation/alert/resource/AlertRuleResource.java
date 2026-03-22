@@ -54,4 +54,13 @@ public class AlertRuleResource {
         alertRuleService.delete(id);
         return Response.noContent().build();
     }
+
+    /**
+     * 校验告警规则条件
+     */
+    @POST
+    @Path("/validate")
+    public Response validate(@Valid AlertRuleRecord.ValidateRequest request) {
+        return Response.ok(alertRuleService.validate(request)).build();
+    }
 }

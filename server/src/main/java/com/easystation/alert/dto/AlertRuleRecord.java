@@ -10,6 +10,23 @@ import java.util.UUID;
 
 public class AlertRuleRecord {
 
+    /**
+     * 告警规则校验请求
+     */
+    public record ValidateRequest(
+            String condition,
+            AlertEventType eventType
+    ) {}
+
+    /**
+     * 告警规则校验结果
+     */
+    public record ValidateResult(
+            boolean valid,
+            String message,
+            List<String> errors
+    ) {}
+
     public record Create(
             @NotBlank String name,
             String description,
