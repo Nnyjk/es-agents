@@ -26,7 +26,7 @@ class AlertSilenceServiceTest {
     @Test
     void matchEmptyCondition() {
         boolean result = alertSilenceService.shouldSilence(
-                AlertEventType.HOST_DOWN.name(),
+                AlertEventType.HOST_OFFLINE.name(),
                 AlertLevel.ERROR.name(),
                 "host-1",
                 Collections.emptyList()
@@ -39,7 +39,7 @@ class AlertSilenceServiceTest {
     @Test
     void matchByEventType() throws Exception {
         AlertSilenceRecord.MatchCondition condition = new AlertSilenceRecord.MatchCondition(
-                List.of(AlertEventType.HOST_DOWN),
+                List.of(AlertEventType.HOST_OFFLINE),
                 null,
                 null,
                 null,
@@ -51,7 +51,7 @@ class AlertSilenceServiceTest {
         // 匹配的事件类型
         boolean matched = alertSilenceService.matchCondition(
                 conditionJson,
-                AlertEventType.HOST_DOWN.name(),
+                AlertEventType.HOST_OFFLINE.name(),
                 AlertLevel.ERROR.name(),
                 null,
                 null
@@ -61,7 +61,7 @@ class AlertSilenceServiceTest {
         // 不匹配的事件类型
         boolean notMatched = alertSilenceService.matchCondition(
                 conditionJson,
-                AlertEventType.HOST_METRICS_THRESHOLD.name(),
+                AlertEventType.HOST_RESOURCE_HIGH.name(),
                 AlertLevel.ERROR.name(),
                 null,
                 null
@@ -84,7 +84,7 @@ class AlertSilenceServiceTest {
         // 匹配的级别
         assertTrue(alertSilenceService.matchCondition(
                 conditionJson,
-                AlertEventType.HOST_DOWN.name(),
+                AlertEventType.HOST_OFFLINE.name(),
                 AlertLevel.ERROR.name(),
                 null,
                 null
@@ -92,7 +92,7 @@ class AlertSilenceServiceTest {
 
         assertTrue(alertSilenceService.matchCondition(
                 conditionJson,
-                AlertEventType.HOST_DOWN.name(),
+                AlertEventType.HOST_OFFLINE.name(),
                 AlertLevel.CRITICAL.name(),
                 null,
                 null
@@ -101,7 +101,7 @@ class AlertSilenceServiceTest {
         // 不匹配的级别
         assertFalse(alertSilenceService.matchCondition(
                 conditionJson,
-                AlertEventType.HOST_DOWN.name(),
+                AlertEventType.HOST_OFFLINE.name(),
                 AlertLevel.WARNING.name(),
                 null,
                 null
@@ -123,7 +123,7 @@ class AlertSilenceServiceTest {
         // 匹配的来源
         assertTrue(alertSilenceService.matchCondition(
                 conditionJson,
-                AlertEventType.HOST_DOWN.name(),
+                AlertEventType.HOST_OFFLINE.name(),
                 AlertLevel.ERROR.name(),
                 "server-1",
                 null
@@ -132,7 +132,7 @@ class AlertSilenceServiceTest {
         // 不匹配的来源
         assertFalse(alertSilenceService.matchCondition(
                 conditionJson,
-                AlertEventType.HOST_DOWN.name(),
+                AlertEventType.HOST_OFFLINE.name(),
                 AlertLevel.ERROR.name(),
                 "server-3",
                 null
@@ -154,7 +154,7 @@ class AlertSilenceServiceTest {
         // 匹配的标签
         assertTrue(alertSilenceService.matchCondition(
                 conditionJson,
-                AlertEventType.HOST_DOWN.name(),
+                AlertEventType.HOST_OFFLINE.name(),
                 AlertLevel.ERROR.name(),
                 null,
                 List.of("maintenance", "production")
@@ -163,7 +163,7 @@ class AlertSilenceServiceTest {
         // 不匹配的标签
         assertFalse(alertSilenceService.matchCondition(
                 conditionJson,
-                AlertEventType.HOST_DOWN.name(),
+                AlertEventType.HOST_OFFLINE.name(),
                 AlertLevel.ERROR.name(),
                 null,
                 List.of("production", "critical")
@@ -172,7 +172,7 @@ class AlertSilenceServiceTest {
         // 空标签
         assertFalse(alertSilenceService.matchCondition(
                 conditionJson,
-                AlertEventType.HOST_DOWN.name(),
+                AlertEventType.HOST_OFFLINE.name(),
                 AlertLevel.ERROR.name(),
                 null,
                 null
@@ -182,7 +182,7 @@ class AlertSilenceServiceTest {
     @Test
     void matchMultipleConditions() throws Exception {
         AlertSilenceRecord.MatchCondition condition = new AlertSilenceRecord.MatchCondition(
-                List.of(AlertEventType.HOST_DOWN),
+                List.of(AlertEventType.HOST_OFFLINE),
                 List.of(AlertLevel.ERROR, AlertLevel.CRITICAL),
                 List.of("server-1"),
                 null,
@@ -194,7 +194,7 @@ class AlertSilenceServiceTest {
         // 全部匹配
         assertTrue(alertSilenceService.matchCondition(
                 conditionJson,
-                AlertEventType.HOST_DOWN.name(),
+                AlertEventType.HOST_OFFLINE.name(),
                 AlertLevel.ERROR.name(),
                 "server-1",
                 null
@@ -203,7 +203,7 @@ class AlertSilenceServiceTest {
         // 事件类型不匹配
         assertFalse(alertSilenceService.matchCondition(
                 conditionJson,
-                AlertEventType.HOST_METRICS_THRESHOLD.name(),
+                AlertEventType.HOST_RESOURCE_HIGH.name(),
                 AlertLevel.ERROR.name(),
                 "server-1",
                 null
@@ -212,7 +212,7 @@ class AlertSilenceServiceTest {
         // 来源不匹配
         assertFalse(alertSilenceService.matchCondition(
                 conditionJson,
-                AlertEventType.HOST_DOWN.name(),
+                AlertEventType.HOST_OFFLINE.name(),
                 AlertLevel.ERROR.name(),
                 "server-2",
                 null
@@ -223,7 +223,7 @@ class AlertSilenceServiceTest {
     void matchInvalidJsonCondition() {
         boolean result = alertSilenceService.matchCondition(
                 "{ invalid json }",
-                AlertEventType.HOST_DOWN.name(),
+                AlertEventType.HOST_OFFLINE.name(),
                 AlertLevel.ERROR.name(),
                 null,
                 null

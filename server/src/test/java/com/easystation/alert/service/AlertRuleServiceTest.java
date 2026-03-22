@@ -22,7 +22,7 @@ class AlertRuleServiceTest {
     void validateEmptyCondition() {
         AlertRuleRecord.ValidateRequest request = new AlertRuleRecord.ValidateRequest(
                 null,
-                AlertEventType.HOST_DOWN
+                AlertEventType.HOST_OFFLINE
         );
 
         AlertRuleRecord.ValidateResult result = alertRuleService.validate(request);
@@ -36,7 +36,7 @@ class AlertRuleServiceTest {
     void validateBlankCondition() {
         AlertRuleRecord.ValidateRequest request = new AlertRuleRecord.ValidateRequest(
                 "   ",
-                AlertEventType.HOST_DOWN
+                AlertEventType.HOST_OFFLINE
         );
 
         AlertRuleRecord.ValidateResult result = alertRuleService.validate(request);
@@ -49,7 +49,7 @@ class AlertRuleServiceTest {
     void validateInvalidJsonCondition() {
         AlertRuleRecord.ValidateRequest request = new AlertRuleRecord.ValidateRequest(
                 "{ invalid json }",
-                AlertEventType.HOST_DOWN
+                AlertEventType.HOST_OFFLINE
         );
 
         AlertRuleRecord.ValidateResult result = alertRuleService.validate(request);
@@ -71,7 +71,7 @@ class AlertRuleServiceTest {
 
         AlertRuleRecord.ValidateRequest request = new AlertRuleRecord.ValidateRequest(
                 condition,
-                AlertEventType.HOST_DOWN
+                AlertEventType.HOST_OFFLINE
         );
 
         AlertRuleRecord.ValidateResult result = alertRuleService.validate(request);
@@ -91,7 +91,7 @@ class AlertRuleServiceTest {
 
         AlertRuleRecord.ValidateRequest request = new AlertRuleRecord.ValidateRequest(
                 condition,
-                AlertEventType.HOST_DOWN
+                AlertEventType.HOST_OFFLINE
         );
 
         AlertRuleRecord.ValidateResult result = alertRuleService.validate(request);
@@ -112,7 +112,7 @@ class AlertRuleServiceTest {
 
         AlertRuleRecord.ValidateRequest request = new AlertRuleRecord.ValidateRequest(
                 condition,
-                AlertEventType.HOST_DOWN
+                AlertEventType.HOST_OFFLINE
         );
 
         AlertRuleRecord.ValidateResult result = alertRuleService.validate(request);
@@ -134,7 +134,7 @@ class AlertRuleServiceTest {
 
         AlertRuleRecord.ValidateRequest request = new AlertRuleRecord.ValidateRequest(
                 condition,
-                AlertEventType.HOST_DOWN
+                AlertEventType.HOST_OFFLINE
         );
 
         AlertRuleRecord.ValidateResult result = alertRuleService.validate(request);
@@ -165,7 +165,7 @@ class AlertRuleServiceTest {
 
         AlertRuleRecord.ValidateRequest request = new AlertRuleRecord.ValidateRequest(
                 condition,
-                AlertEventType.HOST_DOWN
+                AlertEventType.HOST_OFFLINE
         );
 
         AlertRuleRecord.ValidateResult result = alertRuleService.validate(request);
@@ -195,7 +195,7 @@ class AlertRuleServiceTest {
 
         AlertRuleRecord.ValidateRequest request = new AlertRuleRecord.ValidateRequest(
                 condition,
-                AlertEventType.HOST_DOWN
+                AlertEventType.HOST_OFFLINE
         );
 
         AlertRuleRecord.ValidateResult result = alertRuleService.validate(request);
@@ -218,7 +218,7 @@ class AlertRuleServiceTest {
 
         AlertRuleRecord.ValidateRequest request = new AlertRuleRecord.ValidateRequest(
                 condition,
-                AlertEventType.HOST_DOWN
+                AlertEventType.HOST_OFFLINE
         );
 
         AlertRuleRecord.ValidateResult result = alertRuleService.validate(request);
@@ -259,7 +259,7 @@ class AlertRuleServiceTest {
 
         AlertRuleRecord.ValidateRequest request = new AlertRuleRecord.ValidateRequest(
                 condition,
-                AlertEventType.HOST_DOWN
+                AlertEventType.HOST_OFFLINE
         );
 
         AlertRuleRecord.ValidateResult result = alertRuleService.validate(request);
@@ -285,7 +285,7 @@ class AlertRuleServiceTest {
 
             AlertRuleRecord.ValidateRequest request = new AlertRuleRecord.ValidateRequest(
                     condition,
-                    AlertEventType.HOST_DOWN
+                    AlertEventType.HOST_OFFLINE
             );
 
             AlertRuleRecord.ValidateResult result = alertRuleService.validate(request);
