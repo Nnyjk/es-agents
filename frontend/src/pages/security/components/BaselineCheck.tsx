@@ -70,13 +70,13 @@ const BaselineCheck: React.FC = () => {
   const fetchTasks = async (page = 1, pageSize = 10) => {
     try {
       setLoading(true);
-      const data = await getBaselineTasks({ page, pageSize });
-      setTasks(data.list);
+      const response = await getBaselineTasks({ page, pageSize });
+      setTasks(response.data);
       setPagination((prev) => ({
         ...prev,
         current: page,
         pageSize,
-        total: data.total,
+        total: response.total,
       }));
     } catch {
       message.error("获取基线检查任务列表失败");

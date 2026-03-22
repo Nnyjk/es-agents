@@ -87,13 +87,13 @@ const AuditSupport: React.FC = () => {
   const fetchDocuments = async (page = 1, pageSize = 10) => {
     try {
       setLoading(true);
-      const data = await getAssessmentDocuments({ page, pageSize });
-      setDocuments(data.list);
+      const response = await getAssessmentDocuments({ page, pageSize });
+      setDocuments(response.data);
       setPagination((prev) => ({
         ...prev,
         current: page,
         pageSize,
-        total: data.total,
+        total: response.total,
       }));
     } catch {
       setDocuments([
@@ -181,9 +181,9 @@ const AuditSupport: React.FC = () => {
           title: "修复密码策略配置",
           description: "将最小密码长度从6位调整为8位",
           priority: "high",
-          status: "in_progress",
+          status: "in-progress",
           assignee: "user2",
-          assigneeName: "李四",
+          assignedToName: "李四",
           dueDate: "2024-01-20",
           createdAt: "2024-01-10T10:00:00Z",
           createdBy: "user1",
@@ -204,7 +204,7 @@ const AuditSupport: React.FC = () => {
           priority: "high",
           status: "pending",
           assignee: "user3",
-          assigneeName: "王五",
+          assignedToName: "王五",
           dueDate: "2024-01-25",
           createdAt: "2024-01-10T10:00:00Z",
           createdBy: "user1",
@@ -289,7 +289,7 @@ const AuditSupport: React.FC = () => {
     try {
       await updateRemediationTask({
         taskId,
-        status: status as "pending" | "in_progress" | "completed" | "cancelled",
+        status: status as "pending" | "in-progress" | "completed" | "verified",
       });
       message.success("状态更新成功");
       fetchTasks();
@@ -344,9 +344,9 @@ const AuditSupport: React.FC = () => {
   const getTaskStatusTag = (status: string) => {
     const map: Record<string, { color: string; text: string }> = {
       pending: { color: "default", text: "待处理" },
-      in_progress: { color: "processing", text: "进行中" },
+      "in-progress": { color: "processing", text: "进行中" },
       completed: { color: "success", text: "已完成" },
-      cancelled: { color: "warning", text: "已取消" },
+      verified: { color: "cyan", text: "已验证" },
     };
     const item = map[status] || { color: "default", text: status };
     return <Tag color={item.color}>{item.text}</Tag>;
@@ -466,8 +466,8 @@ const AuditSupport: React.FC = () => {
     },
     {
       title: "负责人",
-      dataIndex: "assigneeName",
-      key: "assigneeName",
+      dataIndex: "assignedToName",
+      key: "assignedToName",
       width: 100,
     },
     {
@@ -507,12 +507,12 @@ const AuditSupport: React.FC = () => {
             <Button
               type="link"
               size="small"
-              onClick={() => handleUpdateTaskStatus(record.id, "in_progress")}
+              onClick={() => handleUpdateTaskStatus(record.id, "in-progress")}
             >
               开始
             </Button>
           )}
-          {record.status === "in_progress" && (
+          {record.status === "in-progress" && (
             <Button
               type="link"
               size="small"
@@ -959,7 +959,7 @@ const AuditSupport: React.FC = () => {
                 {getTaskStatusTag(currentTask.status)}
               </Descriptions.Item>
               <Descriptions.Item label="负责人">
-                {currentTask.assigneeName}
+                {currentTask.assignedToName}
               </Descriptions.Item>
               <Descriptions.Item label="截止日期">
                 {dayjs(currentTask.dueDate).format("YYYY-MM-DD")}
