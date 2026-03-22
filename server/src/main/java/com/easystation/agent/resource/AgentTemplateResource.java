@@ -2,6 +2,7 @@ package com.easystation.agent.resource;
 
 import com.easystation.agent.dto.AgentTemplateRecord;
 import com.easystation.agent.service.AgentTemplateService;
+import com.easystation.auth.annotation.RequiresPermission;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -25,6 +26,7 @@ public class AgentTemplateResource {
      * 列表查询模板
      */
     @GET
+    @RequiresPermission("agent:view")
     public Response list(
             @QueryParam("osType") String osType,
             @QueryParam("sourceType") String sourceType,
@@ -38,6 +40,7 @@ public class AgentTemplateResource {
      */
     @GET
     @Path("/{id}")
+    @RequiresPermission("agent:view")
     public Response get(@PathParam("id") UUID id) {
         return Response.ok(agentTemplateService.get(id)).build();
     }
@@ -47,6 +50,7 @@ public class AgentTemplateResource {
      */
     @GET
     @Path("/{id}/statistics")
+    @RequiresPermission("agent:view")
     public Response getStatistics(@PathParam("id") UUID id) {
         return Response.ok(agentTemplateService.getStatistics(id)).build();
     }
@@ -56,6 +60,7 @@ public class AgentTemplateResource {
      */
     @GET
     @Path("/categories")
+    @RequiresPermission("agent:view")
     public Response listCategories() {
         return Response.ok(agentTemplateService.listCategories()).build();
     }
@@ -64,6 +69,7 @@ public class AgentTemplateResource {
      * 创建模板
      */
     @POST
+    @RequiresPermission("agent:create")
     public Response create(@Valid AgentTemplateRecord.Create dto) {
         return Response.status(Response.Status.CREATED)
                 .entity(agentTemplateService.create(dto))
@@ -75,6 +81,7 @@ public class AgentTemplateResource {
      */
     @PUT
     @Path("/{id}")
+    @RequiresPermission("agent:edit")
     public Response update(@PathParam("id") UUID id, @Valid AgentTemplateRecord.Update dto) {
         return Response.ok(agentTemplateService.update(id, dto)).build();
     }
@@ -84,6 +91,7 @@ public class AgentTemplateResource {
      */
     @DELETE
     @Path("/{id}")
+    @RequiresPermission("agent:delete")
     public Response delete(@PathParam("id") UUID id) {
         agentTemplateService.delete(id);
         return Response.noContent().build();
@@ -96,6 +104,7 @@ public class AgentTemplateResource {
     @GET
     @Path("/{id}/download")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @RequiresPermission("agent:view")
     public Response download(@PathParam("id") UUID id) {
         String[] fileName = new String[1];
         InputStream is = agentTemplateService.download(id, fileName);

@@ -1,5 +1,6 @@
 package com.easystation.infra.resource;
 
+import com.easystation.auth.annotation.RequiresPermission;
 import com.easystation.infra.record.HostRecord;
 import com.easystation.infra.service.HostService;
 import jakarta.inject.Inject;
@@ -19,29 +20,34 @@ public class HostResource {
     HostService hostService;
 
     @GET
+    @RequiresPermission("host:view")
     public Response list(@QueryParam("envId") UUID envId) {
         return Response.ok(hostService.list(envId)).build();
     }
 
     @GET
     @Path("/{id}")
+    @RequiresPermission("host:view")
     public Response get(@PathParam("id") UUID id) {
         return Response.ok(hostService.get(id)).build();
     }
 
     @POST
+    @RequiresPermission("host:create")
     public Response create(@Valid HostRecord.Create dto) {
         return Response.status(Response.Status.CREATED).entity(hostService.create(dto)).build();
     }
 
     @PUT
     @Path("/{id}")
+    @RequiresPermission("host:edit")
     public Response update(@PathParam("id") UUID id, HostRecord.Update dto) {
         return Response.ok(hostService.update(id, dto)).build();
     }
 
     @DELETE
     @Path("/{id}")
+    @RequiresPermission("host:delete")
     public Response delete(@PathParam("id") UUID id) {
         hostService.delete(id);
         return Response.noContent().build();
@@ -49,6 +55,7 @@ public class HostResource {
 
     @POST
     @Path("/{id}/connect")
+    @RequiresPermission("host:manage")
     public Response connect(@PathParam("id") UUID id) {
         hostService.connect(id);
         return Response.ok().build();
@@ -56,12 +63,14 @@ public class HostResource {
 
     @GET
     @Path("/{id}/install-guide")
+    @RequiresPermission("host:view")
     public Response getInstallGuide(@PathParam("id") UUID id) {
         return Response.ok(hostService.getInstallGuide(id)).build();
     }
 
     @GET
     @Path("/{id}/package")
+    @RequiresPermission("host:view")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response downloadPackage(@PathParam("id") UUID id, @QueryParam("sourceId") UUID sourceId) {
         if (sourceId == null) {

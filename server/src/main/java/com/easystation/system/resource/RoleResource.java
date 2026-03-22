@@ -1,5 +1,6 @@
 package com.easystation.system.resource;
 
+import com.easystation.auth.annotation.RequiresPermission;
 import com.easystation.system.record.RoleRecord;
 import com.easystation.system.service.RoleService;
 import jakarta.inject.Inject;
@@ -19,29 +20,34 @@ public class RoleResource {
     RoleService roleService;
 
     @GET
+    @RequiresPermission("role:view")
     public Response list() {
         return Response.ok(roleService.list()).build();
     }
 
     @GET
     @Path("/{id}")
+    @RequiresPermission("role:view")
     public Response get(@PathParam("id") UUID id) {
         return Response.ok(roleService.get(id)).build();
     }
 
     @POST
+    @RequiresPermission("role:create")
     public Response create(@Valid RoleRecord dto) {
         return Response.status(Response.Status.CREATED).entity(roleService.create(dto)).build();
     }
 
     @PUT
     @Path("/{id}")
+    @RequiresPermission("role:edit")
     public Response update(@PathParam("id") UUID id, RoleRecord dto) {
         return Response.ok(roleService.update(id, dto)).build();
     }
 
     @DELETE
     @Path("/{id}")
+    @RequiresPermission("role:delete")
     public Response delete(@PathParam("id") UUID id) {
         roleService.delete(id);
         return Response.noContent().build();

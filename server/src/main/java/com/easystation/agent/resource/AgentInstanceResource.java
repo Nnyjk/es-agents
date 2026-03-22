@@ -6,6 +6,7 @@ import com.easystation.agent.dto.AgentInstanceRecord;
 import com.easystation.agent.dto.AgentRuntimeStatus;
 import com.easystation.agent.record.AgentTaskRecord;
 import com.easystation.agent.service.AgentInstanceService;
+import com.easystation.auth.annotation.RequiresPermission;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -24,17 +25,20 @@ public class AgentInstanceResource {
     AgentInstanceService agentInstanceService;
 
     @GET
+    @RequiresPermission("agent:view")
     public Response list(@QueryParam("hostId") UUID hostId) {
         return Response.ok(agentInstanceService.list(hostId)).build();
     }
 
     @GET
     @Path("/{id}")
+    @RequiresPermission("agent:view")
     public Response get(@PathParam("id") UUID id) {
         return Response.ok(agentInstanceService.get(id)).build();
     }
 
     @POST
+    @RequiresPermission("agent:create")
     public Response create(@Valid AgentInstanceRecord.Create dto) {
         return Response.status(Response.Status.CREATED)
                 .entity(agentInstanceService.create(dto))
@@ -43,12 +47,14 @@ public class AgentInstanceResource {
 
     @PUT
     @Path("/{id}")
+    @RequiresPermission("agent:edit")
     public Response update(@PathParam("id") UUID id, @Valid AgentInstanceRecord.Update dto) {
         return Response.ok(agentInstanceService.update(id, dto)).build();
     }
 
     @DELETE
     @Path("/{id}")
+    @RequiresPermission("agent:delete")
     public Response delete(@PathParam("id") UUID id) {
         agentInstanceService.delete(id);
         return Response.noContent().build();
@@ -56,6 +62,7 @@ public class AgentInstanceResource {
 
     @POST
     @Path("/{id}/commands")
+    @RequiresPermission("agent:execute")
     public Response executeCommand(@PathParam("id") UUID id, @Valid AgentInstanceRecord.ExecuteCommand dto) {
         agentInstanceService.executeCommand(id, dto);
         return Response.accepted().build();
@@ -63,6 +70,7 @@ public class AgentInstanceResource {
 
     @POST
     @Path("/{id}/deploy")
+    @RequiresPermission("agent:execute")
     public Response deploy(@PathParam("id") UUID id, @Valid AgentInstanceRecord.Deploy dto) {
         return Response.accepted()
                 .entity(agentInstanceService.deploy(id, dto))
@@ -71,6 +79,7 @@ public class AgentInstanceResource {
 
     @GET
     @Path("/{id}/tasks")
+    @RequiresPermission("agent:view")
     public Response getTaskHistory(
             @PathParam("id") UUID id,
             @QueryParam("status") AgentTaskStatus status,
@@ -83,6 +92,7 @@ public class AgentInstanceResource {
 
     @GET
     @Path("/{id}/tasks/count")
+    @RequiresPermission("agent:view")
     public Response countTaskHistory(
             @PathParam("id") UUID id,
             @QueryParam("status") AgentTaskStatus status,
@@ -93,6 +103,7 @@ public class AgentInstanceResource {
 
     @GET
     @Path("/tasks/{taskId}")
+    @RequiresPermission("agent:view")
     public Response getTaskDetail(@PathParam("taskId") UUID taskId) {
         return Response.ok(agentInstanceService.getTaskDetail(taskId)).build();
     }
@@ -102,6 +113,7 @@ public class AgentInstanceResource {
      */
     @GET
     @Path("/{id}/status")
+    @RequiresPermission("agent:view")
     public Response getStatus(@PathParam("id") UUID id) {
         return Response.ok(agentInstanceService.getRuntimeStatus(id)).build();
     }
@@ -111,6 +123,7 @@ public class AgentInstanceResource {
      */
     @GET
     @Path("/{id}/health")
+    @RequiresPermission("agent:view")
     public Response getHealth(@PathParam("id") UUID id) {
         return Response.ok(agentInstanceService.getHealth(id)).build();
     }

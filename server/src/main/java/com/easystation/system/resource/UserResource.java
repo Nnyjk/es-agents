@@ -1,5 +1,6 @@
 package com.easystation.system.resource;
 
+import com.easystation.auth.annotation.RequiresPermission;
 import com.easystation.system.domain.enums.UserStatus;
 import com.easystation.system.record.UserRecord;
 import com.easystation.system.service.UserService;
@@ -20,23 +21,27 @@ public class UserResource {
     UserService userService;
 
     @GET
+    @RequiresPermission("user:view")
     public Response list() {
         return Response.ok(userService.list()).build();
     }
 
     @POST
+    @RequiresPermission("user:create")
     public Response create(@Valid UserRecord.Create dto) {
         return Response.status(Response.Status.CREATED).entity(userService.create(dto)).build();
     }
 
     @PUT
     @Path("/{id}")
+    @RequiresPermission("user:edit")
     public Response update(@PathParam("id") UUID id, UserRecord.Update dto) {
         return Response.ok(userService.update(id, dto)).build();
     }
 
     @DELETE
     @Path("/{id}")
+    @RequiresPermission("user:delete")
     public Response delete(@PathParam("id") UUID id) {
         userService.delete(id);
         return Response.noContent().build();
@@ -44,6 +49,7 @@ public class UserResource {
 
     @PUT
     @Path("/{id}/status/{status}")
+    @RequiresPermission("user:edit")
     public Response changeStatus(@PathParam("id") UUID id, @PathParam("status") UserStatus status) {
         return Response.ok(userService.changeStatus(id, status)).build();
     }

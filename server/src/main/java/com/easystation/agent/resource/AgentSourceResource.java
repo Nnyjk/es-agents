@@ -2,6 +2,7 @@ package com.easystation.agent.resource;
 
 import com.easystation.agent.dto.AgentSourceRecord;
 import com.easystation.agent.service.AgentSourceService;
+import com.easystation.auth.annotation.RequiresPermission;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -20,17 +21,20 @@ public class AgentSourceResource {
     AgentSourceService agentSourceService;
 
     @GET
+    @RequiresPermission("agent:view")
     public Response list() {
         return Response.ok(agentSourceService.list()).build();
     }
 
     @GET
     @Path("/{id}")
+    @RequiresPermission("agent:view")
     public Response get(@PathParam("id") UUID id) {
         return Response.ok(agentSourceService.get(id)).build();
     }
 
     @POST
+    @RequiresPermission("agent:create")
     public Response create(@Valid AgentSourceRecord.Create dto) {
         return Response.status(Response.Status.CREATED)
                 .entity(agentSourceService.create(dto))
@@ -39,12 +43,14 @@ public class AgentSourceResource {
 
     @PUT
     @Path("/{id}")
+    @RequiresPermission("agent:edit")
     public Response update(@PathParam("id") UUID id, @Valid AgentSourceRecord.Update dto) {
         return Response.ok(agentSourceService.update(id, dto)).build();
     }
 
     @DELETE
     @Path("/{id}")
+    @RequiresPermission("agent:delete")
     public Response delete(@PathParam("id") UUID id) {
         agentSourceService.delete(id);
         return Response.noContent().build();
@@ -53,6 +59,7 @@ public class AgentSourceResource {
     @GET
     @Path("/{id}/download")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @RequiresPermission("agent:view")
     public Response download(@PathParam("id") UUID id) {
         String[] fileName = new String[1];
         InputStream is = agentSourceService.getSourceStream(id, fileName);
