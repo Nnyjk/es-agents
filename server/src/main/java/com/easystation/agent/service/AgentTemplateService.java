@@ -5,10 +5,11 @@ import com.easystation.agent.domain.AgentInstance;
 import com.easystation.agent.domain.AgentSource;
 import com.easystation.agent.domain.AgentTemplate;
 import com.easystation.agent.domain.enums.AgentSourceType;
-import com.easystation.agent.domain.enums.CommandCategory;
 import com.easystation.agent.domain.enums.OsType;
 import com.easystation.agent.domain.enums.TemplateCategory;
 import com.easystation.agent.dto.AgentCommandRecord;
+import com.easystation.agent.dto.AgentCredentialRecord;
+import com.easystation.agent.dto.AgentRepositoryRecord;
 import com.easystation.agent.dto.AgentSourceRecord;
 import com.easystation.agent.dto.AgentTemplateRecord;
 import io.quarkus.panache.common.Sort;
@@ -19,7 +20,6 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
 import java.io.InputStream;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -117,16 +117,9 @@ public class AgentTemplateService {
             for (AgentCommandRecord.Create cmdDto : dto.commands()) {
                 AgentCommand cmd = new AgentCommand();
                 cmd.name = cmdDto.name();
-                cmd.command = cmdDto.script();
-                cmd.description = cmdDto.description();
-                if (cmdDto.category() != null) {
-                    try {
-                        cmd.category = CommandCategory.valueOf(cmdDto.category().toUpperCase());
-                    } catch (IllegalArgumentException e) {
-                        // ignore
-                    }
-                }
-                cmd.order = cmdDto.order() != null ? cmdDto.order() : 0;
+                cmd.script = cmdDto.script();
+                cmd.timeout = cmdDto.timeout() != null ? cmdDto.timeout() : 60L;
+                cmd.defaultArgs = cmdDto.defaultArgs();
                 cmd.template = template;
                 template.commands.add(cmd);
             }
@@ -267,16 +260,13 @@ public class AgentTemplateService {
     private AgentTemplateRecord toRecord(AgentTemplate t) {
         List<AgentCommandRecord> commands = t.commands != null ?
                 t.commands.stream()
-                        .sorted(Comparator.comparingInt(c -> c.order != null ? c.order : 0))
                         .map(cmd -> new AgentCommandRecord(
                                 cmd.id,
                                 cmd.name,
-                                cmd.command,
-                                cmd.description,
-                                cmd.category != null ? cmd.category.name() : null,
-                                cmd.order,
-                                t.id,
-                                t.name
+                                cmd.script,
+                                cmd.timeout,
+                                cmd.defaultArgs,
+                                t.id
                         ))
                         .collect(Collectors.toList()) :
                 List.of();
@@ -308,10 +298,20 @@ public class AgentTemplateService {
         return new AgentSourceRecord(
                 source.id,
                 source.name,
-                source.type != null ? source.type.name() : null,
-                source.url,
-                source.description,
-                source.createdAt
+                source.type,
+                source.config,
+                source.repository != null ? new AgentRepositoryRecord.Simple(
+                        source.repository.id,
+                        source.repository.name,
+                        source.repository.url
+                ) : null,
+                source.credential != null ? new AgentCredentialRecord.Simple(
+                        source.credential.id,
+                        source.credential.name,
+                        source.credential.type != null ? source.credential.type.name() : null
+                ) : null,
+                source.createdAt,
+                source.updatedAt
         );
     }
 }
