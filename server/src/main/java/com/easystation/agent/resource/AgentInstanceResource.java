@@ -1,7 +1,9 @@
 package com.easystation.agent.resource;
 
 import com.easystation.agent.domain.enums.AgentTaskStatus;
+import com.easystation.agent.dto.AgentHealthRecord;
 import com.easystation.agent.dto.AgentInstanceRecord;
+import com.easystation.agent.dto.AgentRuntimeStatus;
 import com.easystation.agent.record.AgentTaskRecord;
 import com.easystation.agent.service.AgentInstanceService;
 import jakarta.inject.Inject;
@@ -93,5 +95,23 @@ public class AgentInstanceResource {
     @Path("/tasks/{taskId}")
     public Response getTaskDetail(@PathParam("taskId") UUID taskId) {
         return Response.ok(agentInstanceService.getTaskDetail(taskId)).build();
+    }
+
+    /**
+     * 获取 Agent 实时运行状态
+     */
+    @GET
+    @Path("/{id}/status")
+    public Response getStatus(@PathParam("id") UUID id) {
+        return Response.ok(agentInstanceService.getRuntimeStatus(id)).build();
+    }
+
+    /**
+     * 获取 Agent 健康度信息
+     */
+    @GET
+    @Path("/{id}/health")
+    public Response getHealth(@PathParam("id") UUID id) {
+        return Response.ok(agentInstanceService.getHealth(id)).build();
     }
 }
