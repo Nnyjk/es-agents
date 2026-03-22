@@ -212,6 +212,52 @@ public class PermissionService {
         );
     }
 
+    /**
+     * 获取用户的所有权限码
+     */
+    public Set<String> getUserPermissionCodes(UUID userId) {
+        User user = User.findById(userId);
+        if (user == null) {
+            return Collections.emptySet();
+        }
+
+        Set<String> permissionCodes = new HashSet<>();
+
+        // 检查是否是管理员
+        boolean isAdmin = user.roles != null && 
+                user.roles.stream().anyMatch(r -> "admin".equals(r.code));
+        
+        if (isAdmin) {
+            // 管理员拥有所有权限
+            return Permission.<Permission>listAll().stream()
+                    .map(p -> p.code)
+                    .collect(Collectors.toSet());
+        }
+
+        // 获取用户角色的权限
+        if (user.roles != null) {
+            Set<UUID> roleIds = user.roles.stream()
+                    .map(r -> r.id)
+                    .collect(Collectors.toSet());
+
+            if (!roleIds.isEmpty()) {
+                List<RolePermission> rolePermissions = RolePermission.<RolePermission>find("roleId in ?1", roleIds).list();
+                Set<UUID> permissionIds = rolePermissions.stream()
+                        .map(rp -> rp.permissionId)
+                        .collect(Collectors.toSet());
+
+                if (!permissionIds.isEmpty()) {
+                    permissionCodes = Permission.<Permission>find("id in ?1", permissionIds)
+                            .stream()
+                            .map(p -> p.code)
+                            .collect(Collectors.toSet());
+                }
+            }
+        }
+
+        return permissionCodes;
+    }
+
     @Transactional
     public void initDefaultPermissions() {
         // Create default permissions for common resources
