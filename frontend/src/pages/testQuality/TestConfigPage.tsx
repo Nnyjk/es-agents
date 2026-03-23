@@ -29,7 +29,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   SaveOutlined,
-  TestOutlined,
+  ExperimentOutlined,
   EnvironmentOutlined,
   SettingOutlined,
   BellOutlined,
@@ -261,7 +261,7 @@ const TestConfigPage: React.FC = () => {
             <Button
               type="text"
               size="small"
-              icon={<TestOutlined />}
+              icon={<ExperimentOutlined />}
               onClick={() => handleTestConnection(record)}
             />
           </Tooltip>

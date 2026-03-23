@@ -97,9 +97,32 @@ export async function getTestSuites(params: PageParams): Promise<PageResult<Test
   return response.data;
 }
 
+/** 获取测试套件详情 */
+export async function getTestSuite(id: string): Promise<TestSuite> {
+  const response = await axios.get<ApiResponse<TestSuite>>(`${API_BASE}/test-suites/${id}`);
+  return response.data.data!;
+}
+
 /** 创建测试套件 */
 export async function createTestSuite(data: Partial<TestSuite>): Promise<TestSuite> {
   const response = await axios.post<ApiResponse<TestSuite>>(`${API_BASE}/test-suites`, data);
+  return response.data.data!;
+}
+
+/** 更新测试套件 */
+export async function updateTestSuite(id: string, data: Partial<TestSuite>): Promise<TestSuite> {
+  const response = await axios.put<ApiResponse<TestSuite>>(`${API_BASE}/test-suites/${id}`, data);
+  return response.data.data!;
+}
+
+/** 删除测试套件 */
+export async function deleteTestSuite(id: string): Promise<void> {
+  await axios.delete(`${API_BASE}/test-suites/${id}`);
+}
+
+/** 复制测试套件 */
+export async function copyTestSuite(id: string): Promise<TestSuite> {
+  const response = await axios.post<ApiResponse<TestSuite>>(`${API_BASE}/test-suites/${id}/copy`);
   return response.data.data!;
 }
 

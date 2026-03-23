@@ -407,3 +407,16 @@ export interface ExecutionStatistics {
   successRate: number;
   avgDuration: number;
 }
+
+/** 报告用例详情 */
+export interface ReportCase {
+  id: string;
+  caseId: string;
+  caseName: string;
+  moduleName: string;
+  status: 'passed' | 'failed' | 'blocked' | 'skipped';
+  duration: number;
+  errorMessage?: string;
+  executedAt: string;
+  executor: string;
+}

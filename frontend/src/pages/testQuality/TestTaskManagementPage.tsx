@@ -333,7 +333,7 @@ const TestTaskManagementPage: React.FC = () => {
   // 删除任务
   const handleDelete = async (id: string) => {
     try {
-      await deleteTask(id);
+      await deleteTestTask(id);
       message.success('删除成功');
       loadTasks();
     } catch (error) {

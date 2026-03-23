@@ -13,17 +13,11 @@ import {
   Tag,
   Modal,
   Form,
-  InputNumber,
-  DatePicker,
   Tooltip,
   message,
   Dropdown,
   Upload,
   Popconfirm,
-  Tabs,
-  Descriptions,
-  List,
-  Divider,
 } from 'antd';
 import {
   PlusOutlined,
@@ -33,7 +27,6 @@ import {
   DownloadOutlined,
   UploadOutlined,
   MoreOutlined,
-  FileTextOutlined,
   HistoryOutlined,
   CopyOutlined,
 } from '@ant-design/icons';
@@ -76,7 +69,6 @@ const TestCaseManagementPage: React.FC = () => {
   const [executionModalVisible, setExecutionModalVisible] = useState(false);
   const [currentTestCase, setCurrentTestCase] = useState<TestCase | null>(null);
   const [form] = Form.useForm();
-  const [stepForm] = Form.useForm();
 
   // 加载测试用例列表
   const loadTestCases = async () => {
