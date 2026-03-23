@@ -29,7 +29,10 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ColumnsType } from "antd/es/table";
 import agentMonitoringService from "../../services/agentMonitoring";
-import type { AgentInstanceRecord, AgentTaskRecord } from "../../types/agentMonitoring";
+import type {
+  AgentInstanceRecord,
+  AgentTaskRecord,
+} from "../../types/agentMonitoring";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/zh-cn";
