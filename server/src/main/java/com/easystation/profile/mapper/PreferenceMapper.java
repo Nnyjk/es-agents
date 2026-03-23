@@ -1,6 +1,7 @@
 package com.easystation.profile.mapper;
 
 import com.easystation.profile.dto.PreferenceRecord;
+import com.easystation.profile.dto.PreferenceRecord.QuickAction;
 import com.easystation.profile.domain.UserPreference;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -105,14 +106,14 @@ public class PreferenceMapper {
         return Collections.emptyList();
     }
 
-    private String serializeQuickActions(List<PreferenceRecord.QuickActionUpdate> actions) {
+    private String serializeQuickActions(List<QuickAction> actions) {
         if (actions == null || actions.isEmpty()) {
             return null;
         }
         // Simple serialization - implement proper JSON serialization if needed
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < actions.size(); i++) {
-            PreferenceRecord.QuickActionUpdate a = actions.get(i);
+            QuickAction a = actions.get(i);
             if (i > 0) sb.append(",");
             sb.append("{\"key\":\"").append(a.key()).append("\"");
             sb.append(",\"label\":\"").append(a.label()).append("\"");
