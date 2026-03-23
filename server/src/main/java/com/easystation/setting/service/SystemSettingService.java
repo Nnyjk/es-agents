@@ -21,6 +21,11 @@ public class SystemSettingService {
     private static final String CATEGORY_BASIC = "basic";
     private static final String CATEGORY_SECURITY = "security";
     private static final String CATEGORY_ALERT = "alert";
+    private static final String CATEGORY_STORAGE = "storage";
+    private static final String CATEGORY_RESOURCE = "resource";
+    private static final String CATEGORY_NOTIFICATION = "notification";
+    private static final String CATEGORY_MAINTENANCE = "maintenance";
+    private static final String CATEGORY_INTEGRATION = "integration";
 
     private static final Map<String, String> DEFAULT_SETTINGS = Map.of(
             "platformName", "Easy-Station",
@@ -160,8 +165,170 @@ public class SystemSettingService {
         return new SettingRecord.AllSettings(
                 getBasicSettings(),
                 getSecuritySettings(),
-                getAlertSettings()
+                getAlertSettings(),
+                getStorageSettings(),
+                getResourceSettings(),
+                getNotificationSettings(),
+                getMaintenanceSettings(),
+                getIntegrationSettings()
         );
+    }
+
+    // ==================== 存储配置 ====================
+
+    public SettingRecord.StorageSettings getStorageSettings() {
+        return new SettingRecord.StorageSettings(
+                getValue("storageType", "local"),
+                getValue("localStoragePath", "/data/files"),
+                getValue("ossEndpoint"),
+                getValue("ossBucket"),
+                getValue("ossAccessKey"),
+                getValue("ossSecretKey"),
+                getValue("ossRegion"),
+                getIntValue("maxFileSizeMb", 100),
+                getValue("allowedFileTypes")
+        );
+    }
+
+    @Transactional
+    public SettingRecord.StorageSettings updateStorageSettings(SettingRecord.StorageSettings dto) {
+        updateIfPresent("storageType", dto.storageType());
+        updateIfPresent("localStoragePath", dto.localStoragePath());
+        updateIfPresent("ossEndpoint", dto.ossEndpoint());
+        updateIfPresent("ossBucket", dto.ossBucket());
+        updateIfPresent("ossAccessKey", dto.ossAccessKey());
+        updateIfPresent("ossSecretKey", dto.ossSecretKey());
+        updateIfPresent("ossRegion", dto.ossRegion());
+        updateIfPresent("maxFileSizeMb", dto.maxFileSizeMb() != null ? String.valueOf(dto.maxFileSizeMb()) : null);
+        updateIfPresent("allowedFileTypes", dto.allowedFileTypes());
+        return getStorageSettings();
+    }
+
+    // ==================== 资源配置 ====================
+
+    public SettingRecord.ResourceSettings getResourceSettings() {
+        return new SettingRecord.ResourceSettings(
+                getIntValue("defaultResourceQuota", 100),
+                getIntValue("maxTenantQuota", 1000),
+                getBoolValue("overQuotaAllowed", false),
+                getIntValue("logRetentionDays", 30),
+                getValue("logStoragePath", "/data/logs"),
+                getBoolValue("logArchiveEnabled", true),
+                getIntValue("cacheExpireMinutes", 60),
+                getValue("cacheCleanupPolicy", "LRU")
+        );
+    }
+
+    @Transactional
+    public SettingRecord.ResourceSettings updateResourceSettings(SettingRecord.ResourceSettings dto) {
+        updateIfPresent("defaultResourceQuota", dto.defaultResourceQuota() != null ? String.valueOf(dto.defaultResourceQuota()) : null);
+        updateIfPresent("maxTenantQuota", dto.maxTenantQuota() != null ? String.valueOf(dto.maxTenantQuota()) : null);
+        updateIfPresent("overQuotaAllowed", dto.overQuotaAllowed() != null ? String.valueOf(dto.overQuotaAllowed()) : null);
+        updateIfPresent("logRetentionDays", dto.logRetentionDays() != null ? String.valueOf(dto.logRetentionDays()) : null);
+        updateIfPresent("logStoragePath", dto.logStoragePath());
+        updateIfPresent("logArchiveEnabled", dto.logArchiveEnabled() != null ? String.valueOf(dto.logArchiveEnabled()) : null);
+        updateIfPresent("cacheExpireMinutes", dto.cacheExpireMinutes() != null ? String.valueOf(dto.cacheExpireMinutes()) : null);
+        updateIfPresent("cacheCleanupPolicy", dto.cacheCleanupPolicy());
+        return getResourceSettings();
+    }
+
+    // ==================== 通知配置 ====================
+
+    public SettingRecord.NotificationSettings getNotificationSettings() {
+        return new SettingRecord.NotificationSettings(
+                getValue("emailSmtpHost"),
+                getIntValue("emailSmtpPort", 25),
+                getValue("emailUsername"),
+                getValue("emailPassword"),
+                getBoolValue("emailEnabled", false),
+                getValue("smsProvider"),
+                getValue("smsApiKey"),
+                getBoolValue("smsEnabled", false),
+                getValue("wechatWebhook"),
+                getBoolValue("wechatEnabled", false),
+                getValue("dingtalkWebhook"),
+                getBoolValue("dingtalkEnabled", false),
+                getValue("feishuWebhook"),
+                getBoolValue("feishuEnabled", false)
+        );
+    }
+
+    @Transactional
+    public SettingRecord.NotificationSettings updateNotificationSettings(SettingRecord.NotificationSettings dto) {
+        updateIfPresent("emailSmtpHost", dto.emailSmtpHost());
+        updateIfPresent("emailSmtpPort", dto.emailSmtpPort() != null ? String.valueOf(dto.emailSmtpPort()) : null);
+        updateIfPresent("emailUsername", dto.emailUsername());
+        updateIfPresent("emailPassword", dto.emailPassword());
+        updateIfPresent("emailEnabled", dto.emailEnabled() != null ? String.valueOf(dto.emailEnabled()) : null);
+        updateIfPresent("smsProvider", dto.smsProvider());
+        updateIfPresent("smsApiKey", dto.smsApiKey());
+        updateIfPresent("smsEnabled", dto.smsEnabled() != null ? String.valueOf(dto.smsEnabled()) : null);
+        updateIfPresent("wechatWebhook", dto.wechatWebhook());
+        updateIfPresent("wechatEnabled", dto.wechatEnabled() != null ? String.valueOf(dto.wechatEnabled()) : null);
+        updateIfPresent("dingtalkWebhook", dto.dingtalkWebhook());
+        updateIfPresent("dingtalkEnabled", dto.dingtalkEnabled() != null ? String.valueOf(dto.dingtalkEnabled()) : null);
+        updateIfPresent("feishuWebhook", dto.feishuWebhook());
+        updateIfPresent("feishuEnabled", dto.feishuEnabled() != null ? String.valueOf(dto.feishuEnabled()) : null);
+        return getNotificationSettings();
+    }
+
+    // ==================== 维护配置 ====================
+
+    public SettingRecord.MaintenanceSettings getMaintenanceSettings() {
+        return new SettingRecord.MaintenanceSettings(
+                getBoolValue("maintenanceMode", false),
+                getValue("maintenanceMessage", "系统维护中，请稍后访问"),
+                getValue("maintenanceWhitelist"),
+                getValue("licenseKey"),
+                getBoolValue("licenseValid", false),
+                getValue("licenseExpiry")
+        );
+    }
+
+    @Transactional
+    public SettingRecord.MaintenanceSettings updateMaintenanceSettings(SettingRecord.MaintenanceSettings dto) {
+        updateIfPresent("maintenanceMode", dto.maintenanceMode() != null ? String.valueOf(dto.maintenanceMode()) : null);
+        updateIfPresent("maintenanceMessage", dto.maintenanceMessage());
+        updateIfPresent("maintenanceWhitelist", dto.maintenanceWhitelist());
+        updateIfPresent("licenseKey", dto.licenseKey());
+        // licenseValid 和 licenseExpiry 由系统自动更新，不直接修改
+        return getMaintenanceSettings();
+    }
+
+    // ==================== 集成配置 ====================
+
+    public SettingRecord.IntegrationSettings getIntegrationSettings() {
+        return new SettingRecord.IntegrationSettings(
+                getBoolValue("oauthEnabled", false),
+                getValue("oauthProvider"),
+                getValue("oauthClientId"),
+                getValue("oauthClientSecret"),
+                getBoolValue("ldapEnabled", false),
+                getValue("ldapUrl"),
+                getValue("ldapBaseDn"),
+                getValue("ldapBindDn"),
+                getValue("ldapBindPassword"),
+                getBoolValue("ssoEnabled", false),
+                getValue("ssoEntryPoint"),
+                getValue("ssoCertificate")
+        );
+    }
+
+    @Transactional
+    public SettingRecord.IntegrationSettings updateIntegrationSettings(SettingRecord.IntegrationSettings dto) {
+        updateIfPresent("oauthEnabled", dto.oauthEnabled() != null ? String.valueOf(dto.oauthEnabled()) : null);
+        updateIfPresent("oauthProvider", dto.oauthProvider());
+        updateIfPresent("oauthClientId", dto.oauthClientId());
+        updateIfPresent("oauthClientSecret", dto.oauthClientSecret());
+        updateIfPresent("ldapEnabled", dto.ldapEnabled() != null ? String.valueOf(dto.ldapEnabled()) : null);
+        updateIfPresent("ldapUrl", dto.ldapUrl());
+        updateIfPresent("ldapBaseDn", dto.ldapBaseDn());
+        updateIfPresent("ldapBindDn", dto.ldapBindDn());
+        updateIfPresent("ldapBindPassword", dto.ldapBindPassword());
+        updateIfPresent("ssoEnabled", dto.ssoEnabled() != null ? String.valueOf(dto.ssoEnabled()) : null);
+        updateIfPresent("ssoEntryPoint", dto.ssoEntryPoint());
+        updateIfPresent("ssoCertificate", dto.ssoCertificate());
+        return getIntegrationSettings();
     }
 
     @Transactional
@@ -228,7 +395,7 @@ public class SystemSettingService {
     }
 
     private String determineCategory(String key) {
-        if (Set.of("platformName", "logoUrl", "faviconUrl", "footerText", 
+        if (Set.of("platformName", "logoUrl", "faviconUrl", "footerText",
                    "loginPageTitle", "loginPageBackground", "loginPageNotice").contains(key)) {
             return CATEGORY_BASIC;
         }
@@ -240,6 +407,31 @@ public class SystemSettingService {
         if (Set.of("defaultAlertChannelId", "alertEnabled", "alertConvergenceSeconds",
                    "alertRetryCount").contains(key)) {
             return CATEGORY_ALERT;
+        }
+        if (Set.of("storageType", "localStoragePath", "ossEndpoint", "ossBucket",
+                   "ossAccessKey", "ossSecretKey", "ossRegion", "maxFileSizeMb",
+                   "allowedFileTypes").contains(key)) {
+            return CATEGORY_STORAGE;
+        }
+        if (Set.of("defaultResourceQuota", "maxTenantQuota", "overQuotaAllowed",
+                   "logRetentionDays", "logStoragePath", "logArchiveEnabled",
+                   "cacheExpireMinutes", "cacheCleanupPolicy").contains(key)) {
+            return CATEGORY_RESOURCE;
+        }
+        if (Set.of("emailSmtpHost", "emailSmtpPort", "emailUsername", "emailPassword",
+                   "emailEnabled", "smsProvider", "smsApiKey", "smsEnabled",
+                   "wechatWebhook", "wechatEnabled", "dingtalkWebhook", "dingtalkEnabled",
+                   "feishuWebhook", "feishuEnabled").contains(key)) {
+            return CATEGORY_NOTIFICATION;
+        }
+        if (Set.of("maintenanceMode", "maintenanceMessage", "maintenanceWhitelist",
+                   "licenseKey", "licenseValid", "licenseExpiry").contains(key)) {
+            return CATEGORY_MAINTENANCE;
+        }
+        if (Set.of("oauthEnabled", "oauthProvider", "oauthClientId", "oauthClientSecret",
+                   "ldapEnabled", "ldapUrl", "ldapBaseDn", "ldapBindDn", "ldapBindPassword",
+                   "ssoEnabled", "ssoEntryPoint", "ssoCertificate").contains(key)) {
+            return CATEGORY_INTEGRATION;
         }
         return "other";
     }
@@ -265,6 +457,60 @@ public class SystemSettingService {
             case "alertEnabled" -> "告警启用开关";
             case "alertConvergenceSeconds" -> "告警收敛时间(秒)";
             case "alertRetryCount" -> "告警重试次数";
+            // 存储配置
+            case "storageType" -> "存储类型";
+            case "localStoragePath" -> "本地存储路径";
+            case "ossEndpoint" -> "对象存储 Endpoint";
+            case "ossBucket" -> "对象存储桶名";
+            case "ossAccessKey" -> "对象存储 AccessKey";
+            case "ossSecretKey" -> "对象存储 SecretKey";
+            case "ossRegion" -> "对象存储区域";
+            case "maxFileSizeMb" -> "最大文件大小(MB)";
+            case "allowedFileTypes" -> "允许的文件类型";
+            // 资源配置
+            case "defaultResourceQuota" -> "默认资源配额";
+            case "maxTenantQuota" -> "单租户最大配额";
+            case "overQuotaAllowed" -> "允许超配";
+            case "logRetentionDays" -> "日志保留天数";
+            case "logStoragePath" -> "日志存储路径";
+            case "logArchiveEnabled" -> "启用日志归档";
+            case "cacheExpireMinutes" -> "缓存过期时间(分钟)";
+            case "cacheCleanupPolicy" -> "缓存清理策略";
+            // 通知配置
+            case "emailSmtpHost" -> "SMTP 服务器地址";
+            case "emailSmtpPort" -> "SMTP 端口";
+            case "emailUsername" -> "邮箱用户名";
+            case "emailPassword" -> "邮箱密码";
+            case "emailEnabled" -> "启用邮件通知";
+            case "smsProvider" -> "短信服务商";
+            case "smsApiKey" -> "短信 API Key";
+            case "smsEnabled" -> "启用短信通知";
+            case "wechatWebhook" -> "企业微信 Webhook";
+            case "wechatEnabled" -> "启用企业微信通知";
+            case "dingtalkWebhook" -> "钉钉 Webhook";
+            case "dingtalkEnabled" -> "启用钉钉通知";
+            case "feishuWebhook" -> "飞书 Webhook";
+            case "feishuEnabled" -> "启用飞书通知";
+            // 维护配置
+            case "maintenanceMode" -> "维护模式";
+            case "maintenanceMessage" -> "维护提示语";
+            case "maintenanceWhitelist" -> "维护模式白名单 IP";
+            case "licenseKey" -> "License Key";
+            case "licenseValid" -> "License 有效";
+            case "licenseExpiry" -> "License 过期时间";
+            // 集成配置
+            case "oauthEnabled" -> "启用 OAuth";
+            case "oauthProvider" -> "OAuth 提供商";
+            case "oauthClientId" -> "OAuth Client ID";
+            case "oauthClientSecret" -> "OAuth Client Secret";
+            case "ldapEnabled" -> "启用 LDAP";
+            case "ldapUrl" -> "LDAP 服务器地址";
+            case "ldapBaseDn" -> "LDAP Base DN";
+            case "ldapBindDn" -> "LDAP Bind DN";
+            case "ldapBindPassword" -> "LDAP 绑定密码";
+            case "ssoEnabled" -> "启用 SSO";
+            case "ssoEntryPoint" -> "SSO 入口地址";
+            case "ssoCertificate" -> "SSO 证书";
             default -> "";
         };
     }

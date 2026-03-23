@@ -89,4 +89,64 @@ public class SystemSettingResource {
         settingService.initializeDefaultSettings();
         return Response.ok().build();
     }
+
+    @GET
+    @Path("/storage")
+    public Response getStorageSettings() {
+        return Response.ok(settingService.getStorageSettings()).build();
+    }
+
+    @PUT
+    @Path("/storage")
+    public Response updateStorageSettings(@Valid SettingRecord.StorageSettings dto) {
+        return Response.ok(settingService.updateStorageSettings(dto)).build();
+    }
+
+    @GET
+    @Path("/resource")
+    public Response getResourceSettings() {
+        return Response.ok(settingService.getResourceSettings()).build();
+    }
+
+    @PUT
+    @Path("/resource")
+    public Response updateResourceSettings(@Valid SettingRecord.ResourceSettings dto) {
+        return Response.ok(settingService.updateResourceSettings(dto)).build();
+    }
+
+    @GET
+    @Path("/notification")
+    public Response getNotificationSettings() {
+        return Response.ok(settingService.getNotificationSettings()).build();
+    }
+
+    @PUT
+    @Path("/notification")
+    public Response updateNotificationSettings(@Valid SettingRecord.NotificationSettings dto) {
+        return Response.ok(settingService.updateNotificationSettings(dto)).build();
+    }
+
+    @GET
+    @Path("/maintenance")
+    public Response getMaintenanceSettings() {
+        return Response.ok(settingService.getMaintenanceSettings()).build();
+    }
+
+    @PUT
+    @Path("/maintenance")
+    public Response updateMaintenanceSettings(@Valid SettingRecord.MaintenanceSettings dto) {
+        return Response.ok(settingService.updateMaintenanceSettings(dto)).build();
+    }
+
+    @GET
+    @Path("/integration")
+    public Response getIntegrationSettings() {
+        return Response.ok(settingService.getIntegrationSettings()).build();
+    }
+
+    @PUT
+    @Path("/integration")
+    public Response updateIntegrationSettings(@Valid SettingRecord.IntegrationSettings dto) {
+        return Response.ok(settingService.updateIntegrationSettings(dto)).build();
+    }
 }
