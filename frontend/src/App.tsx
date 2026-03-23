@@ -28,6 +28,7 @@ import AlertChannelPage from "./pages/alert/AlertChannel";
 import SystemSettings from "./pages/system/Settings";
 import DeploymentPage from "./pages/deployment";
 import { ProfilePage } from "./pages/profile";
+import { AgentMonitorPage, AgentInstancePage } from "./pages/agentMonitoring";
 
 const App: React.FC = () => {
   return (
@@ -46,6 +47,11 @@ const App: React.FC = () => {
             <Route path="repositories" element={<AgentRepositoryList />} />
             <Route path="execute" element={<CommandExecute />} />
             <Route path="history" element={<CommandHistory />} />
+            <Route path="monitoring" element={<AgentMonitorPage />} />
+            <Route
+              path="monitoring/instances"
+              element={<AgentInstancePage />}
+            />
           </Route>
           <Route path="infra">
             <Route path="envs" element={<EnvironmentList />} />
