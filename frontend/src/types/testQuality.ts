@@ -39,6 +39,9 @@ export interface TestStep {
   expectedResult: string;
 }
 
+/** 测试套件状态 */
+export type TestSuiteStatus = 'active' | 'inactive' | 'archived';
+
 /** 测试套件 */
 export interface TestSuite {
   id: string;
@@ -46,6 +49,7 @@ export interface TestSuite {
   description: string;
   testCases: string[];
   environment: string;
+  status: TestSuiteStatus;
   createdAt: string;
   updatedAt: string;
   creator: string;
@@ -342,6 +346,10 @@ export interface ReleaseVersion {
 export interface PageParams {
   page: number;
   pageSize: number;
+  keyword?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: string;
 }
 
 /** 分页结果 */

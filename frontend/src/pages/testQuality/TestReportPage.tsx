@@ -576,10 +576,10 @@ const TestReportPage: React.FC = () => {
                       color: 'red',
                       children: (
                         <div>
-                          <Text strong>{c.name}</Text>
+                          <Text strong>{c.caseName}</Text>
                           <br />
                           <Text type="secondary" style={{ fontSize: 12 }}>
-                            模块: {c.module} | 执行时间: {c.duration}ms
+                            模块: {c.moduleName} | 执行时间: {c.duration}ms
                           </Text>
                           <br />
                           <Text type="danger" style={{ fontSize: 12 }}>

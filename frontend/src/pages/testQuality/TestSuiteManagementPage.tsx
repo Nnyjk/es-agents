@@ -19,6 +19,7 @@ import {
   Select,
   Tooltip,
   Badge,
+  Descriptions,
 } from 'antd';
 import {
   PlusOutlined,
@@ -28,6 +29,8 @@ import {
   CopyOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
+import type { TransferProps } from 'antd';
+import dayjs from 'dayjs';
 import {
   getTestSuites,
   getTestSuite,
@@ -378,7 +381,7 @@ const TestSuiteManagementPage: React.FC = () => {
               dataSource={transferDataSource}
               titles={['可选用例', '已选用例']}
               targetKeys={selectedCaseIds}
-              onChange={setSelectedCaseIds}
+              onChange={(newTargetKeys) => setSelectedCaseIds(newTargetKeys as string[])}
               render={(item) => item.title as string}
               listStyle={{
                 width: 280,
