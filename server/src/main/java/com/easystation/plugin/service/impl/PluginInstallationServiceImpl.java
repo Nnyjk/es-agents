@@ -1,8 +1,8 @@
 package com.easystation.plugin.service.impl;
 
-import com.easystation.plugin.domain.entity.Plugin;
-import com.easystation.plugin.domain.entity.PluginInstallation;
-import com.easystation.plugin.domain.entity.PluginVersion;
+import com.easystation.plugin.domain.Plugin;
+import com.easystation.plugin.domain.PluginInstallation;
+import com.easystation.plugin.domain.PluginVersion;
 import com.easystation.plugin.domain.enums.InstallationStatus;
 import com.easystation.plugin.dto.PluginInstallationRecord;
 import com.easystation.plugin.mapper.PluginInstallationMapper;

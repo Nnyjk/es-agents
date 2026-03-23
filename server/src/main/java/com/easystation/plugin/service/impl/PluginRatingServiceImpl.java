@@ -1,7 +1,7 @@
 package com.easystation.plugin.service.impl;
 
-import com.easystation.plugin.domain.entity.Plugin;
-import com.easystation.plugin.domain.entity.PluginRating;
+import com.easystation.plugin.domain.Plugin;
+import com.easystation.plugin.domain.PluginRating;
 import com.easystation.plugin.dto.PluginRatingRecord;
 import com.easystation.plugin.mapper.PluginRatingMapper;
 import com.easystation.plugin.repository.PluginRatingRepository;

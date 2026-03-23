@@ -1,7 +1,7 @@
 package com.easystation.plugin.service.impl;
 
-import com.easystation.plugin.domain.entity.Plugin;
-import com.easystation.plugin.domain.entity.PluginComment;
+import com.easystation.plugin.domain.Plugin;
+import com.easystation.plugin.domain.PluginComment;
 import com.easystation.plugin.dto.PluginCommentRecord;
 import com.easystation.plugin.mapper.PluginCommentMapper;
 import com.easystation.plugin.repository.PluginCommentRepository;

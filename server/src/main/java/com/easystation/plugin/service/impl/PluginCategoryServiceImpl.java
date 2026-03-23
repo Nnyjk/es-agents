@@ -1,6 +1,6 @@
 package com.easystation.plugin.service.impl;
 
-import com.easystation.plugin.domain.entity.PluginCategory;
+import com.easystation.plugin.domain.PluginCategory;
 import com.easystation.plugin.dto.PluginCategoryRecord;
 import com.easystation.plugin.mapper.PluginCategoryMapper;
 import com.easystation.plugin.repository.PluginCategoryRepository;
@@ -44,21 +44,19 @@ public class PluginCategoryServiceImpl implements PluginCategoryService {
         }
 
         PluginCategory category = new PluginCategory();
-        category.setName(create.name());
-        category.setCode(create.code() != null ? create.code() : generateCode(create.name()));
+        category.name = create.name();
+        category.code = create.code() != null ? create.code() : generateCode(create.name());
         
         if (create.parentId() != null) {
             PluginCategory parent = categoryRepository.findById(create.parentId())
                 .orElseThrow(() -> new NotFoundException("Parent category not found: " + create.parentId()));
-            category.setParent(parent);
+            category.parentId = parent.id;
         }
         
-        category.setIcon(create.icon());
-        category.setDescription(create.description());
-        category.setSortOrder(create.sortOrder() != null ? create.sortOrder() : 0);
-        category.setIsActive(true);
-        category.setCreatedAt(LocalDateTime.now());
-        category.setUpdatedAt(LocalDateTime.now());
+        category.icon = create.icon();
+        category.description = create.description();
+        category.sortOrder = create.sortOrder() != null ? create.sortOrder() : 0;
+        category.isActive = true;
 
         categoryRepository.persist(category);
         return categoryMapper.toRecord(category);
@@ -72,35 +70,40 @@ public class PluginCategoryServiceImpl implements PluginCategoryService {
 
         if (update.name() != null) {
             // Check if name already exists under the same parent
-            UUID parentId = category.getParent() != null ? category.getParent().getId() : null;
-            if (!update.name().equals(category.getName()) && 
-                categoryRepository.existsByNameAndParentId(update.name(), parentId)) {
+            if (!update.name().equals(category.name) && 
+                categoryRepository.existsByNameAndParentId(update.name(), category.parentId)) {
                 throw new BadRequestException("Category name already exists under this parent");
             }
-            category.setName(update.name());
+            category.name = update.name();
         }
 
         if (update.code() != null) {
-            if (!update.code().equals(category.getCode()) && 
+            if (!update.code().equals(category.code) && 
                 categoryRepository.existsByCode(update.code())) {
                 throw new BadRequestException("Category code already exists: " + update.code());
             }
-            category.setCode(update.code());
+            category.code = update.code();
         }
 
+        if (update.parentId() != null) {
+            // Prevent setting self as parent
+            if (update.parentId().equals(category.id)) {
+                throw new BadRequestException("Cannot set self as parent");
+            }
+            category.parentId = update.parentId();
+        }
         if (update.icon() != null) {
-            category.setIcon(update.icon());
+            category.icon = update.icon();
         }
         if (update.description() != null) {
-            category.setDescription(update.description());
+            category.description = update.description();
         }
         if (update.sortOrder() != null) {
-            category.setSortOrder(update.sortOrder());
+            category.sortOrder = update.sortOrder();
         }
         if (update.isActive() != null) {
-            category.setIsActive(update.isActive());
+            category.isActive = update.isActive();
         }
-        category.setUpdatedAt(LocalDateTime.now());
 
         categoryRepository.persist(category);
         return categoryMapper.toRecord(category);
@@ -153,8 +156,7 @@ public class PluginCategoryServiceImpl implements PluginCategoryService {
         PluginCategory category = categoryRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Category not found: " + id));
 
-        category.setIsActive(true);
-        category.setUpdatedAt(LocalDateTime.now());
+        category.isActive = true;
 
         categoryRepository.persist(category);
         return categoryMapper.toRecord(category);
@@ -166,8 +168,7 @@ public class PluginCategoryServiceImpl implements PluginCategoryService {
         PluginCategory category = categoryRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Category not found: " + id));
 
-        category.setIsActive(false);
-        category.setUpdatedAt(LocalDateTime.now());
+        category.isActive = false;
 
         categoryRepository.persist(category);
         return categoryMapper.toRecord(category);
@@ -206,17 +207,17 @@ public class PluginCategoryServiceImpl implements PluginCategoryService {
 
     private PluginCategoryRecord.Tree buildTree(PluginCategory category) {
         List<PluginCategoryRecord.Tree> children = categoryRepository
-            .findByParentIdAndIsActiveTrueOrderBySortOrder(category.getId())
+            .findByParentIdAndIsActiveTrueOrderBySortOrder(category.id)
             .stream()
             .map(this::buildTree)
             .collect(Collectors.toList());
 
         return new PluginCategoryRecord.Tree(
-            category.getId(),
-            category.getName(),
-            category.getCode(),
-            category.getIcon(),
-            pluginRepository.countByCategoryId(category.getId()),
+            category.id,
+            category.name,
+            category.code,
+            category.icon,
+            pluginRepository.countByCategoryId(category.id),
             children
         );
     }

@@ -1,47 +1,88 @@
 package com.easystation.plugin.mapper;
 
-import com.easystation.plugin.domain.entity.PluginReview;
+import com.easystation.plugin.domain.PluginReview;
 import com.easystation.plugin.dto.PluginReviewRecord;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import jakarta.enterprise.context.ApplicationScoped;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Collections;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-@Mapper(
-    componentModel = "jakarta-cdi",
-    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
-)
-public interface PluginReviewMapper {
+@ApplicationScoped
+public class PluginReviewMapper {
 
-    @Mapping(target = "pluginId", source = "plugin.id")
-    @Mapping(target = "pluginName", source = "plugin.name")
-    @Mapping(target = "versionId", source = "version.id")
-    @Mapping(target = "version", source = "version.version")
-    @Mapping(target = "reviewerId", source = "reviewer.id")
-    @Mapping(target = "reviewerName", source = "reviewer.username")
-    PluginReviewRecord toRecord(PluginReview entity);
+    public PluginReviewRecord toRecord(PluginReview entity) {
+        if (entity == null) {
+            return null;
+        }
+        
+        return new PluginReviewRecord(
+            entity.id,
+            entity.pluginId,
+            null, // pluginName - needs to be set by service
+            entity.versionId,
+            null, // version - needs to be set by service
+            entity.reviewerId,
+            null, // reviewerName - needs to be set by service
+            entity.status,
+            entity.reviewType,
+            entity.comment,
+            entity.securityCheckResult,
+            entity.compatibilityCheckResult,
+            entity.testReport,
+            entity.reviewedAt,
+            entity.createdAt,
+            entity.updatedAt
+        );
+    }
 
-    List<PluginReviewRecord> toRecords(List<PluginReview> entities);
+    public List<PluginReviewRecord> toRecords(List<PluginReview> entities) {
+        if (entities == null) {
+            return Collections.emptyList();
+        }
+        return entities.stream()
+            .map(this::toRecord)
+            .collect(Collectors.toList());
+    }
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "plugin", ignore = true)
-    @Mapping(target = "version", ignore = true)
-    @Mapping(target = "reviewer", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "securityCheckResult", ignore = true)
-    @Mapping(target = "compatibilityCheckResult", ignore = true)
-    @Mapping(target = "testReport", ignore = true)
-    @Mapping(target = "reviewedAt", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    void updateEntity(PluginReviewRecord.Create dto, @MappingTarget PluginReview entity);
+    public PluginReview toEntity(PluginReviewRecord.Create create, UUID reviewerId) {
+        if (create == null) {
+            return null;
+        }
+        
+        PluginReview entity = new PluginReview();
+        entity.pluginId = create.pluginId();
+        entity.versionId = create.versionId();
+        entity.reviewerId = reviewerId;
+        entity.reviewType = create.reviewType();
+        entity.comment = create.comment();
+        entity.status = com.easystation.plugin.domain.enums.ReviewStatus.PENDING;
+        
+        return entity;
+    }
 
-    default PluginReview fromId(java.util.UUID id) {
-        if (id == null) return null;
-        PluginReview review = new PluginReview();
-        review.setId(id);
-        return review;
+    public void updateEntityForApprove(PluginReview entity, PluginReviewRecord.Approve approve) {
+        if (entity == null || approve == null) {
+            return;
+        }
+        
+        entity.status = com.easystation.plugin.domain.enums.ReviewStatus.APPROVED;
+        entity.comment = approve.comment();
+        entity.securityCheckResult = approve.securityCheckResult();
+        entity.compatibilityCheckResult = approve.compatibilityCheckResult();
+        entity.testReport = approve.testReport();
+        entity.reviewedAt = LocalDateTime.now();
+    }
+
+    public void updateEntityForReject(PluginReview entity, PluginReviewRecord.Reject reject) {
+        if (entity == null || reject == null) {
+            return;
+        }
+        
+        entity.status = com.easystation.plugin.domain.enums.ReviewStatus.REJECTED;
+        entity.comment = reject.comment();
+        entity.reviewedAt = LocalDateTime.now();
     }
 }

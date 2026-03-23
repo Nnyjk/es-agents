@@ -1,8 +1,8 @@
 package com.easystation.plugin.service.impl;
 
-import com.easystation.plugin.domain.entity.Plugin;
-import com.easystation.plugin.domain.entity.PluginCategory;
-import com.easystation.plugin.domain.entity.PluginVersion;
+import com.easystation.plugin.domain.Plugin;
+import com.easystation.plugin.domain.PluginCategory;
+import com.easystation.plugin.domain.PluginVersion;
 import com.easystation.plugin.domain.enums.PluginStatus;
 import com.easystation.plugin.dto.PluginRecord;
 import com.easystation.plugin.dto.PluginVersionRecord;
@@ -68,7 +68,7 @@ public class PluginServiceImpl implements PluginService {
         plugin.setSourceUrl(create.sourceUrl());
         plugin.setDocUrl(create.docUrl());
         plugin.setHomepageUrl(create.homepageUrl());
-        plugin.setIsFree(create.isFree() != null ? create.isFree() : true);
+        plugin.setIsFreeFlag(create.isFree() != null ? create.isFree() : true);
         plugin.setPrice(create.price() != null ? create.price() : BigDecimal.ZERO);
         plugin.setMinPlatformVersion(create.minPlatformVersion());
         plugin.setMaxPlatformVersion(create.maxPlatformVersion());
@@ -158,29 +158,30 @@ public class PluginServiceImpl implements PluginService {
             .map(plugin -> {
                 PluginRecord record = pluginMapper.toRecord(plugin);
                 // Load latest version
-                versionRepository.findLatestByPluginId(id)
-                    .ifPresent(v -> {
-                        PluginVersionRecord versionRecord = versionMapper.toRecord(v);
-                        // Create a new record with version info
-                        return new PluginRecord(
-                            record.id(), record.developerId(), record.developerName(),
-                            record.categoryId(), record.categoryName(), record.name(),
-                            record.code(), record.icon(), record.description(),
-                            record.readme(), record.sourceUrl(), record.docUrl(),
-                            record.homepageUrl(), record.status(), record.isFree(),
-                            record.price(), record.minPlatformVersion(), record.maxPlatformVersion(),
-                            record.supportedPlatforms(), record.permissionsRequired(),
-                            record.configSchema(), record.totalDownloads(), record.totalInstalls(),
-                            record.averageRating(), record.ratingCount(), record.commentCount(),
-                            record.favoriteCount(), record.publishedAt(), record.createdAt(),
-                            record.updatedAt(), record.tags(),
-                            new PluginRecord.PluginVersionInfo(
-                                versionRecord.id(), versionRecord.version(),
-                                versionRecord.downloadUrl(), versionRecord.packageSize(),
-                                versionRecord.publishedAt()
-                            )
-                        );
-                    });
+                Optional<PluginVersion> latestVersion = versionRepository.findLatestByPluginId(id);
+                if (latestVersion.isPresent()) {
+                    PluginVersion v = latestVersion.get();
+                    PluginVersionRecord versionRecord = versionMapper.toRecord(v);
+                    // Create a new record with version info
+                    return new PluginRecord(
+                        record.id(), record.developerId(), record.developerName(),
+                        record.categoryId(), record.categoryName(), record.name(),
+                        record.code(), record.icon(), record.description(),
+                        record.readme(), record.sourceUrl(), record.docUrl(),
+                        record.homepageUrl(), record.status(), record.isFree(),
+                        record.price(), record.minPlatformVersion(), record.maxPlatformVersion(),
+                        record.supportedPlatforms(), record.permissionsRequired(),
+                        record.configSchema(), record.totalDownloads(), record.totalInstalls(),
+                        record.averageRating(), record.ratingCount(), record.commentCount(),
+                        record.favoriteCount(), record.publishedAt(), record.createdAt(),
+                        record.updatedAt(), record.tags(),
+                        new PluginRecord.PluginVersionInfo(
+                            versionRecord.id(), versionRecord.version(),
+                            versionRecord.downloadUrl(), versionRecord.packageSize(),
+                            versionRecord.publishedAt()
+                        )
+                    );
+                }
                 return record;
             });
     }

@@ -1,38 +1,88 @@
 package com.easystation.plugin.mapper;
 
-import com.easystation.plugin.domain.entity.PluginCategory;
+import com.easystation.plugin.domain.PluginCategory;
 import com.easystation.plugin.dto.PluginCategoryRecord;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
-@Mapper(
-    componentModel = "jakarta-cdi",
-    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
-)
-public interface PluginCategoryMapper {
+@ApplicationScoped
+public class PluginCategoryMapper {
 
-    @Mapping(target = "pluginCount", ignore = true)
-    @Mapping(target = "children", ignore = true)
-    PluginCategoryRecord toRecord(PluginCategory entity);
+    public PluginCategoryRecord toRecord(PluginCategory entity) {
+        if (entity == null) {
+            return null;
+        }
+        
+        return new PluginCategoryRecord(
+            entity.id,
+            entity.parentId,
+            entity.name,
+            entity.code,
+            entity.icon,
+            entity.description,
+            entity.sortOrder,
+            entity.isActive,
+            null, // pluginCount - needs to be set by service
+            entity.createdAt,
+            entity.updatedAt,
+            Collections.emptyList() // children - needs to be set by service
+        );
+    }
 
-    List<PluginCategoryRecord> toRecords(List<PluginCategory> entities);
+    public List<PluginCategoryRecord> toRecords(List<PluginCategory> entities) {
+        if (entities == null) {
+            return Collections.emptyList();
+        }
+        return entities.stream()
+            .map(this::toRecord)
+            .collect(Collectors.toList());
+    }
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "parent", ignore = true)
-    @Mapping(target = "children", ignore = true)
-    @Mapping(target = "plugins", ignore = true)
-    void updateEntity(PluginCategoryRecord.Update dto, @MappingTarget PluginCategory entity);
+    public PluginCategory toEntity(PluginCategoryRecord.Create create) {
+        if (create == null) {
+            return null;
+        }
+        
+        PluginCategory entity = new PluginCategory();
+        entity.parentId = create.parentId();
+        entity.name = create.name();
+        entity.code = create.code();
+        entity.icon = create.icon();
+        entity.description = create.description();
+        entity.sortOrder = create.sortOrder() != null ? create.sortOrder() : 0;
+        entity.isActive = true;
+        
+        return entity;
+    }
 
-    default PluginCategory fromId(java.util.UUID id) {
-        if (id == null) return null;
-        PluginCategory category = new PluginCategory();
-        category.setId(id);
-        return category;
+    public void updateEntity(PluginCategory entity, PluginCategoryRecord.Update update) {
+        if (entity == null || update == null) {
+            return;
+        }
+        
+        if (update.parentId() != null) {
+            entity.parentId = update.parentId();
+        }
+        if (update.name() != null) {
+            entity.name = update.name();
+        }
+        if (update.code() != null) {
+            entity.code = update.code();
+        }
+        if (update.icon() != null) {
+            entity.icon = update.icon();
+        }
+        if (update.description() != null) {
+            entity.description = update.description();
+        }
+        if (update.sortOrder() != null) {
+            entity.sortOrder = update.sortOrder();
+        }
+        if (update.isActive() != null) {
+            entity.isActive = update.isActive();
+        }
     }
 }

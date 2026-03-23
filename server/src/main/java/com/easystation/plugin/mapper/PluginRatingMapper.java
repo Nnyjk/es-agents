@@ -1,41 +1,72 @@
 package com.easystation.plugin.mapper;
 
-import com.easystation.plugin.domain.entity.PluginRating;
+import com.easystation.plugin.domain.PluginRating;
 import com.easystation.plugin.dto.PluginRatingRecord;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
+import java.util.Collections;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-@Mapper(
-    componentModel = "jakarta-cdi",
-    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
-)
-public interface PluginRatingMapper {
+@ApplicationScoped
+public class PluginRatingMapper {
 
-    @Mapping(target = "pluginId", source = "plugin.id")
-    @Mapping(target = "pluginName", source = "plugin.name")
-    @Mapping(target = "userId", source = "user.id")
-    @Mapping(target = "userName", source = "user.username")
-    PluginRatingRecord toRecord(PluginRating entity);
+    public PluginRatingRecord toRecord(PluginRating entity) {
+        if (entity == null) {
+            return null;
+        }
+        
+        return new PluginRatingRecord(
+            entity.id,
+            entity.pluginId,
+            null, // pluginName - needs to be set by service
+            entity.userId,
+            null, // userName - needs to be set by service
+            entity.rating,
+            entity.review,
+            entity.isVerified,
+            entity.helpfulCount,
+            entity.createdAt,
+            entity.updatedAt
+        );
+    }
 
-    List<PluginRatingRecord> toRecords(List<PluginRating> entities);
+    public List<PluginRatingRecord> toRecords(List<PluginRating> entities) {
+        if (entities == null) {
+            return Collections.emptyList();
+        }
+        return entities.stream()
+            .map(this::toRecord)
+            .collect(Collectors.toList());
+    }
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "plugin", ignore = true)
-    @Mapping(target = "user", ignore = true)
-    @Mapping(target = "isVerified", ignore = true)
-    @Mapping(target = "helpfulCount", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    void updateEntity(PluginRatingRecord.Create dto, @MappingTarget PluginRating entity);
+    public PluginRating toEntity(PluginRatingRecord.Create create, UUID userId) {
+        if (create == null) {
+            return null;
+        }
+        
+        PluginRating entity = new PluginRating();
+        entity.pluginId = create.pluginId();
+        entity.userId = userId;
+        entity.rating = create.rating();
+        entity.review = create.review();
+        entity.isVerified = false;
+        entity.helpfulCount = 0;
+        
+        return entity;
+    }
 
-    default PluginRating fromId(java.util.UUID id) {
-        if (id == null) return null;
-        PluginRating rating = new PluginRating();
-        rating.setId(id);
-        return rating;
+    public void updateEntity(PluginRating entity, PluginRatingRecord.Update update) {
+        if (entity == null || update == null) {
+            return;
+        }
+        
+        if (update.rating() != null) {
+            entity.rating = update.rating();
+        }
+        if (update.review() != null) {
+            entity.review = update.review();
+        }
     }
 }

@@ -1,8 +1,8 @@
 package com.easystation.plugin.service.impl;
 
-import com.easystation.plugin.domain.entity.Plugin;
-import com.easystation.plugin.domain.entity.PluginReview;
-import com.easystation.plugin.domain.entity.PluginVersion;
+import com.easystation.plugin.domain.Plugin;
+import com.easystation.plugin.domain.PluginReview;
+import com.easystation.plugin.domain.PluginVersion;
 import com.easystation.plugin.domain.enums.ReviewStatus;
 import com.easystation.plugin.dto.PluginReviewRecord;
 import com.easystation.plugin.mapper.PluginReviewMapper;

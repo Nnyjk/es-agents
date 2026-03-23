@@ -1,49 +1,64 @@
 package com.easystation.plugin.mapper;
 
-import com.easystation.plugin.domain.entity.PluginInstallation;
+import com.easystation.plugin.domain.PluginInstallation;
 import com.easystation.plugin.dto.PluginInstallationRecord;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
+import java.util.Collections;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
-@Mapper(
-    componentModel = "jakarta-cdi",
-    nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
-)
-public interface PluginInstallationMapper {
+@ApplicationScoped
+public class PluginInstallationMapper {
 
-    @Mapping(target = "pluginId", source = "plugin.id")
-    @Mapping(target = "pluginName", source = "plugin.name")
-    @Mapping(target = "versionId", source = "version.id")
-    @Mapping(target = "installedVersion", source = "version.version")
-    @Mapping(target = "agentId", source = "agent.id")
-    @Mapping(target = "agentName", source = "agent.name")
-    @Mapping(target = "userId", source = "user.id")
-    PluginInstallationRecord toRecord(PluginInstallation entity);
+    public PluginInstallationRecord toRecord(PluginInstallation entity) {
+        if (entity == null) {
+            return null;
+        }
+        
+        return new PluginInstallationRecord(
+            entity.id,
+            entity.pluginId,
+            null, // pluginName - needs to be set by service
+            entity.versionId,
+            null, // installedVersion - needs to be set by service
+            entity.agentId,
+            null, // agentName - needs to be set by service
+            entity.userId,
+            entity.status,
+            entity.configData,
+            entity.installPath,
+            entity.errorMessage,
+            entity.lastStartedAt,
+            entity.lastStoppedAt,
+            entity.createdAt,
+            entity.updatedAt
+        );
+    }
 
-    List<PluginInstallationRecord> toRecords(List<PluginInstallation> entities);
+    public List<PluginInstallationRecord> toRecords(List<PluginInstallation> entities) {
+        if (entities == null) {
+            return Collections.emptyList();
+        }
+        return entities.stream()
+            .map(this::toRecord)
+            .collect(Collectors.toList());
+    }
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "plugin", ignore = true)
-    @Mapping(target = "version", ignore = true)
-    @Mapping(target = "agent", ignore = true)
-    @Mapping(target = "user", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "installPath", ignore = true)
-    @Mapping(target = "errorMessage", ignore = true)
-    @Mapping(target = "lastStartedAt", ignore = true)
-    @Mapping(target = "lastStoppedAt", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    void updateEntity(PluginInstallationRecord.Install dto, @MappingTarget PluginInstallation entity);
-
-    default PluginInstallation fromId(java.util.UUID id) {
-        if (id == null) return null;
-        PluginInstallation installation = new PluginInstallation();
-        installation.setId(id);
-        return installation;
+    public PluginInstallation toEntity(PluginInstallationRecord.Install install, UUID userId) {
+        if (install == null) {
+            return null;
+        }
+        
+        PluginInstallation entity = new PluginInstallation();
+        entity.pluginId = install.pluginId();
+        entity.versionId = install.versionId();
+        entity.agentId = install.agentId();
+        entity.userId = userId;
+        entity.configData = install.configData();
+        entity.status = com.easystation.plugin.domain.enums.InstallationStatus.INSTALLING;
+        
+        return entity;
     }
 }

@@ -1,6 +1,6 @@
 package com.easystation.plugin.repository;
 
-import com.easystation.plugin.domain.entity.PluginReview;
+import com.easystation.plugin.domain.PluginReview;
 import com.easystation.plugin.domain.enums.ReviewStatus;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
