@@ -11,6 +11,8 @@ public interface PluginInstallationService {
 
     PluginInstallationRecord install(PluginInstallationRecord.Install install, UUID userId);
 
+    List<PluginInstallationRecord> batchInstall(PluginInstallationRecord.BatchInstall batchInstall, UUID userId);
+
     PluginInstallationRecord updateConfig(UUID id, PluginInstallationRecord.UpdateConfig update);
 
     PluginInstallationRecord start(UUID id);

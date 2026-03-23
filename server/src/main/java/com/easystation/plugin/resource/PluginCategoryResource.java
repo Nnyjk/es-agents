@@ -42,7 +42,7 @@ public class PluginCategoryResource {
     @GET
     @Path("/tree")
     public Response getTree() {
-        return Response.ok(categoryService.getTree()).build();
+        return Response.ok(categoryService.getCategoryTree()).build();
     }
 
     @PUT

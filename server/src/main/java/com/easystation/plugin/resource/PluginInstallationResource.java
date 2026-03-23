@@ -22,17 +22,19 @@ public class PluginInstallationResource {
     PluginInstallationService installationService;
 
     @POST
-    public Response install(@Valid PluginInstallationRecord.Install install) {
+    public Response install(@Valid PluginInstallationRecord.Install install, @Context SecurityContext securityContext) {
+        UUID userId = getUserId(securityContext);
         return Response.status(Response.Status.CREATED)
-                .entity(installationService.install(install))
+                .entity(installationService.install(install, userId))
                 .build();
     }
 
     @POST
     @Path("/batch")
-    public Response batchInstall(@Valid List<PluginInstallationRecord.Install> installs) {
+    public Response batchInstall(@Valid PluginInstallationRecord.BatchInstall batchInstall, @Context SecurityContext securityContext) {
+        UUID userId = getUserId(securityContext);
         return Response.status(Response.Status.CREATED)
-                .entity(installationService.batchInstall(installs))
+                .entity(installationService.batchInstall(batchInstall, userId))
                 .build();
     }
 
@@ -58,6 +60,24 @@ public class PluginInstallationResource {
     }
 
     @PUT
+    @Path("/{id}/config")
+    public Response updateConfig(@PathParam("id") UUID id, @Valid PluginInstallationRecord.UpdateConfig update) {
+        return Response.ok(installationService.updateConfig(id, update)).build();
+    }
+
+    @PUT
+    @Path("/{id}/start")
+    public Response start(@PathParam("id") UUID id) {
+        return Response.ok(installationService.start(id)).build();
+    }
+
+    @PUT
+    @Path("/{id}/stop")
+    public Response stop(@PathParam("id") UUID id) {
+        return Response.ok(installationService.stop(id)).build();
+    }
+
+    @PUT
     @Path("/{id}/enable")
     public Response enable(@PathParam("id") UUID id) {
         return Response.ok(installationService.enable(id)).build();
@@ -69,14 +89,6 @@ public class PluginInstallationResource {
         return Response.ok(installationService.disable(id)).build();
     }
 
-    @PUT
-    @Path("/{id}/upgrade")
-    public Response upgrade(
-            @PathParam("id") UUID id,
-            @QueryParam("versionId") UUID versionId) {
-        return Response.ok(installationService.upgrade(id, versionId)).build();
-    }
-
     @DELETE
     @Path("/{id}")
     public Response uninstall(@PathParam("id") UUID id) {
@@ -85,22 +97,13 @@ public class PluginInstallationResource {
     }
 
     @GET
-    @Path("/{id}/status")
-    public Response getStatus(@PathParam("id") UUID id) {
-        return Response.ok(installationService.getStatus(id)).build();
+    @Path("/search")
+    public Response search(@BeanParam PluginInstallationRecord.Query query) {
+        return Response.ok(installationService.search(query)).build();
     }
 
-    @GET
-    @Path("/{id}/logs")
-    public Response getLogs(
-            @PathParam("id") UUID id,
-            @QueryParam("lines") @DefaultValue("100") int lines) {
-        return Response.ok(installationService.getLogs(id, lines)).build();
-    }
-
-    @GET
-    @Path("/{id}/metrics")
-    public Response getMetrics(@PathParam("id") UUID id) {
-        return Response.ok(installationService.getMetrics(id)).build();
+    private UUID getUserId(SecurityContext securityContext) {
+        String userIdStr = securityContext.getUserPrincipal().getName();
+        return UUID.fromString(userIdStr);
     }
 }

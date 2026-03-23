@@ -21,9 +21,10 @@ public class PluginRatingResource {
     PluginRatingService ratingService;
 
     @POST
-    public Response create(@Valid PluginRatingRecord.Create create) {
+    public Response create(@Valid PluginRatingRecord.Create create, @Context SecurityContext securityContext) {
+        UUID userId = getUserId(securityContext);
         return Response.status(Response.Status.CREATED)
-                .entity(ratingService.create(create))
+                .entity(ratingService.create(create, userId))
                 .build();
     }
 
@@ -38,17 +39,14 @@ public class PluginRatingResource {
 
     @GET
     @Path("/plugin/{pluginId}")
-    public Response findByPluginId(
-            @PathParam("pluginId") UUID pluginId,
-            @QueryParam("page") @DefaultValue("0") int page,
-            @QueryParam("size") @DefaultValue("20") int size) {
-        return Response.ok(ratingService.findByPluginId(pluginId, page, size)).build();
+    public Response findByPluginId(@PathParam("pluginId") UUID pluginId) {
+        return Response.ok(ratingService.findByPluginId(pluginId)).build();
     }
 
     @GET
-    @Path("/user/{userId}")
-    public Response findByUserId(@PathParam("userId") UUID userId) {
-        return Response.ok(ratingService.findByUserId(userId)).build();
+    @Path("/plugin/{pluginId}/summary")
+    public Response getSummary(@PathParam("pluginId") UUID pluginId) {
+        return Response.ok(ratingService.getSummary(pluginId)).build();
     }
 
     @PUT
@@ -65,8 +63,13 @@ public class PluginRatingResource {
     }
 
     @GET
-    @Path("/plugin/{pluginId}/stats")
-    public Response getPluginRatingStats(@PathParam("pluginId") UUID pluginId) {
-        return Response.ok(ratingService.getPluginRatingStats(pluginId)).build();
+    @Path("/search")
+    public Response search(@BeanParam PluginRatingRecord.Query query) {
+        return Response.ok(ratingService.search(query)).build();
+    }
+
+    private UUID getUserId(SecurityContext securityContext) {
+        String userIdStr = securityContext.getUserPrincipal().getName();
+        return UUID.fromString(userIdStr);
     }
 }

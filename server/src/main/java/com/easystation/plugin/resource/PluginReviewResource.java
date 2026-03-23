@@ -1,14 +1,13 @@
 package com.easystation.plugin.resource;
 
+import com.easystation.plugin.domain.enums.ReviewStatus;
 import com.easystation.plugin.dto.PluginReviewRecord;
 import com.easystation.plugin.service.PluginReviewService;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.UUID;
 
@@ -21,10 +20,23 @@ public class PluginReviewResource {
     PluginReviewService reviewService;
 
     @POST
+    @Path("/submit")
     public Response submit(@Valid PluginReviewRecord.Submit submit) {
         return Response.status(Response.Status.CREATED)
                 .entity(reviewService.submit(submit))
                 .build();
+    }
+
+    @POST
+    @Path("/{reviewId}/approve")
+    public Response approve(@PathParam("reviewId") UUID reviewId, @Valid PluginReviewRecord.Approve approve) {
+        return Response.ok(reviewService.approve(reviewId, approve)).build();
+    }
+
+    @POST
+    @Path("/{reviewId}/reject")
+    public Response reject(@PathParam("reviewId") UUID reviewId, @Valid PluginReviewRecord.Reject reject) {
+        return Response.ok(reviewService.reject(reviewId, reject)).build();
     }
 
     @GET
@@ -38,59 +50,40 @@ public class PluginReviewResource {
 
     @GET
     @Path("/plugin/{pluginId}")
-    public Response findByPluginId(
-            @PathParam("pluginId") UUID pluginId,
-            @QueryParam("status") String status,
-            @QueryParam("page") @DefaultValue("0") int page,
-            @QueryParam("size") @DefaultValue("20") int size) {
-        return Response.ok(reviewService.findByPluginId(pluginId, status, page, size)).build();
+    public Response findByPluginId(@PathParam("pluginId") UUID pluginId) {
+        return Response.ok(reviewService.findByPluginId(pluginId)).build();
     }
 
     @GET
-    @Path("/version/{versionId}")
-    public Response findByVersionId(
-            @PathParam("versionId") UUID versionId,
-            @QueryParam("status") String status,
-            @QueryParam("page") @DefaultValue("0") int page,
-            @QueryParam("size") @DefaultValue("20") int size) {
-        return Response.ok(reviewService.findByVersionId(versionId, status, page, size)).build();
+    @Path("/status/{status}")
+    public Response findByStatus(@PathParam("status") ReviewStatus status) {
+        return Response.ok(reviewService.findByStatus(status)).build();
     }
 
     @GET
-    @Path("/pending")
-    public Response getPendingReviews(
-            @QueryParam("page") @DefaultValue("0") int page,
-            @QueryParam("size") @DefaultValue("20") int size) {
-        return Response.ok(reviewService.getPendingReviews(page, size)).build();
-    }
-
-    @POST
-    @Path("/{id}/approve")
-    public Response approve(
-            @PathParam("id") UUID id,
-            @QueryParam("comment") String comment) {
-        return Response.ok(reviewService.approve(id, comment)).build();
-    }
-
-    @POST
-    @Path("/{id}/reject")
-    public Response reject(
-            @PathParam("id") UUID id,
-            @QueryParam("reason") String reason) {
-        return Response.ok(reviewService.reject(id, reason)).build();
-    }
-
-    @POST
-    @Path("/{id}/comment")
-    public Response addComment(
-            @PathParam("id") UUID id,
-            @QueryParam("comment") String comment) {
-        return Response.ok(reviewService.addComment(id, comment)).build();
+    @Path("/plugin/{pluginId}/pending")
+    public Response findPendingByPluginId(@PathParam("pluginId") UUID pluginId) {
+        return reviewService.findPendingByPluginId(pluginId)
+                .map(Response::ok)
+                .map(Response.ResponseBuilder::build)
+                .orElse(Response.status(Response.Status.NOT_FOUND).build());
     }
 
     @GET
-    @Path("/{id}/history")
-    public Response getHistory(@PathParam("id") UUID id) {
-        return Response.ok(reviewService.getHistory(id)).build();
+    @Path("/search")
+    public Response search(@BeanParam PluginReviewRecord.Query query) {
+        return Response.ok(reviewService.search(query)).build();
+    }
+
+    @GET
+    @Path("/count/status/{status}")
+    public Response countByStatus(@PathParam("status") ReviewStatus status) {
+        return Response.ok(reviewService.countByStatus(status)).build();
+    }
+
+    @GET
+    @Path("/count/plugin/{pluginId}")
+    public Response countByPluginId(@PathParam("pluginId") UUID pluginId) {
+        return Response.ok(reviewService.countByPluginId(pluginId)).build();
     }
 }

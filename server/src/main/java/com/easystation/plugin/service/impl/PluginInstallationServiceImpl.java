@@ -89,6 +89,24 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
 
     @Override
     @Transactional
+    public List<PluginInstallationRecord> batchInstall(PluginInstallationRecord.BatchInstall batchInstall, UUID userId) {
+        return batchInstall.pluginIds().stream()
+            .map(pluginId -> {
+                PluginInstallationRecord.Install install = new PluginInstallationRecord.Install(
+                    pluginId,
+                    null,
+                    batchInstall.agentIds() != null && !batchInstall.agentIds().isEmpty() 
+                        ? batchInstall.agentIds().get(0) 
+                        : null,
+                    null
+                );
+                return install(install, userId);
+            })
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
     public PluginInstallationRecord updateConfig(UUID id, PluginInstallationRecord.UpdateConfig update) {
         PluginInstallation installation = installationRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Installation not found: " + id));
