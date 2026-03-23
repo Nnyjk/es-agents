@@ -13,6 +13,7 @@ import type {
   AgentLogRecord,
   LogQueryParams,
   LogStats,
+  LogEntry,
   DeploymentLogQueryParams,
   CommandLogQueryParams,
   CommandExecutionRecord,

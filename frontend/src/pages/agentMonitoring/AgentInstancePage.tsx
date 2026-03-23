@@ -100,7 +100,10 @@ const getTaskStatusTag = (status: string) => {
  * 获取日志级别标签
  */
 const getLogLevelTag = (level: LogLevel) => {
-  const levelConfig: Record<LogLevel, { color: string; icon: React.ReactNode }> = {
+  const levelConfig: Record<
+    LogLevel,
+    { color: string; icon: React.ReactNode }
+  > = {
     DEBUG: { color: "default", icon: <BugOutlined /> },
     INFO: { color: "blue", icon: <InfoCircleOutlined /> },
     WARN: { color: "orange", icon: <WarningOutlined /> },
@@ -120,7 +123,9 @@ const getLogLevelTag = (level: LogLevel) => {
 const LogViewer: React.FC<{ agentId: string }> = ({ agentId }) => {
   const [levelFilter, setLevelFilter] = useState<LogLevel | undefined>();
   const [keyword, setKeyword] = useState("");
-  const [timeRange, setTimeRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
+  const [timeRange, setTimeRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(
+    null,
+  );
 
   const { data: logStats, isLoading: statsLoading } = useQuery({
     queryKey: ["agentLogStats", agentId],
@@ -128,7 +133,11 @@ const LogViewer: React.FC<{ agentId: string }> = ({ agentId }) => {
     enabled: !!agentId,
   });
 
-  const { data: logs, isLoading: logsLoading, refetch } = useQuery({
+  const {
+    data: logs,
+    isLoading: logsLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["agentLogs", agentId, levelFilter, keyword, timeRange],
     queryFn: () =>
       agentMonitoringService.getLogs({
@@ -237,9 +246,7 @@ const LogViewer: React.FC<{ agentId: string }> = ({ agentId }) => {
             showTime
             size="small"
             onChange={(dates) =>
-              setTimeRange(
-                dates as [dayjs.Dayjs, dayjs.Dayjs] | null
-              )
+              setTimeRange(dates as [dayjs.Dayjs, dayjs.Dayjs] | null)
             }
           />
           <Button
@@ -278,10 +285,17 @@ const CommandExecutePanel: React.FC<{ agentId: string }> = ({ agentId }) => {
   const [output, setOutput] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  const { data: history, isLoading: historyLoading, refetch } = useQuery({
+  const {
+    data: history,
+    isLoading: historyLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["commandHistory", agentId],
     queryFn: () =>
-      agentMonitoringService.getCommandHistory(agentId, { page: 0, pageSize: 10 }),
+      agentMonitoringService.getCommandHistory(agentId, {
+        page: 0,
+        pageSize: 10,
+      }),
     enabled: !!agentId,
   });
 
