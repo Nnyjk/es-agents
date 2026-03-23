@@ -36,7 +36,6 @@ import {
   WarningOutlined,
   InfoCircleOutlined,
   BugOutlined,
-  ClearOutlined,
 } from "@ant-design/icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { ColumnsType } from "antd/es/table";
@@ -46,7 +45,6 @@ import type {
   AgentTaskRecord,
   LogEntry,
   LogLevel,
-  LogStats,
   CommandExecutionRecord,
 } from "../../types/agentMonitoring";
 import dayjs from "dayjs";
