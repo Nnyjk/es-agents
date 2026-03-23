@@ -246,13 +246,12 @@ public class AuditLogService {
                 request.action(),
                 request.result(),
                 request.resourceType(),
+                null, // resourceId
                 request.startTime(),
                 request.endTime(),
                 request.keyword(),
-                null, // page
-                null, // pageSize
-                null, // sortBy
-                null  // sortOrder
+                null, // limit
+                null  // offset
         );
     }
 
@@ -444,10 +443,10 @@ public class AuditLogService {
         long count = AuditLog.count("createdAt < ?1", beforeDate);
         
         if (Boolean.TRUE.equals(dryRun)) {
-            return new AuditRecord.CleanupResult((int) count, beforeDate);
+            return new AuditRecord.CleanupResult(Math.toIntExact(count), beforeDate);
         }
 
-        int deleted = AuditLog.delete("createdAt < ?1", beforeDate);
+        int deleted = Math.toIntExact(AuditLog.delete("createdAt < ?1", beforeDate));
         return new AuditRecord.CleanupResult(deleted, beforeDate);
     }
 }

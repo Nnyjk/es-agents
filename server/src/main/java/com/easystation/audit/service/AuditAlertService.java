@@ -264,7 +264,7 @@ public class AuditAlertService {
 
             if (!logs.isEmpty()) {
                 // 创建告警历史
-                createAlertHistory(config, "SENSITIVE_OPERATION", logs.get(0).username, logs.get(0).ip,
+                createAlertHistory(config, "SENSITIVE_OPERATION", logs.get(0).username, logs.get(0).clientIp,
                         "检测到敏感操作: " + action.getDescription(), logs);
             }
         }
@@ -293,7 +293,7 @@ public class AuditAlertService {
 
         for (Map.Entry<String, List<AuditLog>> entry : byUser.entrySet()) {
             if (entry.getValue().size() >= threshold) {
-                createAlertHistory(config, "FAILED_OPERATION", entry.getKey(), entry.getValue().get(0).ip,
+                createAlertHistory(config, "FAILED_OPERATION", entry.getKey(), entry.getValue().get(0).clientIp,
                         "用户[" + entry.getKey() + "]在" + windowMinutes + "分钟内失败操作次数达到" + entry.getValue().size() + "次",
                         entry.getValue());
             }
@@ -332,7 +332,7 @@ public class AuditAlertService {
 
         for (Map.Entry<String, List<AuditLog>> entry : byUser.entrySet()) {
             if (entry.getValue().size() >= threshold) {
-                createAlertHistory(config, "FREQUENT_ACCESS", entry.getKey(), entry.getValue().get(0).ip,
+                createAlertHistory(config, "FREQUENT_ACCESS", entry.getKey(), entry.getValue().get(0).clientIp,
                         "用户[" + entry.getKey() + "]在" + windowMinutes + "分钟内访问次数达到" + entry.getValue().size() + "次",
                         entry.getValue().subList(0, Math.min(10, entry.getValue().size())));
             }
