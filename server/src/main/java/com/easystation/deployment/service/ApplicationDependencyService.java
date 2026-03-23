@@ -52,7 +52,12 @@ public class ApplicationDependencyService {
                 .map(mapper::toDTO)
                 .toList();
         
-        return new PageResultDTO<>(items, total, pageNum, pageSize);
+        PageResultDTO<ApplicationDependencyDTO> result = new PageResultDTO<>();
+        result.setList(items);
+        result.setTotal(total);
+        result.setPageNum(pageNum);
+        result.setPageSize(pageSize);
+        return result;
     }
 
     /**
@@ -116,7 +121,7 @@ public class ApplicationDependencyService {
      * 删除应用的所有依赖
      */
     @Transactional
-    public int deleteByApplication(UUID applicationId) {
+    public long deleteByApplication(UUID applicationId) {
         return ApplicationDependency.delete("applicationId", applicationId);
     }
 

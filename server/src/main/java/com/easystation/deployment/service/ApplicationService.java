@@ -65,15 +65,15 @@ public class ApplicationService {
         app.techStack = dto.getTechStack() != null ? String.join(",", dto.getTechStack()) : null;
         app.status = dto.getStatus() != null ? dto.getStatus() : ApplicationStatus.ACTIVE;
         
-        if (dto.getConfig() != null) {
-            app.repositoryUrl = dto.getConfig().getRepositoryUrl();
-            app.branch = dto.getConfig().getBranch();
-            app.buildScript = dto.getConfig().getBuildScript();
-            app.deployPath = dto.getConfig().getDeployPath();
-            app.healthCheckUrl = dto.getConfig().getHealthCheckUrl();
-            app.buildCommand = dto.getConfig().getBuildCommand();
-            app.startCommand = dto.getConfig().getStartCommand();
-            app.stopCommand = dto.getConfig().getStopCommand();
+        if (dto.getCodeConfig() != null) {
+            app.repositoryUrl = dto.getCodeConfig().getRepositoryUrl();
+            app.branch = dto.getCodeConfig().getBranch();
+            app.buildScript = dto.getCodeConfig().getBuildScript();
+            app.deployPath = dto.getCodeConfig().getDeployPath();
+            app.healthCheckUrl = dto.getCodeConfig().getHealthCheckUrl();
+            app.buildCommand = dto.getCodeConfig().getBuildCommand();
+            app.startCommand = dto.getCodeConfig().getStartCommand();
+            app.stopCommand = dto.getCodeConfig().getStopCommand();
         }
         
         app.persist();
@@ -93,15 +93,15 @@ public class ApplicationService {
         if (dto.getTechStack() != null) app.techStack = String.join(",", dto.getTechStack());
         if (dto.getStatus() != null) app.status = dto.getStatus();
         
-        if (dto.getConfig() != null) {
-            if (dto.getConfig().getRepositoryUrl() != null) app.repositoryUrl = dto.getConfig().getRepositoryUrl();
-            if (dto.getConfig().getBranch() != null) app.branch = dto.getConfig().getBranch();
-            if (dto.getConfig().getBuildScript() != null) app.buildScript = dto.getConfig().getBuildScript();
-            if (dto.getConfig().getDeployPath() != null) app.deployPath = dto.getConfig().getDeployPath();
-            if (dto.getConfig().getHealthCheckUrl() != null) app.healthCheckUrl = dto.getConfig().getHealthCheckUrl();
-            if (dto.getConfig().getBuildCommand() != null) app.buildCommand = dto.getConfig().getBuildCommand();
-            if (dto.getConfig().getStartCommand() != null) app.startCommand = dto.getConfig().getStartCommand();
-            if (dto.getConfig().getStopCommand() != null) app.stopCommand = dto.getConfig().getStopCommand();
+        if (dto.getCodeConfig() != null) {
+            if (dto.getCodeConfig().getRepositoryUrl() != null) app.repositoryUrl = dto.getCodeConfig().getRepositoryUrl();
+            if (dto.getCodeConfig().getBranch() != null) app.branch = dto.getCodeConfig().getBranch();
+            if (dto.getCodeConfig().getBuildScript() != null) app.buildScript = dto.getCodeConfig().getBuildScript();
+            if (dto.getCodeConfig().getDeployPath() != null) app.deployPath = dto.getCodeConfig().getDeployPath();
+            if (dto.getCodeConfig().getHealthCheckUrl() != null) app.healthCheckUrl = dto.getCodeConfig().getHealthCheckUrl();
+            if (dto.getCodeConfig().getBuildCommand() != null) app.buildCommand = dto.getCodeConfig().getBuildCommand();
+            if (dto.getCodeConfig().getStartCommand() != null) app.startCommand = dto.getCodeConfig().getStartCommand();
+            if (dto.getCodeConfig().getStopCommand() != null) app.stopCommand = dto.getCodeConfig().getStopCommand();
         }
         
         app.persist();
@@ -140,16 +140,16 @@ public class ApplicationService {
         dto.setCreatedAt(app.createdAt);
         dto.setUpdatedAt(app.updatedAt);
         
-        ApplicationConfigDTO config = new ApplicationConfigDTO();
-        config.setRepositoryUrl(app.repositoryUrl);
-        config.setBranch(app.branch);
-        config.setBuildScript(app.buildScript);
-        config.setDeployPath(app.deployPath);
-        config.setHealthCheckUrl(app.healthCheckUrl);
-        config.setBuildCommand(app.buildCommand);
-        config.setStartCommand(app.startCommand);
-        config.setStopCommand(app.stopCommand);
-        dto.setConfig(config);
+        ApplicationCodeConfigDTO codeConfig = new ApplicationCodeConfigDTO();
+        codeConfig.setRepositoryUrl(app.repositoryUrl);
+        codeConfig.setBranch(app.branch);
+        codeConfig.setBuildScript(app.buildScript);
+        codeConfig.setDeployPath(app.deployPath);
+        codeConfig.setHealthCheckUrl(app.healthCheckUrl);
+        codeConfig.setBuildCommand(app.buildCommand);
+        codeConfig.setStartCommand(app.startCommand);
+        codeConfig.setStopCommand(app.stopCommand);
+        dto.setCodeConfig(codeConfig);
         
         return dto;
     }

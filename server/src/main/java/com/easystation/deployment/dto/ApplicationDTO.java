@@ -16,7 +16,7 @@ public class ApplicationDTO {
     public List<String> techStack;
     public String currentVersion;
     public ApplicationStatus status;
-    public ApplicationConfigDTO config;
+    public ApplicationCodeConfigDTO codeConfig;
     public List<ApplicationEnvironmentDTO> environments;
     public LocalDateTime createdAt;
     public LocalDateTime updatedAt;

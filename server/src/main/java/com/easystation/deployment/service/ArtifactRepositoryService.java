@@ -56,7 +56,12 @@ public class ArtifactRepositoryService {
                 .map(mapper::toDTO)
                 .toList();
         
-        return new PageResultDTO<>(items, total, pageNum, pageSize);
+        PageResultDTO<ArtifactRepositoryDTO> result = new PageResultDTO<>();
+        result.setList(items);
+        result.setTotal(total);
+        result.setPageNum(pageNum);
+        result.setPageSize(pageSize);
+        return result;
     }
 
     /**

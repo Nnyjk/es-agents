@@ -52,7 +52,12 @@ public class DeployStrategyService {
                 .map(mapper::toDTO)
                 .toList();
         
-        return new PageResultDTO<>(items, total, pageNum, pageSize);
+        PageResultDTO<DeployStrategyDTO> result = new PageResultDTO<>();
+        result.setList(items);
+        result.setTotal(total);
+        result.setPageNum(pageNum);
+        result.setPageSize(pageSize);
+        return result;
     }
 
     /**
@@ -133,7 +138,7 @@ public class DeployStrategyService {
      * 删除应用的所有策略
      */
     @Transactional
-    public int deleteByApplication(UUID applicationId) {
+    public long deleteByApplication(UUID applicationId) {
         return DeployStrategy.delete("applicationId", applicationId);
     }
 
