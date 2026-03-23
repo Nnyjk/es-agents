@@ -32,21 +32,17 @@ public class AuditLogService {
     }
 
     public AuditLogRecord.Summary getSummary(UUID userId) {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime todayStart = now.toLocalDate().atStartOfDay();
-        LocalDateTime weekStart = now.minusDays(7);
-        LocalDateTime monthStart = now.minusDays(30);
+        long totalCount = auditLogRepository.countByUserId(userId);
+        long successCount = auditLogRepository.countByUserIdAndStatus(userId, "SUCCESS");
+        long failedCount = auditLogRepository.countByUserIdAndStatus(userId, "FAILED");
         
-        long totalToday = auditLogRepository.countByUserIdAndTimeRange(userId, todayStart, now);
-        long totalWeek = auditLogRepository.countByUserIdAndTimeRange(userId, weekStart, now);
-        long totalMonth = auditLogRepository.countByUserIdAndTimeRange(userId, monthStart, now);
+        // Get top 5 actions
+        List<AuditLogRecord.ActionCount> topActions = auditLogRepository.findTopActionsByUserId(userId, 5)
+            .stream()
+            .map(row -> new AuditLogRecord.ActionCount((String) row[0], ((Number) row[1]).longValue()))
+            .collect(Collectors.toList());
         
-        // Get action counts
-        Map<String, Long> actionCounts = new HashMap<>();
-        // TODO: Implement action-specific queries
-        // For now, return empty map
-        
-        return new AuditLogRecord.Summary(totalToday, totalWeek, totalMonth, actionCounts);
+        return new AuditLogRecord.Summary(totalCount, successCount, failedCount, topActions);
     }
 
     @Transactional

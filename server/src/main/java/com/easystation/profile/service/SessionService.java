@@ -37,15 +37,10 @@ public class SessionService {
     public SessionRecord.Summary getSessionSummary(UUID userId) {
         LocalDateTime now = LocalDateTime.now();
         
-        long total = sessionRepository.countByUserId(userId);
-        long active = sessionRepository.countActiveSessions(userId, now);
+        int total = (int) sessionRepository.countByUserId(userId);
+        int active = (int) sessionRepository.countActiveSessions(userId, now);
         
-        // For login stats, we need to query audit logs
-        // This is a placeholder - should integrate with AuditLogService
-        long loginsToday = 0;
-        long loginsThisWeek = 0;
-        
-        return new SessionRecord.Summary(total, active, loginsToday, loginsThisWeek);
+        return new SessionRecord.Summary(total, active);
     }
 
     @Transactional

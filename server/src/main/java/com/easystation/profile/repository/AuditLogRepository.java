@@ -72,4 +72,21 @@ public class AuditLogRepository implements PanacheRepository<UserAuditLog> {
         return count("userId = ?1 AND action = ?2 AND createdAt >= ?3 AND createdAt <= ?4", 
             userId, action, startTime, endTime);
     }
+
+    public long countByUserId(UUID userId) {
+        return count("userId", userId);
+    }
+
+    public long countByUserIdAndStatus(UUID userId, String status) {
+        return count("userId = ?1 AND status = ?2", userId, status);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Object[]> findTopActionsByUserId(UUID userId, int limit) {
+        String jpql = "SELECT action, COUNT(*) as cnt FROM UserAuditLog WHERE userId = :userId GROUP BY action ORDER BY cnt DESC";
+        return getEntityManager().createQuery(jpql)
+            .setParameter("userId", userId)
+            .setMaxResults(limit)
+            .getResultList();
+    }
 }
