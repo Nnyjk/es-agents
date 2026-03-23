@@ -55,9 +55,93 @@ public class SettingRecord {
             Integer alertRetryCount
     ) {}
 
+    /**
+     * 存储配置
+     */
+    public record StorageSettings(
+            String storageType,
+            String localStoragePath,
+            String ossEndpoint,
+            String ossBucket,
+            String ossAccessKey,
+            String ossSecretKey,
+            String ossRegion,
+            Integer maxFileSizeMb,
+            String allowedFileTypes
+    ) {}
+
+    /**
+     * 资源配置
+     */
+    public record ResourceSettings(
+            Integer defaultResourceQuota,
+            Integer maxTenantQuota,
+            Boolean overQuotaAllowed,
+            Integer logRetentionDays,
+            String logStoragePath,
+            Boolean logArchiveEnabled,
+            Integer cacheExpireMinutes,
+            String cacheCleanupPolicy
+    ) {}
+
+    /**
+     * 通知配置
+     */
+    public record NotificationSettings(
+            String emailSmtpHost,
+            Integer emailSmtpPort,
+            String emailUsername,
+            String emailPassword,
+            Boolean emailEnabled,
+            String smsProvider,
+            String smsApiKey,
+            Boolean smsEnabled,
+            String wechatWebhook,
+            Boolean wechatEnabled,
+            String dingtalkWebhook,
+            Boolean dingtalkEnabled,
+            String feishuWebhook,
+            Boolean feishuEnabled
+    ) {}
+
+    /**
+     * 维护配置
+     */
+    public record MaintenanceSettings(
+            Boolean maintenanceMode,
+            String maintenanceMessage,
+            String maintenanceWhitelist,
+            String licenseKey,
+            Boolean licenseValid,
+            String licenseExpiry
+    ) {}
+
+    /**
+     * 集成配置
+     */
+    public record IntegrationSettings(
+            Boolean oauthEnabled,
+            String oauthProvider,
+            String oauthClientId,
+            String oauthClientSecret,
+            Boolean ldapEnabled,
+            String ldapUrl,
+            String ldapBaseDn,
+            String ldapBindDn,
+            String ldapBindPassword,
+            Boolean ssoEnabled,
+            String ssoEntryPoint,
+            String ssoCertificate
+    ) {}
+
     public record AllSettings(
             BasicSettings basic,
             SecuritySettings security,
-            AlertSettings alert
+            AlertSettings alert,
+            StorageSettings storage,
+            ResourceSettings resource,
+            NotificationSettings notification,
+            MaintenanceSettings maintenance,
+            IntegrationSettings integration
     ) {}
 }
