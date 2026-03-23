@@ -2,15 +2,30 @@ package com.easystation.profile.mapper;
 
 import com.easystation.profile.dto.AuditLogRecord;
 import com.easystation.profile.domain.UserAuditLog;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import jakarta.enterprise.context.ApplicationScoped;
 
-@Mapper(componentModel = "cdi", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-public interface AuditLogMapper {
+@ApplicationScoped
+public class AuditLogMapper {
 
-    @Mapping(target = "oldValues", source = "requestData")
-    @Mapping(target = "newValues", source = "responseData")
-    @Mapping(target = "duration", source = "durationMs")
-    AuditLogRecord toRecord(UserAuditLog entity);
+    public AuditLogRecord toRecord(UserAuditLog entity) {
+        if (entity == null) {
+            return null;
+        }
+        return new AuditLogRecord(
+            entity.id,
+            entity.userId,
+            entity.action,
+            entity.resourceType,
+            entity.resourceId,
+            entity.description,
+            entity.status,
+            entity.requestData,
+            entity.responseData,
+            entity.errorMessage,
+            entity.ipAddress,
+            entity.userAgent,
+            entity.durationMs,
+            entity.createdAt
+        );
+    }
 }

@@ -2,19 +2,62 @@ package com.easystation.profile.mapper;
 
 import com.easystation.profile.dto.PreferenceRecord;
 import com.easystation.profile.domain.UserPreference;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import jakarta.enterprise.context.ApplicationScoped;
 
-@Mapper(componentModel = "cdi", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-public interface PreferenceMapper {
+@ApplicationScoped
+public class PreferenceMapper {
 
-    PreferenceRecord toRecord(UserPreference entity);
+    public PreferenceRecord toRecord(UserPreference entity) {
+        if (entity == null) {
+            return null;
+        }
+        return new PreferenceRecord(
+            entity.id,
+            entity.userId,
+            entity.theme,
+            entity.language,
+            entity.layout,
+            entity.pageSize,
+            entity.timezone,
+            entity.dateFormat,
+            entity.timeFormat,
+            entity.emailNotification,
+            entity.pushNotification,
+            entity.createdAt,
+            entity.updatedAt
+        );
+    }
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "userId", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    void updateEntity(PreferenceRecord.Update dto, @MappingTarget UserPreference entity);
+    public void updateEntity(PreferenceRecord.Update dto, UserPreference entity) {
+        if (entity == null || dto == null) {
+            return;
+        }
+        if (dto.theme() != null) {
+            entity.theme = dto.theme();
+        }
+        if (dto.language() != null) {
+            entity.language = dto.language();
+        }
+        if (dto.layout() != null) {
+            entity.layout = dto.layout();
+        }
+        if (dto.pageSize() != null) {
+            entity.pageSize = dto.pageSize();
+        }
+        if (dto.timezone() != null) {
+            entity.timezone = dto.timezone();
+        }
+        if (dto.dateFormat() != null) {
+            entity.dateFormat = dto.dateFormat();
+        }
+        if (dto.timeFormat() != null) {
+            entity.timeFormat = dto.timeFormat();
+        }
+        if (dto.emailNotification() != null) {
+            entity.emailNotification = dto.emailNotification();
+        }
+        if (dto.pushNotification() != null) {
+            entity.pushNotification = dto.pushNotification();
+        }
+    }
 }

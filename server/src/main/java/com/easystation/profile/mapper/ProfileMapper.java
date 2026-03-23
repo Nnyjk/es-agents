@@ -2,23 +2,44 @@ package com.easystation.profile.mapper;
 
 import com.easystation.profile.dto.ProfileRecord;
 import com.easystation.system.domain.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import jakarta.enterprise.context.ApplicationScoped;
 
-@Mapper(componentModel = "cdi", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-public interface ProfileMapper {
+@ApplicationScoped
+public class ProfileMapper {
 
-    ProfileRecord toRecord(User entity);
+    public ProfileRecord toRecord(User entity) {
+        if (entity == null) {
+            return null;
+        }
+        return new ProfileRecord(
+            entity.id,
+            entity.username,
+            entity.email,
+            entity.phone,
+            entity.nickname,
+            entity.avatar,
+            entity.mfaEnabled,
+            entity.status != null ? entity.status.name() : null,
+            entity.createdAt,
+            entity.updatedAt
+        );
+    }
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "username", ignore = true)
-    @Mapping(target = "password", ignore = true)
-    @Mapping(target = "roles", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "mfaSecret", ignore = true)
-    void updateEntity(ProfileRecord.Update dto, @MappingTarget User entity);
+    public void updateEntity(ProfileRecord.Update dto, User entity) {
+        if (entity == null || dto == null) {
+            return;
+        }
+        if (dto.email() != null) {
+            entity.email = dto.email();
+        }
+        if (dto.phone() != null) {
+            entity.phone = dto.phone();
+        }
+        if (dto.nickname() != null) {
+            entity.nickname = dto.nickname();
+        }
+        if (dto.avatar() != null) {
+            entity.avatar = dto.avatar();
+        }
+    }
 }
