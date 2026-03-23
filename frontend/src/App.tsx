@@ -27,7 +27,6 @@ import AlertRulePage from "./pages/alert/AlertRule";
 import AlertChannelPage from "./pages/alert/AlertChannel";
 import BackupManagement from "./pages/system/Backup";
 import SystemSettings from "./pages/system/Settings";
-import CMDBPage from "./pages/cmdb";
 import DeploymentPage from "./pages/deployment";
 import { ProfilePage } from "./pages/profile";
 
@@ -65,7 +64,6 @@ const App: React.FC = () => {
           <Route path="modules" element={<ModuleList />} />
           <Route path="backup" element={<BackupManagement />} />
           <Route path="settings" element={<SystemSettings />} />
-          <Route path="cmdb" element={<CMDBPage />} />
           <Route path="goals" element={<GoalHub />} />
           <Route path="goals/deploy" element={<DeploymentWizard />} />
           <Route path="deployment" element={<DeploymentPage />} />
