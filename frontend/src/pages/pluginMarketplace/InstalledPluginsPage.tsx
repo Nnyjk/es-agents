@@ -85,12 +85,18 @@ const InstalledPluginsPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<PluginStatus | undefined>();
   const [keyword, setKeyword] = useState("");
   const [configDrawerVisible, setConfigDrawerVisible] = useState(false);
-  const [selectedPlugin, setSelectedPlugin] = useState<InstalledPlugin | null>(null);
+  const [selectedPlugin, setSelectedPlugin] = useState<InstalledPlugin | null>(
+    null,
+  );
   const [pluginConfig, setPluginConfig] = useState<PluginConfig | null>(null);
   const [configForm] = Form.useForm();
   const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
-  const [pluginDetail, setPluginDetail] = useState<InstalledPlugin | null>(null);
-  const [pluginMetrics, setPluginMetrics] = useState<PluginMetrics | null>(null);
+  const [pluginDetail, setPluginDetail] = useState<InstalledPlugin | null>(
+    null,
+  );
+  const [pluginMetrics, setPluginMetrics] = useState<PluginMetrics | null>(
+    null,
+  );
   const [pluginLogs, setPluginLogs] = useState<string>("");
   const [metricsLoading, setMetricsLoading] = useState(false);
   const [logsLoading, setLogsLoading] = useState(false);
@@ -195,7 +201,7 @@ const InstalledPluginsPage: React.FC = () => {
     try {
       const values = await configForm.validateFields();
       if (!selectedPlugin) return;
-      
+
       await updatePluginConfig(selectedPlugin.id, values);
       message.success("配置已保存");
       setConfigDrawerVisible(false);
@@ -209,7 +215,7 @@ const InstalledPluginsPage: React.FC = () => {
     try {
       const values = await configForm.validateFields();
       if (!selectedPlugin) return;
-      
+
       const result = await testPluginConfig(selectedPlugin.id, values);
       if (result.success) {
         message.success("配置测试通过");
@@ -227,7 +233,7 @@ const InstalledPluginsPage: React.FC = () => {
     setPluginDetail(plugin);
     setPluginMetrics(null);
     setPluginLogs("");
-    
+
     // 加载指标
     setMetricsLoading(true);
     try {
@@ -262,16 +268,22 @@ const InstalledPluginsPage: React.FC = () => {
       render: (text: string, record: InstalledPlugin) => (
         <Space>
           {record.logo ? (
-            <img src={record.logo} alt={text} style={{ width: 32, height: 32 }} />
+            <img
+              src={record.logo}
+              alt={text}
+              style={{ width: 32, height: 32 }}
+            />
           ) : (
-            <div style={{ 
-              width: 32, 
-              height: 32, 
-              background: "#f0f0f0", 
-              display: "flex", 
-              alignItems: "center", 
-              justifyContent: "center" 
-            }}>
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                background: "#f0f0f0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               <InfoCircleOutlined />
             </div>
           )}
@@ -291,9 +303,7 @@ const InstalledPluginsPage: React.FC = () => {
       key: "status",
       width: 100,
       render: (status: PluginStatus) => (
-        <Tag color={statusColorMap[status]}>
-          {statusNameMap[status]}
-        </Tag>
+        <Tag color={statusColorMap[status]}>{statusNameMap[status]}</Tag>
       ),
     },
     {
@@ -368,11 +378,7 @@ const InstalledPluginsPage: React.FC = () => {
             onConfirm={() => handleUninstall(record)}
           >
             <Tooltip title="卸载">
-              <Button
-                type="text"
-                danger
-                icon={<DeleteOutlined />}
-              />
+              <Button type="text" danger icon={<DeleteOutlined />} />
             </Tooltip>
           </Popconfirm>
         </Space>
@@ -443,7 +449,9 @@ const InstalledPluginsPage: React.FC = () => {
           <Space>
             <Button onClick={() => setConfigDrawerVisible(false)}>取消</Button>
             <Button onClick={handleTestConfig}>测试</Button>
-            <Button type="primary" onClick={handleSaveConfig}>保存</Button>
+            <Button type="primary" onClick={handleSaveConfig}>
+              保存
+            </Button>
           </Space>
         }
       >
@@ -460,7 +468,10 @@ const InstalledPluginsPage: React.FC = () => {
                   name={field.name}
                   label={field.displayName}
                   rules={[
-                    { required: field.required, message: `请输入${field.displayName}` },
+                    {
+                      required: field.required,
+                      message: `请输入${field.displayName}`,
+                    },
                   ]}
                   tooltip={field.description}
                 >
@@ -502,14 +513,20 @@ const InstalledPluginsPage: React.FC = () => {
           <Tabs defaultActiveKey="info">
             <TabPane tab="基本信息" key="info">
               <Descriptions bordered column={2}>
-                <Descriptions.Item label="插件名称">{pluginDetail.displayName}</Descriptions.Item>
-                <Descriptions.Item label="版本">{pluginDetail.version}</Descriptions.Item>
+                <Descriptions.Item label="插件名称">
+                  {pluginDetail.displayName}
+                </Descriptions.Item>
+                <Descriptions.Item label="版本">
+                  {pluginDetail.version}
+                </Descriptions.Item>
                 <Descriptions.Item label="状态">
                   <Tag color={statusColorMap[pluginDetail.status]}>
                     {statusNameMap[pluginDetail.status]}
                   </Tag>
                 </Descriptions.Item>
-                <Descriptions.Item label="Agent">{pluginDetail.agentId}</Descriptions.Item>
+                <Descriptions.Item label="Agent">
+                  {pluginDetail.agentId}
+                </Descriptions.Item>
                 <Descriptions.Item label="安装时间">
                   {new Date(pluginDetail.installedAt).toLocaleString()}
                 </Descriptions.Item>
@@ -552,7 +569,12 @@ const InstalledPluginsPage: React.FC = () => {
                       <Statistic
                         title="错误数"
                         value={pluginMetrics.errorCount}
-                        valueStyle={{ color: pluginMetrics.errorCount > 0 ? "#ff4d4f" : undefined }}
+                        valueStyle={{
+                          color:
+                            pluginMetrics.errorCount > 0
+                              ? "#ff4d4f"
+                              : undefined,
+                        }}
                       />
                     </Col>
                   </Row>
@@ -562,8 +584,8 @@ const InstalledPluginsPage: React.FC = () => {
               </Spin>
             </TabPane>
             <TabPane tab="日志" key="logs">
-              <Button 
-                style={{ marginBottom: 16 }} 
+              <Button
+                style={{ marginBottom: 16 }}
                 onClick={() => loadLogs(pluginDetail.id)}
                 loading={logsLoading}
               >

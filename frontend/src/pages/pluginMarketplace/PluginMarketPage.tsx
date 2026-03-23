@@ -90,7 +90,8 @@ const PluginMarketPage: React.FC = () => {
   const [selectedPlugin, setSelectedPlugin] = useState<Plugin | null>(null);
   const [installModalVisible, setInstallModalVisible] = useState(false);
   const [installingPlugin, setInstallingPlugin] = useState<Plugin | null>(null);
-  const [installProgress, setInstallProgress] = useState<InstallProgress | null>(null);
+  const [installProgress, setInstallProgress] =
+    useState<InstallProgress | null>(null);
   const [selectedAgentId, setSelectedAgentId] = useState<string>("");
 
   // 加载插件列表
@@ -187,30 +188,30 @@ const PluginMarketPage: React.FC = () => {
   // 渲染插件卡片
   const renderPluginCard = (plugin: Plugin) => {
     const actions = [];
-    
+
     if (plugin.installed) {
       actions.push(
         <Tooltip key="installed" title="已安装">
           <CheckCircleOutlined style={{ color: "#52c41a" }} />
-        </Tooltip>
+        </Tooltip>,
       );
     }
-    
+
     if (plugin.hasUpdate) {
       actions.push(
         <Tooltip key="update" title="有更新">
           <SyncOutlined style={{ color: "#1890ff" }} />
-        </Tooltip>
+        </Tooltip>,
       );
     }
-    
+
     actions.push(
       <Tooltip key="download" title="安装">
         <DownloadOutlined onClick={() => handleInstall(plugin)} />
       </Tooltip>,
       <Tooltip key="info" title="详情">
         <InfoCircleOutlined onClick={() => handleViewDetail(plugin)} />
-      </Tooltip>
+      </Tooltip>,
     );
 
     return (
@@ -219,15 +220,21 @@ const PluginMarketPage: React.FC = () => {
           hoverable
           actions={actions}
           cover={
-            <div style={{ 
-              height: 120, 
-              display: "flex", 
-              alignItems: "center", 
-              justifyContent: "center",
-              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            }}>
+            <div
+              style={{
+                height: 120,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              }}
+            >
               {plugin.logo ? (
-                <img src={plugin.logo} alt={plugin.name} style={{ maxHeight: 80 }} />
+                <img
+                  src={plugin.logo}
+                  alt={plugin.name}
+                  style={{ maxHeight: 80 }}
+                />
               ) : (
                 <AppstoreOutlined style={{ fontSize: 48, color: "#fff" }} />
               )}
@@ -248,7 +255,9 @@ const PluginMarketPage: React.FC = () => {
             }
           />
           <Space wrap style={{ marginTop: 8 }}>
-            <Tag icon={categoryIconMap[plugin.category]}>{categoryNameMap[plugin.category]}</Tag>
+            <Tag icon={categoryIconMap[plugin.category]}>
+              {categoryNameMap[plugin.category]}
+            </Tag>
           </Space>
           <Row gutter={16} style={{ marginTop: 12 }}>
             <Col span={12}>
@@ -275,14 +284,12 @@ const PluginMarketPage: React.FC = () => {
     <div className="plugin-market-page">
       {/* 推荐插件 */}
       {recommended.length > 0 && (
-        <Card 
-          title="推荐插件" 
+        <Card
+          title="推荐插件"
           style={{ marginBottom: 16 }}
           extra={<a onClick={() => setRecommended([])}>收起</a>}
         >
-          <Row gutter={[16, 16]}>
-            {recommended.map(renderPluginCard)}
-          </Row>
+          <Row gutter={[16, 16]}>{recommended.map(renderPluginCard)}</Row>
         </Card>
       )}
 
@@ -336,9 +343,7 @@ const PluginMarketPage: React.FC = () => {
         <Spin spinning={loading}>
           {plugins.length > 0 ? (
             <>
-              <Row gutter={[16, 16]}>
-                {plugins.map(renderPluginCard)}
-              </Row>
+              <Row gutter={[16, 16]}>{plugins.map(renderPluginCard)}</Row>
               <div style={{ textAlign: "center", marginTop: 24 }}>
                 <Pagination
                   current={current}
@@ -443,7 +448,11 @@ const PluginMarketPage: React.FC = () => {
             {selectedPlugin.documentation && (
               <Paragraph>
                 <Text strong>文档：</Text>
-                <a href={selectedPlugin.documentation} target="_blank" rel="noopener noreferrer">
+                <a
+                  href={selectedPlugin.documentation}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   查看文档
                 </a>
               </Paragraph>

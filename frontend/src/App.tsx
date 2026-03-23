@@ -33,7 +33,6 @@ import {
   InstalledPluginsPage,
 } from "./pages/pluginMarketplace";
 
-
 const App: React.FC = () => {
   return (
     <Router>

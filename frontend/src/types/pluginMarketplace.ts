@@ -16,10 +16,19 @@ export type PluginCategory =
   | "other";
 
 /** 插件状态 */
-export type PluginStatus = "active" | "inactive" | "error" | "installing" | "updating";
+export type PluginStatus =
+  | "active"
+  | "inactive"
+  | "error"
+  | "installing"
+  | "updating";
 
 /** 插件安装状态 */
-export type InstallStatus = "installed" | "not-installed" | "updating" | "installing";
+export type InstallStatus =
+  | "installed"
+  | "not-installed"
+  | "updating"
+  | "installing";
 
 /** 插件 */
 export interface Plugin {
@@ -72,7 +81,15 @@ export interface PluginConfigField {
   name: string;
   displayName: string;
   label?: string;
-  type: "string" | "text" | "password" | "number" | "boolean" | "select" | "textarea" | "json";
+  type:
+    | "string"
+    | "text"
+    | "password"
+    | "number"
+    | "boolean"
+    | "select"
+    | "textarea"
+    | "json";
   required: boolean;
   defaultValue?: string | number | boolean;
   options?: { label: string; value: string }[];
@@ -132,7 +149,13 @@ export interface PluginMetrics {
 /** 插件安装进度 */
 export interface InstallProgress {
   pluginId: string;
-  status: "downloading" | "extracting" | "installing" | "configuring" | "completed" | "failed";
+  status:
+    | "downloading"
+    | "extracting"
+    | "installing"
+    | "configuring"
+    | "completed"
+    | "failed";
   progress: number;
   message: string;
   error?: string;
@@ -152,7 +175,12 @@ export type ServiceCategory =
   | "integration";
 
 /** 服务类型 */
-export type ServiceType = "script" | "playbook" | "template" | "workflow" | "api";
+export type ServiceType =
+  | "script"
+  | "playbook"
+  | "template"
+  | "workflow"
+  | "api";
 
 /** 服务状态 */
 export type ServiceStatus = "active" | "inactive" | "deprecated";

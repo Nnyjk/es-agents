@@ -21,7 +21,9 @@ const API_PREFIX = "/api/plugins";
 /**
  * 获取插件市场列表
  */
-export async function getPluginMarketList(params: PluginQueryParams): Promise<PageResult<Plugin>> {
+export async function getPluginMarketList(
+  params: PluginQueryParams,
+): Promise<PageResult<Plugin>> {
   return request(`${API_PREFIX}/market`, {
     method: "GET",
     params,
@@ -40,7 +42,9 @@ export async function getPluginDetail(pluginId: string): Promise<Plugin> {
 /**
  * 获取插件版本列表
  */
-export async function getPluginVersions(pluginId: string): Promise<PluginVersion[]> {
+export async function getPluginVersions(
+  pluginId: string,
+): Promise<PluginVersion[]> {
   return request(`${API_PREFIX}/market/${pluginId}/versions`, {
     method: "GET",
   });
@@ -49,7 +53,12 @@ export async function getPluginVersions(pluginId: string): Promise<PluginVersion
 /**
  * 安装插件
  */
-export async function installPlugin(data: { pluginId: string; version?: string; agentId: string; config?: Record<string, unknown> }): Promise<void> {
+export async function installPlugin(data: {
+  pluginId: string;
+  version?: string;
+  agentId: string;
+  config?: Record<string, unknown>;
+}): Promise<void> {
   return request(`${API_PREFIX}/install`, {
     method: "POST",
     data,
@@ -59,7 +68,9 @@ export async function installPlugin(data: { pluginId: string; version?: string; 
 /**
  * 获取安装进度
  */
-export async function getInstallProgress(pluginId: string): Promise<InstallProgress> {
+export async function getInstallProgress(
+  pluginId: string,
+): Promise<InstallProgress> {
   return request(`${API_PREFIX}/install/progress`, {
     method: "GET",
     params: { pluginId },
@@ -90,7 +101,9 @@ export async function checkPluginUpdates(): Promise<Plugin[]> {
 /**
  * 获取已安装插件列表
  */
-export async function getInstalledPlugins(params: InstalledPluginQueryParams): Promise<PageResult<InstalledPlugin>> {
+export async function getInstalledPlugins(
+  params: InstalledPluginQueryParams,
+): Promise<PageResult<InstalledPlugin>> {
   return request(`${API_PREFIX}/installed`, {
     method: "GET",
     params,
@@ -100,7 +113,9 @@ export async function getInstalledPlugins(params: InstalledPluginQueryParams): P
 /**
  * 获取已安装插件详情
  */
-export async function getInstalledPluginDetail(pluginId: string): Promise<InstalledPlugin> {
+export async function getInstalledPluginDetail(
+  pluginId: string,
+): Promise<InstalledPlugin> {
   return request(`${API_PREFIX}/installed/${pluginId}`, {
     method: "GET",
   });
@@ -136,7 +151,10 @@ export async function disablePlugin(pluginId: string): Promise<void> {
 /**
  * 更新插件
  */
-export async function updatePlugin(pluginId: string, data: { version?: string; config?: Record<string, unknown> }): Promise<void> {
+export async function updatePlugin(
+  pluginId: string,
+  data: { version?: string; config?: Record<string, unknown> },
+): Promise<void> {
   return request(`${API_PREFIX}/installed/${pluginId}/update`, {
     method: "POST",
     data,
@@ -155,7 +173,10 @@ export async function getPluginConfig(pluginId: string): Promise<PluginConfig> {
 /**
  * 更新插件配置
  */
-export async function updatePluginConfig(pluginId: string, config: Record<string, unknown>): Promise<void> {
+export async function updatePluginConfig(
+  pluginId: string,
+  config: Record<string, unknown>,
+): Promise<void> {
   return request(`${API_PREFIX}/installed/${pluginId}/config`, {
     method: "PUT",
     data: config,
@@ -165,7 +186,10 @@ export async function updatePluginConfig(pluginId: string, config: Record<string
 /**
  * 获取插件日志
  */
-export async function getPluginLogs(pluginId: string, params: { lines?: number; level?: string }): Promise<{ logs: string }> {
+export async function getPluginLogs(
+  pluginId: string,
+  params: { lines?: number; level?: string },
+): Promise<{ logs: string }> {
   return request(`${API_PREFIX}/installed/${pluginId}/logs`, {
     method: "GET",
     params,
@@ -175,7 +199,9 @@ export async function getPluginLogs(pluginId: string, params: { lines?: number; 
 /**
  * 获取插件运行指标
  */
-export async function getPluginMetrics(pluginId: string): Promise<PluginMetrics> {
+export async function getPluginMetrics(
+  pluginId: string,
+): Promise<PluginMetrics> {
   return request(`${API_PREFIX}/installed/${pluginId}/metrics`, {
     method: "GET",
   });
@@ -193,7 +219,10 @@ export async function restartPlugin(pluginId: string): Promise<void> {
 /**
  * 测试插件配置
  */
-export async function testPluginConfig(pluginId: string, config: Record<string, unknown>): Promise<{ success: boolean; message: string }> {
+export async function testPluginConfig(
+  pluginId: string,
+  config: Record<string, unknown>,
+): Promise<{ success: boolean; message: string }> {
   return request(`${API_PREFIX}/installed/${pluginId}/config/test`, {
     method: "POST",
     data: config,
@@ -211,14 +240,16 @@ export function subscribeInstallProgress(
     onProgress?: (progress: InstallProgress) => void;
     onComplete?: () => void;
     onError?: (error: Error) => void;
-  }
+  },
 ): () => void {
-  const eventSource = new EventSource(`${API_PREFIX}/install/progress/stream?pluginId=${pluginId}`);
-  
+  const eventSource = new EventSource(
+    `${API_PREFIX}/install/progress/stream?pluginId=${pluginId}`,
+  );
+
   eventSource.onmessage = (event) => {
     const progress: InstallProgress = JSON.parse(event.data);
     callbacks.onProgress?.(progress);
-    
+
     if (progress.status === "completed") {
       callbacks.onComplete?.();
       eventSource.close();
@@ -227,12 +258,12 @@ export function subscribeInstallProgress(
       eventSource.close();
     }
   };
-  
+
   eventSource.onerror = () => {
     callbacks.onError?.(new Error("SSE connection error"));
     eventSource.close();
   };
-  
+
   return () => eventSource.close();
 }
 
@@ -251,7 +282,9 @@ export async function getPopularPlugins(limit: number = 10): Promise<Plugin[]> {
 /**
  * 获取推荐插件
  */
-export async function getRecommendedPlugins(agentId?: string): Promise<Plugin[]> {
+export async function getRecommendedPlugins(
+  agentId?: string,
+): Promise<Plugin[]> {
   return request(`${API_PREFIX}/recommended`, {
     method: "GET",
     params: { agentId },
@@ -261,7 +294,10 @@ export async function getRecommendedPlugins(agentId?: string): Promise<Plugin[]>
 /**
  * 搜索插件
  */
-export async function searchPlugins(keyword: string, limit: number = 10): Promise<Plugin[]> {
+export async function searchPlugins(
+  keyword: string,
+  limit: number = 10,
+): Promise<Plugin[]> {
   return request(`${API_PREFIX}/search`, {
     method: "GET",
     params: { keyword, limit },
