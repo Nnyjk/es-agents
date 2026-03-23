@@ -13,17 +13,14 @@ public class AuditLogMapper {
         }
         return new AuditLogRecord(
             entity.id,
-            entity.userId,
             entity.action,
             entity.resourceType,
             entity.resourceId,
             entity.description,
-            entity.status,
-            entity.requestData,
-            entity.responseData,
-            entity.errorMessage,
             entity.ipAddress,
             entity.userAgent,
+            entity.status,
+            entity.errorMessage,
             entity.durationMs,
             entity.createdAt
         );

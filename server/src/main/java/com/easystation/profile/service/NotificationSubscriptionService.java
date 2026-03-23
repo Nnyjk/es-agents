@@ -52,8 +52,10 @@ public class NotificationSubscriptionService {
     public List<NotificationSubscriptionRecord> batchUpdate(UUID userId, NotificationSubscriptionRecord.BatchUpdate dto) {
         List<NotificationSubscriptionRecord> results = new ArrayList<>();
         
-        for (NotificationSubscriptionRecord.Update update : dto.updates()) {
-            results.add(updateSubscription(userId, update));
+        if (dto.subscriptions() != null) {
+            for (NotificationSubscriptionRecord.Update update : dto.subscriptions()) {
+                results.add(updateSubscription(userId, update));
+            }
         }
         
         return results;

@@ -2,7 +2,11 @@ package com.easystation.profile.mapper;
 
 import com.easystation.profile.dto.ProfileRecord;
 import com.easystation.system.domain.User;
+import com.easystation.system.domain.Role;
 import jakarta.enterprise.context.ApplicationScoped;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ProfileMapper {
@@ -11,6 +15,18 @@ public class ProfileMapper {
         if (entity == null) {
             return null;
         }
+        
+        Set<ProfileRecord.RoleInfo> roles = null;
+        if (entity.roles != null) {
+            roles = entity.roles.stream()
+                .map(role -> new ProfileRecord.RoleInfo(
+                    role.id,
+                    role.code,
+                    role.name
+                ))
+                .collect(Collectors.toSet());
+        }
+        
         return new ProfileRecord(
             entity.id,
             entity.username,
@@ -19,7 +35,8 @@ public class ProfileMapper {
             entity.nickname,
             entity.avatar,
             entity.mfaEnabled,
-            entity.status != null ? entity.status.name() : null,
+            entity.status,
+            roles,
             entity.createdAt,
             entity.updatedAt
         );
