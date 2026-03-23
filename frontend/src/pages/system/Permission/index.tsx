@@ -26,17 +26,14 @@ const PermissionList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<Permission | null>(null);
-  const [form] = Form.useForm();
 
   const handleAdd = () => {
     setEditingItem(null);
-    form.resetFields();
     setDrawerVisible(true);
   };
 
   const handleEdit = (record: Permission) => {
     setEditingItem(record);
-    form.setFieldsValue(record);
     setDrawerVisible(true);
   };
 
@@ -50,9 +47,8 @@ const PermissionList: React.FC = () => {
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (values: Record<string, any>) => {
     try {
-      const values = await form.validateFields();
       if (editingItem) {
         await updatePermission(editingItem.id, values);
         message.success("更新成功");
@@ -199,10 +195,10 @@ const PermissionList: React.FC = () => {
       />
       <DrawerForm
         title={editingItem ? "编辑权限" : "新增权限"}
-        open={drawerVisible}
+        visible={drawerVisible}
         onClose={() => setDrawerVisible(false)}
-        onOk={handleSubmit}
-        form={form}
+        onSave={handleSubmit}
+        initialValues={editingItem || undefined}
       >
         <Form.Item
           name="code"
