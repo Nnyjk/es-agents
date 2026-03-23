@@ -29,6 +29,24 @@ public class User extends PanacheEntityBase {
     @Column(nullable = false)
     public String password;
 
+    @Column
+    public String email;
+
+    @Column(length = 50)
+    public String phone;
+
+    @Column
+    public String nickname;
+
+    @Column(length = 500)
+    public String avatar;
+
+    @Column
+    public Boolean mfaEnabled = false;
+
+    @Column
+    public String mfaSecret;
+
     @Enumerated(EnumType.STRING)
     public UserStatus status = UserStatus.ACTIVE;
 
