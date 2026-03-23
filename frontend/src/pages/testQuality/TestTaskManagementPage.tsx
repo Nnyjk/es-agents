@@ -37,7 +37,6 @@ import {
   EditOutlined,
   DeleteOutlined,
   MoreOutlined,
-  ClockCircleOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   SyncOutlined,

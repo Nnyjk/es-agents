@@ -34,7 +34,6 @@ import {
   CloseCircleOutlined,
   ExclamationCircleOutlined,
   LineChartOutlined,
-  PieChartOutlined,
   FileTextOutlined,
   BugOutlined,
 } from '@ant-design/icons';
@@ -49,7 +48,7 @@ import {
 import type { TestReport, ReportTrend, ReportCase } from '../../types/testQuality';
 
 const { RangePicker } = DatePicker;
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const TestReportPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -572,8 +571,8 @@ const TestReportPage: React.FC = () => {
               >
                 <Timeline
                   items={currentReport.caseDetails
-                    ?.filter((c) => c.status === 'failed')
-                    .map((c) => ({
+                    ?.filter((c: ReportCase) => c.status === 'failed')
+                    .map((c: ReportCase) => ({
                       color: 'red',
                       children: (
                         <div>

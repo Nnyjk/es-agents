@@ -60,11 +60,11 @@ const TestConfigPage: React.FC = () => {
   const [envForm] = Form.useForm();
 
   // 全局配置
-  const [globalConfig, setGlobalConfig] = useState<GlobalConfig | null>(null);
+  const [_globalConfig, setGlobalConfig] = useState<GlobalConfig | null>(null);
   const [globalForm] = Form.useForm();
 
   // 通知配置
-  const [notifyConfig, setNotifyConfig] = useState<NotificationConfig | null>(null);
+  const [_notifyConfig, setNotifyConfig] = useState<NotificationConfig | null>(null);
   const [notifyForm] = Form.useForm();
 
   // 加载环境列表

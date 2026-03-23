@@ -27,6 +27,7 @@ import type {
   GlobalConfig,
   NotificationConfig,
   ExecutionStatistics,
+  ExecutionLog,
 } from '../types/testQuality';
 
 const API_BASE = '/api/test-quality';
@@ -190,6 +191,29 @@ export async function getTaskExecution(id: string): Promise<TaskExecution> {
     `${API_BASE}/task-executions/${id}`
   );
   return response.data.data!;
+}
+
+/** 获取任务执行列表 */
+export async function getTaskExecutions(
+  params: PageParams & { status?: string; taskId?: string }
+): Promise<PageResult<TaskExecution>> {
+  const response = await axios.get<PageResult<TaskExecution>>(`${API_BASE}/task-executions`, {
+    params,
+  });
+  return response.data;
+}
+
+/** 获取执行详情（别名） */
+export async function getExecutionDetail(id: string): Promise<TaskExecution> {
+  return getTaskExecution(id);
+}
+
+/** 获取执行日志 */
+export async function getExecutionLogs(executionId: string): Promise<ExecutionLog[]> {
+  const response = await axios.get<ApiResponse<ExecutionLog[]>>(
+    `${API_BASE}/task-executions/${executionId}/logs`
+  );
+  return response.data.data || [];
 }
 
 /** 暂停任务执行 */

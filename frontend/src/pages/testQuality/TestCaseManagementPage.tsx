@@ -21,7 +21,6 @@ import {
 } from 'antd';
 import {
   PlusOutlined,
-  SearchOutlined,
   EditOutlined,
   DeleteOutlined,
   DownloadOutlined,
@@ -52,7 +51,6 @@ import type {
 
 const { Search } = Input;
 const { TextArea } = Input;
-const { RangePicker } = DatePicker;
 
 const TestCaseManagementPage: React.FC = () => {
   const [loading, setLoading] = useState(false);

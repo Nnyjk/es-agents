@@ -165,6 +165,12 @@ export interface TestReport {
   environment: string;
   summary: string;
   defects: string[];
+  // 扩展属性
+  startDate?: string;
+  taskName?: string;
+  executionTime?: string;
+  triggerType?: string;
+  caseDetails?: ReportCase[];
 }
 
 /** 缺陷严重程度 */
