@@ -38,10 +38,15 @@ public record PluginVersionRecord(
     ) {}
 
     public record Create(
+        @NotNull(message = "Plugin ID is required")
+        UUID pluginId,
+
         @NotBlank(message = "Version is required")
         @Size(max = 20, message = "Version too long")
         @Pattern(regexp = "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$", message = "Invalid version format")
         String version,
+
+        Integer versionCode,
 
         String changelog,
 
@@ -52,6 +57,9 @@ public record PluginVersionRecord(
 
         @Size(max = 128, message = "Package hash too long")
         String packageHash,
+
+        @Size(max = 128, message = "Signature hash too long")
+        String signatureHash,
 
         String dependencies,
 

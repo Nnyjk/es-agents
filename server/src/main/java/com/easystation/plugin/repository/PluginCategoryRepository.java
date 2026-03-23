@@ -16,11 +16,11 @@ public class PluginCategoryRepository implements PanacheRepositoryBase<PluginCat
     }
 
     public List<PluginCategory> findByParentId(UUID parentId) {
-        return list("parent.id", parentId);
+        return list("parentId", parentId);
     }
 
     public List<PluginCategory> findByParentIdIsNull() {
-        return list("parent IS NULL");
+        return list("parentId IS NULL");
     }
 
     public List<PluginCategory> findByIsActiveTrue() {
@@ -28,15 +28,15 @@ public class PluginCategoryRepository implements PanacheRepositoryBase<PluginCat
     }
 
     public List<PluginCategory> findByParentIdIsNullAndIsActiveTrueOrderBySortOrder() {
-        return list("parent IS NULL and isActive = true ORDER BY sortOrder");
+        return list("parentId IS NULL and isActive = true ORDER BY sortOrder, name");
     }
 
     public List<PluginCategory> findByParentIdAndIsActiveTrueOrderBySortOrder(UUID parentId) {
-        return list("parent.id = ?1 and isActive = true ORDER BY sortOrder", parentId);
+        return list("parentId = ?1 and isActive = true ORDER BY sortOrder, name", parentId);
     }
 
     public long countByParentId(UUID parentId) {
-        return count("parent.id", parentId);
+        return count("parentId", parentId);
     }
 
     public boolean existsByCode(String code) {
@@ -45,8 +45,16 @@ public class PluginCategoryRepository implements PanacheRepositoryBase<PluginCat
 
     public boolean existsByNameAndParentId(String name, UUID parentId) {
         if (parentId == null) {
-            return count("name = ?1 and parent IS NULL", name) > 0;
+            return count("name = ?1 and parentId IS NULL", name) > 0;
         }
-        return count("name = ?1 and parent.id = ?2", name, parentId) > 0;
+        return count("name = ?1 and parentId = ?2", name, parentId) > 0;
+    }
+
+    public List<PluginCategory> findAllOrderBySortOrder() {
+        return list("ORDER BY sortOrder, name");
+    }
+
+    public List<PluginCategory> findActiveCategoriesOrderBySortOrder() {
+        return list("isActive = true ORDER BY sortOrder, name");
     }
 }

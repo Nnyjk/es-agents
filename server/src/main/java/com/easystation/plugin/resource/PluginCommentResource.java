@@ -21,9 +21,10 @@ public class PluginCommentResource {
     PluginCommentService commentService;
 
     @POST
-    public Response create(@Valid PluginCommentRecord.Create create) {
+    public Response create(@Valid PluginCommentRecord.Create create, @Context SecurityContext securityContext) {
+        UUID userId = getUserId(securityContext);
         return Response.status(Response.Status.CREATED)
-                .entity(commentService.create(create))
+                .entity(commentService.create(create, userId))
                 .build();
     }
 
@@ -39,10 +40,8 @@ public class PluginCommentResource {
     @GET
     @Path("/plugin/{pluginId}")
     public Response findByPluginId(
-            @PathParam("pluginId") UUID pluginId,
-            @QueryParam("page") @DefaultValue("0") int page,
-            @QueryParam("size") @DefaultValue("20") int size) {
-        return Response.ok(commentService.findByPluginId(pluginId, page, size)).build();
+            @PathParam("pluginId") UUID pluginId) {
+        return Response.ok(commentService.findByPluginId(pluginId)).build();
     }
 
     @PUT
@@ -62,18 +61,37 @@ public class PluginCommentResource {
     @Path("/{id}/reply")
     public Response reply(
             @PathParam("id") UUID id,
-            @Valid PluginCommentRecord.Create reply) {
+            @Valid PluginCommentRecord.Create reply,
+            @Context SecurityContext securityContext) {
+        // Create a new comment as a reply
+        PluginCommentRecord.Create replyCreate = new PluginCommentRecord.Create(
+                reply.pluginId(),
+                id, // parentId is the comment being replied to
+                reply.replyToUserId(),
+                reply.content()
+        );
+        UUID userId = getUserId(securityContext);
         return Response.status(Response.Status.CREATED)
-                .entity(commentService.reply(id, reply))
+                .entity(commentService.create(replyCreate, userId))
                 .build();
     }
 
     @GET
     @Path("/{id}/replies")
-    public Response getReplies(
-            @PathParam("id") UUID id,
-            @QueryParam("page") @DefaultValue("0") int page,
-            @QueryParam("size") @DefaultValue("20") int size) {
-        return Response.ok(commentService.getReplies(id, page, size)).build();
+    public Response getReplies(@PathParam("id") UUID id) {
+        return Response.ok(commentService.findReplies(id)).build();
+    }
+
+    private UUID getUserId(SecurityContext securityContext) {
+        if (securityContext != null && securityContext.getUserPrincipal() != null) {
+            try {
+                return UUID.fromString(securityContext.getUserPrincipal().getName());
+            } catch (IllegalArgumentException e) {
+                // Return a default user ID for development/testing
+                return UUID.randomUUID();
+            }
+        }
+        // Return a default user ID for development/testing
+        return UUID.randomUUID();
     }
 }

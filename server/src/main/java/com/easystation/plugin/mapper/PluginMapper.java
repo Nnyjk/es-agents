@@ -67,13 +67,13 @@ public class PluginMapper {
             .collect(Collectors.toList());
     }
 
-    public Plugin toEntity(PluginRecord.Create create) {
+    public Plugin toEntity(PluginRecord.Create create, java.util.UUID developerId) {
         if (create == null) {
             return null;
         }
         
         Plugin entity = new Plugin();
-        entity.developerId = create.developerId();
+        entity.developerId = developerId;
         entity.categoryId = create.categoryId();
         entity.name = create.name();
         entity.code = create.code();
@@ -111,9 +111,6 @@ public class PluginMapper {
         }
         if (update.name() != null) {
             entity.name = update.name();
-        }
-        if (update.code() != null) {
-            entity.code = update.code();
         }
         if (update.icon() != null) {
             entity.icon = update.icon();

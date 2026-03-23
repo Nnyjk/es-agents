@@ -13,15 +13,15 @@ import java.util.UUID;
 public class PluginInstallationRepository implements PanacheRepositoryBase<PluginInstallation, UUID> {
 
     public List<PluginInstallation> findByPluginId(UUID pluginId) {
-        return list("plugin.id", pluginId);
+        return list("pluginId", pluginId);
     }
 
     public List<PluginInstallation> findByAgentId(UUID agentId) {
-        return list("agent.id", agentId);
+        return list("agentId", agentId);
     }
 
     public List<PluginInstallation> findByUserId(UUID userId) {
-        return list("user.id", userId);
+        return list("userId", userId);
     }
 
     public List<PluginInstallation> findByStatus(InstallationStatus status) {
@@ -29,31 +29,31 @@ public class PluginInstallationRepository implements PanacheRepositoryBase<Plugi
     }
 
     public List<PluginInstallation> findByPluginIdAndStatus(UUID pluginId, InstallationStatus status) {
-        return list("plugin.id = ?1 and status = ?2", pluginId, status);
+        return list("pluginId = ?1 and status = ?2", pluginId, status);
     }
 
     public List<PluginInstallation> findByAgentIdAndStatus(UUID agentId, InstallationStatus status) {
-        return list("agent.id = ?1 and status = ?2", agentId, status);
+        return list("agentId = ?1 and status = ?2", agentId, status);
     }
 
     public Optional<PluginInstallation> findByPluginIdAndAgentId(UUID pluginId, UUID agentId) {
-        return find("plugin.id = ?1 and agent.id = ?2", pluginId, agentId).firstResultOptional();
+        return find("pluginId = ?1 and agentId = ?2", pluginId, agentId).firstResultOptional();
     }
 
     public Optional<PluginInstallation> findByPluginIdAndUserId(UUID pluginId, UUID userId) {
-        return find("plugin.id = ?1 and user.id = ?2", pluginId, userId).firstResultOptional();
+        return find("pluginId = ?1 and userId = ?2", pluginId, userId).firstResultOptional();
     }
 
     public long countByPluginId(UUID pluginId) {
-        return count("plugin.id", pluginId);
+        return count("pluginId", pluginId);
     }
 
     public long countByAgentId(UUID agentId) {
-        return count("agent.id", agentId);
+        return count("agentId", agentId);
     }
 
     public long countByUserId(UUID userId) {
-        return count("user.id", userId);
+        return count("userId", userId);
     }
 
     public long countByStatus(InstallationStatus status) {
@@ -61,10 +61,10 @@ public class PluginInstallationRepository implements PanacheRepositoryBase<Plugi
     }
 
     public long countByPluginIdAndStatus(UUID pluginId, InstallationStatus status) {
-        return count("plugin.id = ?1 and status = ?2", pluginId, status);
+        return count("pluginId = ?1 and status = ?2", pluginId, status);
     }
 
     public boolean existsByPluginIdAndAgentId(UUID pluginId, UUID agentId) {
-        return count("plugin.id = ?1 and agent.id = ?2", pluginId, agentId) > 0;
+        return count("pluginId = ?1 and agentId = ?2", pluginId, agentId) > 0;
     }
 }

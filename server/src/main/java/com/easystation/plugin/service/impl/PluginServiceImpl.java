@@ -53,38 +53,39 @@ public class PluginServiceImpl implements PluginService {
         }
 
         Plugin plugin = new Plugin();
-        plugin.setName(create.name());
-        plugin.setCode(create.code() != null ? create.code() : generateCode(create.name()));
+        plugin.developerId = create.developerId();
+        plugin.name = create.name();
+        plugin.code = create.code() != null ? create.code() : generateCode(create.name());
         
         if (create.categoryId() != null) {
             PluginCategory category = categoryRepository.findById(create.categoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found: " + create.categoryId()));
-            plugin.setCategory(category);
+            plugin.categoryId = category.id;
         }
         
-        plugin.setIcon(create.icon());
-        plugin.setDescription(create.description());
-        plugin.setReadme(create.readme());
-        plugin.setSourceUrl(create.sourceUrl());
-        plugin.setDocUrl(create.docUrl());
-        plugin.setHomepageUrl(create.homepageUrl());
-        plugin.setIsFreeFlag(create.isFree() != null ? create.isFree() : true);
-        plugin.setPrice(create.price() != null ? create.price() : BigDecimal.ZERO);
-        plugin.setMinPlatformVersion(create.minPlatformVersion());
-        plugin.setMaxPlatformVersion(create.maxPlatformVersion());
-        plugin.setSupportedPlatforms(create.supportedPlatforms());
-        plugin.setPermissionsRequired(create.permissionsRequired());
-        plugin.setConfigSchema(create.configSchema());
-        plugin.setTagsAsList(create.tags());
-        plugin.setStatus(PluginStatus.DRAFT);
-        plugin.setTotalDownloads(0L);
-        plugin.setTotalInstalls(0L);
-        plugin.setAverageRating(BigDecimal.ZERO);
-        plugin.setRatingCount(0);
-        plugin.setCommentCount(0);
-        plugin.setFavoriteCount(0);
-        plugin.setCreatedAt(LocalDateTime.now());
-        plugin.setUpdatedAt(LocalDateTime.now());
+        plugin.icon = create.icon();
+        plugin.description = create.description();
+        plugin.readme = create.readme();
+        plugin.sourceUrl = create.sourceUrl();
+        plugin.docUrl = create.docUrl();
+        plugin.homepageUrl = create.homepageUrl();
+        plugin.isFree = create.isFree() != null ? create.isFree() : true;
+        plugin.price = create.price() != null ? create.price() : BigDecimal.ZERO;
+        plugin.minPlatformVersion = create.minPlatformVersion();
+        plugin.maxPlatformVersion = create.maxPlatformVersion();
+        plugin.supportedPlatforms = toJsonString(create.supportedPlatforms());
+        plugin.permissionsRequired = toJsonString(create.permissionsRequired());
+        plugin.configSchema = create.configSchema();
+        // Note: tags field is not supported in current Plugin entity
+        plugin.status = PluginStatus.DRAFT;
+        plugin.totalDownloads = 0L;
+        plugin.totalInstalls = 0L;
+        plugin.averageRating = BigDecimal.ZERO;
+        plugin.ratingCount = 0;
+        plugin.commentCount = 0;
+        plugin.favoriteCount = 0;
+        plugin.createdAt = LocalDateTime.now();
+        plugin.updatedAt = LocalDateTime.now();
 
         pluginRepository.persist(plugin);
         return pluginMapper.toRecord(plugin);
@@ -97,56 +98,54 @@ public class PluginServiceImpl implements PluginService {
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + id));
 
         if (update.name() != null) {
-            plugin.setName(update.name());
+            plugin.name = update.name();
         }
         if (update.categoryId() != null) {
             PluginCategory category = categoryRepository.findById(update.categoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found: " + update.categoryId()));
-            plugin.setCategory(category);
+            plugin.categoryId = category.id;
         }
         if (update.icon() != null) {
-            plugin.setIcon(update.icon());
+            plugin.icon = update.icon();
         }
         if (update.description() != null) {
-            plugin.setDescription(update.description());
+            plugin.description = update.description();
         }
         if (update.readme() != null) {
-            plugin.setReadme(update.readme());
+            plugin.readme = update.readme();
         }
         if (update.sourceUrl() != null) {
-            plugin.setSourceUrl(update.sourceUrl());
+            plugin.sourceUrl = update.sourceUrl();
         }
         if (update.docUrl() != null) {
-            plugin.setDocUrl(update.docUrl());
+            plugin.docUrl = update.docUrl();
         }
         if (update.homepageUrl() != null) {
-            plugin.setHomepageUrl(update.homepageUrl());
+            plugin.homepageUrl = update.homepageUrl();
         }
         if (update.isFree() != null) {
-            plugin.setIsFree(update.isFree());
+            plugin.isFree = update.isFree();
         }
         if (update.price() != null) {
-            plugin.setPrice(update.price());
+            plugin.price = update.price();
         }
         if (update.minPlatformVersion() != null) {
-            plugin.setMinPlatformVersion(update.minPlatformVersion());
+            plugin.minPlatformVersion = update.minPlatformVersion();
         }
         if (update.maxPlatformVersion() != null) {
-            plugin.setMaxPlatformVersion(update.maxPlatformVersion());
+            plugin.maxPlatformVersion = update.maxPlatformVersion();
         }
         if (update.supportedPlatforms() != null) {
-            plugin.setSupportedPlatforms(update.supportedPlatforms());
+            plugin.supportedPlatforms = toJsonString(update.supportedPlatforms());
         }
         if (update.permissionsRequired() != null) {
-            plugin.setPermissionsRequired(update.permissionsRequired());
+            plugin.permissionsRequired = toJsonString(update.permissionsRequired());
         }
         if (update.configSchema() != null) {
-            plugin.setConfigSchema(update.configSchema());
+            plugin.configSchema = update.configSchema();
         }
-        if (update.tags() != null) {
-            plugin.setTagsAsList(update.tags());
-        }
-        plugin.setUpdatedAt(LocalDateTime.now());
+        // Note: tags field is not supported in current Plugin entity
+        plugin.updatedAt = LocalDateTime.now();
 
         pluginRepository.persist(plugin);
         return pluginMapper.toRecord(plugin);
@@ -206,16 +205,17 @@ public class PluginServiceImpl implements PluginService {
         }
 
         if (query.categoryId() != null) {
-            queryBuilder.append(" and category.id = ?").append(paramIndex);
+            queryBuilder.append(" and categoryId = ?").append(paramIndex);
             params.add(query.categoryId());
             paramIndex++;
         }
 
-        if (query.tag() != null && !query.tag().isBlank()) {
-            queryBuilder.append(" and tags LIKE ?").append(paramIndex);
-            params.add("%" + query.tag() + "%");
-            paramIndex++;
-        }
+        // Note: tag search is not supported in current Plugin entity
+        // if (query.tag() != null && !query.tag().isBlank()) {
+        //     queryBuilder.append(" and tags LIKE ?").append(paramIndex);
+        //     params.add("%" + query.tag() + "%");
+        //     paramIndex++;
+        // }
 
         if (query.status() != null) {
             queryBuilder.append(" and status = ?").append(paramIndex);
@@ -224,7 +224,7 @@ public class PluginServiceImpl implements PluginService {
         }
 
         if (query.developerId() != null) {
-            queryBuilder.append(" and developer.id = ?").append(paramIndex);
+            queryBuilder.append(" and developerId = ?").append(paramIndex);
             params.add(query.developerId());
             paramIndex++;
         }
@@ -277,13 +277,13 @@ public class PluginServiceImpl implements PluginService {
         Plugin plugin = pluginRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + id));
 
-        if (plugin.getStatus() == PluginStatus.PUBLISHED) {
+        if (plugin.status == PluginStatus.PUBLISHED) {
             throw new BadRequestException("Plugin is already published");
         }
 
-        plugin.setStatus(PluginStatus.PUBLISHED);
-        plugin.setPublishedAt(LocalDateTime.now());
-        plugin.setUpdatedAt(LocalDateTime.now());
+        plugin.status = PluginStatus.PUBLISHED;
+        plugin.publishedAt = LocalDateTime.now();
+        plugin.updatedAt = LocalDateTime.now();
 
         pluginRepository.persist(plugin);
         return pluginMapper.toRecord(plugin);
@@ -295,8 +295,8 @@ public class PluginServiceImpl implements PluginService {
         Plugin plugin = pluginRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + id));
 
-        plugin.setStatus(PluginStatus.SUSPENDED);
-        plugin.setUpdatedAt(LocalDateTime.now());
+        plugin.status = PluginStatus.SUSPENDED;
+        plugin.updatedAt = LocalDateTime.now();
 
         pluginRepository.persist(plugin);
         return pluginMapper.toRecord(plugin);
@@ -308,8 +308,8 @@ public class PluginServiceImpl implements PluginService {
         Plugin plugin = pluginRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + id));
 
-        plugin.setStatus(PluginStatus.DELETED);
-        plugin.setUpdatedAt(LocalDateTime.now());
+        plugin.status = PluginStatus.DELETED;
+        plugin.updatedAt = LocalDateTime.now();
 
         pluginRepository.persist(plugin);
         return pluginMapper.toRecord(plugin);
@@ -319,7 +319,7 @@ public class PluginServiceImpl implements PluginService {
     @Transactional
     public void incrementDownloadCount(UUID id) {
         pluginRepository.findById(id).ifPresent(plugin -> {
-            plugin.setTotalDownloads(plugin.getTotalDownloads() + 1);
+            plugin.totalDownloads = plugin.totalDownloads + 1;
             pluginRepository.persist(plugin);
         });
     }
@@ -328,7 +328,7 @@ public class PluginServiceImpl implements PluginService {
     @Transactional
     public void incrementInstallCount(UUID id) {
         pluginRepository.findById(id).ifPresent(plugin -> {
-            plugin.setTotalInstalls(plugin.getTotalInstalls() + 1);
+            plugin.totalInstalls = plugin.totalInstalls + 1;
             pluginRepository.persist(plugin);
         });
     }
@@ -338,7 +338,7 @@ public class PluginServiceImpl implements PluginService {
     public void updateStatistics(UUID id) {
         pluginRepository.findById(id).ifPresent(plugin -> {
             // This would be called after rating/comment changes
-            plugin.setUpdatedAt(LocalDateTime.now());
+            plugin.updatedAt = LocalDateTime.now();
             pluginRepository.persist(plugin);
         });
     }
@@ -350,7 +350,7 @@ public class PluginServiceImpl implements PluginService {
         long pendingCount = pluginRepository.countByStatus(PluginStatus.PENDING_REVIEW);
         long totalDownloads = pluginRepository.findAll()
             .stream()
-            .mapToLong(Plugin::getTotalDownloads)
+            .mapToLong(p -> p.totalDownloads)
             .sum();
 
         return new PluginRecord.Summary(totalCount, publishedCount, pendingCount, totalDownloads);
@@ -371,26 +371,26 @@ public class PluginServiceImpl implements PluginService {
         int versionCode = parseVersionCode(create.version());
 
         PluginVersion version = new PluginVersion();
-        version.setPlugin(plugin);
-        version.setVersion(create.version());
-        version.setVersionCode(versionCode);
-        version.setChangelog(create.changelog());
-        version.setDownloadUrl(create.downloadUrl());
-        version.setPackageSize(create.packageSize());
-        version.setPackageHash(create.packageHash());
-        version.setMinPlatformVersion(create.minPlatformVersion() != null ? 
-            create.minPlatformVersion() : plugin.getMinPlatformVersion());
-        version.setMaxPlatformVersion(create.maxPlatformVersion() != null ? 
-            create.maxPlatformVersion() : plugin.getMaxPlatformVersion());
-        version.setDependenciesAsString(create.dependencies());
-        version.setResourceRequirements(create.resourceRequirements());
-        version.setIsPrerelease(create.isPrerelease() != null ? create.isPrerelease() : false);
-        version.setIsLatest(false);
-        version.setDownloadCount(0L);
-        version.setInstallCount(0L);
-        version.setStatus(PluginStatus.DRAFT);
-        version.setCreatedAt(LocalDateTime.now());
-        version.setUpdatedAt(LocalDateTime.now());
+        version.pluginId = plugin.id;
+        version.version = create.version();
+        version.versionCode = versionCode;
+        version.changelog = create.changelog();
+        version.downloadUrl = create.downloadUrl();
+        version.packageSize = create.packageSize();
+        version.packageHash = create.packageHash();
+        version.minPlatformVersion = create.minPlatformVersion() != null ? 
+            create.minPlatformVersion() : plugin.minPlatformVersion;
+        version.maxPlatformVersion = create.maxPlatformVersion() != null ? 
+            create.maxPlatformVersion() : plugin.maxPlatformVersion;
+        version.dependencies = create.dependencies();
+        version.resourceRequirements = create.resourceRequirements();
+        version.isPrerelease = create.isPrerelease() != null ? create.isPrerelease() : false;
+        version.isLatest = false;
+        version.downloadCount = 0L;
+        version.installCount = 0L;
+        version.status = PluginStatus.DRAFT;
+        version.createdAt = LocalDateTime.now();
+        version.updatedAt = LocalDateTime.now();
 
         versionRepository.persist(version);
         return versionMapper.toRecord(version);
@@ -403,24 +403,24 @@ public class PluginServiceImpl implements PluginService {
             .orElseThrow(() -> new NotFoundException("Version not found: " + versionId));
 
         if (update.changelog() != null) {
-            version.setChangelog(update.changelog());
+            version.changelog = update.changelog();
         }
         if (update.downloadUrl() != null) {
-            version.setDownloadUrl(update.downloadUrl());
+            version.downloadUrl = update.downloadUrl();
         }
         if (update.packageSize() != null) {
-            version.setPackageSize(update.packageSize());
+            version.packageSize = update.packageSize();
         }
         if (update.packageHash() != null) {
-            version.setPackageHash(update.packageHash());
+            version.packageHash = update.packageHash();
         }
         if (update.dependencies() != null) {
-            version.setDependenciesAsString(update.dependencies());
+            version.dependencies = update.dependencies();
         }
         if (update.resourceRequirements() != null) {
-            version.setResourceRequirements(update.resourceRequirements());
+            version.resourceRequirements = update.resourceRequirements();
         }
-        version.setUpdatedAt(LocalDateTime.now());
+        version.updatedAt = LocalDateTime.now();
 
         versionRepository.persist(version);
         return versionMapper.toRecord(version);
@@ -451,18 +451,18 @@ public class PluginServiceImpl implements PluginService {
         PluginVersion version = versionRepository.findById(versionId)
             .orElseThrow(() -> new NotFoundException("Version not found: " + versionId));
 
-        if (version.getStatus() == PluginStatus.PUBLISHED) {
+        if (version.status == PluginStatus.PUBLISHED) {
             throw new BadRequestException("Version is already published");
         }
 
         // Clear previous latest flag
-        versionRepository.clearLatestFlag(version.getPlugin().getId());
+        versionRepository.clearLatestFlag(version.pluginId);
 
         // Set this version as latest
-        version.setIsLatest(true);
-        version.setStatus(PluginStatus.PUBLISHED);
-        version.setPublishedAt(LocalDateTime.now());
-        version.setUpdatedAt(LocalDateTime.now());
+        version.isLatest = true;
+        version.status = PluginStatus.PUBLISHED;
+        version.publishedAt = LocalDateTime.now();
+        version.updatedAt = LocalDateTime.now();
 
         versionRepository.persist(version);
         return versionMapper.toRecord(version);
@@ -474,8 +474,8 @@ public class PluginServiceImpl implements PluginService {
         PluginVersion version = versionRepository.findById(versionId)
             .orElseThrow(() -> new NotFoundException("Version not found: " + versionId));
 
-        version.setStatus(PluginStatus.DELETED);
-        version.setUpdatedAt(LocalDateTime.now());
+        version.status = PluginStatus.DELETED;
+        version.updatedAt = LocalDateTime.now();
 
         versionRepository.persist(version);
         return versionMapper.toRecord(version);
@@ -485,11 +485,11 @@ public class PluginServiceImpl implements PluginService {
     @Transactional
     public void incrementVersionDownloadCount(UUID versionId) {
         versionRepository.findById(versionId).ifPresent(version -> {
-            version.setDownloadCount(version.getDownloadCount() + 1);
+            version.downloadCount = version.downloadCount + 1;
             versionRepository.persist(version);
             
             // Also increment plugin download count
-            incrementDownloadCount(version.getPlugin().getId());
+            incrementDownloadCount(version.pluginId);
         });
     }
 
@@ -513,6 +513,17 @@ public class PluginServiceImpl implements PluginService {
             return code;
         } catch (Exception e) {
             return 0;
+        }
+    }
+
+    private String toJsonString(List<String> list) {
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        try {
+            return new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(list);
+        } catch (Exception e) {
+            return null;
         }
     }
 }

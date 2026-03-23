@@ -17,11 +17,11 @@ public class PluginRepository implements PanacheRepositoryBase<Plugin, UUID> {
     }
 
     public List<Plugin> findByDeveloperId(UUID developerId) {
-        return list("developer.id", developerId);
+        return list("developerId", developerId);
     }
 
     public List<Plugin> findByCategoryId(UUID categoryId) {
-        return list("category.id", categoryId);
+        return list("categoryId", categoryId);
     }
 
     public List<Plugin> findByStatus(PluginStatus status) {
@@ -29,19 +29,15 @@ public class PluginRepository implements PanacheRepositoryBase<Plugin, UUID> {
     }
 
     public List<Plugin> findByDeveloperIdAndStatus(UUID developerId, PluginStatus status) {
-        return list("developer.id = ?1 and status = ?2", developerId, status);
+        return list("developerId = ?1 and status = ?2", developerId, status);
     }
 
     public List<Plugin> findByCategoryIdAndStatus(UUID categoryId, PluginStatus status) {
-        return list("category.id = ?1 and status = ?2", categoryId, status);
+        return list("categoryId = ?1 and status = ?2", categoryId, status);
     }
 
     public List<Plugin> findByNameContainingIgnoreCase(String name) {
         return list("LOWER(name) LIKE LOWER(CONCAT('%', ?1, '%'))", name);
-    }
-
-    public List<Plugin> findByTag(String tag) {
-        return list("tags LIKE CONCAT('%', ?1, '%')", tag);
     }
 
     public List<Plugin> findByIsFree(Boolean isFree) {
@@ -65,11 +61,11 @@ public class PluginRepository implements PanacheRepositoryBase<Plugin, UUID> {
     }
 
     public long countByDeveloperId(UUID developerId) {
-        return count("developer.id", developerId);
+        return count("developerId", developerId);
     }
 
     public long countByCategoryId(UUID categoryId) {
-        return count("category.id", categoryId);
+        return count("categoryId", categoryId);
     }
 
     public long countByIsFree(Boolean isFree) {
@@ -81,6 +77,6 @@ public class PluginRepository implements PanacheRepositoryBase<Plugin, UUID> {
     }
 
     public boolean existsByNameAndDeveloperId(String name, UUID developerId) {
-        return count("name = ?1 and developer.id = ?2", name, developerId) > 0;
+        return count("name = ?1 and developerId = ?2", name, developerId) > 0;
     }
 }

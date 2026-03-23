@@ -35,45 +35,34 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     @Override
     @Transactional
     public PluginCommentRecord create(PluginCommentRecord.Create create, UUID userId) {
+        // Validate plugin exists
         Plugin plugin = pluginRepository.findById(create.pluginId())
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + create.pluginId()));
 
         PluginComment comment = new PluginComment();
-        comment.setPlugin(plugin);
-        comment.setUserId(userId);
+        comment.pluginId = plugin.id;
+        comment.userId = userId;
+        comment.content = create.content();
+        comment.isDeveloperReply = create.isDeveloperReply() != null ? create.isDeveloperReply() : false;
+        comment.isPinned = false;
+        comment.isHidden = false;
+        comment.likeCount = 0;
+        comment.replyCount = 0;
+        comment.createdAt = LocalDateTime.now();
+        comment.updatedAt = LocalDateTime.now();
 
+        // Handle reply
         if (create.parentId() != null) {
             PluginComment parent = commentRepository.findById(create.parentId())
                 .orElseThrow(() -> new NotFoundException("Parent comment not found: " + create.parentId()));
-            comment.setParent(parent);
-
-            if (create.replyToUserId() != null) {
-                comment.setReplyToUserId(create.replyToUserId());
-            }
+            comment.parentId = parent.id;
+            comment.replyToUserId = create.replyToUserId();
         }
-
-        comment.setContent(create.content());
-        comment.setIsDeveloperReply(false);
-        comment.setIsPinned(false);
-        comment.setIsHidden(false);
-        comment.setLikeCount(0);
-        comment.setReplyCount(0);
-        comment.setCreatedAt(LocalDateTime.now());
-        comment.setUpdatedAt(LocalDateTime.now());
 
         commentRepository.persist(comment);
 
-        // Update parent reply count
-        if (create.parentId() != null) {
-            commentRepository.findById(create.parentId()).ifPresent(parent -> {
-                parent.setReplyCount(parent.getReplyCount() + 1);
-                commentRepository.persist(parent);
-            });
-        }
-
         // Update plugin comment count
-        plugin.setCommentCount(plugin.getCommentCount() + 1);
-        plugin.setUpdatedAt(LocalDateTime.now());
+        plugin.commentCount = plugin.commentCount + 1;
         pluginRepository.persist(plugin);
 
         return commentMapper.toRecord(comment);
@@ -85,8 +74,10 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         PluginComment comment = commentRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
-        comment.setContent(update.content());
-        comment.setUpdatedAt(LocalDateTime.now());
+        if (update.content() != null) {
+            comment.content = update.content();
+        }
+        comment.updatedAt = LocalDateTime.now();
 
         commentRepository.persist(comment);
         return commentMapper.toRecord(comment);
@@ -95,20 +86,26 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     @Override
     public Optional<PluginCommentRecord> findById(UUID id) {
         return commentRepository.findById(id)
-            .map(this::toRecordWithReplies);
+            .map(commentMapper::toRecord);
     }
 
     @Override
-    public List<PluginCommentRecord> findByPluginId(UUID pluginId) {
-        return commentRepository.findByPluginIdOrderByCreatedAtDesc(pluginId).stream()
+    public List<PluginCommentRecord> findByPluginId(UUID pluginId, Boolean includeReplies, int page, int size) {
+        if (includeReplies != null && includeReplies) {
+            return commentRepository.findByPluginIdOrderByCreatedAtDesc(pluginId, Page.of(page, size)).stream()
+                .map(commentMapper::toRecord)
+                .collect(Collectors.toList());
+        } else {
+            return commentRepository.findRootCommentsByPluginId(pluginId, Page.of(page, size)).stream()
+                .map(commentMapper::toRecord)
+                .collect(Collectors.toList());
+        }
+    }
+
+    @Override
+    public List<PluginCommentRecord> findByUserId(UUID userId) {
+        return commentRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
             .map(commentMapper::toRecord)
-            .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<PluginCommentRecord> findRootComments(UUID pluginId) {
-        return commentRepository.findByPluginIdAndParentIdIsNullOrderByPinnedAndCreatedAt(pluginId).stream()
-            .map(this::toRecordWithReplies)
             .collect(Collectors.toList());
     }
 
@@ -120,46 +117,8 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     }
 
     @Override
-    public List<PluginCommentRecord> search(PluginCommentRecord.Query query) {
-        StringBuilder queryBuilder = new StringBuilder("1=1");
-        java.util.List<Object> params = new java.util.ArrayList<>();
-        int paramIndex = 1;
-
-        if (query.pluginId() != null) {
-            queryBuilder.append(" and plugin.id = ?").append(paramIndex);
-            params.add(query.pluginId());
-            paramIndex++;
-        }
-
-        if (query.userId() != null) {
-            queryBuilder.append(" and user.id = ?").append(paramIndex);
-            params.add(query.userId());
-            paramIndex++;
-        }
-
-        if (query.isDeveloperReply() != null) {
-            queryBuilder.append(" and isDeveloperReply = ?").append(paramIndex);
-            params.add(query.isDeveloperReply());
-            paramIndex++;
-        }
-
-        if (!Boolean.TRUE.equals(query.includeHidden())) {
-            queryBuilder.append(" and isHidden = false");
-        }
-
-        String sortField = query.sortBy() != null ? query.sortBy() : "createdAt";
-        String sortOrder = "DESC".equalsIgnoreCase(query.sortOrder()) ? "DESC" : "ASC";
-        queryBuilder.append(" ORDER BY ").append(sortField).append(" ").append(sortOrder);
-
-        int page = query.page() != null ? query.page() : 0;
-        int size = query.size() != null ? query.size() : 20;
-
-        return commentRepository.find(queryBuilder.toString(), params.toArray())
-            .page(Page.of(page, size))
-            .list()
-            .stream()
-            .map(commentMapper::toRecord)
-            .collect(Collectors.toList());
+    public long countByPluginId(UUID pluginId) {
+        return commentRepository.countByPluginId(pluginId);
     }
 
     @Override
@@ -168,8 +127,8 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         PluginComment comment = commentRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
-        comment.setIsPinned(true);
-        comment.setUpdatedAt(LocalDateTime.now());
+        comment.isPinned = true;
+        comment.updatedAt = LocalDateTime.now();
 
         commentRepository.persist(comment);
         return commentMapper.toRecord(comment);
@@ -181,8 +140,8 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         PluginComment comment = commentRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
-        comment.setIsPinned(false);
-        comment.setUpdatedAt(LocalDateTime.now());
+        comment.isPinned = false;
+        comment.updatedAt = LocalDateTime.now();
 
         commentRepository.persist(comment);
         return commentMapper.toRecord(comment);
@@ -194,8 +153,8 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         PluginComment comment = commentRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
-        comment.setIsHidden(true);
-        comment.setUpdatedAt(LocalDateTime.now());
+        comment.isHidden = true;
+        comment.updatedAt = LocalDateTime.now();
 
         commentRepository.persist(comment);
         return commentMapper.toRecord(comment);
@@ -207,8 +166,60 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         PluginComment comment = commentRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
-        comment.setIsHidden(false);
-        comment.setUpdatedAt(LocalDateTime.now());
+        comment.isHidden = false;
+        comment.updatedAt = LocalDateTime.now();
+
+        commentRepository.persist(comment);
+        return commentMapper.toRecord(comment);
+    }
+
+    @Override
+    @Transactional
+    public void delete(UUID id) {
+        PluginComment comment = commentRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
+
+        // Update parent reply count if this is a reply
+        if (comment.parentId != null) {
+            commentRepository.findById(comment.parentId).ifPresent(parent -> {
+                parent.replyCount = parent.replyCount - 1;
+                commentRepository.persist(parent);
+            });
+        }
+
+        // Update plugin comment count
+        pluginRepository.findById(comment.pluginId).ifPresent(plugin -> {
+            plugin.commentCount = plugin.commentCount - 1;
+            plugin.updatedAt = LocalDateTime.now();
+            pluginRepository.persist(plugin);
+        });
+
+        commentRepository.delete(comment);
+    }
+
+    @Override
+    @Transactional
+    public PluginCommentRecord like(UUID id) {
+        PluginComment comment = commentRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
+
+        comment.likeCount = comment.likeCount + 1;
+        comment.updatedAt = LocalDateTime.now();
+
+        commentRepository.persist(comment);
+        return commentMapper.toRecord(comment);
+    }
+
+    @Override
+    @Transactional
+    public PluginCommentRecord unlike(UUID id) {
+        PluginComment comment = commentRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
+
+        if (comment.likeCount > 0) {
+            comment.likeCount = comment.likeCount - 1;
+        }
+        comment.updatedAt = LocalDateTime.now();
 
         commentRepository.persist(comment);
         return commentMapper.toRecord(comment);
@@ -220,90 +231,10 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         PluginComment comment = commentRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
-        comment.setIsDeveloperReply(true);
-        comment.setUpdatedAt(LocalDateTime.now());
+        comment.isDeveloperReply = true;
+        comment.updatedAt = LocalDateTime.now();
 
         commentRepository.persist(comment);
         return commentMapper.toRecord(comment);
-    }
-
-    @Override
-    @Transactional
-    public void like(UUID id) {
-        commentRepository.findById(id).ifPresent(comment -> {
-            comment.setLikeCount(comment.getLikeCount() + 1);
-            commentRepository.persist(comment);
-        });
-    }
-
-    @Override
-    @Transactional
-    public void unlike(UUID id) {
-        commentRepository.findById(id).ifPresent(comment -> {
-            if (comment.getLikeCount() > 0) {
-                comment.setLikeCount(comment.getLikeCount() - 1);
-                commentRepository.persist(comment);
-            }
-        });
-    }
-
-    @Override
-    @Transactional
-    public void delete(UUID id) {
-        commentRepository.findById(id).ifPresent(comment -> {
-            UUID pluginId = comment.getPlugin().getId();
-            UUID parentId = comment.getParent() != null ? comment.getParent().getId() : null;
-
-            commentRepository.delete(comment);
-
-            // Update parent reply count
-            if (parentId != null) {
-                commentRepository.findById(parentId).ifPresent(parent -> {
-                    if (parent.getReplyCount() > 0) {
-                        parent.setReplyCount(parent.getReplyCount() - 1);
-                        commentRepository.persist(parent);
-                    }
-                });
-            }
-
-            // Update plugin comment count
-            pluginRepository.findById(pluginId).ifPresent(plugin -> {
-                if (plugin.getCommentCount() > 0) {
-                    plugin.setCommentCount(plugin.getCommentCount() - 1);
-                    plugin.setUpdatedAt(LocalDateTime.now());
-                    pluginRepository.persist(plugin);
-                }
-            });
-        });
-    }
-
-    @Override
-    public long countByPluginId(UUID pluginId) {
-        return commentRepository.countByPluginId(pluginId);
-    }
-
-    @Override
-    public long countReplies(UUID parentId) {
-        return commentRepository.countByParentId(parentId);
-    }
-
-    private PluginCommentRecord toRecordWithReplies(PluginComment comment) {
-        PluginCommentRecord record = commentMapper.toRecord(comment);
-        
-        // Load replies
-        List<PluginCommentRecord> replies = commentRepository
-            .findByParentIdOrderByCreatedAtAsc(comment.getId())
-            .stream()
-            .map(commentMapper::toRecord)
-            .collect(Collectors.toList());
-
-        return new PluginCommentRecord(
-            record.id(), record.pluginId(), record.pluginName(),
-            record.userId(), record.userName(), record.userAvatar(),
-            record.parentId(), record.replyToUserId(), record.replyToUserName(),
-            record.content(), record.isDeveloperReply(), record.isPinned(),
-            record.isHidden(), record.likeCount(), record.replyCount(),
-            record.createdAt(), record.updatedAt(), replies
-        );
     }
 }

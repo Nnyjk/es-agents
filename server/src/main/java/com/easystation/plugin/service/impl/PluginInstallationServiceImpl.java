@@ -41,44 +41,48 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
     @Override
     @Transactional
     public PluginInstallationRecord install(PluginInstallationRecord.Install install, UUID userId) {
+        // Validate plugin exists
         Plugin plugin = pluginRepository.findById(install.pluginId())
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + install.pluginId()));
 
-        // Get the version to install
-        PluginVersion version;
+        // Validate version if specified
+        PluginVersion version = null;
         if (install.versionId() != null) {
             version = versionRepository.findById(install.versionId())
                 .orElseThrow(() -> new NotFoundException("Version not found: " + install.versionId()));
-        } else {
-            // Get latest version
-            version = versionRepository.findLatestStableByPluginId(install.pluginId())
-                .orElseThrow(() -> new NotFoundException("No stable version available for plugin: " + install.pluginId()));
         }
 
-        // Check if already installed for this agent
-        if (install.agentId() != null && 
-            installationRepository.existsByPluginIdAndAgentId(install.pluginId(), install.agentId())) {
-            throw new BadRequestException("Plugin already installed on this agent");
+        // Check if already installed for this user/agent
+        if (install.agentId() != null) {
+            Optional<PluginInstallation> existing = installationRepository.findByPluginIdAndAgentId(
+                install.pluginId(), install.agentId());
+            if (existing.isPresent()) {
+                throw new BadRequestException("Plugin already installed for this agent");
+            }
         }
 
         PluginInstallation installation = new PluginInstallation();
-        installation.setPlugin(plugin);
-        installation.setVersion(version);
-        installation.setAgentId(install.agentId());
-        installation.setUserId(userId);
-        installation.setConfigData(install.configData());
-        installation.setStatus(InstallationStatus.INSTALLED);
-        installation.setInstallPath(generateInstallPath(plugin.getCode(), version.getVersion()));
-        installation.setCreatedAt(LocalDateTime.now());
-        installation.setUpdatedAt(LocalDateTime.now());
+        installation.pluginId = plugin.id;
+        installation.versionId = version != null ? version.id : null;
+        installation.agentId = install.agentId();
+        installation.userId = userId;
+        installation.status = InstallationStatus.INSTALLING;
+        installation.installedVersion = version != null ? version.version : null;
+        installation.configData = install.configData();
+        installation.createdAt = LocalDateTime.now();
+        installation.updatedAt = LocalDateTime.now();
 
         installationRepository.persist(installation);
 
         // Update plugin install count
-        plugin.setTotalInstalls(plugin.getTotalInstalls() + 1);
-        version.setInstallCount(version.getInstallCount() + 1);
+        plugin.totalInstalls = plugin.totalInstalls + 1;
         pluginRepository.persist(plugin);
-        versionRepository.persist(version);
+
+        // Update version install count
+        if (version != null) {
+            version.installCount = version.installCount + 1;
+            versionRepository.persist(version);
+        }
 
         return installationMapper.toRecord(installation);
     }
@@ -90,9 +94,9 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
             .orElseThrow(() -> new NotFoundException("Installation not found: " + id));
 
         if (update.configData() != null) {
-            installation.setConfigData(update.configData());
-            installation.setUpdatedAt(LocalDateTime.now());
+            installation.configData = update.configData();
         }
+        installation.updatedAt = LocalDateTime.now();
 
         installationRepository.persist(installation);
         return installationMapper.toRecord(installation);
@@ -104,12 +108,9 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
         PluginInstallation installation = installationRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Installation not found: " + id));
 
-        if (installation.getStatus() == InstallationStatus.DISABLED) {
-            installation.setStatus(InstallationStatus.INSTALLED);
-        }
-
-        installation.setLastStartedAt(LocalDateTime.now());
-        installation.setUpdatedAt(LocalDateTime.now());
+        installation.status = InstallationStatus.RUNNING;
+        installation.lastStartedAt = LocalDateTime.now();
+        installation.updatedAt = LocalDateTime.now();
 
         installationRepository.persist(installation);
         return installationMapper.toRecord(installation);
@@ -121,8 +122,9 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
         PluginInstallation installation = installationRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Installation not found: " + id));
 
-        installation.setLastStoppedAt(LocalDateTime.now());
-        installation.setUpdatedAt(LocalDateTime.now());
+        installation.status = InstallationStatus.STOPPED;
+        installation.lastStoppedAt = LocalDateTime.now();
+        installation.updatedAt = LocalDateTime.now();
 
         installationRepository.persist(installation);
         return installationMapper.toRecord(installation);
@@ -134,10 +136,8 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
         PluginInstallation installation = installationRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Installation not found: " + id));
 
-        if (installation.getStatus() == InstallationStatus.DISABLED) {
-            installation.setStatus(InstallationStatus.INSTALLED);
-            installation.setUpdatedAt(LocalDateTime.now());
-        }
+        installation.status = InstallationStatus.RUNNING;
+        installation.updatedAt = LocalDateTime.now();
 
         installationRepository.persist(installation);
         return installationMapper.toRecord(installation);
@@ -149,10 +149,8 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
         PluginInstallation installation = installationRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Installation not found: " + id));
 
-        if (installation.getStatus() == InstallationStatus.INSTALLED) {
-            installation.setStatus(InstallationStatus.DISABLED);
-            installation.setUpdatedAt(LocalDateTime.now());
-        }
+        installation.status = InstallationStatus.STOPPED;
+        installation.updatedAt = LocalDateTime.now();
 
         installationRepository.persist(installation);
         return installationMapper.toRecord(installation);
@@ -164,23 +162,24 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
         PluginInstallation installation = installationRepository.findById(id)
             .orElseThrow(() -> new NotFoundException("Installation not found: " + id));
 
-        Plugin plugin = installation.getPlugin();
-        PluginVersion version = installation.getVersion();
-
-        installation.setStatus(InstallationStatus.UNINSTALLED);
-        installation.setUpdatedAt(LocalDateTime.now());
+        installation.status = InstallationStatus.UNINSTALLED;
+        installation.updatedAt = LocalDateTime.now();
 
         installationRepository.persist(installation);
 
         // Update plugin install count
-        if (plugin.getTotalInstalls() > 0) {
-            plugin.setTotalInstalls(plugin.getTotalInstalls() - 1);
+        pluginRepository.findById(installation.pluginId).ifPresent(plugin -> {
+            plugin.totalInstalls = plugin.totalInstalls - 1;
+            pluginRepository.persist(plugin);
+        });
+
+        // Update version install count
+        if (installation.versionId != null) {
+            versionRepository.findById(installation.versionId).ifPresent(version -> {
+                version.installCount = version.installCount - 1;
+                versionRepository.persist(version);
+            });
         }
-        if (version.getInstallCount() > 0) {
-            version.setInstallCount(version.getInstallCount() - 1);
-        }
-        pluginRepository.persist(plugin);
-        versionRepository.persist(version);
 
         return installationMapper.toRecord(installation);
     }
@@ -219,19 +218,25 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
     }
 
     @Override
+    public Optional<PluginInstallationRecord> findByPluginIdAndUserId(UUID pluginId, UUID userId) {
+        return installationRepository.findByPluginIdAndUserId(pluginId, userId)
+            .map(installationMapper::toRecord);
+    }
+
+    @Override
     public List<PluginInstallationRecord> search(PluginInstallationRecord.Query query) {
         StringBuilder queryBuilder = new StringBuilder("1=1");
-        java.util.List<Object> params = new java.util.ArrayList<>();
+        List<Object> params = new java.util.ArrayList<>();
         int paramIndex = 1;
 
         if (query.pluginId() != null) {
-            queryBuilder.append(" and plugin.id = ?").append(paramIndex);
+            queryBuilder.append(" and pluginId = ?").append(paramIndex);
             params.add(query.pluginId());
             paramIndex++;
         }
 
         if (query.agentId() != null) {
-            queryBuilder.append(" and agent.id = ?").append(paramIndex);
+            queryBuilder.append(" and agentId = ?").append(paramIndex);
             params.add(query.agentId());
             paramIndex++;
         }
@@ -241,8 +246,6 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
             params.add(query.status());
             paramIndex++;
         }
-
-        queryBuilder.append(" ORDER BY createdAt DESC");
 
         int page = query.page() != null ? query.page() : 0;
         int size = query.size() != null ? query.size() : 20;
@@ -256,34 +259,17 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
     }
 
     @Override
-    public PluginInstallationRecord.Summary getSummary(UUID userId) {
-        List<PluginInstallation> installations = installationRepository.findByUserId(userId);
-        
-        int totalCount = installations.size();
-        int enabledCount = (int) installations.stream()
-            .filter(i -> i.getStatus() == InstallationStatus.INSTALLED)
-            .count();
-        int disabledCount = (int) installations.stream()
-            .filter(i -> i.getStatus() == InstallationStatus.DISABLED)
-            .count();
-        int failedCount = (int) installations.stream()
-            .filter(i -> i.getStatus() == InstallationStatus.FAILED)
-            .count();
-
-        return new PluginInstallationRecord.Summary(totalCount, enabledCount, disabledCount, failedCount);
-    }
-
-    @Override
     public long countByPluginId(UUID pluginId) {
         return installationRepository.countByPluginId(pluginId);
     }
 
     @Override
-    public long countByAgentId(UUID agentId) {
-        return installationRepository.countByAgentId(agentId);
+    public long countByUserId(UUID userId) {
+        return installationRepository.countByUserId(userId);
     }
 
-    private String generateInstallPath(String pluginCode, String version) {
-        return "/plugins/" + pluginCode + "/" + version;
+    @Override
+    public long countByAgentId(UUID agentId) {
+        return installationRepository.countByAgentId(agentId);
     }
 }

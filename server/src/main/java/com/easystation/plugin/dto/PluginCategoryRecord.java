@@ -40,6 +40,8 @@ public record PluginCategoryRecord(
     ) {}
 
     public record Update(
+        UUID parentId,
+
         @Size(max = 100, message = "Name too long")
         String name,
 

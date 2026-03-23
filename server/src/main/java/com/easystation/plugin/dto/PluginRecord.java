@@ -51,6 +51,9 @@ public record PluginRecord(
     ) {}
 
     public record Create(
+        @NotNull(message = "Developer ID is required")
+        UUID developerId,
+
         @NotBlank(message = "Plugin name is required")
         @Size(max = 100, message = "Plugin name too long")
         String name,

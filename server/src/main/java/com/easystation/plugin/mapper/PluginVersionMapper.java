@@ -73,7 +73,7 @@ public class PluginVersionMapper {
         entity.signatureHash = create.signatureHash();
         entity.minPlatformVersion = create.minPlatformVersion();
         entity.maxPlatformVersion = create.maxPlatformVersion();
-        entity.dependencies = dependenciesToJson(create.dependencies());
+        entity.dependencies = create.dependencies();
         entity.resourceRequirements = create.resourceRequirements();
         entity.isPrerelease = create.isPrerelease() != null ? create.isPrerelease() : false;
         entity.status = com.easystation.plugin.domain.enums.PluginStatus.DRAFT;
@@ -117,7 +117,7 @@ public class PluginVersionMapper {
             entity.maxPlatformVersion = update.maxPlatformVersion();
         }
         if (update.dependencies() != null) {
-            entity.dependencies = dependenciesToJson(update.dependencies());
+            entity.dependencies = update.dependencies();
         }
         if (update.resourceRequirements() != null) {
             entity.resourceRequirements = update.resourceRequirements();
