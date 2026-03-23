@@ -226,3 +226,129 @@ export interface AgentListParams {
   page?: number;
   size?: number;
 }
+
+// ========== 日志相关类型 ==========
+
+/**
+ * 日志级别
+ */
+export type LogLevel = "DEBUG" | "INFO" | "WARN" | "ERROR";
+
+/**
+ * 日志条目
+ */
+export interface LogEntry {
+  lineNumber: number;
+  timestamp: string;
+  level: LogLevel;
+  message: string;
+}
+
+/**
+ * Agent 日志记录
+ */
+export interface AgentLogRecord {
+  agentId: string;
+  agentName: string;
+  totalCount: number;
+  logs: LogEntry[];
+}
+
+/**
+ * 日志查询参数
+ */
+export interface LogQueryParams {
+  agentId: string;
+  limit?: number;
+  offset?: number;
+  level?: LogLevel;
+  keyword?: string;
+  startTime?: string;
+  endTime?: string;
+}
+
+/**
+ * 日志统计
+ */
+export interface LogStats {
+  totalCount: number;
+  errorCount: number;
+  warnCount: number;
+  infoCount: number;
+  debugCount: number;
+}
+
+/**
+ * 部署日志查询参数
+ */
+export interface DeploymentLogQueryParams {
+  agentId: string;
+  deploymentId?: string;
+  limit?: number;
+  offset?: number;
+  startTime?: string;
+  endTime?: string;
+}
+
+/**
+ * 命令执行日志查询参数
+ */
+export interface CommandLogQueryParams {
+  agentId: string;
+  executionId?: string;
+  limit?: number;
+  offset?: number;
+  startTime?: string;
+  endTime?: string;
+}
+
+// ========== 命令执行相关类型 ==========
+
+/**
+ * 命令执行状态
+ */
+export type ExecutionStatus =
+  | "PENDING"
+  | "RUNNING"
+  | "SUCCESS"
+  | "FAILED"
+  | "CANCELLED"
+  | "TIMEOUT";
+
+/**
+ * 命令执行记录
+ */
+export interface CommandExecutionRecord {
+  id: string;
+  templateId?: string;
+  templateName?: string;
+  agentInstanceId: string;
+  hostName: string;
+  command: string;
+  status: ExecutionStatus;
+  startedAt?: string;
+  finishedAt?: string;
+  exitCode?: number;
+  createdAt: string;
+  executedBy?: string;
+}
+
+/**
+ * 命令执行详情
+ */
+export interface CommandExecutionDetail extends CommandExecutionRecord {
+  output?: string;
+  error?: string;
+  args?: string;
+  duration?: number;
+}
+
+/**
+ * 执行命令参数
+ */
+export interface ExecuteCommandParams {
+  agentId: string;
+  command: string;
+  args?: string;
+  timeout?: number;
+}
