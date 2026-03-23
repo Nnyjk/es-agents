@@ -31,6 +31,14 @@ import CMDBPage from "./pages/cmdb";
 import DeploymentPage from "./pages/deployment";
 import { ProfilePage } from "./pages/profile";
 import SecurityPage from "./pages/security";
+import {
+  TestCaseManagementPage,
+  TestSuiteManagementPage,
+  TestTaskManagementPage,
+  TaskExecutionMonitorPage,
+  TestReportPage,
+  TestConfigPage,
+} from "./pages/testQuality";
 
 const App: React.FC = () => {
   return (
@@ -72,6 +80,15 @@ const App: React.FC = () => {
           <Route path="deployment" element={<DeploymentPage />} />
           <Route path="security" element={<SecurityPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="test-quality">
+            <Route index element={<Navigate to="test-cases" replace />} />
+            <Route path="test-cases" element={<TestCaseManagementPage />} />
+            <Route path="test-suites" element={<TestSuiteManagementPage />} />
+            <Route path="test-tasks" element={<TestTaskManagementPage />} />
+            <Route path="execution-monitor" element={<TaskExecutionMonitorPage />} />
+            <Route path="reports" element={<TestReportPage />} />
+            <Route path="config" element={<TestConfigPage />} />
+          </Route>
         </Route>
       </Routes>
     </Router>
