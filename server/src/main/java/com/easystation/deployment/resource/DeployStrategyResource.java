@@ -99,7 +99,7 @@ public class DeployStrategyResource {
 
     @DELETE
     public Response deleteByApplication(@PathParam("applicationId") UUID applicationId) {
-        int count = strategyService.deleteByApplication(applicationId);
+        long count = strategyService.deleteByApplication(applicationId);
         return Response.ok().entity("{\"deleted\": " + count + "}").build();
     }
 

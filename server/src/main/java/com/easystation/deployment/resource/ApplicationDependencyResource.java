@@ -87,7 +87,7 @@ public class ApplicationDependencyResource {
 
     @DELETE
     public Response deleteByApplication(@PathParam("applicationId") UUID applicationId) {
-        int count = dependencyService.deleteByApplication(applicationId);
+        long count = dependencyService.deleteByApplication(applicationId);
         return Response.ok().entity("{\"deleted\": " + count + "}").build();
     }
 }

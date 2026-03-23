@@ -80,7 +80,7 @@ public class ApplicationConfigResource {
 
     @DELETE
     public Response deleteByApplication(@PathParam("applicationId") UUID applicationId) {
-        int count = configService.deleteByApplication(applicationId);
+        long count = configService.deleteByApplication(applicationId);
         return Response.ok().entity("{\"deleted\": " + count + "}").build();
     }
 }
