@@ -75,7 +75,14 @@ const PermissionList: React.FC = () => {
       width: 180,
       render: (_, record) => (
         <Tooltip title={record.code}>
-          <code style={{ fontSize: 12, background: "#f5f5f5", padding: "2px 6px", borderRadius: 4 }}>
+          <code
+            style={{
+              fontSize: 12,
+              background: "#f5f5f5",
+              padding: "2px 6px",
+              borderRadius: 4,
+            }}
+          >
             {record.code}
           </code>
         </Tooltip>
@@ -85,9 +92,7 @@ const PermissionList: React.FC = () => {
       title: "资源",
       dataIndex: "resource",
       width: 120,
-      render: (_, record) => (
-        <Tag color="blue">{record.resource}</Tag>
-      ),
+      render: (_, record) => <Tag color="blue">{record.resource}</Tag>,
     },
     {
       title: "操作",
