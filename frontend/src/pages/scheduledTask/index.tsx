@@ -37,10 +37,7 @@ import {
   getTaskExecutions,
   getTaskExecutionStats,
 } from "@/services/scheduledTask";
-import type {
-  ScheduledTask,
-  TaskExecution,
-} from "@/types/scheduledTask";
+import type { ScheduledTask, TaskExecution } from "@/types/scheduledTask";
 import {
   taskTypeConfig,
   taskStatusConfig,
@@ -204,7 +201,7 @@ const ScheduledTaskList: React.FC = () => {
         Object.entries(taskTypeConfig).map(([key, value]) => [
           key,
           { text: value.label },
-        ])
+        ]),
       ),
       render: (_, record) => {
         const config = taskTypeConfig[record.type];
@@ -233,7 +230,7 @@ const ScheduledTaskList: React.FC = () => {
         Object.entries(taskStatusConfig).map(([key, value]) => [
           key,
           { text: value.label },
-        ])
+        ]),
       ),
       render: (_, record) => {
         const config = taskStatusConfig[record.status];
@@ -357,8 +354,7 @@ const ScheduledTaskList: React.FC = () => {
       dataIndex: "duration",
       key: "duration",
       width: 100,
-      render: (_, record) =>
-        record.duration ? `${record.duration}ms` : "-",
+      render: (_, record) => (record.duration ? `${record.duration}ms` : "-"),
     },
     {
       title: "执行节点",

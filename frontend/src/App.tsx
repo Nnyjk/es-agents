@@ -30,7 +30,10 @@ import DeploymentPage from "./pages/deployment";
 import { ProfilePage } from "./pages/profile";
 import { AgentMonitorPage, AgentInstancePage } from "./pages/agentMonitoring";
 import ScheduledTaskList from "./pages/scheduledTask";
-import { PluginMarketPage, InstalledPluginsPage } from "./pages/pluginMarketplace";
+import {
+  PluginMarketPage,
+  InstalledPluginsPage,
+} from "./pages/pluginMarketplace";
 
 const App: React.FC = () => {
   return (
