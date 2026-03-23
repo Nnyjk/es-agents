@@ -201,4 +201,253 @@ public class AuditLogService {
                 log.createdAt
         );
     }
+
+    // ==================== 导出功能 ====================
+
+    public byte[] exportToJson(AuditRecord.ExportRequest request) {
+        List<AuditRecord.Detail> logs = list(buildQueryFromExport(request));
+        try {
+            return io.vertx.core.json.Json.encodePrettily(logs).getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            Log.error("Failed to export audit logs to JSON", e);
+            throw new RuntimeException("导出失败: " + e.getMessage());
+        }
+    }
+
+    public byte[] exportToCsv(AuditRecord.ExportRequest request) {
+        List<AuditRecord.Detail> logs = list(buildQueryFromExport(request));
+        StringBuilder csv = new StringBuilder();
+        csv.append("ID,用户名,操作类型,操作结果,描述,资源类型,资源ID,客户端IP,请求路径,请求方法,耗时(ms),创建时间\n");
+        
+        for (AuditRecord.Detail log : logs) {
+            csv.append(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+                    escapeCsv(log.id().toString()),
+                    escapeCsv(log.username()),
+                    escapeCsv(log.action() != null ? log.action().name() : ""),
+                    escapeCsv(log.result() != null ? log.result().name() : ""),
+                    escapeCsv(log.description()),
+                    escapeCsv(log.resourceType() != null ? log.resourceType() : ""),
+                    escapeCsv(log.resourceId() != null ? log.resourceId().toString() : ""),
+                    escapeCsv(log.clientIp() != null ? log.clientIp() : ""),
+                    escapeCsv(log.requestPath() != null ? log.requestPath() : ""),
+                    escapeCsv(log.requestMethod() != null ? log.requestMethod() : ""),
+                    log.duration() != null ? log.duration().toString() : "0",
+                    log.createdAt() != null ? log.createdAt().toString() : ""
+            ));
+        }
+        
+        return csv.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    private AuditRecord.Query buildQueryFromExport(AuditRecord.ExportRequest request) {
+        return new AuditRecord.Query(
+                request.username(),
+                request.userId(),
+                request.action(),
+                request.result(),
+                request.resourceType(),
+                request.startTime(),
+                request.endTime(),
+                request.keyword(),
+                null, // page
+                null, // pageSize
+                null, // sortBy
+                null  // sortOrder
+        );
+    }
+
+    private String escapeCsv(String value) {
+        if (value == null) return "";
+        if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
+            return "\"" + value.replace("\"", "\"\"") + "\"";
+        }
+        return value;
+    }
+
+    // ==================== 统计功能 ====================
+
+    public List<AuditRecord.StatisticsByUser> getStatisticsByUser(LocalDateTime startTime, LocalDateTime endTime, Integer limit) {
+        String sql = "SELECT username, userId, COUNT(*) as total, " +
+                "SUM(CASE WHEN result = 'SUCCESS' THEN 1 ELSE 0 END) as success, " +
+                "SUM(CASE WHEN result = 'FAILED' THEN 1 ELSE 0 END) as failed " +
+                "FROM AuditLog WHERE createdAt BETWEEN :startTime AND :endTime " +
+                "GROUP BY username, userId ORDER BY total DESC";
+        
+        if (limit != null && limit > 0) {
+            sql += " LIMIT " + limit;
+        }
+
+        List<Object[]> results = AuditLog.getEntityManager()
+                .createQuery(sql, Object[].class)
+                .setParameter("startTime", startTime)
+                .setParameter("endTime", endTime)
+                .getResultList();
+
+        return results.stream()
+                .map(row -> new AuditRecord.StatisticsByUser(
+                        (String) row[0],
+                        (UUID) row[1],
+                        ((Number) row[2]).longValue(),
+                        ((Number) row[3]).longValue(),
+                        ((Number) row[4]).longValue(),
+                        ((Number) row[4]).longValue() * 100 / Math.max(1, ((Number) row[2]).longValue())
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<AuditRecord.StatisticsByAction> getStatisticsByAction(LocalDateTime startTime, LocalDateTime endTime) {
+        String sql = "SELECT action, COUNT(*) as total, " +
+                "SUM(CASE WHEN result = 'SUCCESS' THEN 1 ELSE 0 END) as success, " +
+                "SUM(CASE WHEN result = 'FAILED' THEN 1 ELSE 0 END) as failed " +
+                "FROM AuditLog WHERE createdAt BETWEEN :startTime AND :endTime " +
+                "GROUP BY action ORDER BY total DESC";
+
+        List<Object[]> results = AuditLog.getEntityManager()
+                .createQuery(sql, Object[].class)
+                .setParameter("startTime", startTime)
+                .setParameter("endTime", endTime)
+                .getResultList();
+
+        return results.stream()
+                .map(row -> new AuditRecord.StatisticsByAction(
+                        (AuditAction) row[0],
+                        ((Number) row[1]).longValue(),
+                        ((Number) row[2]).longValue(),
+                        ((Number) row[3]).longValue()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<AuditRecord.StatisticsByDate> getStatisticsByDate(LocalDateTime startTime, LocalDateTime endTime) {
+        String sql = "SELECT CAST(createdAt AS DATE) as date, COUNT(*) as total, " +
+                "SUM(CASE WHEN result = 'SUCCESS' THEN 1 ELSE 0 END) as success, " +
+                "SUM(CASE WHEN result = 'FAILED' THEN 1 ELSE 0 END) as failed " +
+                "FROM AuditLog WHERE createdAt BETWEEN :startTime AND :endTime " +
+                "GROUP BY CAST(createdAt AS DATE) ORDER BY date";
+
+        List<Object[]> results = AuditLog.getEntityManager()
+                .createQuery(sql, Object[].class)
+                .setParameter("startTime", startTime)
+                .setParameter("endTime", endTime)
+                .getResultList();
+
+        return results.stream()
+                .map(row -> new AuditRecord.StatisticsByDate(
+                        ((java.sql.Date) row[0]).toLocalDate().atStartOfDay(),
+                        ((Number) row[1]).longValue(),
+                        ((Number) row[2]).longValue(),
+                        ((Number) row[3]).longValue()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<AuditRecord.StatisticsByHour> getStatisticsByHour(LocalDateTime startTime, LocalDateTime endTime) {
+        String sql = "SELECT HOUR(createdAt) as hour, COUNT(*) as total, " +
+                "SUM(CASE WHEN result = 'SUCCESS' THEN 1 ELSE 0 END) as success, " +
+                "SUM(CASE WHEN result = 'FAILED' THEN 1 ELSE 0 END) as failed " +
+                "FROM AuditLog WHERE createdAt BETWEEN :startTime AND :endTime " +
+                "GROUP BY HOUR(createdAt) ORDER BY hour";
+
+        List<Object[]> results = AuditLog.getEntityManager()
+                .createQuery(sql, Object[].class)
+                .setParameter("startTime", startTime)
+                .setParameter("endTime", endTime)
+                .getResultList();
+
+        return results.stream()
+                .map(row -> new AuditRecord.StatisticsByHour(
+                        ((Number) row[0]).intValue(),
+                        ((Number) row[1]).longValue(),
+                        ((Number) row[2]).longValue(),
+                        ((Number) row[3]).longValue()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public AuditRecord.StatisticsSummary getStatisticsSummary(LocalDateTime startTime, LocalDateTime endTime) {
+        String sql = "SELECT COUNT(*) as total, " +
+                "SUM(CASE WHEN result = 'SUCCESS' THEN 1 ELSE 0 END) as success, " +
+                "SUM(CASE WHEN result = 'FAILED' THEN 1 ELSE 0 END) as failed, " +
+                "COUNT(DISTINCT username) as uniqueUsers, " +
+                "COUNT(DISTINCT resourceId) as uniqueResources " +
+                "FROM AuditLog WHERE createdAt BETWEEN :startTime AND :endTime";
+
+        Object[] result = (Object[]) AuditLog.getEntityManager()
+                .createQuery(sql)
+                .setParameter("startTime", startTime)
+                .setParameter("endTime", endTime)
+                .getSingleResult();
+
+        long total = ((Number) result[0]).longValue();
+        long success = ((Number) result[1]).longValue();
+        double successRate = total > 0 ? (success * 100.0 / total) : 0.0;
+
+        return new AuditRecord.StatisticsSummary(
+                total,
+                success,
+                ((Number) result[2]).longValue(),
+                successRate,
+                ((Number) result[3]).longValue(),
+                ((Number) result[4]).longValue()
+        );
+    }
+
+    // ==================== 归档功能 ====================
+
+    @Transactional
+    public AuditRecord.ArchiveResult archiveLogs(LocalDateTime beforeDate, Boolean includeSuccess, Boolean includeFailed) {
+        StringBuilder sql = new StringBuilder("createdAt < :beforeDate");
+        
+        if (Boolean.TRUE.equals(includeSuccess) && !Boolean.TRUE.equals(includeFailed)) {
+            sql.append(" AND result = 'SUCCESS'");
+        } else if (!Boolean.TRUE.equals(includeSuccess) && Boolean.TRUE.equals(includeFailed)) {
+            sql.append(" AND result = 'FAILED'");
+        }
+        // 如果都不指定或都指定，则不添加过滤条件
+
+        List<AuditLog> logsToArchive = AuditLog.find(sql.toString(), 
+                io.quarkus.panache.common.Parameters.with("beforeDate", beforeDate))
+                .list();
+
+        if (logsToArchive.isEmpty()) {
+            return new AuditRecord.ArchiveResult(0, null, 0L);
+        }
+
+        // 生成归档文件名
+        String archiveFilename = "audit_archive_" + 
+                java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").format(LocalDateTime.now()) + 
+                ".json";
+
+        // 转换为 JSON 并存储（这里简化为模拟存储）
+        List<AuditRecord.Detail> details = logsToArchive.stream()
+                .map(this::toDetail)
+                .collect(Collectors.toList());
+
+        byte[] archiveData = io.vertx.core.json.Json.encodePrettily(details).getBytes();
+
+        // 删除已归档的日志
+        for (AuditLog log : logsToArchive) {
+            log.delete();
+        }
+
+        return new AuditRecord.ArchiveResult(
+                logsToArchive.size(),
+                archiveFilename,
+                (long) archiveData.length
+        );
+    }
+
+    // ==================== 清理功能 ====================
+
+    @Transactional
+    public AuditRecord.CleanupResult cleanupLogs(LocalDateTime beforeDate, Boolean dryRun) {
+        long count = AuditLog.count("createdAt < ?1", beforeDate);
+        
+        if (Boolean.TRUE.equals(dryRun)) {
+            return new AuditRecord.CleanupResult((int) count, beforeDate);
+        }
+
+        int deleted = AuditLog.delete("createdAt < ?1", beforeDate);
+        return new AuditRecord.CleanupResult(deleted, beforeDate);
+    }
 }

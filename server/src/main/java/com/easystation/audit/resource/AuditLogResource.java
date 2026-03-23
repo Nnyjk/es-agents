@@ -101,5 +101,120 @@ public class AuditLogResource {
         return Response.ok(actions).build();
     }
 
+    // ==================== 导出接口 ====================
+
+    @POST
+    @Path("/export/json")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response exportJson(@Valid AuditRecord.ExportRequest request) {
+        byte[] data = auditLogService.exportToJson(request);
+        return Response.ok(data)
+                .header("Content-Disposition", "attachment; filename=audit_logs.json")
+                .build();
+    }
+
+    @POST
+    @Path("/export/csv")
+    @Produces("text/csv")
+    public Response exportCsv(@Valid AuditRecord.ExportRequest request) {
+        byte[] data = auditLogService.exportToCsv(request);
+        return Response.ok(data)
+                .header("Content-Disposition", "attachment; filename=audit_logs.csv")
+                .build();
+    }
+
+    // ==================== 统计接口 ====================
+
+    @GET
+    @Path("/statistics/summary")
+    public Response getStatisticsSummary(
+            @QueryParam("startTime") String startTimeStr,
+            @QueryParam("endTime") String endTimeStr) {
+        LocalDateTime startTime = startTimeStr != null ? LocalDateTime.parse(startTimeStr) : 
+                LocalDateTime.now().minusDays(7);
+        LocalDateTime endTime = endTimeStr != null ? LocalDateTime.parse(endTimeStr) : 
+                LocalDateTime.now();
+        return Response.ok(auditLogService.getStatisticsSummary(startTime, endTime)).build();
+    }
+
+    @GET
+    @Path("/statistics/by-user")
+    public Response getStatisticsByUser(
+            @QueryParam("startTime") String startTimeStr,
+            @QueryParam("endTime") String endTimeStr,
+            @QueryParam("limit") @DefaultValue("10") Integer limit) {
+        LocalDateTime startTime = startTimeStr != null ? LocalDateTime.parse(startTimeStr) : 
+                LocalDateTime.now().minusDays(7);
+        LocalDateTime endTime = endTimeStr != null ? LocalDateTime.parse(endTimeStr) : 
+                LocalDateTime.now();
+        return Response.ok(auditLogService.getStatisticsByUser(startTime, endTime, limit)).build();
+    }
+
+    @GET
+    @Path("/statistics/by-action")
+    public Response getStatisticsByAction(
+            @QueryParam("startTime") String startTimeStr,
+            @QueryParam("endTime") String endTimeStr) {
+        LocalDateTime startTime = startTimeStr != null ? LocalDateTime.parse(startTimeStr) : 
+                LocalDateTime.now().minusDays(7);
+        LocalDateTime endTime = endTimeStr != null ? LocalDateTime.parse(endTimeStr) : 
+                LocalDateTime.now();
+        return Response.ok(auditLogService.getStatisticsByAction(startTime, endTime)).build();
+    }
+
+    @GET
+    @Path("/statistics/by-date")
+    public Response getStatisticsByDate(
+            @QueryParam("startTime") String startTimeStr,
+            @QueryParam("endTime") String endTimeStr) {
+        LocalDateTime startTime = startTimeStr != null ? LocalDateTime.parse(startTimeStr) : 
+                LocalDateTime.now().minusDays(30);
+        LocalDateTime endTime = endTimeStr != null ? LocalDateTime.parse(endTimeStr) : 
+                LocalDateTime.now();
+        return Response.ok(auditLogService.getStatisticsByDate(startTime, endTime)).build();
+    }
+
+    @GET
+    @Path("/statistics/by-hour")
+    public Response getStatisticsByHour(
+            @QueryParam("startTime") String startTimeStr,
+            @QueryParam("endTime") String endTimeStr) {
+        LocalDateTime startTime = startTimeStr != null ? LocalDateTime.parse(startTimeStr) : 
+                LocalDateTime.now().minusDays(1);
+        LocalDateTime endTime = endTimeStr != null ? LocalDateTime.parse(endTimeStr) : 
+                LocalDateTime.now();
+        return Response.ok(auditLogService.getStatisticsByHour(startTime, endTime)).build();
+    }
+
+    // ==================== 归档接口 ====================
+
+    @POST
+    @Path("/archive")
+    public Response archiveLogs(@Valid AuditRecord.ArchiveRequest request) {
+        LocalDateTime beforeDate = request.beforeDate() != null ? 
+                request.beforeDate() : LocalDateTime.now().minusDays(90);
+        Boolean includeSuccess = request.includeSuccess() != null ? 
+                request.includeSuccess() : true;
+        Boolean includeFailed = request.includeFailed() != null ? 
+                request.includeFailed() : true;
+
+        AuditRecord.ArchiveResult result = auditLogService.archiveLogs(
+                beforeDate, includeSuccess, includeFailed);
+        return Response.ok(result).build();
+    }
+
+    // ==================== 清理接口 ====================
+
+    @POST
+    @Path("/cleanup")
+    public Response cleanupLogs(@Valid AuditRecord.CleanupRequest request) {
+        LocalDateTime beforeDate = request.beforeDate() != null ? 
+                request.beforeDate() : LocalDateTime.now().minusDays(365);
+        Boolean dryRun = request.dryRun() != null ? request.dryRun() : false;
+
+        AuditRecord.CleanupResult result = auditLogService.cleanupLogs(beforeDate, dryRun);
+        return Response.ok(result).build();
+    }
+
     record ActionInfo(String name, String description) {}
 }
