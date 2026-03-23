@@ -72,6 +72,11 @@ const App: React.FC = () => {
           <Route path="goals/deploy" element={<DeploymentWizard />} />
           <Route path="deployment" element={<DeploymentPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="plugins">
+            <Route index element={<PluginMarketPage />} />
+            <Route path="market" element={<PluginMarketPage />} />
+            <Route path="installed" element={<InstalledPluginsPage />} />
+          </Route>
         </Route>
       </Routes>
     </Router>
