@@ -30,7 +30,6 @@ import SystemSettings from "./pages/system/Settings";
 import CMDBPage from "./pages/cmdb";
 import DeploymentPage from "./pages/deployment";
 import { ProfilePage } from "./pages/profile";
-import SecurityPage from "./pages/security";
 
 const App: React.FC = () => {
   return (
@@ -70,7 +69,6 @@ const App: React.FC = () => {
           <Route path="goals" element={<GoalHub />} />
           <Route path="goals/deploy" element={<DeploymentWizard />} />
           <Route path="deployment" element={<DeploymentPage />} />
-          <Route path="security" element={<SecurityPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>
       </Routes>
