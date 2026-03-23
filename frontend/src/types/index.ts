@@ -47,6 +47,26 @@ export interface Module {
   children?: Module[];
 }
 
+export interface Permission {
+  id: string;
+  code: string;
+  name: string;
+  description?: string;
+  resource: string;
+  action: string;
+  system: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface PermissionQueryParams {
+  keyword?: string;
+  resource?: string;
+  action?: string;
+  limit?: number;
+  offset?: number;
+}
+
 import { Host } from "./infrastructure";
 
 export interface AgentCredential {

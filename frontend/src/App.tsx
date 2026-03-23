@@ -10,6 +10,7 @@ import BasicLayout from "./layouts/BasicLayout";
 import UserList from "./pages/system/User";
 import RoleList from "./pages/system/Role";
 import ModuleList from "./pages/system/Module";
+import PermissionList from "./pages/system/Permission";
 import AgentList from "./pages/agent/AgentList";
 import AgentTemplateList from "./pages/agent/Template";
 import AgentCommandList from "./pages/agent/Command";
@@ -67,6 +68,7 @@ const App: React.FC = () => {
           <Route path="roles" element={<RoleList />} />
           <Route path="roles/auth/:id" element={<RoleList />} />
           <Route path="modules" element={<ModuleList />} />
+          <Route path="permissions" element={<PermissionList />} />
           <Route path="settings" element={<SystemSettings />} />
           <Route path="goals" element={<GoalHub />} />
           <Route path="goals/deploy" element={<DeploymentWizard />} />
