@@ -25,7 +25,6 @@ import DeploymentWizard from "./pages/goals/DeploymentWizard";
 import AlertList from "./pages/alert/AlertList";
 import AlertRulePage from "./pages/alert/AlertRule";
 import AlertChannelPage from "./pages/alert/AlertChannel";
-import BackupManagement from "./pages/system/Backup";
 import SystemSettings from "./pages/system/Settings";
 import DeploymentPage from "./pages/deployment";
 import { ProfilePage } from "./pages/profile";
@@ -62,7 +61,6 @@ const App: React.FC = () => {
           <Route path="roles" element={<RoleList />} />
           <Route path="roles/auth/:id" element={<RoleList />} />
           <Route path="modules" element={<ModuleList />} />
-          <Route path="backup" element={<BackupManagement />} />
           <Route path="settings" element={<SystemSettings />} />
           <Route path="goals" element={<GoalHub />} />
           <Route path="goals/deploy" element={<DeploymentWizard />} />

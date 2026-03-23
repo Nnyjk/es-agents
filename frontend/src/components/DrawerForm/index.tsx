@@ -2,46 +2,38 @@ import React from "react";
 import { Drawer, Button, Form, Space } from "antd";
 
 interface DrawerFormProps {
-  visible?: boolean;
-  open?: boolean;
+  visible: boolean;
   title: string;
   width?: number;
   onClose: () => void;
-  onSave?: (data: any) => Promise<void> | Promise<boolean> | void;
-  onFinish?: (data: any) => Promise<boolean> | Promise<void> | void;
+  onSave: (data: any) => Promise<void>;
   initialValues?: Record<string, any>;
   children?: React.ReactNode;
 }
 
 const DrawerForm: React.FC<DrawerFormProps> = ({
   visible,
-  open,
   title,
   width = 600,
   onClose,
   onSave,
-  onFinish,
   initialValues,
   children,
 }) => {
   const [form] = Form.useForm();
-  const isVisible = open ?? visible ?? false;
-  const handleSubmit = onFinish || onSave;
 
   React.useEffect(() => {
-    if (isVisible && initialValues) {
+    if (visible && initialValues) {
       form.setFieldsValue(initialValues);
-    } else if (!isVisible) {
+    } else if (!visible) {
       form.resetFields();
     }
-  }, [isVisible, initialValues, form]);
+  }, [visible, initialValues, form]);
 
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
-      if (handleSubmit) {
-        await handleSubmit(values);
-      }
+      await onSave(values);
     } catch (error) {
       console.error("表单验证失败:", error);
     }
@@ -52,7 +44,7 @@ const DrawerForm: React.FC<DrawerFormProps> = ({
       title={title}
       width={width}
       onClose={onClose}
-      open={isVisible}
+      open={visible}
       styles={{
         body: {
           paddingBottom: 80,
@@ -71,7 +63,7 @@ const DrawerForm: React.FC<DrawerFormProps> = ({
         form={form}
         layout="vertical"
         initialValues={initialValues}
-        onFinish={handleSubmit}
+        onFinish={onSave}
       >
         {children}
       </Form>
