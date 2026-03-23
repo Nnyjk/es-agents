@@ -28,7 +28,10 @@ import AlertChannelPage from "./pages/alert/AlertChannel";
 import SystemSettings from "./pages/system/Settings";
 import DeploymentPage from "./pages/deployment";
 import { ProfilePage } from "./pages/profile";
-import { PluginMarketPage, InstalledPluginsPage } from "./pages/pluginMarketplace";
+import {
+  PluginMarketPage,
+  InstalledPluginsPage,
+} from "./pages/pluginMarketplace";
 
 
 const App: React.FC = () => {

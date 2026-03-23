@@ -1,7 +1,7 @@
 /**
  * 插件市场 API 服务
  */
-import request from '@/utils/request';
+import request from "@/utils/request";
 import type {
   Plugin,
   InstalledPlugin,
@@ -12,18 +12,18 @@ import type {
   PluginQueryParams,
   InstalledPluginQueryParams,
   PageResult,
-} from '@/types/pluginMarketplace';
+} from "@/types/pluginMarketplace";
 
 // =============== 插件市场 API ===============
 
-const API_PREFIX = '/api/plugins';
+const API_PREFIX = "/api/plugins";
 
 /**
  * 获取插件市场列表
  */
 export async function getPluginMarketList(params: PluginQueryParams): Promise<PageResult<Plugin>> {
   return request(`${API_PREFIX}/market`, {
-    method: 'GET',
+    method: "GET",
     params,
   });
 }
@@ -33,7 +33,7 @@ export async function getPluginMarketList(params: PluginQueryParams): Promise<Pa
  */
 export async function getPluginDetail(pluginId: string): Promise<Plugin> {
   return request(`${API_PREFIX}/market/${pluginId}`, {
-    method: 'GET',
+    method: "GET",
   });
 }
 
@@ -42,7 +42,7 @@ export async function getPluginDetail(pluginId: string): Promise<Plugin> {
  */
 export async function getPluginVersions(pluginId: string): Promise<PluginVersion[]> {
   return request(`${API_PREFIX}/market/${pluginId}/versions`, {
-    method: 'GET',
+    method: "GET",
   });
 }
 
@@ -51,7 +51,7 @@ export async function getPluginVersions(pluginId: string): Promise<PluginVersion
  */
 export async function installPlugin(data: { pluginId: string; version?: string; agentId: string; config?: Record<string, unknown> }): Promise<void> {
   return request(`${API_PREFIX}/install`, {
-    method: 'POST',
+    method: "POST",
     data,
   });
 }
@@ -61,7 +61,7 @@ export async function installPlugin(data: { pluginId: string; version?: string; 
  */
 export async function getInstallProgress(pluginId: string): Promise<InstallProgress> {
   return request(`${API_PREFIX}/install/progress`, {
-    method: 'GET',
+    method: "GET",
     params: { pluginId },
   });
 }
@@ -71,7 +71,7 @@ export async function getInstallProgress(pluginId: string): Promise<InstallProgr
  */
 export async function cancelInstall(pluginId: string): Promise<void> {
   return request(`${API_PREFIX}/install/cancel`, {
-    method: 'POST',
+    method: "POST",
     params: { pluginId },
   });
 }
@@ -81,7 +81,7 @@ export async function cancelInstall(pluginId: string): Promise<void> {
  */
 export async function checkPluginUpdates(): Promise<Plugin[]> {
   return request(`${API_PREFIX}/updates`, {
-    method: 'GET',
+    method: "GET",
   });
 }
 
@@ -92,7 +92,7 @@ export async function checkPluginUpdates(): Promise<Plugin[]> {
  */
 export async function getInstalledPlugins(params: InstalledPluginQueryParams): Promise<PageResult<InstalledPlugin>> {
   return request(`${API_PREFIX}/installed`, {
-    method: 'GET',
+    method: "GET",
     params,
   });
 }
@@ -102,7 +102,7 @@ export async function getInstalledPlugins(params: InstalledPluginQueryParams): P
  */
 export async function getInstalledPluginDetail(pluginId: string): Promise<InstalledPlugin> {
   return request(`${API_PREFIX}/installed/${pluginId}`, {
-    method: 'GET',
+    method: "GET",
   });
 }
 
@@ -111,7 +111,7 @@ export async function getInstalledPluginDetail(pluginId: string): Promise<Instal
  */
 export async function uninstallPlugin(pluginId: string): Promise<void> {
   return request(`${API_PREFIX}/installed/${pluginId}`, {
-    method: 'DELETE',
+    method: "DELETE",
   });
 }
 
@@ -120,7 +120,7 @@ export async function uninstallPlugin(pluginId: string): Promise<void> {
  */
 export async function enablePlugin(pluginId: string): Promise<void> {
   return request(`${API_PREFIX}/installed/${pluginId}/enable`, {
-    method: 'POST',
+    method: "POST",
   });
 }
 
@@ -129,7 +129,7 @@ export async function enablePlugin(pluginId: string): Promise<void> {
  */
 export async function disablePlugin(pluginId: string): Promise<void> {
   return request(`${API_PREFIX}/installed/${pluginId}/disable`, {
-    method: 'POST',
+    method: "POST",
   });
 }
 
@@ -138,7 +138,7 @@ export async function disablePlugin(pluginId: string): Promise<void> {
  */
 export async function updatePlugin(pluginId: string, data: { version?: string; config?: Record<string, unknown> }): Promise<void> {
   return request(`${API_PREFIX}/installed/${pluginId}/update`, {
-    method: 'POST',
+    method: "POST",
     data,
   });
 }
@@ -148,7 +148,7 @@ export async function updatePlugin(pluginId: string, data: { version?: string; c
  */
 export async function getPluginConfig(pluginId: string): Promise<PluginConfig> {
   return request(`${API_PREFIX}/installed/${pluginId}/config`, {
-    method: 'GET',
+    method: "GET",
   });
 }
 
@@ -157,7 +157,7 @@ export async function getPluginConfig(pluginId: string): Promise<PluginConfig> {
  */
 export async function updatePluginConfig(pluginId: string, config: Record<string, unknown>): Promise<void> {
   return request(`${API_PREFIX}/installed/${pluginId}/config`, {
-    method: 'PUT',
+    method: "PUT",
     data: config,
   });
 }
@@ -167,7 +167,7 @@ export async function updatePluginConfig(pluginId: string, config: Record<string
  */
 export async function getPluginLogs(pluginId: string, params: { lines?: number; level?: string }): Promise<{ logs: string }> {
   return request(`${API_PREFIX}/installed/${pluginId}/logs`, {
-    method: 'GET',
+    method: "GET",
     params,
   });
 }
@@ -177,7 +177,7 @@ export async function getPluginLogs(pluginId: string, params: { lines?: number; 
  */
 export async function getPluginMetrics(pluginId: string): Promise<PluginMetrics> {
   return request(`${API_PREFIX}/installed/${pluginId}/metrics`, {
-    method: 'GET',
+    method: "GET",
   });
 }
 
@@ -186,7 +186,7 @@ export async function getPluginMetrics(pluginId: string): Promise<PluginMetrics>
  */
 export async function restartPlugin(pluginId: string): Promise<void> {
   return request(`${API_PREFIX}/installed/${pluginId}/restart`, {
-    method: 'POST',
+    method: "POST",
   });
 }
 
@@ -195,7 +195,7 @@ export async function restartPlugin(pluginId: string): Promise<void> {
  */
 export async function testPluginConfig(pluginId: string, config: Record<string, unknown>): Promise<{ success: boolean; message: string }> {
   return request(`${API_PREFIX}/installed/${pluginId}/config/test`, {
-    method: 'POST',
+    method: "POST",
     data: config,
   });
 }
@@ -219,17 +219,17 @@ export function subscribeInstallProgress(
     const progress: InstallProgress = JSON.parse(event.data);
     callbacks.onProgress?.(progress);
     
-    if (progress.status === 'completed') {
+    if (progress.status === "completed") {
       callbacks.onComplete?.();
       eventSource.close();
-    } else if (progress.status === 'failed') {
-      callbacks.onError?.(new Error(progress.error || '安装失败'));
+    } else if (progress.status === "failed") {
+      callbacks.onError?.(new Error(progress.error || "安装失败"));
       eventSource.close();
     }
   };
   
   eventSource.onerror = () => {
-    callbacks.onError?.(new Error('SSE connection error'));
+    callbacks.onError?.(new Error("SSE connection error"));
     eventSource.close();
   };
   
@@ -243,7 +243,7 @@ export function subscribeInstallProgress(
  */
 export async function getPopularPlugins(limit: number = 10): Promise<Plugin[]> {
   return request(`${API_PREFIX}/popular`, {
-    method: 'GET',
+    method: "GET",
     params: { limit },
   });
 }
@@ -253,7 +253,7 @@ export async function getPopularPlugins(limit: number = 10): Promise<Plugin[]> {
  */
 export async function getRecommendedPlugins(agentId?: string): Promise<Plugin[]> {
   return request(`${API_PREFIX}/recommended`, {
-    method: 'GET',
+    method: "GET",
     params: { agentId },
   });
 }
@@ -263,7 +263,7 @@ export async function getRecommendedPlugins(agentId?: string): Promise<Plugin[]>
  */
 export async function searchPlugins(keyword: string, limit: number = 10): Promise<Plugin[]> {
   return request(`${API_PREFIX}/search`, {
-    method: 'GET',
+    method: "GET",
     params: { keyword, limit },
   });
 }

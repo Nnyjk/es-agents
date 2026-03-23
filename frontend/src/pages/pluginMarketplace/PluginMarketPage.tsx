@@ -2,7 +2,7 @@
  * 插件市场页面
  * 支持插件浏览、搜索、安装
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Row,
@@ -22,7 +22,7 @@ import {
   Pagination,
   Statistic,
   Space,
-} from 'antd';
+} from "antd";
 import {
   DownloadOutlined,
   StarOutlined,
@@ -36,18 +36,18 @@ import {
   CheckCircleOutlined,
   SyncOutlined,
   InfoCircleOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 import {
   getPluginMarketList,
   installPlugin,
   getRecommendedPlugins,
-} from '../../services/pluginMarketplace';
+} from "../../services/pluginMarketplace";
 import type {
   Plugin,
   PluginQueryParams,
   PluginCategory,
   InstallProgress,
-} from '../../types/pluginMarketplace';
+} from "../../types/pluginMarketplace";
 
 const { Search } = Input;
 const { Text, Paragraph } = Typography;
@@ -58,7 +58,7 @@ const categoryIconMap: Record<PluginCategory, React.ReactNode> = {
   operations: <AppstoreOutlined />,
   deployment: <CloudUploadOutlined />,
   security: <SecurityScanOutlined />,
-  'data-analysis': <BarChartOutlined />,
+  "data-analysis": <BarChartOutlined />,
   notification: <NotificationOutlined />,
   integration: <ApiOutlined />,
   other: <AppstoreOutlined />,
@@ -66,14 +66,14 @@ const categoryIconMap: Record<PluginCategory, React.ReactNode> = {
 
 // 分类名称映射
 const categoryNameMap: Record<PluginCategory, string> = {
-  monitoring: '监控类',
-  operations: '运维类',
-  deployment: '部署类',
-  security: '安全类',
-  'data-analysis': '数据分析类',
-  notification: '通知类',
-  integration: '集成类',
-  other: '其他',
+  monitoring: "监控类",
+  operations: "运维类",
+  deployment: "部署类",
+  security: "安全类",
+  "data-analysis": "数据分析类",
+  notification: "通知类",
+  integration: "集成类",
+  other: "其他",
 };
 
 const PluginMarketPage: React.FC = () => {
@@ -82,16 +82,16 @@ const PluginMarketPage: React.FC = () => {
   const [total, setTotal] = useState(0);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(12);
-  const [keyword, setKeyword] = useState('');
+  const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState<PluginCategory | undefined>();
-  const [sortBy, setSortBy] = useState<string>('downloadCount');
+  const [sortBy, setSortBy] = useState<string>("downloadCount");
   const [recommended, setRecommended] = useState<Plugin[]>([]);
   const [detailVisible, setDetailVisible] = useState(false);
   const [selectedPlugin, setSelectedPlugin] = useState<Plugin | null>(null);
   const [installModalVisible, setInstallModalVisible] = useState(false);
   const [installingPlugin, setInstallingPlugin] = useState<Plugin | null>(null);
   const [installProgress, setInstallProgress] = useState<InstallProgress | null>(null);
-  const [selectedAgentId, setSelectedAgentId] = useState<string>('');
+  const [selectedAgentId, setSelectedAgentId] = useState<string>("");
 
   // 加载插件列表
   const loadPlugins = async () => {
@@ -102,14 +102,14 @@ const PluginMarketPage: React.FC = () => {
         pageSize,
         keyword: keyword || undefined,
         category,
-        sortBy: sortBy as 'name' | 'downloadCount' | 'rating' | 'updatedAt',
-        sortOrder: 'desc',
+        sortBy: sortBy as "name" | "downloadCount" | "rating" | "updatedAt",
+        sortOrder: "desc",
       };
       const result = await getPluginMarketList(params);
       setPlugins(result.items);
       setTotal(result.total);
     } catch (error) {
-      message.error('加载插件列表失败');
+      message.error("加载插件列表失败");
     } finally {
       setLoading(false);
     }
@@ -121,7 +121,7 @@ const PluginMarketPage: React.FC = () => {
       const result = await getRecommendedPlugins();
       setRecommended(result);
     } catch (error) {
-      console.error('加载推荐插件失败', error);
+      console.error("加载推荐插件失败", error);
     }
   };
 
@@ -167,7 +167,7 @@ const PluginMarketPage: React.FC = () => {
   // 确认安装
   const handleConfirmInstall = async () => {
     if (!installingPlugin || !selectedAgentId) {
-      message.warning('请选择要安装的 Agent');
+      message.warning("请选择要安装的 Agent");
       return;
     }
 
@@ -176,11 +176,11 @@ const PluginMarketPage: React.FC = () => {
         pluginId: installingPlugin.id,
         agentId: selectedAgentId,
       });
-      message.success('开始安装插件');
+      message.success("开始安装插件");
       setInstallModalVisible(false);
       loadPlugins();
     } catch (error) {
-      message.error('安装失败');
+      message.error("安装失败");
     }
   };
 
@@ -191,7 +191,7 @@ const PluginMarketPage: React.FC = () => {
     if (plugin.installed) {
       actions.push(
         <Tooltip key="installed" title="已安装">
-          <CheckCircleOutlined style={{ color: '#52c41a' }} />
+          <CheckCircleOutlined style={{ color: "#52c41a" }} />
         </Tooltip>
       );
     }
@@ -199,7 +199,7 @@ const PluginMarketPage: React.FC = () => {
     if (plugin.hasUpdate) {
       actions.push(
         <Tooltip key="update" title="有更新">
-          <SyncOutlined style={{ color: '#1890ff' }} />
+          <SyncOutlined style={{ color: "#1890ff" }} />
         </Tooltip>
       );
     }
@@ -221,15 +221,15 @@ const PluginMarketPage: React.FC = () => {
           cover={
             <div style={{ 
               height: 120, 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "center",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
             }}>
               {plugin.logo ? (
                 <img src={plugin.logo} alt={plugin.name} style={{ maxHeight: 80 }} />
               ) : (
-                <AppstoreOutlined style={{ fontSize: 48, color: '#fff' }} />
+                <AppstoreOutlined style={{ fontSize: 48, color: "#fff" }} />
               )}
             </div>
           }
@@ -339,7 +339,7 @@ const PluginMarketPage: React.FC = () => {
               <Row gutter={[16, 16]}>
                 {plugins.map(renderPluginCard)}
               </Row>
-              <div style={{ textAlign: 'center', marginTop: 24 }}>
+              <div style={{ textAlign: "center", marginTop: 24 }}>
                 <Pagination
                   current={current}
                   pageSize={pageSize}
@@ -376,7 +376,7 @@ const PluginMarketPage: React.FC = () => {
           <div>
             <Paragraph>请选择要安装插件的 Agent：</Paragraph>
             <Select
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
               placeholder="选择 Agent"
               value={selectedAgentId}
               onChange={setSelectedAgentId}

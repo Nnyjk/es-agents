@@ -6,20 +6,20 @@
 
 /** 插件分类 */
 export type PluginCategory =
-  | 'monitoring'
-  | 'operations'
-  | 'deployment'
-  | 'security'
-  | 'data-analysis'
-  | 'notification'
-  | 'integration'
-  | 'other';
+  | "monitoring"
+  | "operations"
+  | "deployment"
+  | "security"
+  | "data-analysis"
+  | "notification"
+  | "integration"
+  | "other";
 
 /** 插件状态 */
-export type PluginStatus = 'active' | 'inactive' | 'error' | 'installing' | 'updating';
+export type PluginStatus = "active" | "inactive" | "error" | "installing" | "updating";
 
 /** 插件安装状态 */
-export type InstallStatus = 'installed' | 'not-installed' | 'updating' | 'installing';
+export type InstallStatus = "installed" | "not-installed" | "updating" | "installing";
 
 /** 插件 */
 export interface Plugin {
@@ -72,7 +72,7 @@ export interface PluginConfigField {
   name: string;
   displayName: string;
   label?: string;
-  type: 'string' | 'text' | 'password' | 'number' | 'boolean' | 'select' | 'textarea' | 'json';
+  type: "string" | "text" | "password" | "number" | "boolean" | "select" | "textarea" | "json";
   required: boolean;
   defaultValue?: string | number | boolean;
   options?: { label: string; value: string }[];
@@ -132,7 +132,7 @@ export interface PluginMetrics {
 /** 插件安装进度 */
 export interface InstallProgress {
   pluginId: string;
-  status: 'downloading' | 'extracting' | 'installing' | 'configuring' | 'completed' | 'failed';
+  status: "downloading" | "extracting" | "installing" | "configuring" | "completed" | "failed";
   progress: number;
   message: string;
   error?: string;
@@ -142,20 +142,20 @@ export interface InstallProgress {
 
 /** 服务分类 */
 export type ServiceCategory =
-  | 'automation'
-  | 'deployment'
-  | 'monitoring'
-  | 'backup'
-  | 'security'
-  | 'maintenance'
-  | 'reporting'
-  | 'integration';
+  | "automation"
+  | "deployment"
+  | "monitoring"
+  | "backup"
+  | "security"
+  | "maintenance"
+  | "reporting"
+  | "integration";
 
 /** 服务类型 */
-export type ServiceType = 'script' | 'playbook' | 'template' | 'workflow' | 'api';
+export type ServiceType = "script" | "playbook" | "template" | "workflow" | "api";
 
 /** 服务状态 */
-export type ServiceStatus = 'active' | 'inactive' | 'deprecated';
+export type ServiceStatus = "active" | "inactive" | "deprecated";
 
 /** 服务目录项 */
 export interface ServiceCatalogItem {
@@ -185,7 +185,7 @@ export interface ServiceCatalogItem {
 export interface ServiceInput {
   name: string;
   label: string;
-  type: 'string' | 'number' | 'boolean' | 'array' | 'object' | 'file';
+  type: "string" | "number" | "boolean" | "array" | "object" | "file";
   required: boolean;
   defaultValue?: unknown;
   description?: string;
@@ -202,7 +202,7 @@ export interface ServiceInput {
 export interface ServiceOutput {
   name: string;
   label: string;
-  type: 'string' | 'number' | 'boolean' | 'array' | 'object';
+  type: "string" | "number" | "boolean" | "array" | "object";
   description?: string;
 }
 
@@ -219,7 +219,7 @@ export interface ServiceExecution {
   id: string;
   serviceId: string;
   serviceName: string;
-  status: 'pending' | 'running' | 'success' | 'failed' | 'cancelled';
+  status: "pending" | "running" | "success" | "failed" | "cancelled";
   inputs: Record<string, unknown>;
   outputs?: Record<string, unknown>;
   startTime: string;
@@ -237,7 +237,7 @@ export interface MyPlugin {
   displayName: string;
   description: string;
   category: PluginCategory;
-  status: 'draft' | 'pending' | 'approved' | 'rejected';
+  status: "draft" | "pending" | "approved" | "rejected";
   version: string;
   createdAt: string;
   updatedAt: string;
@@ -248,7 +248,7 @@ export interface MyPlugin {
 }
 
 /** 插件审核状态 */
-export type PluginReviewStatus = 'pending' | 'approved' | 'rejected';
+export type PluginReviewStatus = "pending" | "approved" | "rejected";
 
 /** 插件提交请求 */
 export interface PluginSubmitRequest {
@@ -275,8 +275,8 @@ export interface PluginQueryParams {
   keyword?: string;
   category?: PluginCategory;
   status?: InstallStatus;
-  sortBy?: 'rating' | 'installCount' | 'downloadCount' | 'updatedAt' | 'name';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "rating" | "installCount" | "downloadCount" | "updatedAt" | "name";
+  sortOrder?: "asc" | "desc";
 }
 
 /** 已安装插件查询参数 */
@@ -297,8 +297,8 @@ export interface ServiceCatalogQueryParams {
   category?: ServiceCategory;
   type?: ServiceType;
   status?: ServiceStatus;
-  sortBy?: 'rating' | 'usageCount' | 'updatedAt' | 'name';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "rating" | "usageCount" | "updatedAt" | "name";
+  sortOrder?: "asc" | "desc";
 }
 
 /** 服务执行查询参数 */
@@ -306,7 +306,7 @@ export interface ServiceExecutionQueryParams {
   page: number;
   pageSize: number;
   serviceId?: string;
-  status?: 'pending' | 'running' | 'success' | 'failed' | 'cancelled';
+  status?: "pending" | "running" | "success" | "failed" | "cancelled";
   startTime?: string;
   endTime?: string;
 }

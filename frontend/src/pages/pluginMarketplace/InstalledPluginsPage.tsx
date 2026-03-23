@@ -2,7 +2,7 @@
  * 已安装插件管理页面
  * 支持插件启停、配置、卸载、日志查看
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Table,
@@ -24,7 +24,7 @@ import {
   Row,
   Col,
   Spin,
-} from 'antd';
+} from "antd";
 import {
   PlayCircleOutlined,
   StopOutlined,
@@ -33,7 +33,7 @@ import {
   ReloadOutlined,
   SyncOutlined,
   InfoCircleOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 import {
   getInstalledPlugins,
   uninstallPlugin,
@@ -46,34 +46,34 @@ import {
   getPluginMetrics,
   restartPlugin,
   testPluginConfig,
-} from '../../services/pluginMarketplace';
+} from "../../services/pluginMarketplace";
 import type {
   InstalledPlugin,
   InstalledPluginQueryParams,
   PluginStatus,
   PluginConfig,
   PluginMetrics,
-} from '../../types/pluginMarketplace';
+} from "../../types/pluginMarketplace";
 
 const { Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
 
 // 状态颜色映射
 const statusColorMap: Record<PluginStatus, string> = {
-  active: 'green',
-  inactive: 'default',
-  error: 'red',
-  installing: 'blue',
-  updating: 'orange',
+  active: "green",
+  inactive: "default",
+  error: "red",
+  installing: "blue",
+  updating: "orange",
 };
 
 // 状态名称映射
 const statusNameMap: Record<PluginStatus, string> = {
-  active: '运行中',
-  inactive: '已停止',
-  error: '错误',
-  installing: '安装中',
-  updating: '更新中',
+  active: "运行中",
+  inactive: "已停止",
+  error: "错误",
+  installing: "安装中",
+  updating: "更新中",
 };
 
 const InstalledPluginsPage: React.FC = () => {
@@ -83,7 +83,7 @@ const InstalledPluginsPage: React.FC = () => {
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [statusFilter, setStatusFilter] = useState<PluginStatus | undefined>();
-  const [keyword, setKeyword] = useState('');
+  const [keyword, setKeyword] = useState("");
   const [configDrawerVisible, setConfigDrawerVisible] = useState(false);
   const [selectedPlugin, setSelectedPlugin] = useState<InstalledPlugin | null>(null);
   const [pluginConfig, setPluginConfig] = useState<PluginConfig | null>(null);
@@ -91,7 +91,7 @@ const InstalledPluginsPage: React.FC = () => {
   const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
   const [pluginDetail, setPluginDetail] = useState<InstalledPlugin | null>(null);
   const [pluginMetrics, setPluginMetrics] = useState<PluginMetrics | null>(null);
-  const [pluginLogs, setPluginLogs] = useState<string>('');
+  const [pluginLogs, setPluginLogs] = useState<string>("");
   const [metricsLoading, setMetricsLoading] = useState(false);
   const [logsLoading, setLogsLoading] = useState(false);
 
@@ -109,7 +109,7 @@ const InstalledPluginsPage: React.FC = () => {
       setPlugins(result.items);
       setTotal(result.total);
     } catch (error) {
-      message.error('加载插件列表失败');
+      message.error("加载插件列表失败");
     } finally {
       setLoading(false);
     }
@@ -123,10 +123,10 @@ const InstalledPluginsPage: React.FC = () => {
   const handleEnable = async (plugin: InstalledPlugin) => {
     try {
       await enablePlugin(plugin.id);
-      message.success('插件已启用');
+      message.success("插件已启用");
       loadPlugins();
     } catch (error) {
-      message.error('启用失败');
+      message.error("启用失败");
     }
   };
 
@@ -134,10 +134,10 @@ const InstalledPluginsPage: React.FC = () => {
   const handleDisable = async (plugin: InstalledPlugin) => {
     try {
       await disablePlugin(plugin.id);
-      message.success('插件已禁用');
+      message.success("插件已禁用");
       loadPlugins();
     } catch (error) {
-      message.error('禁用失败');
+      message.error("禁用失败");
     }
   };
 
@@ -145,10 +145,10 @@ const InstalledPluginsPage: React.FC = () => {
   const handleRestart = async (plugin: InstalledPlugin) => {
     try {
       await restartPlugin(plugin.id);
-      message.success('插件重启中');
+      message.success("插件重启中");
       loadPlugins();
     } catch (error) {
-      message.error('重启失败');
+      message.error("重启失败");
     }
   };
 
@@ -156,10 +156,10 @@ const InstalledPluginsPage: React.FC = () => {
   const handleUninstall = async (plugin: InstalledPlugin) => {
     try {
       await uninstallPlugin(plugin.id);
-      message.success('插件已卸载');
+      message.success("插件已卸载");
       loadPlugins();
     } catch (error) {
-      message.error('卸载失败');
+      message.error("卸载失败");
     }
   };
 
@@ -167,10 +167,10 @@ const InstalledPluginsPage: React.FC = () => {
   const handleUpdate = async (plugin: InstalledPlugin) => {
     try {
       await updatePlugin(plugin.id, {});
-      message.success('插件更新中');
+      message.success("插件更新中");
       loadPlugins();
     } catch (error) {
-      message.error('更新失败');
+      message.error("更新失败");
     }
   };
 
@@ -184,7 +184,7 @@ const InstalledPluginsPage: React.FC = () => {
       configForm.setFieldsValue(config.values);
       setConfigDrawerVisible(true);
     } catch (error) {
-      message.error('获取配置失败');
+      message.error("获取配置失败");
     } finally {
       setLoading(false);
     }
@@ -197,10 +197,10 @@ const InstalledPluginsPage: React.FC = () => {
       if (!selectedPlugin) return;
       
       await updatePluginConfig(selectedPlugin.id, values);
-      message.success('配置已保存');
+      message.success("配置已保存");
       setConfigDrawerVisible(false);
     } catch (error) {
-      message.error('保存配置失败');
+      message.error("保存配置失败");
     }
   };
 
@@ -212,12 +212,12 @@ const InstalledPluginsPage: React.FC = () => {
       
       const result = await testPluginConfig(selectedPlugin.id, values);
       if (result.success) {
-        message.success('配置测试通过');
+        message.success("配置测试通过");
       } else {
-        message.warning(result.message || '配置测试失败');
+        message.warning(result.message || "配置测试失败");
       }
     } catch (error) {
-      message.error('测试失败');
+      message.error("测试失败");
     }
   };
 
@@ -226,7 +226,7 @@ const InstalledPluginsPage: React.FC = () => {
     setDetailDrawerVisible(true);
     setPluginDetail(plugin);
     setPluginMetrics(null);
-    setPluginLogs('');
+    setPluginLogs("");
     
     // 加载指标
     setMetricsLoading(true);
@@ -234,7 +234,7 @@ const InstalledPluginsPage: React.FC = () => {
       const metrics = await getPluginMetrics(plugin.id);
       setPluginMetrics(metrics);
     } catch (error) {
-      console.error('获取指标失败', error);
+      console.error("获取指标失败", error);
     } finally {
       setMetricsLoading(false);
     }
@@ -247,7 +247,7 @@ const InstalledPluginsPage: React.FC = () => {
       const result = await getPluginLogs(pluginId, { lines: 100 });
       setPluginLogs(result.logs);
     } catch (error) {
-      message.error('获取日志失败');
+      message.error("获取日志失败");
     } finally {
       setLogsLoading(false);
     }
@@ -256,9 +256,9 @@ const InstalledPluginsPage: React.FC = () => {
   // 表格列定义
   const columns = [
     {
-      title: '插件名称',
-      dataIndex: 'displayName',
-      key: 'displayName',
+      title: "插件名称",
+      dataIndex: "displayName",
+      key: "displayName",
       render: (text: string, record: InstalledPlugin) => (
         <Space>
           {record.logo ? (
@@ -267,10 +267,10 @@ const InstalledPluginsPage: React.FC = () => {
             <div style={{ 
               width: 32, 
               height: 32, 
-              background: '#f0f0f0', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center' 
+              background: "#f0f0f0", 
+              display: "flex", 
+              alignItems: "center", 
+              justifyContent: "center" 
             }}>
               <InfoCircleOutlined />
             </div>
@@ -280,15 +280,15 @@ const InstalledPluginsPage: React.FC = () => {
       ),
     },
     {
-      title: '版本',
-      dataIndex: 'version',
-      key: 'version',
+      title: "版本",
+      dataIndex: "version",
+      key: "version",
       width: 100,
     },
     {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
+      title: "状态",
+      dataIndex: "status",
+      key: "status",
       width: 100,
       render: (status: PluginStatus) => (
         <Tag color={statusColorMap[status]}>
@@ -297,26 +297,26 @@ const InstalledPluginsPage: React.FC = () => {
       ),
     },
     {
-      title: 'Agent',
-      dataIndex: 'agentId',
-      key: 'agentId',
+      title: "Agent",
+      dataIndex: "agentId",
+      key: "agentId",
       width: 120,
       ellipsis: true,
     },
     {
-      title: '安装时间',
-      dataIndex: 'installedAt',
-      key: 'installedAt',
+      title: "安装时间",
+      dataIndex: "installedAt",
+      key: "installedAt",
       width: 180,
       render: (date: string) => new Date(date).toLocaleString(),
     },
     {
-      title: '操作',
-      key: 'actions',
+      title: "操作",
+      key: "actions",
       width: 240,
       render: (_: unknown, record: InstalledPlugin) => (
         <Space size="small">
-          {record.status === 'active' ? (
+          {record.status === "active" ? (
             <Tooltip title="停止">
               <Button
                 type="text"
@@ -324,7 +324,7 @@ const InstalledPluginsPage: React.FC = () => {
                 onClick={() => handleDisable(record)}
               />
             </Tooltip>
-          ) : record.status === 'inactive' ? (
+          ) : record.status === "inactive" ? (
             <Tooltip title="启动">
               <Button
                 type="text"
@@ -464,7 +464,7 @@ const InstalledPluginsPage: React.FC = () => {
                   ]}
                   tooltip={field.description}
                 >
-                  {field.type === 'string' && field.options ? (
+                  {field.type === "string" && field.options ? (
                     <Select>
                       {field.options.map((opt) => (
                         <Select.Option key={opt.value} value={opt.value}>
@@ -472,13 +472,13 @@ const InstalledPluginsPage: React.FC = () => {
                         </Select.Option>
                       ))}
                     </Select>
-                  ) : field.type === 'string' ? (
+                  ) : field.type === "string" ? (
                     <Input.TextArea rows={3} />
-                  ) : field.type === 'number' ? (
+                  ) : field.type === "number" ? (
                     <Input type="number" />
-                  ) : field.type === 'boolean' ? (
+                  ) : field.type === "boolean" ? (
                     <Switch />
-                  ) : field.type === 'password' ? (
+                  ) : field.type === "password" ? (
                     <Input.Password />
                   ) : (
                     <Input />
@@ -552,7 +552,7 @@ const InstalledPluginsPage: React.FC = () => {
                       <Statistic
                         title="错误数"
                         value={pluginMetrics.errorCount}
-                        valueStyle={{ color: pluginMetrics.errorCount > 0 ? '#ff4d4f' : undefined }}
+                        valueStyle={{ color: pluginMetrics.errorCount > 0 ? "#ff4d4f" : undefined }}
                       />
                     </Col>
                   </Row>
@@ -573,7 +573,7 @@ const InstalledPluginsPage: React.FC = () => {
                 value={pluginLogs}
                 rows={15}
                 readOnly
-                style={{ fontFamily: 'monospace' }}
+                style={{ fontFamily: "monospace" }}
               />
             </TabPane>
           </Tabs>
