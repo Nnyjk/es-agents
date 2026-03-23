@@ -1,24 +1,22 @@
 package com.easystation.deployment.dto;
 
-import com.easystation.deployment.domain.ApplicationConfig;
+import com.easystation.deployment.domain.ApplicationDependency;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * 应用配置 DTO
+ * 应用依赖 DTO
  */
 @Data
-public class ApplicationConfigDTO {
+public class ApplicationDependencyDTO {
     public UUID id;
     public UUID applicationId;
     public UUID environmentId;
-    public ApplicationConfig.ConfigType configType;
-    public String configKey;
-    public String configValue;
-    public ApplicationConfig.ValueType valueType;
-    public Boolean isSecret;
+    public ApplicationDependency.DependencyType type;
+    public String dependencyName;
+    public String dependencyVersion;
     public String description;
     public Boolean active;
     public LocalDateTime createdAt;
