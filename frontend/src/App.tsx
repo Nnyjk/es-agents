@@ -29,6 +29,11 @@ import SystemSettings from "./pages/system/Settings";
 import DeploymentPage from "./pages/deployment";
 import { ProfilePage } from "./pages/profile";
 import { AgentMonitorPage, AgentInstancePage } from "./pages/agentMonitoring";
+import ScheduledTaskList from "./pages/scheduledTask";
+import {
+  PluginMarketPage,
+  InstalledPluginsPage,
+} from "./pages/pluginMarketplace";
 
 const App: React.FC = () => {
   return (
@@ -77,6 +82,7 @@ const App: React.FC = () => {
             <Route path="market" element={<PluginMarketPage />} />
             <Route path="installed" element={<InstalledPluginsPage />} />
           </Route>
+          <Route path="scheduled-tasks" element={<ScheduledTaskList />} />
         </Route>
       </Routes>
     </Router>
