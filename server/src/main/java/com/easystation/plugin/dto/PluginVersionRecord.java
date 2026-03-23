@@ -75,4 +75,37 @@ public record PluginVersionRecord(
         Integer page,
         Integer size
     ) {}
+
+    public record Update(
+        @Size(max = 20, message = "Version too long")
+        @Pattern(regexp = "^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$", message = "Invalid version format")
+        String version,
+
+        Integer versionCode,
+
+        String changelog,
+
+        @Size(max = 500, message = "Download URL too long")
+        String downloadUrl,
+
+        Long packageSize,
+
+        @Size(max = 128, message = "Package hash too long")
+        String packageHash,
+
+        @Size(max = 128, message = "Signature hash too long")
+        String signatureHash,
+
+        @Size(max = 20, message = "Min platform version too long")
+        String minPlatformVersion,
+
+        @Size(max = 20, message = "Max platform version too long")
+        String maxPlatformVersion,
+
+        String dependencies,
+
+        String resourceRequirements,
+
+        Boolean isPrerelease
+    ) {}
 }

@@ -70,6 +70,19 @@ public class PluginReviewServiceImpl implements PluginReviewService {
 
     @Override
     @Transactional
+    public PluginReviewRecord submit(PluginReviewRecord.Submit submit) {
+        // Convert Submit to Create and delegate
+        PluginReviewRecord.Create create = new PluginReviewRecord.Create(
+            submit.pluginId(),
+            submit.versionId(),
+            submit.reviewType(),
+            submit.comment()
+        );
+        return createReview(create);
+    }
+
+    @Override
+    @Transactional
     public PluginReviewRecord approve(UUID reviewId, PluginReviewRecord.Approve approve) {
         PluginReview review = reviewRepository.findById(reviewId)
             .orElseThrow(() -> new NotFoundException("Review not found: " + reviewId));

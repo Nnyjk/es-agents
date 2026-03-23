@@ -11,6 +11,8 @@ public interface PluginReviewService {
 
     PluginReviewRecord createReview(PluginReviewRecord.Create create);
 
+    PluginReviewRecord submit(PluginReviewRecord.Submit submit);
+
     PluginReviewRecord approve(UUID reviewId, PluginReviewRecord.Approve approve);
 
     PluginReviewRecord reject(UUID reviewId, PluginReviewRecord.Reject reject);

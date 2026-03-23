@@ -37,6 +37,19 @@ public record PluginReviewRecord(
         String comment
     ) {}
 
+    public record Submit(
+        @NotNull(message = "Plugin ID is required")
+        UUID pluginId,
+
+        UUID versionId,
+
+        @NotBlank(message = "Review type is required")
+        @Size(max = 20, message = "Review type too long")
+        String reviewType,
+
+        String comment
+    ) {}
+
     public record Approve(
         String comment,
         String securityCheckResult,
