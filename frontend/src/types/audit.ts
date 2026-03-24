@@ -3,17 +3,17 @@
  */
 
 export type AuditAction =
-  | 'CREATE'
-  | 'UPDATE'
-  | 'DELETE'
-  | 'LOGIN'
-  | 'LOGOUT'
-  | 'EXPORT'
-  | 'IMPORT'
-  | 'DEPLOY'
-  | 'EXECUTE';
+  | "CREATE"
+  | "UPDATE"
+  | "DELETE"
+  | "LOGIN"
+  | "LOGOUT"
+  | "EXPORT"
+  | "IMPORT"
+  | "DEPLOY"
+  | "EXECUTE";
 
-export type AuditStatus = 'SUCCESS' | 'FAILED' | 'PENDING';
+export type AuditStatus = "SUCCESS" | "FAILED" | "PENDING";
 
 export interface AuditLog {
   id: string;

@@ -1,10 +1,10 @@
-import request from '@/utils/request';
+import request from "../utils/request";
 import type {
   AuditLog,
   AuditLogQuery,
   AuditLogListResponse,
   AuditLogSummary,
-} from '@/types/audit';
+} from "../types/audit";
 
 /**
  * 获取审计日志列表
@@ -12,7 +12,7 @@ import type {
 export const getAuditLogs = async (
   params: AuditLogQuery,
 ): Promise<AuditLogListResponse> => {
-  const response = await request.get('/me/audit-logs', { params });
+  const response = await request.get("/me/audit-logs", { params });
   return response.data;
 };
 
@@ -28,9 +28,9 @@ export const getAuditLogDetail = async (id: string): Promise<AuditLog> => {
  * 获取审计日志统计摘要
  */
 export const getAuditLogSummary = async (
-  params?: Pick<AuditLogQuery, 'startTime' | 'endTime'>,
+  params?: Pick<AuditLogQuery, "startTime" | "endTime">,
 ): Promise<AuditLogSummary> => {
-  const response = await request.get('/me/audit-logs/summary', {
+  const response = await request.get("/me/audit-logs/summary", {
     params,
   });
   return response.data;
@@ -42,9 +42,9 @@ export const getAuditLogSummary = async (
 export const exportAuditLogs = async (
   params: AuditLogQuery,
 ): Promise<Blob> => {
-  const response = await request.get('/me/audit-logs/export', {
+  const response = await request.get("/me/audit-logs/export", {
     params,
-    responseType: 'blob',
+    responseType: "blob",
   });
   return response.data;
 };

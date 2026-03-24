@@ -1,14 +1,8 @@
 import React, { useRef, useState } from "react";
-import {
-  ProTable,
-  ModalForm,
-  ProFormSelect,
-  ProFormDatePicker,
-} from "@ant-design/pro-components";
+import { ProTable, ModalForm } from "@ant-design/pro-components";
 import {
   Card,
   Tag,
-  Space,
   Button,
   Descriptions,
   Typography,
@@ -34,7 +28,6 @@ import {
 } from "@/services/audit";
 import type { AuditLog, AuditLogQuery, AuditLogSummary } from "@/types/audit";
 
-const { RangePicker } = ProFormDatePicker.Group;
 const { Text } = Typography;
 
 // 操作类型配置
@@ -62,6 +55,7 @@ const AuditLogList: React.FC = () => {
   const [detailVisible, setDetailVisible] = useState(false);
   const [currentLog, setCurrentLog] = useState<AuditLog | null>(null);
   const [summary, setSummary] = useState<AuditLogSummary | null>(null);
+  const lastQueryRef = useRef<AuditLogQuery>({});
 
   // 加载统计数据
   const loadSummary = async () => {
@@ -106,7 +100,8 @@ const AuditLogList: React.FC = () => {
       dataIndex: "createdAt",
       key: "createdAt",
       width: 180,
-      render: (_, record) => dayjs(record.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+      render: (_, record) =>
+        dayjs(record.createdAt).format("YYYY-MM-DD HH:mm:ss"),
       sorter: true,
     },
     {
@@ -250,11 +245,9 @@ const AuditLogList: React.FC = () => {
         scroll={{ x: 1200 }}
         request={async (params) => {
           const { current, pageSize, ...rest } = params;
-          const response = await getAuditLogs({
-            ...rest,
-            current,
-            pageSize,
-          });
+          const query = { ...rest, current, pageSize };
+          lastQueryRef.current = query;
+          const response = await getAuditLogs(query);
           return {
             data: response.data,
             total: response.total,
@@ -268,12 +261,7 @@ const AuditLogList: React.FC = () => {
           <Button
             key="export"
             icon={<DownloadOutlined />}
-            onClick={() => {
-              const params = actionRef.current?.getParams?.();
-              if (params) {
-                handleExport(params as AuditLogQuery);
-              }
-            }}
+            onClick={() => handleExport(lastQueryRef.current)}
           >
             导出
           </Button>,
