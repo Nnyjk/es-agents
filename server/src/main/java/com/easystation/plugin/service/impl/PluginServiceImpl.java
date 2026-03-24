@@ -371,18 +371,18 @@ public class PluginServiceImpl implements PluginService {
         int versionCode = parseVersionCode(create.version());
 
         PluginVersion version = new PluginVersion();
-        version.pluginId = plugin.id;
-        version.version = create.version();
-        version.versionCode = versionCode;
-        version.changelog = create.changelog();
-        version.downloadUrl = create.downloadUrl();
-        version.packageSize = create.packageSize();
-        version.packageHash = create.packageHash();
-        version.minPlatformVersion = create.minPlatformVersion() != null ? 
-            create.minPlatformVersion() : plugin.minPlatformVersion;
-        version.maxPlatformVersion = create.maxPlatformVersion() != null ? 
-            create.maxPlatformVersion() : plugin.maxPlatformVersion;
-        version.dependencies = create.dependencies();
+        version.setPluginId(plugin.id);
+        version.setVersion(create.version());
+        version.setVersionCode(versionCode);
+        version.setChangelog(create.changelog());
+        version.setDownloadUrl(create.downloadUrl());
+        version.setPackageSize(create.packageSize());
+        version.setPackageHash(create.packageHash());
+        version.setMinPlatformVersion(create.minPlatformVersion() != null ? 
+            create.minPlatformVersion() : plugin.getMinPlatformVersion());
+        version.setMaxPlatformVersion(create.maxPlatformVersion() != null ? 
+            create.maxPlatformVersion() : plugin.getMaxPlatformVersion());
+        version.setDependencies(create.dependencies());
         version.resourceRequirements = create.resourceRequirements();
         version.isPrerelease = create.isPrerelease() != null ? create.isPrerelease() : false;
         version.isLatest = false;

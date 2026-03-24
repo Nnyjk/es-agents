@@ -46,7 +46,7 @@ public class PluginRatingServiceImpl implements PluginRatingService {
         }
 
         PluginRating rating = new PluginRating();
-        rating.pluginId = plugin.id;
+        rating.setPluginId(plugin.id);
         rating.setUserId(userId);
         rating.setRating(create.rating());
         rating.setReview(create.review());
@@ -80,7 +80,7 @@ public class PluginRatingServiceImpl implements PluginRatingService {
         ratingRepository.persist(rating);
 
         // Update plugin rating statistics
-        updatePluginRatingStatistics(rating.pluginId);
+        updatePluginRatingStatistics(rating.getPluginId());
 
         return ratingMapper.toRecord(rating);
     }
@@ -192,7 +192,7 @@ public class PluginRatingServiceImpl implements PluginRatingService {
     @Transactional
     public void delete(UUID id) {
         ratingRepository.findByIdOptional(id).ifPresent(rating -> {
-            UUID pluginId = rating.pluginId;
+            UUID pluginId = rating.getPluginId();
             ratingRepository.delete(rating);
             
             // Update plugin rating statistics

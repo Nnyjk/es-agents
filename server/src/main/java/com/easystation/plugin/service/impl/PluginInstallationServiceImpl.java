@@ -62,15 +62,15 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
         }
 
         PluginInstallation installation = new PluginInstallation();
-        installation.pluginId = plugin.id;
-        installation.versionId = version != null ? version.id : null;
-        installation.agentId = install.agentId();
-        installation.userId = userId;
-        installation.status = InstallationStatus.INSTALLING;
-        installation.installedVersion = version != null ? version.version : null;
-        installation.configData = install.configData();
-        installation.createdAt = LocalDateTime.now();
-        installation.updatedAt = LocalDateTime.now();
+        installation.setPluginId(plugin.id);
+        installation.setVersionId(version != null ? version.id : null);
+        installation.setAgentId(install.agentId());
+        installation.setUserId(userId);
+        installation.setStatus(InstallationStatus.INSTALLING);
+        installation.setInstalledVersion(version != null ? version.version : null);
+        installation.setConfigData(install.configData());
+        installation.setCreatedAt(LocalDateTime.now());
+        installation.setUpdatedAt(LocalDateTime.now());
 
         installationRepository.persist(installation);
 
@@ -233,12 +233,6 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
         return installationRepository.findByPluginId(pluginId).stream()
             .map(installationMapper::toRecord)
             .collect(Collectors.toList());
-    }
-
-    @Override
-    public Optional<PluginInstallationRecord> findByPluginIdAndUserId(UUID pluginId, UUID userId) {
-        return installationRepository.findByPluginIdAndUserId(pluginId, userId)
-            .map(installationMapper::toRecord);
     }
 
     @Override

@@ -40,23 +40,23 @@ public class PluginCommentServiceImpl implements PluginCommentService {
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + create.pluginId()));
 
         PluginComment comment = new PluginComment();
-        comment.pluginId = plugin.id;
-        comment.userId = userId;
-        comment.content = create.content();
-        comment.isDeveloperReply = false;
-        comment.isPinned = false;
-        comment.isHidden = false;
-        comment.likeCount = 0;
-        comment.replyCount = 0;
-        comment.createdAt = LocalDateTime.now();
-        comment.updatedAt = LocalDateTime.now();
+        comment.setPluginId(plugin.id);
+        comment.setUserId(userId);
+        comment.setContent(create.content());
+        comment.setIsDeveloperReply(false);
+        comment.setIsPinned(false);
+        comment.setIsHidden(false);
+        comment.setLikeCount(0);
+        comment.setReplyCount(0);
+        comment.setCreatedAt(LocalDateTime.now());
+        comment.setUpdatedAt(LocalDateTime.now());
 
         // Handle reply
         if (create.parentId() != null) {
             PluginComment parent = commentRepository.findByIdOptional(create.parentId())
                 .orElseThrow(() -> new NotFoundException("Parent comment not found: " + create.parentId()));
-            comment.parentId = parent.id;
-            comment.replyToUserId = create.replyToUserId();
+            comment.setParentId(parent.id);
+            comment.setReplyToUserId(create.replyToUserId());
         }
 
         commentRepository.persist(comment);
@@ -75,9 +75,9 @@ public class PluginCommentServiceImpl implements PluginCommentService {
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
         if (update.content() != null) {
-            comment.content = update.content();
+            comment.setContent(update.content());
         }
-        comment.updatedAt = LocalDateTime.now();
+        comment.setUpdatedAt(LocalDateTime.now());
 
         commentRepository.persist(comment);
         return commentMapper.toRecord(comment);
@@ -121,8 +121,8 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
-        comment.isPinned = true;
-        comment.updatedAt = LocalDateTime.now();
+        comment.setIsPinned(true);
+        comment.setUpdatedAt(LocalDateTime.now());
 
         commentRepository.persist(comment);
         return commentMapper.toRecord(comment);
@@ -134,8 +134,8 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
-        comment.isPinned = false;
-        comment.updatedAt = LocalDateTime.now();
+        comment.setIsPinned(false);
+        comment.setUpdatedAt(LocalDateTime.now());
 
         commentRepository.persist(comment);
         return commentMapper.toRecord(comment);
@@ -147,8 +147,8 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
-        comment.isHidden = true;
-        comment.updatedAt = LocalDateTime.now();
+        comment.setIsHidden(true);
+        comment.setUpdatedAt(LocalDateTime.now());
 
         commentRepository.persist(comment);
         return commentMapper.toRecord(comment);
@@ -160,8 +160,8 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
-        comment.isHidden = false;
-        comment.updatedAt = LocalDateTime.now();
+        comment.setIsHidden(false);
+        comment.setUpdatedAt(LocalDateTime.now());
 
         commentRepository.persist(comment);
         return commentMapper.toRecord(comment);
@@ -174,7 +174,7 @@ public class PluginCommentServiceImpl implements PluginCommentService {
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
         // Update parent reply count if this is a reply
-        if (comment.parentId != null) {
+        if (comment.getParentId() != null) {
             commentRepository.findByIdOptional(comment.parentId).ifPresent(parent -> {
                 parent.replyCount = parent.replyCount - 1;
                 commentRepository.persist(parent);
@@ -182,7 +182,7 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         }
 
         // Update plugin comment count
-        pluginRepository.findByIdOptional(comment.pluginId).ifPresent(plugin -> {
+        pluginRepository.findByIdOptional(comment.getPluginId()).ifPresent(plugin -> {
             plugin.commentCount = plugin.commentCount - 1;
             plugin.updatedAt = LocalDateTime.now();
             pluginRepository.persist(plugin);
@@ -197,8 +197,8 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
-        comment.likeCount = comment.likeCount + 1;
-        comment.updatedAt = LocalDateTime.now();
+        comment.setLikeCount(comment.getLikeCount() + 1);
+        comment.setUpdatedAt(LocalDateTime.now());
 
         commentRepository.persist(comment);
     }
@@ -209,10 +209,10 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
-        if (comment.likeCount > 0) {
-            comment.likeCount = comment.likeCount - 1;
+        if (comment.getLikeCount() > 0) {
+            comment.setLikeCount(comment.getLikeCount() - 1);
         }
-        comment.updatedAt = LocalDateTime.now();
+        comment.setUpdatedAt(LocalDateTime.now());
 
         commentRepository.persist(comment);
     }
@@ -223,8 +223,8 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
-        comment.isDeveloperReply = true;
-        comment.updatedAt = LocalDateTime.now();
+        comment.setIsDeveloperReply(true);
+        comment.setUpdatedAt(LocalDateTime.now());
 
         commentRepository.persist(comment);
         return commentMapper.toRecord(comment);

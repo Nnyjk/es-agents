@@ -50,12 +50,12 @@ public class PluginReviewServiceImpl implements PluginReviewService {
         }
 
         PluginReview review = new PluginReview();
-        review.pluginId = plugin.id;
+        review.setPluginId(plugin.id);
 
         if (create.versionId() != null) {
             PluginVersion version = versionRepository.findByIdOptional(create.versionId())
                 .orElseThrow(() -> new NotFoundException("Version not found: " + create.versionId()));
-            review.setVersion(version);
+            review.setVersionId(version.id);
         }
 
         review.setReviewType(create.reviewType());
@@ -102,9 +102,9 @@ public class PluginReviewServiceImpl implements PluginReviewService {
         reviewRepository.persist(review);
 
         // Update plugin status
-        Plugin plugin = review.getPlugin();
+        Plugin plugin = pluginRepository.findByIdOptional(review.getPluginId())
+            .orElseThrow(() -> new NotFoundException("Plugin not found"));
         plugin.setStatus(com.easystation.plugin.domain.enums.PluginStatus.PUBLISHED);
-        plugin.setPublishedAt(LocalDateTime.now());
         plugin.setUpdatedAt(LocalDateTime.now());
         pluginRepository.persist(plugin);
 
@@ -129,7 +129,8 @@ public class PluginReviewServiceImpl implements PluginReviewService {
         reviewRepository.persist(review);
 
         // Update plugin status
-        Plugin plugin = review.getPlugin();
+        Plugin plugin = pluginRepository.findByIdOptional(review.getPluginId())
+            .orElseThrow(() -> new NotFoundException("Plugin not found"));
         plugin.setStatus(com.easystation.plugin.domain.enums.PluginStatus.REJECTED);
         plugin.setUpdatedAt(LocalDateTime.now());
         pluginRepository.persist(plugin);
