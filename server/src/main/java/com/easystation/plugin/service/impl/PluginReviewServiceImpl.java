@@ -41,7 +41,7 @@ public class PluginReviewServiceImpl implements PluginReviewService {
     @Override
     @Transactional
     public PluginReviewRecord createReview(PluginReviewRecord.Create create) {
-        Plugin plugin = pluginRepository.findById(create.pluginId())
+        Plugin plugin = pluginRepository.findByIdOptional(create.pluginId())
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + create.pluginId()));
 
         // Check if there's already a pending review
@@ -53,7 +53,7 @@ public class PluginReviewServiceImpl implements PluginReviewService {
         review.setPlugin(plugin);
 
         if (create.versionId() != null) {
-            PluginVersion version = versionRepository.findById(create.versionId())
+            PluginVersion version = versionRepository.findByIdOptional(create.versionId())
                 .orElseThrow(() -> new NotFoundException("Version not found: " + create.versionId()));
             review.setVersion(version);
         }
@@ -84,7 +84,7 @@ public class PluginReviewServiceImpl implements PluginReviewService {
     @Override
     @Transactional
     public PluginReviewRecord approve(UUID reviewId, PluginReviewRecord.Approve approve) {
-        PluginReview review = reviewRepository.findById(reviewId)
+        PluginReview review = reviewRepository.findByIdOptional(reviewId)
             .orElseThrow(() -> new NotFoundException("Review not found: " + reviewId));
 
         if (review.getStatus() != ReviewStatus.PENDING) {
@@ -114,7 +114,7 @@ public class PluginReviewServiceImpl implements PluginReviewService {
     @Override
     @Transactional
     public PluginReviewRecord reject(UUID reviewId, PluginReviewRecord.Reject reject) {
-        PluginReview review = reviewRepository.findById(reviewId)
+        PluginReview review = reviewRepository.findByIdOptional(reviewId)
             .orElseThrow(() -> new NotFoundException("Review not found: " + reviewId));
 
         if (review.getStatus() != ReviewStatus.PENDING) {
@@ -139,7 +139,7 @@ public class PluginReviewServiceImpl implements PluginReviewService {
 
     @Override
     public Optional<PluginReviewRecord> findById(UUID id) {
-        return reviewRepository.findById(id)
+        return reviewRepository.findByIdOptional(id)
             .map(reviewMapper::toRecord);
     }
 

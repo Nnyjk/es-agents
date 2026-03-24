@@ -48,7 +48,7 @@ public class PluginCategoryServiceImpl implements PluginCategoryService {
         category.code = create.code() != null ? create.code() : generateCode(create.name());
         
         if (create.parentId() != null) {
-            PluginCategory parent = categoryRepository.findById(create.parentId())
+            PluginCategory parent = categoryRepository.findByIdOptional(create.parentId())
                 .orElseThrow(() -> new NotFoundException("Parent category not found: " + create.parentId()));
             category.parentId = parent.id;
         }
@@ -65,7 +65,7 @@ public class PluginCategoryServiceImpl implements PluginCategoryService {
     @Override
     @Transactional
     public PluginCategoryRecord update(UUID id, PluginCategoryRecord.Update update) {
-        PluginCategory category = categoryRepository.findById(id)
+        PluginCategory category = categoryRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Category not found: " + id));
 
         if (update.name() != null) {
@@ -111,7 +111,7 @@ public class PluginCategoryServiceImpl implements PluginCategoryService {
 
     @Override
     public Optional<PluginCategoryRecord> findById(UUID id) {
-        return categoryRepository.findById(id)
+        return categoryRepository.findByIdOptional(id)
             .map(categoryMapper::toRecord);
     }
 
@@ -153,7 +153,7 @@ public class PluginCategoryServiceImpl implements PluginCategoryService {
     @Override
     @Transactional
     public PluginCategoryRecord activate(UUID id) {
-        PluginCategory category = categoryRepository.findById(id)
+        PluginCategory category = categoryRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Category not found: " + id));
 
         category.isActive = true;
@@ -165,7 +165,7 @@ public class PluginCategoryServiceImpl implements PluginCategoryService {
     @Override
     @Transactional
     public PluginCategoryRecord deactivate(UUID id) {
-        PluginCategory category = categoryRepository.findById(id)
+        PluginCategory category = categoryRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Category not found: " + id));
 
         category.isActive = false;
@@ -177,7 +177,7 @@ public class PluginCategoryServiceImpl implements PluginCategoryService {
     @Override
     @Transactional
     public void delete(UUID id) {
-        PluginCategory category = categoryRepository.findById(id)
+        PluginCategory category = categoryRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Category not found: " + id));
 
         // Check if category has children

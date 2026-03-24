@@ -42,13 +42,13 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
     @Transactional
     public PluginInstallationRecord install(PluginInstallationRecord.Install install, UUID userId) {
         // Validate plugin exists
-        Plugin plugin = pluginRepository.findById(install.pluginId())
+        Plugin plugin = pluginRepository.findByIdOptional(install.pluginId())
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + install.pluginId()));
 
         // Validate version if specified
         PluginVersion version = null;
         if (install.versionId() != null) {
-            version = versionRepository.findById(install.versionId())
+            version = versionRepository.findByIdOptional(install.versionId())
                 .orElseThrow(() -> new NotFoundException("Version not found: " + install.versionId()));
         }
 
@@ -108,7 +108,7 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
     @Override
     @Transactional
     public PluginInstallationRecord updateConfig(UUID id, PluginInstallationRecord.UpdateConfig update) {
-        PluginInstallation installation = installationRepository.findById(id)
+        PluginInstallation installation = installationRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Installation not found: " + id));
 
         if (update.configData() != null) {
@@ -123,7 +123,7 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
     @Override
     @Transactional
     public PluginInstallationRecord start(UUID id) {
-        PluginInstallation installation = installationRepository.findById(id)
+        PluginInstallation installation = installationRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Installation not found: " + id));
 
         installation.status = InstallationStatus.RUNNING;
@@ -137,7 +137,7 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
     @Override
     @Transactional
     public PluginInstallationRecord stop(UUID id) {
-        PluginInstallation installation = installationRepository.findById(id)
+        PluginInstallation installation = installationRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Installation not found: " + id));
 
         installation.status = InstallationStatus.STOPPED;
@@ -151,7 +151,7 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
     @Override
     @Transactional
     public PluginInstallationRecord enable(UUID id) {
-        PluginInstallation installation = installationRepository.findById(id)
+        PluginInstallation installation = installationRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Installation not found: " + id));
 
         installation.status = InstallationStatus.RUNNING;
@@ -164,7 +164,7 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
     @Override
     @Transactional
     public PluginInstallationRecord disable(UUID id) {
-        PluginInstallation installation = installationRepository.findById(id)
+        PluginInstallation installation = installationRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Installation not found: " + id));
 
         installation.status = InstallationStatus.STOPPED;
@@ -177,7 +177,7 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
     @Override
     @Transactional
     public PluginInstallationRecord uninstall(UUID id) {
-        PluginInstallation installation = installationRepository.findById(id)
+        PluginInstallation installation = installationRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Installation not found: " + id));
 
         installation.status = InstallationStatus.UNINSTALLED;
@@ -186,14 +186,14 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
         installationRepository.persist(installation);
 
         // Update plugin install count
-        pluginRepository.findById(installation.pluginId).ifPresent(plugin -> {
+        pluginRepository.findByIdOptional(installation.pluginId).ifPresent(plugin -> {
             plugin.totalInstalls = plugin.totalInstalls - 1;
             pluginRepository.persist(plugin);
         });
 
         // Update version install count
         if (installation.versionId != null) {
-            versionRepository.findById(installation.versionId).ifPresent(version -> {
+            versionRepository.findByIdOptional(installation.versionId).ifPresent(version -> {
                 version.installCount = version.installCount - 1;
                 versionRepository.persist(version);
             });
@@ -204,7 +204,7 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
 
     @Override
     public Optional<PluginInstallationRecord> findById(UUID id) {
-        return installationRepository.findById(id)
+        return installationRepository.findByIdOptional(id)
             .map(installationMapper::toRecord);
     }
 

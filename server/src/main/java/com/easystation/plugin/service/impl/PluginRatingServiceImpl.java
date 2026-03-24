@@ -37,7 +37,7 @@ public class PluginRatingServiceImpl implements PluginRatingService {
     @Override
     @Transactional
     public PluginRatingRecord create(PluginRatingRecord.Create create, UUID userId) {
-        Plugin plugin = pluginRepository.findById(create.pluginId())
+        Plugin plugin = pluginRepository.findByIdOptional(create.pluginId())
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + create.pluginId()));
 
         // Check if user has already rated this plugin
@@ -66,7 +66,7 @@ public class PluginRatingServiceImpl implements PluginRatingService {
     @Override
     @Transactional
     public PluginRatingRecord update(UUID id, PluginRatingRecord.Update update) {
-        PluginRating rating = ratingRepository.findById(id)
+        PluginRating rating = ratingRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Rating not found: " + id));
 
         if (update.rating() != null) {
@@ -87,7 +87,7 @@ public class PluginRatingServiceImpl implements PluginRatingService {
 
     @Override
     public Optional<PluginRatingRecord> findById(UUID id) {
-        return ratingRepository.findById(id)
+        return ratingRepository.findByIdOptional(id)
             .map(ratingMapper::toRecord);
     }
 
@@ -173,7 +173,7 @@ public class PluginRatingServiceImpl implements PluginRatingService {
     @Override
     @Transactional
     public void markAsHelpful(UUID id) {
-        ratingRepository.findById(id).ifPresent(rating -> {
+        ratingRepository.findByIdOptional(id).ifPresent(rating -> {
             rating.setHelpfulCount(rating.getHelpfulCount() + 1);
             ratingRepository.persist(rating);
         });
@@ -182,7 +182,7 @@ public class PluginRatingServiceImpl implements PluginRatingService {
     @Override
     @Transactional
     public void markAsVerified(UUID id) {
-        ratingRepository.findById(id).ifPresent(rating -> {
+        ratingRepository.findByIdOptional(id).ifPresent(rating -> {
             rating.setIsVerified(true);
             ratingRepository.persist(rating);
         });
@@ -191,7 +191,7 @@ public class PluginRatingServiceImpl implements PluginRatingService {
     @Override
     @Transactional
     public void delete(UUID id) {
-        ratingRepository.findById(id).ifPresent(rating -> {
+        ratingRepository.findByIdOptional(id).ifPresent(rating -> {
             UUID pluginId = rating.getPlugin().getId();
             ratingRepository.delete(rating);
             
@@ -211,7 +211,7 @@ public class PluginRatingServiceImpl implements PluginRatingService {
     }
 
     private void updatePluginRatingStatistics(UUID pluginId) {
-        pluginRepository.findById(pluginId).ifPresent(plugin -> {
+        pluginRepository.findByIdOptional(pluginId).ifPresent(plugin -> {
             BigDecimal averageRating = ratingRepository.calculateAverageRatingByPluginId(pluginId);
             int ratingCount = (int) ratingRepository.countByPluginId(pluginId);
 

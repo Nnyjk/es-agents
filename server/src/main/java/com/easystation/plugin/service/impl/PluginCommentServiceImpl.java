@@ -36,7 +36,7 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     @Transactional
     public PluginCommentRecord create(PluginCommentRecord.Create create, UUID userId) {
         // Validate plugin exists
-        Plugin plugin = pluginRepository.findById(create.pluginId())
+        Plugin plugin = pluginRepository.findByIdOptional(create.pluginId())
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + create.pluginId()));
 
         PluginComment comment = new PluginComment();
@@ -53,7 +53,7 @@ public class PluginCommentServiceImpl implements PluginCommentService {
 
         // Handle reply
         if (create.parentId() != null) {
-            PluginComment parent = commentRepository.findById(create.parentId())
+            PluginComment parent = commentRepository.findByIdOptional(create.parentId())
                 .orElseThrow(() -> new NotFoundException("Parent comment not found: " + create.parentId()));
             comment.parentId = parent.id;
             comment.replyToUserId = create.replyToUserId();
@@ -71,7 +71,7 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     @Override
     @Transactional
     public PluginCommentRecord update(UUID id, PluginCommentRecord.Update update) {
-        PluginComment comment = commentRepository.findById(id)
+        PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
         if (update.content() != null) {
@@ -85,7 +85,7 @@ public class PluginCommentServiceImpl implements PluginCommentService {
 
     @Override
     public Optional<PluginCommentRecord> findById(UUID id) {
-        return commentRepository.findById(id)
+        return commentRepository.findByIdOptional(id)
             .map(commentMapper::toRecord);
     }
 
@@ -124,7 +124,7 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     @Override
     @Transactional
     public PluginCommentRecord pin(UUID id) {
-        PluginComment comment = commentRepository.findById(id)
+        PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
         comment.isPinned = true;
@@ -137,7 +137,7 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     @Override
     @Transactional
     public PluginCommentRecord unpin(UUID id) {
-        PluginComment comment = commentRepository.findById(id)
+        PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
         comment.isPinned = false;
@@ -150,7 +150,7 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     @Override
     @Transactional
     public PluginCommentRecord hide(UUID id) {
-        PluginComment comment = commentRepository.findById(id)
+        PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
         comment.isHidden = true;
@@ -163,7 +163,7 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     @Override
     @Transactional
     public PluginCommentRecord show(UUID id) {
-        PluginComment comment = commentRepository.findById(id)
+        PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
         comment.isHidden = false;
@@ -176,19 +176,19 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     @Override
     @Transactional
     public void delete(UUID id) {
-        PluginComment comment = commentRepository.findById(id)
+        PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
         // Update parent reply count if this is a reply
         if (comment.parentId != null) {
-            commentRepository.findById(comment.parentId).ifPresent(parent -> {
+            commentRepository.findByIdOptional(comment.parentId).ifPresent(parent -> {
                 parent.replyCount = parent.replyCount - 1;
                 commentRepository.persist(parent);
             });
         }
 
         // Update plugin comment count
-        pluginRepository.findById(comment.pluginId).ifPresent(plugin -> {
+        pluginRepository.findByIdOptional(comment.pluginId).ifPresent(plugin -> {
             plugin.commentCount = plugin.commentCount - 1;
             plugin.updatedAt = LocalDateTime.now();
             pluginRepository.persist(plugin);
@@ -200,7 +200,7 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     @Override
     @Transactional
     public PluginCommentRecord like(UUID id) {
-        PluginComment comment = commentRepository.findById(id)
+        PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
         comment.likeCount = comment.likeCount + 1;
@@ -213,7 +213,7 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     @Override
     @Transactional
     public PluginCommentRecord unlike(UUID id) {
-        PluginComment comment = commentRepository.findById(id)
+        PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
         if (comment.likeCount > 0) {
@@ -228,7 +228,7 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     @Override
     @Transactional
     public PluginCommentRecord markAsDeveloperReply(UUID id) {
-        PluginComment comment = commentRepository.findById(id)
+        PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
         comment.isDeveloperReply = true;

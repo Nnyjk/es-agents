@@ -58,7 +58,7 @@ public class PluginServiceImpl implements PluginService {
         plugin.code = create.code() != null ? create.code() : generateCode(create.name());
         
         if (create.categoryId() != null) {
-            PluginCategory category = categoryRepository.findById(create.categoryId())
+            PluginCategory category = categoryRepository.findByIdOptional(create.categoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found: " + create.categoryId()));
             plugin.categoryId = category.id;
         }
@@ -94,14 +94,14 @@ public class PluginServiceImpl implements PluginService {
     @Override
     @Transactional
     public PluginRecord update(UUID id, PluginRecord.Update update) {
-        Plugin plugin = pluginRepository.findById(id)
+        Plugin plugin = pluginRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + id));
 
         if (update.name() != null) {
             plugin.name = update.name();
         }
         if (update.categoryId() != null) {
-            PluginCategory category = categoryRepository.findById(update.categoryId())
+            PluginCategory category = categoryRepository.findByIdOptional(update.categoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found: " + update.categoryId()));
             plugin.categoryId = category.id;
         }
@@ -153,7 +153,7 @@ public class PluginServiceImpl implements PluginService {
 
     @Override
     public Optional<PluginRecord> findById(UUID id) {
-        return pluginRepository.findById(id)
+        return pluginRepository.findByIdOptional(id)
             .map(plugin -> {
                 PluginRecord record = pluginMapper.toRecord(plugin);
                 // Load latest version
@@ -274,7 +274,7 @@ public class PluginServiceImpl implements PluginService {
     @Override
     @Transactional
     public PluginRecord publish(UUID id) {
-        Plugin plugin = pluginRepository.findById(id)
+        Plugin plugin = pluginRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + id));
 
         if (plugin.status == PluginStatus.PUBLISHED) {
@@ -292,7 +292,7 @@ public class PluginServiceImpl implements PluginService {
     @Override
     @Transactional
     public PluginRecord suspend(UUID id, String reason) {
-        Plugin plugin = pluginRepository.findById(id)
+        Plugin plugin = pluginRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + id));
 
         plugin.status = PluginStatus.SUSPENDED;
@@ -305,7 +305,7 @@ public class PluginServiceImpl implements PluginService {
     @Override
     @Transactional
     public PluginRecord delete(UUID id) {
-        Plugin plugin = pluginRepository.findById(id)
+        Plugin plugin = pluginRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + id));
 
         plugin.status = PluginStatus.DELETED;
@@ -318,7 +318,7 @@ public class PluginServiceImpl implements PluginService {
     @Override
     @Transactional
     public void incrementDownloadCount(UUID id) {
-        pluginRepository.findById(id).ifPresent(plugin -> {
+        pluginRepository.findByIdOptional(id).ifPresent(plugin -> {
             plugin.totalDownloads = plugin.totalDownloads + 1;
             pluginRepository.persist(plugin);
         });
@@ -327,7 +327,7 @@ public class PluginServiceImpl implements PluginService {
     @Override
     @Transactional
     public void incrementInstallCount(UUID id) {
-        pluginRepository.findById(id).ifPresent(plugin -> {
+        pluginRepository.findByIdOptional(id).ifPresent(plugin -> {
             plugin.totalInstalls = plugin.totalInstalls + 1;
             pluginRepository.persist(plugin);
         });
@@ -336,7 +336,7 @@ public class PluginServiceImpl implements PluginService {
     @Override
     @Transactional
     public void updateStatistics(UUID id) {
-        pluginRepository.findById(id).ifPresent(plugin -> {
+        pluginRepository.findByIdOptional(id).ifPresent(plugin -> {
             // This would be called after rating/comment changes
             plugin.updatedAt = LocalDateTime.now();
             pluginRepository.persist(plugin);
@@ -359,7 +359,7 @@ public class PluginServiceImpl implements PluginService {
     @Override
     @Transactional
     public PluginVersionRecord createVersion(UUID pluginId, PluginVersionRecord.Create create) {
-        Plugin plugin = pluginRepository.findById(pluginId)
+        Plugin plugin = pluginRepository.findByIdOptional(pluginId)
             .orElseThrow(() -> new NotFoundException("Plugin not found: " + pluginId));
 
         // Check if version already exists
@@ -399,7 +399,7 @@ public class PluginServiceImpl implements PluginService {
     @Override
     @Transactional
     public PluginVersionRecord updateVersion(UUID versionId, PluginVersionRecord.Create update) {
-        PluginVersion version = versionRepository.findById(versionId)
+        PluginVersion version = versionRepository.findByIdOptional(versionId)
             .orElseThrow(() -> new NotFoundException("Version not found: " + versionId));
 
         if (update.changelog() != null) {
@@ -428,7 +428,7 @@ public class PluginServiceImpl implements PluginService {
 
     @Override
     public Optional<PluginVersionRecord> findVersionById(UUID versionId) {
-        return versionRepository.findById(versionId)
+        return versionRepository.findByIdOptional(versionId)
             .map(versionMapper::toRecord);
     }
 
@@ -448,7 +448,7 @@ public class PluginServiceImpl implements PluginService {
     @Override
     @Transactional
     public PluginVersionRecord publishVersion(UUID versionId) {
-        PluginVersion version = versionRepository.findById(versionId)
+        PluginVersion version = versionRepository.findByIdOptional(versionId)
             .orElseThrow(() -> new NotFoundException("Version not found: " + versionId));
 
         if (version.status == PluginStatus.PUBLISHED) {
@@ -471,7 +471,7 @@ public class PluginServiceImpl implements PluginService {
     @Override
     @Transactional
     public PluginVersionRecord deleteVersion(UUID versionId) {
-        PluginVersion version = versionRepository.findById(versionId)
+        PluginVersion version = versionRepository.findByIdOptional(versionId)
             .orElseThrow(() -> new NotFoundException("Version not found: " + versionId));
 
         version.status = PluginStatus.DELETED;
@@ -484,7 +484,7 @@ public class PluginServiceImpl implements PluginService {
     @Override
     @Transactional
     public void incrementVersionDownloadCount(UUID versionId) {
-        versionRepository.findById(versionId).ifPresent(version -> {
+        versionRepository.findByIdOptional(versionId).ifPresent(version -> {
             version.downloadCount = version.downloadCount + 1;
             versionRepository.persist(version);
             
