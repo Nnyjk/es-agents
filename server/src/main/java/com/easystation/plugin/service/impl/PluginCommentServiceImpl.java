@@ -90,21 +90,15 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     }
 
     @Override
-    public List<PluginCommentRecord> findByPluginId(UUID pluginId, Boolean includeReplies, int page, int size) {
-        if (includeReplies != null && includeReplies) {
-            return commentRepository.findByPluginIdOrderByCreatedAtDesc(pluginId, Page.of(page, size)).stream()
-                .map(commentMapper::toRecord)
-                .collect(Collectors.toList());
-        } else {
-            return commentRepository.findRootCommentsByPluginId(pluginId, Page.of(page, size)).stream()
-                .map(commentMapper::toRecord)
-                .collect(Collectors.toList());
-        }
+    public List<PluginCommentRecord> findByPluginId(UUID pluginId) {
+        return commentRepository.findByPluginId(pluginId).stream()
+            .map(commentMapper::toRecord)
+            .collect(Collectors.toList());
     }
 
     @Override
-    public List<PluginCommentRecord> findByUserId(UUID userId) {
-        return commentRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+    public List<PluginCommentRecord> findRootComments(UUID pluginId) {
+        return commentRepository.findByPluginIdAndParentIdIsNull(pluginId).stream()
             .map(commentMapper::toRecord)
             .collect(Collectors.toList());
     }
@@ -112,6 +106,13 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     @Override
     public List<PluginCommentRecord> findReplies(UUID parentId) {
         return commentRepository.findByParentIdOrderByCreatedAtAsc(parentId).stream()
+            .map(commentMapper::toRecord)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PluginCommentRecord> findByUserId(UUID userId) {
+        return commentRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
             .map(commentMapper::toRecord)
             .collect(Collectors.toList());
     }

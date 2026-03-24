@@ -2,6 +2,7 @@ package com.easystation.plugin.repository;
 
 import com.easystation.plugin.domain.PluginComment;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
@@ -69,5 +70,15 @@ public class PluginCommentRepository implements PanacheRepositoryBase<PluginComm
 
     public List<PluginComment> findDeveloperRepliesByPluginId(UUID pluginId) {
         return list("pluginId = ?1 and isDeveloperReply = true ORDER BY createdAt DESC", pluginId);
+    }
+
+    public List<PluginComment> findRootCommentsByPluginId(UUID pluginId, Page page) {
+        return find("pluginId = ?1 and parentId IS NULL ORDER BY isPinned DESC, createdAt DESC", pluginId)
+            .page(page)
+            .list();
+    }
+
+    public List<PluginComment> findByParentIdOrderByCreatedAtAsc(UUID parentId) {
+        return list("parentId = ?1 ORDER BY createdAt ASC", parentId);
     }
 }
