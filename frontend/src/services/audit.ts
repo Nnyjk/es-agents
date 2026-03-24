@@ -39,9 +39,7 @@ export const getAuditLogSummary = async (
 /**
  * 导出审计日志
  */
-export const exportAuditLogs = async (
-  params: AuditLogQuery,
-): Promise<Blob> => {
+export const exportAuditLogs = async (params: AuditLogQuery): Promise<Blob> => {
   const response = await request.get("/me/audit-logs/export", {
     params,
     responseType: "blob",

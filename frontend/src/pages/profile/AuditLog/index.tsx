@@ -226,7 +226,9 @@ const AuditLogList: React.FC = () => {
               title="成功率"
               value={
                 summary?.totalCount
-                  ? ((summary.successCount / summary.totalCount) * 100).toFixed(1)
+                  ? ((summary.successCount / summary.totalCount) * 100).toFixed(
+                      1,
+                    )
                   : "0"
               }
               suffix="%"
