@@ -111,13 +111,6 @@ public class PluginCommentServiceImpl implements PluginCommentService {
     }
 
     @Override
-    public List<PluginCommentRecord> findByUserId(UUID userId) {
-        return commentRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
-            .map(commentMapper::toRecord)
-            .collect(Collectors.toList());
-    }
-
-    @Override
     public long countByPluginId(UUID pluginId) {
         return commentRepository.countByPluginId(pluginId);
     }

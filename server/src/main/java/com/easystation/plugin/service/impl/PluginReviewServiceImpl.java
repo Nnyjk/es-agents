@@ -50,7 +50,7 @@ public class PluginReviewServiceImpl implements PluginReviewService {
         }
 
         PluginReview review = new PluginReview();
-        review.setPlugin(plugin);
+        review.pluginId = plugin.id;
 
         if (create.versionId() != null) {
             PluginVersion version = versionRepository.findByIdOptional(create.versionId())

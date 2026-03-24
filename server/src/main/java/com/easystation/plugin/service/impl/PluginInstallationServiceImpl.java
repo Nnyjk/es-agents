@@ -282,11 +282,6 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
     }
 
     @Override
-    public long countByUserId(UUID userId) {
-        return installationRepository.countByUserId(userId);
-    }
-
-    @Override
     public long countByAgentId(UUID agentId) {
         return installationRepository.countByAgentId(agentId);
     }
