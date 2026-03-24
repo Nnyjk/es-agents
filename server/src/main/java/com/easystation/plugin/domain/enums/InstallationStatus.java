@@ -8,7 +8,9 @@ public enum InstallationStatus {
     UNINSTALLING("卸载中"),
     UNINSTALLED("已卸载"),
     FAILED("安装失败"),
-    UPDATING("更新中");
+    UPDATING("更新中"),
+    RUNNING("运行中"),
+    STOPPED("已停止");
 
     private final String description;
 

@@ -199,7 +199,7 @@ public class PluginCommentServiceImpl implements PluginCommentService {
 
     @Override
     @Transactional
-    public PluginCommentRecord like(UUID id) {
+    public void like(UUID id) {
         PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
@@ -207,12 +207,11 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         comment.updatedAt = LocalDateTime.now();
 
         commentRepository.persist(comment);
-        return commentMapper.toRecord(comment);
     }
 
     @Override
     @Transactional
-    public PluginCommentRecord unlike(UUID id) {
+    public void unlike(UUID id) {
         PluginComment comment = commentRepository.findByIdOptional(id)
             .orElseThrow(() -> new NotFoundException("Comment not found: " + id));
 
@@ -222,7 +221,6 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         comment.updatedAt = LocalDateTime.now();
 
         commentRepository.persist(comment);
-        return commentMapper.toRecord(comment);
     }
 
     @Override
@@ -236,5 +234,10 @@ public class PluginCommentServiceImpl implements PluginCommentService {
 
         commentRepository.persist(comment);
         return commentMapper.toRecord(comment);
+    }
+
+    @Override
+    public long countReplies(UUID parentId) {
+        return commentRepository.countByParentId(parentId);
     }
 }

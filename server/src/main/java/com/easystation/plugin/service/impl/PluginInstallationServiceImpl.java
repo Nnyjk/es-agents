@@ -290,4 +290,25 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
     public long countByAgentId(UUID agentId) {
         return installationRepository.countByAgentId(agentId);
     }
+
+    @Override
+    public PluginInstallationRecord.Summary getSummary(UUID userId) {
+        long totalInstallations = installationRepository.countByUserId(userId);
+        long enabledCount = installationRepository.findByUserId(userId).stream()
+            .filter(i -> i.status == InstallationStatus.ENABLED)
+            .count();
+        long disabledCount = installationRepository.findByUserId(userId).stream()
+            .filter(i -> i.status == InstallationStatus.DISABLED)
+            .count();
+        long failedCount = installationRepository.findByUserId(userId).stream()
+            .filter(i -> i.status == InstallationStatus.FAILED)
+            .count();
+
+        return new PluginInstallationRecord.Summary(
+            (int) totalInstallations,
+            (int) enabledCount,
+            (int) disabledCount,
+            (int) failedCount
+        );
+    }
 }
