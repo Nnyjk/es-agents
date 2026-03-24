@@ -35,6 +35,7 @@ import {
   PluginMarketPage,
   InstalledPluginsPage,
 } from "./pages/pluginMarketplace";
+import AuditLogList from "./pages/profile/AuditLog";
 
 const App: React.FC = () => {
   return (
@@ -79,6 +80,7 @@ const App: React.FC = () => {
           <Route path="goals/deploy" element={<DeploymentWizard />} />
           <Route path="deployment" element={<DeploymentPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="audit-logs" element={<AuditLogList />} />
           <Route path="plugins">
             <Route index element={<PluginMarketPage />} />
             <Route path="market" element={<PluginMarketPage />} />
