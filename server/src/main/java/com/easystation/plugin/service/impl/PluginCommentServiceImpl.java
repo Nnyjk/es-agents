@@ -43,7 +43,7 @@ public class PluginCommentServiceImpl implements PluginCommentService {
         comment.pluginId = plugin.id;
         comment.userId = userId;
         comment.content = create.content();
-        comment.isDeveloperReply = create.isDeveloperReply() != null ? create.isDeveloperReply() : false;
+        comment.isDeveloperReply = false;
         comment.isPinned = false;
         comment.isHidden = false;
         comment.likeCount = 0;
@@ -234,6 +234,50 @@ public class PluginCommentServiceImpl implements PluginCommentService {
 
         commentRepository.persist(comment);
         return commentMapper.toRecord(comment);
+    }
+
+    @Override
+    public List<PluginCommentRecord> search(PluginCommentRecord.Query query) {
+        StringBuilder queryBuilder = new StringBuilder("1=1");
+        List<Object> params = new java.util.ArrayList<>();
+        int paramIndex = 1;
+
+        if (query.pluginId() != null) {
+            queryBuilder.append(" and pluginId = ?").append(paramIndex);
+            params.add(query.pluginId());
+            paramIndex++;
+        }
+
+        if (query.userId() != null) {
+            queryBuilder.append(" and userId = ?").append(paramIndex);
+            params.add(query.userId());
+            paramIndex++;
+        }
+
+        if (query.isDeveloperReply() != null) {
+            queryBuilder.append(" and isDeveloperReply = ?").append(paramIndex);
+            params.add(query.isDeveloperReply());
+            paramIndex++;
+        }
+
+        if (query.includeHidden() == null || !query.includeHidden()) {
+            queryBuilder.append(" and isHidden = false");
+        }
+
+        // Add sorting
+        String sortBy = query.sortBy() != null ? query.sortBy() : "createdAt";
+        String sortOrder = query.sortOrder() != null ? query.sortOrder() : "DESC";
+        queryBuilder.append(" ORDER BY ").append(sortBy).append(" ").append(sortOrder);
+
+        int page = query.page() != null ? query.page() : 0;
+        int size = query.size() != null ? query.size() : 20;
+
+        return commentRepository.find(queryBuilder.toString(), params.toArray())
+            .page(Page.of(page, size))
+            .list()
+            .stream()
+            .map(commentMapper::toRecord)
+            .collect(Collectors.toList());
     }
 
     @Override
