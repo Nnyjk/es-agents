@@ -323,3 +323,6 @@ export interface AlertChannelTestResult {
 
 // 基础设施相关类型
 export * from "./infrastructure";
+
+// 审计日志相关类型
+export * from "./audit";
