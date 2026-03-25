@@ -16,7 +16,6 @@ import com.easystation.system.domain.enums.UserStatus;
 import com.easystation.system.record.RoleRecord;
 import com.easystation.system.record.UserRecord;
 import io.quarkus.logging.Log;
-import io.quarkus.mailer.Mailer;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

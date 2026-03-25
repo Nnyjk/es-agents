@@ -141,7 +141,7 @@ export const exportAgentTemplate = async (id: string): Promise<void> => {
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     },
   );
-  
+
   const responseFileName = extractFileName(
     response.headers["content-disposition"],
   );
