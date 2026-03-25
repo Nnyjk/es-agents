@@ -6,9 +6,10 @@ interface DrawerFormProps {
   title: string;
   width?: number;
   onClose: () => void;
-  onSave: (data: any) => Promise<void>;
+  onSave: (data?: any) => Promise<void>;
   initialValues?: Record<string, any>;
   children?: React.ReactNode;
+  form?: ReturnType<typeof Form.useForm>[0];
 }
 
 const DrawerForm: React.FC<DrawerFormProps> = ({
@@ -19,8 +20,10 @@ const DrawerForm: React.FC<DrawerFormProps> = ({
   onSave,
   initialValues,
   children,
+  form: externalForm,
 }) => {
-  const [form] = Form.useForm();
+  const [internalForm] = Form.useForm();
+  const form = externalForm || internalForm;
 
   React.useEffect(() => {
     if (visible && initialValues) {
