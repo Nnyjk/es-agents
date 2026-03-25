@@ -125,6 +125,20 @@ export interface AgentResource {
   updatedAt: string;
 }
 
+// 模板分类枚举
+export type TemplateCategory =
+  | "MONITORING"
+  | "DEPLOYMENT"
+  | "BACKUP"
+  | "SECURITY"
+  | "DATABASE"
+  | "NETWORK"
+  | "UTILITY"
+  | "CUSTOM";
+
+// 操作系统类型枚举
+export type OsType = "ALL" | "LINUX" | "WINDOWS" | "MACOS" | "LINUX_DOCKER";
+
 export interface AgentCommand {
   id: string;
   name: string;
@@ -135,19 +149,75 @@ export interface AgentCommand {
   hostId?: string;
 }
 
+// 命令创建/更新参数
+export interface AgentCommandCreate {
+  name: string;
+  script: string;
+  timeout?: number;
+  defaultArgs?: string;
+  templateId?: string;
+}
+
+export interface AgentCommandUpdate {
+  name?: string;
+  script?: string;
+  timeout?: number;
+  defaultArgs?: string;
+}
+
 export interface AgentTemplate {
   id: string;
   name: string;
   description?: string;
-  type: "DOCKER" | "EXECUTABLE" | "SCRIPT" | "PLUGIN";
-  osType?: string;
+  category?: TemplateCategory;
+  osType?: OsType;
+  archSupport?: string;
+  installScript?: string;
+  configTemplate?: string;
+  dependencies?: string;
   source?: AgentResource;
-  sourceType?: string;
   sourceId?: string;
   commands?: AgentCommand[];
-  version?: string;
+  deploymentCount?: number;
+  successCount?: number;
+  successRate?: number;
   createdAt: string;
   updatedAt: string;
+}
+
+// 模板创建参数
+export interface AgentTemplateCreate {
+  name: string;
+  description?: string;
+  category?: TemplateCategory;
+  osType?: OsType;
+  archSupport?: string;
+  installScript?: string;
+  configTemplate?: string;
+  dependencies?: string;
+  sourceId: string;
+  commands?: AgentCommandCreate[];
+}
+
+// 模板更新参数
+export interface AgentTemplateUpdate {
+  name?: string;
+  description?: string;
+  category?: TemplateCategory;
+  osType?: OsType;
+  archSupport?: string;
+  installScript?: string;
+  configTemplate?: string;
+  dependencies?: string;
+  sourceId?: string;
+  commands?: AgentCommandUpdate[];
+}
+
+// 模板查询参数
+export interface AgentTemplateQueryParams {
+  osType?: OsType;
+  sourceType?: string;
+  category?: TemplateCategory;
 }
 
 export type AgentStatus =

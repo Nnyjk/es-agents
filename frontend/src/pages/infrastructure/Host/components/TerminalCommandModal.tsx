@@ -123,7 +123,7 @@ export const TerminalCommandModal: React.FC<TerminalCommandModalProps> = ({
           request={async () => {
             if (!hostOs) return { data: [], success: true };
             // Map hostOs (lowercase) to OsType (uppercase)
-            const osType = hostOs.toUpperCase();
+            const osType = hostOs.toUpperCase() as import("../../../../types").OsType;
             // Query templates for LOCAL source and matching OS
             const templates = await queryAgentTemplates({
               sourceType: "LOCAL",

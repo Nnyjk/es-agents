@@ -8,9 +8,10 @@ import {
   Divider,
   Descriptions,
   Alert,
+  Tag,
 } from "antd";
 import { queryAgentTemplates } from "../../../../services/agent";
-import type { AgentTemplate, Host, DeployParams } from "../../../../types";
+import type { AgentTemplate, Host, DeployParams, TemplateCategory, OsType } from "../../../../types";
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -23,11 +24,25 @@ interface DeployConfigProps {
   onParamsChange: (params: DeployParams) => void;
 }
 
-const templateTypeLabels: Record<string, string> = {
-  DOCKER: "Docker",
-  EXECUTABLE: "可执行文件",
-  SCRIPT: "脚本",
-  PLUGIN: "插件",
+// 模板分类映射
+const CATEGORY_MAP: Record<TemplateCategory, { text: string; color: string }> = {
+  MONITORING: { text: "监控", color: "blue" },
+  DEPLOYMENT: { text: "部署", color: "green" },
+  BACKUP: { text: "备份", color: "orange" },
+  SECURITY: { text: "安全", color: "red" },
+  DATABASE: { text: "数据库", color: "purple" },
+  NETWORK: { text: "网络", color: "cyan" },
+  UTILITY: { text: "工具", color: "geekblue" },
+  CUSTOM: { text: "自定义", color: "default" },
+};
+
+// 操作系统类型映射
+const OS_TYPE_MAP: Record<OsType, string> = {
+  ALL: "全部",
+  LINUX: "Linux",
+  WINDOWS: "Windows",
+  MACOS: "macOS",
+  LINUX_DOCKER: "Linux (Docker)",
 };
 
 export const DeployConfig: React.FC<DeployConfigProps> = ({
@@ -98,23 +113,28 @@ export const DeployConfig: React.FC<DeployConfigProps> = ({
               loading={loading}
               style={{ width: "100%" }}
             >
-              {templates.map((template) => (
-                <Select.Option key={template.id} value={template.id}>
-                  <div>
-                    <Text strong>{template.name}</Text>
-                    <Text type="secondary" style={{ marginLeft: 8 }}>
-                      {templateTypeLabels[template.type] || template.type}
-                    </Text>
-                  </div>
-                  {template.description && (
+              {templates.map((template) => {
+                const category = CATEGORY_MAP[template.category as TemplateCategory];
+                return (
+                  <Select.Option key={template.id} value={template.id}>
                     <div>
-                      <Text type="secondary" style={{ fontSize: 12 }}>
-                        {template.description}
-                      </Text>
+                      <Text strong>{template.name}</Text>
+                      {category && (
+                        <Tag color={category.color} style={{ marginLeft: 8 }}>
+                          {category.text}
+                        </Tag>
+                      )}
                     </div>
-                  )}
-                </Select.Option>
-              ))}
+                    {template.description && (
+                      <div>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          {template.description}
+                        </Text>
+                      </div>
+                    )}
+                  </Select.Option>
+                );
+              })}
             </Select>
           </Form.Item>
 
@@ -122,12 +142,15 @@ export const DeployConfig: React.FC<DeployConfigProps> = ({
             <>
               <Divider />
               <Descriptions column={1} size="small">
-                <Descriptions.Item label="模板类型">
-                  {templateTypeLabels[value.type] || value.type}
+                <Descriptions.Item label="模板分类">
+                  {CATEGORY_MAP[value.category as TemplateCategory]?.text || value.category || "-"}
                 </Descriptions.Item>
-                {value.version && (
-                  <Descriptions.Item label="版本">
-                    {value.version}
+                <Descriptions.Item label="操作系统">
+                  {OS_TYPE_MAP[value.osType as OsType] || value.osType || "-"}
+                </Descriptions.Item>
+                {value.archSupport && (
+                  <Descriptions.Item label="架构支持">
+                    {value.archSupport}
                   </Descriptions.Item>
                 )}
                 {value.description && (
