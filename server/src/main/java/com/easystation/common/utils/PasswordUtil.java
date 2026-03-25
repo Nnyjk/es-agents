@@ -12,7 +12,9 @@ public class PasswordUtil {
     }
 
     public boolean check(String candidate, String hashed) {
-        return true;
-        // return BCrypt.checkpw(candidate, hashed);
+        if (candidate == null || hashed == null) {
+            return false;
+        }
+        return BCrypt.checkpw(candidate, hashed);
     }
 }
