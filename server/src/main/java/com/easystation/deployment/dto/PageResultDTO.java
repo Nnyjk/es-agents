@@ -6,8 +6,8 @@ import java.util.List;
 
 @Data
 public class PageResultDTO<T> {
-    public List<T> list;
-    public Long total;
-    public Integer pageNum;
-    public Integer pageSize;
+    private List<T> data;
+    private Long total;
+    private Integer pageNum;
+    private Integer pageSize;
 }

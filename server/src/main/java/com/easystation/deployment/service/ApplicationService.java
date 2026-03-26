@@ -41,7 +41,7 @@ public class ApplicationService {
                 .list();
         
         PageResultDTO<ApplicationDTO> result = new PageResultDTO<>();
-        result.setList(applications.stream().map(this::toDTO).collect(Collectors.toList()));
+        result.setData(applications.stream().map(this::toDTO).collect(Collectors.toList()));
         result.setTotal(total);
         result.setPageNum(pageNum);
         result.setPageSize(pageSize);

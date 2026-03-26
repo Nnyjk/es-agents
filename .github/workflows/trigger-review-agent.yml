@@ -1,0 +1,78 @@
+name: Trigger Review Agent
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, labeled]
+
+# 防止重复触发
+concurrency:
+  group: review-trigger-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  trigger-review:
+    runs-on: ubuntu-latest
+    # 只在有 review:needed 标签时触发
+    if: contains(github.event.pull_request.labels.*.name, 'review:needed')
+    
+    steps:
+      - name: Check CI Status
+        id: ci_check
+        run: |
+          echo "等待 CI 完成..."
+          sleep 120
+          
+          # 检查所有 CI 状态
+          CI_RESULT=$(gh pr checks ${{ github.event.number }} \
+            | grep -c "fail" || echo "0")
+          
+          if [ "$CI_RESULT" -eq "0" ]; then
+            echo "ci_status=success" >> $GITHUB_OUTPUT
+            echo "✅ CI 全部通过"
+          else
+            echo "ci_status=failure" >> $GITHUB_OUTPUT
+            echo "❌ CI 失败 ($CI_RESULT 个)"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Notify Review Agent
+        if: steps.ci_check.outputs.ci_status == 'success'
+        run: |
+          # 更新 label
+          gh issue edit ${{ github.event.number }} \
+            --remove-label "review:needed" \
+            --add-label "status:reviewing"
+          
+          # PR 评论通知
+          gh pr comment ${{ github.event.number }} --body "
+## ✅ CI 全部通过，请求审查
+
+**PR #${{ github.event.number }}** 已完成所有检查：
+- CI 状态：✅ 全部通过
+- 分支：\`${{ github.event.pull_request.head.ref }}\`
+- 提交：\`${{ github.event.pull_request.head.sha }}\`
+
+请 @review-agent 开始审查。
+
+---
+*自动触发 by GitHub Actions*
+"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Notify CI Failure
+        if: steps.ci_check.outputs.ci_status == 'failure'
+        run: |
+          gh pr comment ${{ github.event.number }} --body "
+## ❌ CI 失败，需要修复
+
+**PR #${{ github.event.number }}** 的 CI 检查失败。
+
+请 @esa-agent-coding 修复后重新提交。
+
+---
+*自动检测 by GitHub Actions*
+"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

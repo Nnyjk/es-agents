@@ -50,6 +50,12 @@ public class User extends PanacheEntityBase {
     @Enumerated(EnumType.STRING)
     public UserStatus status = UserStatus.ACTIVE;
 
+    @Column(name = "failed_login_count")
+    public Integer failedLoginCount = 0;
+
+    @Column(name = "locked_until")
+    public LocalDateTime lockedUntil;
+
     @CreationTimestamp
     public LocalDateTime createdAt;
 

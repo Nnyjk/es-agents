@@ -49,16 +49,17 @@ import type {
 const { TextArea } = Input;
 
 // 模板分类映射
-const CATEGORY_MAP: Record<TemplateCategory, { text: string; color: string }> = {
-  MONITORING: { text: "监控", color: "blue" },
-  DEPLOYMENT: { text: "部署", color: "green" },
-  BACKUP: { text: "备份", color: "orange" },
-  SECURITY: { text: "安全", color: "red" },
-  DATABASE: { text: "数据库", color: "purple" },
-  NETWORK: { text: "网络", color: "cyan" },
-  UTILITY: { text: "工具", color: "geekblue" },
-  CUSTOM: { text: "自定义", color: "default" },
-};
+const CATEGORY_MAP: Record<TemplateCategory, { text: string; color: string }> =
+  {
+    MONITORING: { text: "监控", color: "blue" },
+    DEPLOYMENT: { text: "部署", color: "green" },
+    BACKUP: { text: "备份", color: "orange" },
+    SECURITY: { text: "安全", color: "red" },
+    DATABASE: { text: "数据库", color: "purple" },
+    NETWORK: { text: "网络", color: "cyan" },
+    UTILITY: { text: "工具", color: "geekblue" },
+    CUSTOM: { text: "自定义", color: "default" },
+  };
 
 // 操作系统类型映射
 const OS_TYPE_MAP: Record<OsType, string> = {
@@ -561,8 +562,9 @@ const AgentTemplateList: React.FC = () => {
                       {previewTemplate.name}
                     </Descriptions.Item>
                     <Descriptions.Item label="分类">
-                      {CATEGORY_MAP[previewTemplate.category as TemplateCategory]
-                        ?.text || "-"}
+                      {CATEGORY_MAP[
+                        previewTemplate.category as TemplateCategory
+                      ]?.text || "-"}
                     </Descriptions.Item>
                     <Descriptions.Item label="操作系统">
                       {OS_TYPE_MAP[previewTemplate.osType as OsType] || "-"}
@@ -581,7 +583,9 @@ const AgentTemplateList: React.FC = () => {
                         <span>
                           成功 {previewTemplate.successCount}/
                           {previewTemplate.deploymentCount} (
-                          {((previewTemplate.successRate || 0) * 100).toFixed(0)}
+                          {((previewTemplate.successRate || 0) * 100).toFixed(
+                            0,
+                          )}
                           %)
                         </span>
                       ) : (
@@ -669,7 +673,9 @@ const AgentTemplateList: React.FC = () => {
                     ))}
                   </Space>
                 ) : (
-                  <div style={{ color: "#999", textAlign: "center", padding: 24 }}>
+                  <div
+                    style={{ color: "#999", textAlign: "center", padding: 24 }}
+                  >
                     暂无命令
                   </div>
                 ),

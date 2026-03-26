@@ -40,7 +40,7 @@ public class PipelineService {
                 .list();
         
         PageResultDTO<PipelineDTO> result = new PageResultDTO<>();
-        result.setList(pipelines.stream().map(this::toDTO).collect(Collectors.toList()));
+        result.setData(pipelines.stream().map(this::toDTO).collect(Collectors.toList()));
         result.setTotal(total);
         result.setPageNum(pageNum);
         result.setPageSize(pageSize);

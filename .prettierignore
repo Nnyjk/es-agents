@@ -1,0 +1,9 @@
+# GitHub Actions 工作流文件使用特殊语法（如 *.name），
+# Prettier 无法正确解析，需要忽略
+.github/workflows/trigger-review-agent.yml
+
+# 依赖和构建产物
+node_modules/
+dist/
+build/
+*.min.js
