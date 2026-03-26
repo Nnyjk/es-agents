@@ -11,7 +11,13 @@ import {
   Tag,
 } from "antd";
 import { queryAgentTemplates } from "../../../../services/agent";
-import type { AgentTemplate, Host, DeployParams, TemplateCategory, OsType } from "../../../../types";
+import type {
+  AgentTemplate,
+  Host,
+  DeployParams,
+  TemplateCategory,
+  OsType,
+} from "../../../../types";
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -25,16 +31,17 @@ interface DeployConfigProps {
 }
 
 // 模板分类映射
-const CATEGORY_MAP: Record<TemplateCategory, { text: string; color: string }> = {
-  MONITORING: { text: "监控", color: "blue" },
-  DEPLOYMENT: { text: "部署", color: "green" },
-  BACKUP: { text: "备份", color: "orange" },
-  SECURITY: { text: "安全", color: "red" },
-  DATABASE: { text: "数据库", color: "purple" },
-  NETWORK: { text: "网络", color: "cyan" },
-  UTILITY: { text: "工具", color: "geekblue" },
-  CUSTOM: { text: "自定义", color: "default" },
-};
+const CATEGORY_MAP: Record<TemplateCategory, { text: string; color: string }> =
+  {
+    MONITORING: { text: "监控", color: "blue" },
+    DEPLOYMENT: { text: "部署", color: "green" },
+    BACKUP: { text: "备份", color: "orange" },
+    SECURITY: { text: "安全", color: "red" },
+    DATABASE: { text: "数据库", color: "purple" },
+    NETWORK: { text: "网络", color: "cyan" },
+    UTILITY: { text: "工具", color: "geekblue" },
+    CUSTOM: { text: "自定义", color: "default" },
+  };
 
 // 操作系统类型映射
 const OS_TYPE_MAP: Record<OsType, string> = {
@@ -114,7 +121,8 @@ export const DeployConfig: React.FC<DeployConfigProps> = ({
               style={{ width: "100%" }}
             >
               {templates.map((template) => {
-                const category = CATEGORY_MAP[template.category as TemplateCategory];
+                const category =
+                  CATEGORY_MAP[template.category as TemplateCategory];
                 return (
                   <Select.Option key={template.id} value={template.id}>
                     <div>
@@ -143,7 +151,9 @@ export const DeployConfig: React.FC<DeployConfigProps> = ({
               <Divider />
               <Descriptions column={1} size="small">
                 <Descriptions.Item label="模板分类">
-                  {CATEGORY_MAP[value.category as TemplateCategory]?.text || value.category || "-"}
+                  {CATEGORY_MAP[value.category as TemplateCategory]?.text ||
+                    value.category ||
+                    "-"}
                 </Descriptions.Item>
                 <Descriptions.Item label="操作系统">
                   {OS_TYPE_MAP[value.osType as OsType] || value.osType || "-"}

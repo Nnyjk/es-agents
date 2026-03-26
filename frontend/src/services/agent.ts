@@ -92,7 +92,9 @@ export const executeAgentCommand = (
 };
 
 // Agent Templates
-export const queryAgentTemplates = (params?: AgentTemplateQueryParams): Promise<AgentTemplate[]> => {
+export const queryAgentTemplates = (
+  params?: AgentTemplateQueryParams,
+): Promise<AgentTemplate[]> => {
   return request.get("/agents/templates", { params });
 };
 
@@ -100,18 +102,23 @@ export const getAgentTemplate = (id: string): Promise<AgentTemplate> => {
   return request.get(`/agents/templates/${id}`);
 };
 
-export const createAgentTemplate = (data: AgentTemplateCreate): Promise<AgentTemplate> => {
+export const createAgentTemplate = (
+  data: AgentTemplateCreate,
+): Promise<AgentTemplate> => {
   return request.post("/agents/templates", data);
 };
 
-export const updateAgentTemplate = (id: string, data: AgentTemplateUpdate): Promise<AgentTemplate> => {
+export const updateAgentTemplate = (
+  id: string,
+  data: AgentTemplateUpdate,
+): Promise<AgentTemplate> => {
   return request.put(`/agents/templates/${id}`, data);
 };
 
 export const saveAgentTemplate = (
   data: Partial<AgentTemplate> | AgentTemplateCreate | AgentTemplateUpdate,
 ): Promise<AgentTemplate> => {
-  if ('id' in data && data.id) {
+  if ("id" in data && data.id) {
     const { id, ...payload } = data;
     return request.put(`/agents/templates/${id}`, payload);
   }
@@ -122,7 +129,9 @@ export const removeAgentTemplate = (id: string): Promise<void> => {
   return request.delete(`/agents/templates/${id}`);
 };
 
-export const importAgentTemplate = async (file: File): Promise<AgentTemplate> => {
+export const importAgentTemplate = async (
+  file: File,
+): Promise<AgentTemplate> => {
   const formData = new FormData();
   formData.append("file", file);
   return request.post("/agents/templates/import", formData, {
@@ -134,18 +143,18 @@ export const importAgentTemplate = async (file: File): Promise<AgentTemplate> =>
 
 export const exportAgentTemplate = async (id: string): Promise<void> => {
   const token = localStorage.getItem("token");
-  const response = await axios.get(
-    `/api/agents/templates/${id}/export`,
-    {
-      responseType: "blob",
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-    },
-  );
+  const response = await axios.get(`/api/agents/templates/${id}/export`, {
+    responseType: "blob",
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
 
   const responseFileName = extractFileName(
     response.headers["content-disposition"],
   );
-  triggerBrowserDownload(response.data, responseFileName || `template-${id}.json`);
+  triggerBrowserDownload(
+    response.data,
+    responseFileName || `template-${id}.json`,
+  );
 };
 
 export const resolveAgentTemplateDownloadUrl = (
