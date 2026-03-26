@@ -23,8 +23,8 @@ public class DeploymentVersionService {
      * 查询版本列表
      */
     public PageResultDTO<DeploymentVersionDTO> listVersions(
-            int pageNum, int pageSize, UUID applicationId, UUID environmentId,
-            VersionStatus status, String keyword, String sortBy, String sortOrder) {
+            int pageNum, int pageSize, UUID applicationId, VersionStatus status, 
+            UUID releaseId, String keyword, String sortBy, String sortOrder) {
         
         StringBuilder queryBuilder = new StringBuilder("1=1");
         Map<String, Object> params = new HashMap<>();
@@ -34,9 +34,9 @@ public class DeploymentVersionService {
             params.put("applicationId", applicationId);
         }
         
-        if (environmentId != null) {
-            queryBuilder.append(" AND environmentId = :environmentId");
-            params.put("environmentId", environmentId);
+        if (releaseId != null) {
+            queryBuilder.append(" AND releaseId = :releaseId");
+            params.put("releaseId", releaseId);
         }
         
         if (status != null) {
@@ -78,6 +78,114 @@ public class DeploymentVersionService {
             throw new IllegalArgumentException("Version not found: " + id);
         }
         return DeploymentVersionMapper.toDTO(version);
+    }
+
+    /**
+     * 创建版本
+     */
+    @Transactional
+    public DeploymentVersionDTO createVersion(DeploymentVersionDTO dto, String createdBy) {
+        DeploymentVersion version = new DeploymentVersion();
+        version.setVersionId(dto.versionId != null ? dto.versionId : UUID.randomUUID().toString());
+        version.setReleaseId(dto.releaseId);
+        version.setApplicationId(dto.applicationId);
+        version.setEnvironmentId(dto.environmentId);
+        version.setVersion(dto.version);
+        version.setCommitHash(dto.commitHash);
+        version.setCommitMessage(dto.commitMessage);
+        version.setCommitAuthor(dto.commitAuthor);
+        version.setCommitTime(dto.commitTime);
+        version.setBuildNumber(dto.buildNumber);
+        version.setBuildUrl(dto.buildUrl);
+        version.setArtifactUrl(dto.artifactUrl);
+        version.setArtifactChecksum(dto.artifactChecksum);
+        version.setConfig(dto.config);
+        version.setDeployConfig(dto.deployConfig);
+        version.setNotes(dto.notes);
+        version.setStatus(dto.status != null ? dto.status : VersionStatus.DEPLOYING);
+        version.setIsStable(dto.isStable != null ? dto.isStable : false);
+        version.setIsProblematic(dto.isProblematic != null ? dto.isProblematic : false);
+        version.setCreatedBy(createdBy);
+        version.setCreatedAt(LocalDateTime.now());
+        
+        version.persist();
+        return DeploymentVersionMapper.toDTO(version);
+    }
+
+    /**
+     * 更新版本
+     */
+    @Transactional
+    public DeploymentVersionDTO updateVersion(UUID id, DeploymentVersionDTO dto) {
+        DeploymentVersion version = DeploymentVersion.findById(id);
+        if (version == null) {
+            throw new IllegalArgumentException("Version not found: " + id);
+        }
+        
+        if (dto.version != null) {
+            version.setVersion(dto.version);
+        }
+        if (dto.versionId != null) {
+            version.setVersionId(dto.versionId);
+        }
+        if (dto.commitHash != null) {
+            version.setCommitHash(dto.commitHash);
+        }
+        if (dto.commitMessage != null) {
+            version.setCommitMessage(dto.commitMessage);
+        }
+        if (dto.commitAuthor != null) {
+            version.setCommitAuthor(dto.commitAuthor);
+        }
+        if (dto.commitTime != null) {
+            version.setCommitTime(dto.commitTime);
+        }
+        if (dto.buildNumber != null) {
+            version.setBuildNumber(dto.buildNumber);
+        }
+        if (dto.buildUrl != null) {
+            version.setBuildUrl(dto.buildUrl);
+        }
+        if (dto.artifactUrl != null) {
+            version.setArtifactUrl(dto.artifactUrl);
+        }
+        if (dto.artifactChecksum != null) {
+            version.setArtifactChecksum(dto.artifactChecksum);
+        }
+        if (dto.config != null) {
+            version.setConfig(dto.config);
+        }
+        if (dto.deployConfig != null) {
+            version.setDeployConfig(dto.deployConfig);
+        }
+        if (dto.notes != null) {
+            version.setNotes(dto.notes);
+        }
+        if (dto.status != null) {
+            version.setStatus(dto.status);
+        }
+        if (dto.isStable != null) {
+            version.setIsStable(dto.isStable);
+        }
+        if (dto.isProblematic != null) {
+            version.setIsProblematic(dto.isProblematic);
+        }
+        
+        version.setUpdatedAt(LocalDateTime.now());
+        
+        return DeploymentVersionMapper.toDTO(version);
+    }
+
+    /**
+     * 删除版本
+     */
+    @Transactional
+    public void deleteVersion(UUID id) {
+        DeploymentVersion version = DeploymentVersion.findById(id);
+        if (version == null) {
+            throw new IllegalArgumentException("Version not found: " + id);
+        }
+        version.delete();
     }
 
     /**

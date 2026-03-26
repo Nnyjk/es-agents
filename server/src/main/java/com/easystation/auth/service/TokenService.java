@@ -145,7 +145,7 @@ public class TokenService {
     /**
      * 哈希令牌
      */
-    private String hashToken(String token) {
+    public String hashToken(String token) {
         try {
             java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(token.getBytes(java.nio.charset.StandardCharsets.UTF_8));

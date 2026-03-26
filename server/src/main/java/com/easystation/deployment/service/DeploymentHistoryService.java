@@ -54,12 +54,12 @@ public class DeploymentHistoryService {
         }
         
         if (status != null && !status.isEmpty()) {
-            queryBuilder.append(" AND releaseStatus = :status");
+            queryBuilder.append(" AND status = :status");
             params.put("status", ReleaseStatus.valueOf(status));
         }
         
         if (triggeredBy != null && !triggeredBy.isEmpty()) {
-            queryBuilder.append(" AND triggeredBy LIKE :triggeredBy");
+            queryBuilder.append(" AND createdBy LIKE :triggeredBy");
             params.put("triggeredBy", "%" + triggeredBy + "%");
         }
         
@@ -109,16 +109,23 @@ public class DeploymentHistoryService {
         map.put("applicationId", release.getApplicationId());
         map.put("environmentId", release.getEnvironmentId());
         map.put("version", release.getVersion());
-        map.put("releaseType", release.getReleaseType());
-        map.put("releaseStatus", release.getReleaseStatus());
-        map.put("triggerType", release.getTriggerType());
-        map.put("triggeredBy", release.getTriggeredBy());
+        map.put("releaseType", release.getType());
+        map.put("releaseStatus", release.getStatus());
+        map.put("triggerType", release.getType());
+        map.put("triggeredBy", release.getCreatedBy());
         map.put("changeLog", release.getChangeLog());
-        map.put("startedAt", release.getStartedAt());
-        map.put("finishedAt", release.getFinishedAt());
-        map.put("duration", release.getDuration());
+        map.put("startedAt", release.getDeployedAt());
+        map.put("finishedAt", release.getCompletedAt());
+        map.put("duration", calculateDuration(release.getDeployedAt(), release.getCompletedAt()));
         map.put("createdAt", release.getCreatedAt());
         return map;
+    }
+    
+    private Long calculateDuration(LocalDateTime startedAt, LocalDateTime finishedAt) {
+        if (startedAt == null || finishedAt == null) {
+            return null;
+        }
+        return Duration.between(startedAt, finishedAt).getSeconds();
     }
 
     /**
@@ -153,7 +160,7 @@ public class DeploymentHistoryService {
                 .map(r -> Map.of(
                         "rollbackId", r.getRollbackId(),
                         "status", r.getStatus(),
-                        "triggeredBy", r.getTriggeredBy(),
+                        "triggeredBy", r.getCreatedBy(),
                         "createdAt", r.getCreatedAt()
                 ))
                 .collect(Collectors.toList()));
@@ -197,13 +204,13 @@ public class DeploymentHistoryService {
         stats.setTotalDeployments((long) releases.size());
         
         long successCount = releases.stream()
-                .filter(r -> r.getReleaseStatus() == ReleaseStatus.SUCCESS)
+                .filter(r -> r.getStatus() == ReleaseStatus.SUCCESS)
                 .count();
         long failedCount = releases.stream()
-                .filter(r -> r.getReleaseStatus() == ReleaseStatus.FAILED)
+                .filter(r -> r.getStatus() == ReleaseStatus.FAILED)
                 .count();
         long rollbackCount = releases.stream()
-                .filter(r -> r.getReleaseStatus() == ReleaseStatus.ROLLED_BACK)
+                .filter(r -> r.getStatus() == ReleaseStatus.ROLLED_BACK)
                 .count();
         
         stats.setSuccessCount(successCount);
@@ -218,16 +225,16 @@ public class DeploymentHistoryService {
         
         // 计算平均部署时长
         OptionalDouble avgDuration = releases.stream()
-                .filter(r -> r.getDuration() != null)
-                .mapToLong(DeploymentRelease::getDuration)
+                .filter(r -> r.getDeployedAt() != null && r.getCompletedAt() != null)
+                .mapToLong(r -> calculateDuration(r.getDeployedAt(), r.getCompletedAt()))
                 .average();
         stats.setAvgDuration(avgDuration.orElse(0.0));
         
         // 失败原因分布
         Map<String, Long> failureReasons = releases.stream()
-                .filter(r -> r.getReleaseStatus() == ReleaseStatus.FAILED)
+                .filter(r -> r.getStatus() == ReleaseStatus.FAILED)
                 .collect(Collectors.groupingBy(
-                        r -> extractFailureReason(r.getLogs()),
+                        r -> extractFailureReason(r.getDeployProgress()),
                         Collectors.counting()
                 ));
         
@@ -265,7 +272,7 @@ public class DeploymentHistoryService {
                             .count();
                     long daySuccess = releases.stream()
                             .filter(r -> r.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")).equals(entry.getKey()))
-                            .filter(r -> r.getReleaseStatus() == ReleaseStatus.SUCCESS)
+                            .filter(r -> r.getStatus() == ReleaseStatus.SUCCESS)
                             .count();
                     if (dayTotal > 0) {
                         trend.setSuccessRate((double) daySuccess / dayTotal * 100);
@@ -349,19 +356,19 @@ public class DeploymentHistoryService {
                                     row.put(field, release.getVersion());
                                     break;
                                 case "status":
-                                    row.put(field, release.getReleaseStatus());
+                                    row.put(field, release.getStatus());
                                     break;
                                 case "triggeredBy":
-                                    row.put(field, release.getTriggeredBy());
+                                    row.put(field, release.getCreatedBy());
                                     break;
                                 case "startedAt":
-                                    row.put(field, release.getStartedAt());
+                                    row.put(field, release.getDeployedAt());
                                     break;
                                 case "finishedAt":
-                                    row.put(field, release.getFinishedAt());
+                                    row.put(field, release.getCompletedAt());
                                     break;
                                 case "duration":
-                                    row.put(field, release.getDuration());
+                                    row.put(field, calculateDuration(release.getDeployedAt(), release.getCompletedAt()));
                                     break;
                                 case "changeLog":
                                     row.put(field, release.getChangeLog());
