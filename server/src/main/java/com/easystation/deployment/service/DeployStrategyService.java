@@ -53,7 +53,7 @@ public class DeployStrategyService {
                 .toList();
         
         PageResultDTO<DeployStrategyDTO> result = new PageResultDTO<>();
-        result.setList(items);
+        result.setData(items);
         result.setTotal(total);
         result.setPageNum(pageNum);
         result.setPageSize(pageSize);

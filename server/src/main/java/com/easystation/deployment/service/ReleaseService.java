@@ -46,7 +46,7 @@ public class ReleaseService {
                 .list();
         
         PageResultDTO<ReleaseDTO> result = new PageResultDTO<>();
-        result.setList(releases.stream().map(this::toDTO).collect(Collectors.toList()));
+        result.setData(releases.stream().map(this::toDTO).collect(Collectors.toList()));
         result.setTotal(total);
         result.setPageNum(pageNum);
         result.setPageSize(pageSize);

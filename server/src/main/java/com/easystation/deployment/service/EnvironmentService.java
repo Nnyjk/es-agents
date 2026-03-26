@@ -38,7 +38,7 @@ public class EnvironmentService {
                 .list();
         
         PageResultDTO<EnvironmentDTO> result = new PageResultDTO<>();
-        result.setList(environments.stream().map(this::toDTO).collect(Collectors.toList()));
+        result.setData(environments.stream().map(this::toDTO).collect(Collectors.toList()));
         result.setTotal(total);
         result.setPageNum(pageNum);
         result.setPageSize(pageSize);
