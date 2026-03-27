@@ -13,9 +13,9 @@ import java.util.UUID;
  * Agent 性能指标记录
  */
 @Entity
-@Table(name = "agent_metric", indexes = {
-    @Index(name = "idx_agent_metric_agent", columnList = "agent_instance_id"),
-    @Index(name = "idx_agent_metric_time", columnList = "collected_at")
+@Table(name = "agent_monitoring_metric", indexes = {
+    @Index(name = "idx_agent_monitoring_metric_agent", columnList = "agent_instance_id"),
+    @Index(name = "idx_agent_monitoring_metric_time", columnList = "collected_at")
 })
 @Getter
 @Setter
