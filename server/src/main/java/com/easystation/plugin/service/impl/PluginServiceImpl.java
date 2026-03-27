@@ -197,50 +197,50 @@ public class PluginServiceImpl implements PluginService {
         java.util.List<Object> params = new java.util.ArrayList<>();
         int paramIndex = 1;
 
-        if (query.keyword() != null && !query.keyword().isBlank()) {
+        if (query.getKeyword() != null && !query.getKeyword().isBlank()) {
             queryBuilder.append(" and (LOWER(name) LIKE LOWER(?").append(paramIndex)
                 .append(") or LOWER(description) LIKE LOWER(?").append(paramIndex).append("))");
-            params.add("%" + query.keyword() + "%");
+            params.add("%" + query.getKeyword() + "%");
             paramIndex++;
         }
 
-        if (query.categoryId() != null) {
+        if (query.getCategoryId() != null) {
             queryBuilder.append(" and categoryId = ?").append(paramIndex);
-            params.add(query.categoryId());
+            params.add(query.getCategoryId());
             paramIndex++;
         }
 
         // Note: tag search is not supported in current Plugin entity
-        // if (query.tag() != null && !query.tag().isBlank()) {
+        // if (query.getTag() != null && !query.getTag().isBlank()) {
         //     queryBuilder.append(" and tags LIKE ?").append(paramIndex);
-        //     params.add("%" + query.tag() + "%");
+        //     params.add("%" + query.getTag() + "%");
         //     paramIndex++;
         // }
 
-        if (query.status() != null) {
+        if (query.getStatus() != null) {
             queryBuilder.append(" and status = ?").append(paramIndex);
-            params.add(query.status());
+            params.add(query.getStatus());
             paramIndex++;
         }
 
-        if (query.developerId() != null) {
+        if (query.getDeveloperId() != null) {
             queryBuilder.append(" and developerId = ?").append(paramIndex);
-            params.add(query.developerId());
+            params.add(query.getDeveloperId());
             paramIndex++;
         }
 
-        if (query.isFree() != null) {
+        if (query.getIsFree() != null) {
             queryBuilder.append(" and isFree = ?").append(paramIndex);
-            params.add(query.isFree());
+            params.add(query.getIsFree());
             paramIndex++;
         }
 
-        String sortField = query.sortBy() != null ? query.sortBy() : "createdAt";
-        String sortOrder = "DESC".equalsIgnoreCase(query.sortOrder()) ? "DESC" : "ASC";
+        String sortField = query.getSortBy() != null ? query.getSortBy() : "createdAt";
+        String sortOrder = "DESC".equalsIgnoreCase(query.getSortOrder()) ? "DESC" : "ASC";
         queryBuilder.append(" ORDER BY ").append(sortField).append(" ").append(sortOrder);
 
-        int page = query.page() != null ? query.page() : 0;
-        int size = query.size() != null ? query.size() : 20;
+        int page = query.getPage() != null ? query.getPage() : 0;
+        int size = query.getSize() != null ? query.getSize() : 20;
 
         return pluginRepository.find(queryBuilder.toString(), params.toArray())
             .page(Page.of(page, size))

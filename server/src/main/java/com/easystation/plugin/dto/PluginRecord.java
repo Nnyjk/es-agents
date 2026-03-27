@@ -140,18 +140,44 @@ public record PluginRecord(
         List<String> tags
     ) {}
 
-    public record Query(
-        String keyword,
-        UUID categoryId,
-        String tag,
-        PluginStatus status,
-        UUID developerId,
-        Boolean isFree,
-        String sortBy,
-        String sortOrder,
-        Integer page,
-        Integer size
-    ) {}
+    /**
+     * 查询参数类（普通 class 以支持 @BeanParam）
+     */
+    public static class Query {
+        private String keyword;
+        private UUID categoryId;
+        private String tag;
+        private PluginStatus status;
+        private UUID developerId;
+        private Boolean isFree;
+        private String sortBy;
+        private String sortOrder;
+        private Integer page;
+        private Integer size;
+
+        public Query() {}
+
+        public String getKeyword() { return keyword; }
+        public void setKeyword(String keyword) { this.keyword = keyword; }
+        public UUID getCategoryId() { return categoryId; }
+        public void setCategoryId(UUID categoryId) { this.categoryId = categoryId; }
+        public String getTag() { return tag; }
+        public void setTag(String tag) { this.tag = tag; }
+        public PluginStatus getStatus() { return status; }
+        public void setStatus(PluginStatus status) { this.status = status; }
+        public UUID getDeveloperId() { return developerId; }
+        public void setDeveloperId(UUID developerId) { this.developerId = developerId; }
+        public Boolean getIsFree() { return isFree; }
+        public void setIsFree(Boolean isFree) { this.isFree = isFree; }
+        public String getSortBy() { return sortBy; }
+        public void setSortBy(String sortBy) { this.sortBy = sortBy; }
+        public String getSortOrder() { return sortOrder; }
+        public void setSortOrder(String sortOrder) { this.sortOrder = sortOrder; }
+        public Integer getPage() { return page; }
+        public void setPage(Integer page) { this.page = page; }
+        public Integer getSize() { return size; }
+        public void setSize(Integer size) { this.size = size; }
+    }
 
     public record Summary(
         long totalCount,

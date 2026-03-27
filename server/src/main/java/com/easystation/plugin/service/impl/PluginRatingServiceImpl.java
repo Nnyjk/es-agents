@@ -117,30 +117,30 @@ public class PluginRatingServiceImpl implements PluginRatingService {
         java.util.List<Object> params = new java.util.ArrayList<>();
         int paramIndex = 1;
 
-        if (query.pluginId() != null) {
+        if (query.getPluginId() != null) {
             queryBuilder.append(" and plugin.id = ?").append(paramIndex);
-            params.add(query.pluginId());
+            params.add(query.getPluginId());
             paramIndex++;
         }
 
-        if (query.userId() != null) {
+        if (query.getUserId() != null) {
             queryBuilder.append(" and user.id = ?").append(paramIndex);
-            params.add(query.userId());
+            params.add(query.getUserId());
             paramIndex++;
         }
 
-        if (query.verified() != null) {
+        if (query.getVerified() != null) {
             queryBuilder.append(" and isVerified = ?").append(paramIndex);
-            params.add(query.verified());
+            params.add(query.getVerified());
             paramIndex++;
         }
 
-        String sortField = query.sortBy() != null ? query.sortBy() : "createdAt";
-        String sortOrder = "DESC".equalsIgnoreCase(query.sortOrder()) ? "DESC" : "ASC";
+        String sortField = query.getSortBy() != null ? query.getSortBy() : "createdAt";
+        String sortOrder = "DESC".equalsIgnoreCase(query.getSortOrder()) ? "DESC" : "ASC";
         queryBuilder.append(" ORDER BY ").append(sortField).append(" ").append(sortOrder);
 
-        int page = query.page() != null ? query.page() : 0;
-        int size = query.size() != null ? query.size() : 20;
+        int page = query.getPage() != null ? query.getPage() : 0;
+        int size = query.getSize() != null ? query.getSize() : 20;
 
         return ratingRepository.find(queryBuilder.toString(), params.toArray())
             .page(Page.of(page, size))
