@@ -10,11 +10,24 @@ export interface Environment {
   code: string;
   name: string;
   description?: string;
-  enabled?: boolean;
+  enabled: boolean;
   color?: string;
   hostCount?: number;
-  createdAt?: string;
+  createdAt: string;
   updatedAt?: string;
+}
+
+export interface EnvironmentCreate {
+  name: string;
+  code: string;
+  description?: string;
+  color?: string;
+}
+
+export interface EnvironmentUpdate {
+  description?: string;
+  enabled?: boolean;
+  color?: string;
 }
 
 export interface HostInstallGuide {
