@@ -22,6 +22,7 @@ public class ConfigHistory extends PanacheEntityBase {
     @Column(name = "config_id", nullable = false)
     public UUID configId;
 
+    @Column(name = "config_key")
     public String key;
 
     @Column(columnDefinition = "TEXT")
