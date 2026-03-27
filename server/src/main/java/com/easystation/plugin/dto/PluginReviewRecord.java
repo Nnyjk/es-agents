@@ -62,12 +62,30 @@ public record PluginReviewRecord(
         String comment
     ) {}
 
-    public record Query(
-        UUID pluginId,
-        UUID versionId,
-        ReviewStatus status,
-        String reviewType,
-        Integer page,
-        Integer size
-    ) {}
+    /**
+     * 查询参数类（普通 class 以支持 @BeanParam）
+     */
+    public static class Query {
+        private UUID pluginId;
+        private UUID versionId;
+        private ReviewStatus status;
+        private String reviewType;
+        private Integer page;
+        private Integer size;
+
+        public Query() {}
+
+        public UUID getPluginId() { return pluginId; }
+        public void setPluginId(UUID pluginId) { this.pluginId = pluginId; }
+        public UUID getVersionId() { return versionId; }
+        public void setVersionId(UUID versionId) { this.versionId = versionId; }
+        public ReviewStatus getStatus() { return status; }
+        public void setStatus(ReviewStatus status) { this.status = status; }
+        public String getReviewType() { return reviewType; }
+        public void setReviewType(String reviewType) { this.reviewType = reviewType; }
+        public Integer getPage() { return page; }
+        public void setPage(Integer page) { this.page = page; }
+        public Integer getSize() { return size; }
+        public void setSize(Integer size) { this.size = size; }
+    }
 }

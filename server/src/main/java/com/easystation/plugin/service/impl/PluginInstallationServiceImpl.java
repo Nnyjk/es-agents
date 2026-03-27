@@ -241,26 +241,26 @@ public class PluginInstallationServiceImpl implements PluginInstallationService 
         List<Object> params = new java.util.ArrayList<>();
         int paramIndex = 1;
 
-        if (query.pluginId() != null) {
+        if (query.getPluginId() != null) {
             queryBuilder.append(" and pluginId = ?").append(paramIndex);
-            params.add(query.pluginId());
+            params.add(query.getPluginId());
             paramIndex++;
         }
 
-        if (query.agentId() != null) {
+        if (query.getAgentId() != null) {
             queryBuilder.append(" and agentId = ?").append(paramIndex);
-            params.add(query.agentId());
+            params.add(query.getAgentId());
             paramIndex++;
         }
 
-        if (query.status() != null) {
+        if (query.getStatus() != null) {
             queryBuilder.append(" and status = ?").append(paramIndex);
-            params.add(query.status());
+            params.add(query.getStatus());
             paramIndex++;
         }
 
-        int page = query.page() != null ? query.page() : 0;
-        int size = query.size() != null ? query.size() : 20;
+        int page = query.getPage() != null ? query.getPage() : 0;
+        int size = query.getSize() != null ? query.getSize() : 20;
 
         return installationRepository.find(queryBuilder.toString(), params.toArray())
             .page(Page.of(page, size))

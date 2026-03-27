@@ -170,34 +170,34 @@ public class PluginReviewServiceImpl implements PluginReviewService {
         java.util.List<Object> params = new java.util.ArrayList<>();
         int paramIndex = 1;
 
-        if (query.pluginId() != null) {
+        if (query.getPluginId() != null) {
             queryBuilder.append(" and plugin.id = ?").append(paramIndex);
-            params.add(query.pluginId());
+            params.add(query.getPluginId());
             paramIndex++;
         }
 
-        if (query.versionId() != null) {
+        if (query.getVersionId() != null) {
             queryBuilder.append(" and version.id = ?").append(paramIndex);
-            params.add(query.versionId());
+            params.add(query.getVersionId());
             paramIndex++;
         }
 
-        if (query.status() != null) {
+        if (query.getStatus() != null) {
             queryBuilder.append(" and status = ?").append(paramIndex);
-            params.add(query.status());
+            params.add(query.getStatus());
             paramIndex++;
         }
 
-        if (query.reviewType() != null && !query.reviewType().isBlank()) {
+        if (query.getReviewType() != null && !query.getReviewType().isBlank()) {
             queryBuilder.append(" and reviewType = ?").append(paramIndex);
-            params.add(query.reviewType());
+            params.add(query.getReviewType());
             paramIndex++;
         }
 
         queryBuilder.append(" ORDER BY createdAt DESC");
 
-        int page = query.page() != null ? query.page() : 0;
-        int size = query.size() != null ? query.size() : 20;
+        int page = query.getPage() != null ? query.getPage() : 0;
+        int size = query.getSize() != null ? query.getSize() : 20;
 
         return reviewRepository.find(queryBuilder.toString(), params.toArray())
             .page(Page.of(page, size))

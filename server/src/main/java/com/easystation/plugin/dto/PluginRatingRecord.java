@@ -41,15 +41,35 @@ public record PluginRatingRecord(
         String review
     ) {}
 
-    public record Query(
-        UUID pluginId,
-        UUID userId,
-        Boolean verified,
-        String sortBy,
-        String sortOrder,
-        Integer page,
-        Integer size
-    ) {}
+    /**
+     * 查询参数类（普通 class 以支持 @BeanParam）
+     */
+    public static class Query {
+        private UUID pluginId;
+        private UUID userId;
+        private Boolean verified;
+        private String sortBy;
+        private String sortOrder;
+        private Integer page;
+        private Integer size;
+
+        public Query() {}
+
+        public UUID getPluginId() { return pluginId; }
+        public void setPluginId(UUID pluginId) { this.pluginId = pluginId; }
+        public UUID getUserId() { return userId; }
+        public void setUserId(UUID userId) { this.userId = userId; }
+        public Boolean getVerified() { return verified; }
+        public void setVerified(Boolean verified) { this.verified = verified; }
+        public String getSortBy() { return sortBy; }
+        public void setSortBy(String sortBy) { this.sortBy = sortBy; }
+        public String getSortOrder() { return sortOrder; }
+        public void setSortOrder(String sortOrder) { this.sortOrder = sortOrder; }
+        public Integer getPage() { return page; }
+        public void setPage(Integer page) { this.page = page; }
+        public Integer getSize() { return size; }
+        public void setSize(Integer size) { this.size = size; }
+    }
 
     public record Summary(
         BigDecimal averageRating,

@@ -46,13 +46,29 @@ public record PluginInstallationRecord(
         java.util.List<UUID> agentIds
     ) {}
 
-    public record Query(
-        UUID pluginId,
-        UUID agentId,
-        InstallationStatus status,
-        Integer page,
-        Integer size
-    ) {}
+    /**
+     * 查询参数类（普通 class 以支持 @BeanParam）
+     */
+    public static class Query {
+        private UUID pluginId;
+        private UUID agentId;
+        private InstallationStatus status;
+        private Integer page;
+        private Integer size;
+
+        public Query() {}
+
+        public UUID getPluginId() { return pluginId; }
+        public void setPluginId(UUID pluginId) { this.pluginId = pluginId; }
+        public UUID getAgentId() { return agentId; }
+        public void setAgentId(UUID agentId) { this.agentId = agentId; }
+        public InstallationStatus getStatus() { return status; }
+        public void setStatus(InstallationStatus status) { this.status = status; }
+        public Integer getPage() { return page; }
+        public void setPage(Integer page) { this.page = page; }
+        public Integer getSize() { return size; }
+        public void setSize(Integer size) { this.size = size; }
+    }
 
     public record Summary(
         int totalCount,
