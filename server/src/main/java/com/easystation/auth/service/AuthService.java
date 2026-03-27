@@ -150,11 +150,14 @@ public class AuthService {
         String refreshToken = tokenService.generateRefreshToken(user, null, ipAddress, userAgent);
 
         // 构建响应
-        Set<RoleRecord> roleDtos = user.roles.stream().map(r -> new RoleRecord(
-            r.id, r.code, r.name, r.description, null, null
-        )).collect(Collectors.toSet());
-
-        UserRecord userDto = new UserRecord(user.id, user.username, user.status, roleDtos);
+        AuthRecord.UserDto userDto = new AuthRecord.UserDto();
+        userDto.setId(user.id);
+        userDto.setUsername(user.username);
+        userDto.setEmail(user.email);
+        userDto.setPhone(user.phone);
+        userDto.setNickname(user.nickname);
+        userDto.setAvatar(user.avatar);
+        userDto.setMfaEnabled(user.mfaEnabled);
 
         Set<String> menus = new HashSet<>();
         Set<String> actions = new HashSet<>();
@@ -163,7 +166,9 @@ public class AuthService {
             role.actions.forEach(a -> actions.add(a.code));
         });
 
-        LoginResponse.PermissionRecord permDto = new LoginResponse.PermissionRecord(menus, actions);
+        AuthRecord.PermDto permDto = new AuthRecord.PermDto();
+        permDto.setRoles(user.roles.stream().map(r -> r.code).collect(Collectors.toList()));
+        permDto.setPermissions(actions.stream().collect(Collectors.toList()));
 
         Log.infof("User logged in: %s from %s", user.username, ipAddress);
 

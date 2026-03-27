@@ -11,7 +11,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.Set;
 import java.util.UUID;
@@ -27,6 +26,8 @@ public class TokenService {
 
     @ConfigProperty(name = "auth.jwt.issuer", defaultValue = "https://easystation.com/issuer")
     String issuer;
+
+    private static final long MFA_TOKEN_EXPIRY_SECONDS = 300; // 5 minutes
 
     /**
      * 生成访问令牌
@@ -78,6 +79,36 @@ public class TokenService {
 
         Log.infof("Created refresh token for user: %s", user.username);
         return token;
+    }
+
+    /**
+     * 生成 MFA 令牌
+     */
+    public String generateMfaToken(UUID userId) {
+        return Jwt.issuer(issuer)
+                .upn(userId.toString())
+                .claim("type", "mfa")
+                .expiresIn(MFA_TOKEN_EXPIRY_SECONDS)
+                .sign();
+    }
+
+    /**
+     * 验证刷新令牌，返回用户ID
+     */
+    @Transactional
+    public String validateRefreshToken(String refreshToken) {
+        String tokenHash = hashToken(refreshToken);
+        RefreshToken stored = RefreshToken.findByTokenHash(tokenHash);
+
+        if (stored == null || !stored.isValid()) {
+            Log.warnf("Invalid or expired refresh token");
+            return null;
+        }
+
+        // 更新最后使用时间
+        stored.lastUsedAt = LocalDateTime.now();
+
+        return stored.user.id.toString();
     }
 
     /**
