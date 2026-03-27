@@ -30,11 +30,13 @@ type Manager struct {
 	agents   map[string]*Agent
 	mu       sync.Mutex
 	OnOutput func(string)
+	Registry *Registry // 插件注册表
 }
 
 func NewManager() *Manager {
 	return &Manager{
-		agents: make(map[string]*Agent),
+		agents:  make(map[string]*Agent),
+		Registry: NewRegistry(),
 	}
 }
 
@@ -109,6 +111,15 @@ func (m *Manager) Start(id string, command string, args []string, typ AgentType)
 	}
 	m.agents[id] = agent
 
+	// 自动注册插件到 Registry
+	pluginInfo := NewPluginInfo(id, id, "1.0.0", string(typ))
+	pluginInfo.AddCapability(PluginCapability{
+		Name:        string(typ),
+		Description: fmt.Sprintf("Agent type: %s", typ),
+		Commands:    []string{command},
+	})
+	m.Registry.Register(pluginInfo)
+
 	// Start output monitors
 	var wg sync.WaitGroup
 	wg.Add(2)
@@ -141,6 +152,9 @@ func (m *Manager) Stop(id string) error {
 		return fmt.Errorf("agent %s not found", id)
 	}
 
+	// 更新插件状态为 STOPPED
+	m.Registry.UpdateStatus(id, StatusStopped)
+
 	if agent.Cmd != nil && agent.Cmd.Process != nil {
 		return agent.Cmd.Process.Kill()
 	}
@@ -153,8 +167,10 @@ func (m *Manager) handleExit(id string, err error) {
 
 	if err != nil {
 		fmt.Printf("Agent %s exited with error: %v\n", id, err)
+		m.Registry.UpdateStatus(id, StatusError)
 	} else {
 		fmt.Printf("Agent %s exited successfully\n", id)
+		m.Registry.UpdateStatus(id, StatusStopped)
 	}
 	delete(m.agents, id)
 }
