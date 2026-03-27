@@ -1,5 +1,6 @@
 package com.easystation.infra.domain;
 
+import com.easystation.agent.domain.AgentInstance;
 import com.easystation.infra.domain.enums.HostStatus;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
@@ -9,10 +10,12 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "infra_host")
+@Table(name = "infra_host", uniqueConstraints = @UniqueConstraint(columnNames = "identifier"))
 @Getter
 @Setter
 public class Host extends PanacheEntityBase {
@@ -20,6 +23,12 @@ public class Host extends PanacheEntityBase {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     public UUID id;
+
+    /**
+     * Unique identifier for the host (user-defined or auto-generated)
+     */
+    @Column(nullable = false, unique = true)
+    public String identifier;
 
     @Column(nullable = false)
     public String name;
@@ -30,6 +39,17 @@ public class Host extends PanacheEntityBase {
     public String os;
     public String cpuInfo;
     public String memInfo;
+
+    /**
+     * IP address of the host
+     */
+    public String ip;
+
+    /**
+     * Port number for host agent connection
+     */
+    @Column(columnDefinition = "integer default 9090")
+    public Integer port = 9090;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "environment_id", nullable = false)
@@ -69,6 +89,25 @@ public class Host extends PanacheEntityBase {
 
     public String description;
 
+    /**
+     * Tags/metadata for categorizing hosts
+     */
+    @ElementCollection
+    @CollectionTable(name = "infra_host_tags", joinColumns = @JoinColumn(name = "host_id"))
+    @Column(name = "tag")
+    public List<String> tags = new ArrayList<>();
+
+    /**
+     * Whether the host is enabled for operations
+     */
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    public boolean enabled = true;
+
+    /**
+     * Last time the host was seen/connected
+     */
+    public LocalDateTime lastSeenAt;
+
     @CreationTimestamp
     public LocalDateTime createdAt;
 
@@ -76,4 +115,10 @@ public class Host extends PanacheEntityBase {
     public LocalDateTime updatedAt;
 
     public LocalDateTime lastHeartbeat;
+
+    /**
+     * Associated agent instances
+     */
+    @OneToMany(mappedBy = "host")
+    public List<AgentInstance> agentInstances;
 }
