@@ -332,3 +332,91 @@ export interface PageResult<T> {
   current: number;
   pageSize: number;
 }
+
+/**
+ * 部署历史状态
+ */
+export type DeploymentHistoryStatus =
+  | "pending"
+  | "deploying"
+  | "success"
+  | "failed"
+  | "rolled_back";
+
+/**
+ * 部署变更类型
+ */
+export type DeploymentChangeType = "deploy" | "rollback" | "scale";
+
+/**
+ * 部署历史记录
+ */
+export interface DeploymentHistory {
+  id: string;
+  releaseId: string;
+  applicationId: string;
+  environmentId: string;
+  version: string;
+  releaseType: string;
+  releaseStatus: DeploymentHistoryStatus;
+  triggerType: string;
+  triggeredBy: string;
+  changeLog?: string;
+  startedAt?: string;
+  finishedAt?: string;
+  duration?: number;
+  createdAt: string;
+}
+
+/**
+ * 部署历史详情
+ */
+export interface DeploymentHistoryDetail extends DeploymentHistory {
+  versionDetail?: Record<string, unknown>;
+  relatedRollbacks?: Array<{
+    rollbackId: string;
+    status: string;
+    triggeredBy: string;
+    createdAt: string;
+  }>;
+}
+
+/**
+ * 部署历史查询参数
+ */
+export interface DeploymentHistoryQueryParams {
+  pageNum?: number;
+  pageSize?: number;
+  applicationId?: string;
+  environmentId?: string;
+  version?: string;
+  status?: string;
+  triggeredBy?: string;
+  startTime?: string;
+  endTime?: string;
+  keyword?: string;
+  sortBy?: string;
+  sortOrder?: string;
+}
+
+/**
+ * 部署统计
+ */
+export interface DeploymentStatistics {
+  totalDeployments: number;
+  successCount: number;
+  failedCount: number;
+  rollbackCount: number;
+  successRate: number;
+  avgDuration: number;
+  failureReasons: Array<{
+    reason: string;
+    count: number;
+    percentage: number;
+  }>;
+  deploymentTrends: Array<{
+    date: string;
+    count: number;
+    successRate: number;
+  }>;
+}

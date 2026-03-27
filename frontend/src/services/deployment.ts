@@ -16,6 +16,10 @@ import type {
   EnvironmentResource,
   EnvironmentApplication,
   PageResult,
+  DeploymentHistory,
+  DeploymentHistoryDetail,
+  DeploymentHistoryQueryParams,
+  DeploymentStatistics,
 } from "@/types/deployment";
 
 // ============== 应用管理 API ==============
@@ -318,4 +322,56 @@ export async function getEnvironmentApplications(
   id: string,
 ): Promise<EnvironmentApplication[]> {
   return request.get(`/api/deployment/environments/${id}/applications`);
+}
+
+// ============== 部署历史 API ==============
+
+/**
+ * 获取部署历史列表
+ */
+export async function getDeploymentHistory(
+  params: DeploymentHistoryQueryParams,
+): Promise<{ list: DeploymentHistory[]; total: number }> {
+  const result: { data: DeploymentHistory[]; total: number } = await request.get(
+    "/api/deployments/history",
+    { params },
+  );
+  // 后端返回 data 字段，转换为前端 list 字段
+  return {
+    list: result.data || [],
+    total: result.total || 0,
+  };
+}
+
+/**
+ * 获取部署历史详情
+ */
+export async function getDeploymentHistoryDetail(
+  id: string,
+): Promise<DeploymentHistoryDetail> {
+  return request.get(`/api/deployments/history/${id}`);
+}
+
+/**
+ * 获取部署统计
+ */
+export async function getDeploymentStatistics(params?: {
+  applicationId?: string;
+  environmentId?: string;
+  startTime?: string;
+  endTime?: string;
+}): Promise<DeploymentStatistics> {
+  return request.get("/api/deployments/history/statistics", { params });
+}
+
+/**
+ * 回滚部署
+ */
+export async function rollbackDeployment(
+  releaseId: string,
+  reason?: string,
+): Promise<Release> {
+  return request.post(`/api/deployment/releases/${releaseId}/rollback`, null, {
+    params: { rolledBackBy: reason || "system" },
+  });
 }

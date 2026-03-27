@@ -5,11 +5,13 @@ import {
   ApiOutlined,
   RocketOutlined,
   CloudServerOutlined,
+  HistoryOutlined,
 } from "@ant-design/icons";
 import ApplicationPage from "./ApplicationPage";
 import PipelinePage from "./PipelinePage";
 import ReleasePage from "./ReleasePage";
 import EnvironmentPage from "./EnvironmentPage";
+import DeploymentHistoryPage from "./DeploymentHistoryPage";
 
 const DeploymentPage: React.FC = () => {
   const [activeKey, setActiveKey] = useState("applications");
@@ -43,6 +45,12 @@ const DeploymentPage: React.FC = () => {
             label: "环境管理",
             icon: <CloudServerOutlined />,
             children: <EnvironmentPage />,
+          },
+          {
+            key: "history",
+            label: "部署历史",
+            icon: <HistoryOutlined />,
+            children: <DeploymentHistoryPage />,
           },
         ]}
       />
