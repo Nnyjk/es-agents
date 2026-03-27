@@ -9,6 +9,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Path("/alerts/silences")
@@ -32,8 +33,9 @@ public class AlertSilenceResource {
 
     @GET
     @Path("/active")
-    public Response listActive(@QueryParam("at") LocalDateTime at) {
-        return Response.ok(alertSilenceService.listActive(at)).build();
+    public Response listActive(@QueryParam("at") String at) {
+        LocalDateTime atTime = at != null ? LocalDateTime.parse(at, DateTimeFormatter.ISO_LOCAL_DATE_TIME) : LocalDateTime.now();
+        return Response.ok(alertSilenceService.listActive(atTime)).build();
     }
 
     @GET
