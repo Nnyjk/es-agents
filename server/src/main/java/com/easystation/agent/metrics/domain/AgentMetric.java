@@ -26,7 +26,7 @@ public class AgentMetric extends PanacheEntityBase {
     /**
      * 关联的 Agent 实例 ID
      */
-    @Column(name = "metric_value", nullable = false)
+    @Column(nullable = false)
     public UUID agentId;
 
     /**
@@ -38,7 +38,7 @@ public class AgentMetric extends PanacheEntityBase {
      * 指标类型
      */
     @Enumerated(EnumType.STRING)
-    @Column(name = "metric_value", nullable = false)
+    @Column(nullable = false)
     public MetricType type;
 
     /**
@@ -56,7 +56,7 @@ public class AgentMetric extends PanacheEntityBase {
     /**
      * 采集时间
      */
-    @Column(name = "metric_value", nullable = false)
+    @Column(nullable = false)
     public LocalDateTime collectedAt;
 
     /**
