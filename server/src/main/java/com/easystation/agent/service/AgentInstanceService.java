@@ -15,8 +15,9 @@ import com.easystation.agent.dto.AgentInstanceRecord.DeployResult;
 import com.easystation.agent.dto.AgentInstanceRecord.ExecuteCommand;
 import com.easystation.agent.dto.AgentInstanceRecord.Update;
 import com.easystation.agent.dto.AgentRuntimeStatus;
-import com.easystation.agent.record.AgentTaskRecord;
 import com.easystation.agent.dto.HeartbeatRequest;
+import com.easystation.agent.dto.PluginInfoDTO;
+import com.easystation.agent.record.AgentTaskRecord;
 import com.easystation.alert.enums.AlertEventType;
 import com.easystation.alert.enums.AlertLevel;
 import com.easystation.alert.service.AlertEventService;
@@ -42,6 +43,9 @@ public class AgentInstanceService {
 
     @Inject
     AlertEventService alertEventService;
+
+    @Inject
+    PluginDiscoveryService pluginDiscoveryService;
 
     private static final long HEARTBEAT_TIMEOUT_SECONDS = 90;
 
@@ -227,6 +231,14 @@ public class AgentInstanceService {
             host.setLastHeartbeat(LocalDateTime.now());
             host.setStatus(HostStatus.ONLINE);
             host.persist();
+        }
+
+        // 处理插件状态上报
+        List<PluginInfoDTO> plugins = request.plugins();
+        if (plugins != null && !plugins.isEmpty()) {
+            String agentIdStr = request.agentId().toString();
+            pluginDiscoveryService.registerPlugins(agentIdStr, plugins);
+            log.debug("Agent {} reported {} plugins", agentIdStr, plugins.size());
         }
     }
 
