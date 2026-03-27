@@ -94,17 +94,17 @@ cd agent && go test ./...
 
 ### Type 类型
 
-| Type | 说明 | 示例 |
-|------|------|------|
-| `feat` | 新功能 | `feat(frontend): add dark mode toggle` |
-| `fix` | Bug 修复 | `fix(server): resolve auth timeout issue` |
-| `docs` | 文档更新 | `docs: update API documentation` |
-| `style` | 代码格式（不影响逻辑） | `style: format code with prettier` |
-| `refactor` | 重构 | `refactor(agent): simplify connection logic` |
-| `test` | 测试 | `test(server): add unit tests for auth` |
-| `chore` | 构建/工具/依赖 | `chore: update dependencies` |
-| `ci` | CI 配置 | `ci: add GitHub Actions workflow` |
-| `perf` | 性能优化 | `perf(server): optimize query performance` |
+| Type       | 说明                   | 示例                                         |
+| ---------- | ---------------------- | -------------------------------------------- |
+| `feat`     | 新功能                 | `feat(frontend): add dark mode toggle`       |
+| `fix`      | Bug 修复               | `fix(server): resolve auth timeout issue`    |
+| `docs`     | 文档更新               | `docs: update API documentation`             |
+| `style`    | 代码格式（不影响逻辑） | `style: format code with prettier`           |
+| `refactor` | 重构                   | `refactor(agent): simplify connection logic` |
+| `test`     | 测试                   | `test(server): add unit tests for auth`      |
+| `chore`    | 构建/工具/依赖         | `chore: update dependencies`                 |
+| `ci`       | CI 配置                | `ci: add GitHub Actions workflow`            |
+| `perf`     | 性能优化               | `perf(server): optimize query performance`   |
 
 ### Scope 范围
 
@@ -160,22 +160,24 @@ cd agent && go vet ./...
 
 ### 分支命名
 
-| 类型 | 命名格式 | 示例 |
-|------|----------|------|
-| 功能 | `feat/<name>` | `feat/user-profile` |
-| 修复 | `fix/<name>` | `fix/auth-timeout` |
+| 类型 | 命名格式          | 示例                  |
+| ---- | ----------------- | --------------------- |
+| 功能 | `feat/<name>`     | `feat/user-profile`   |
+| 修复 | `fix/<name>`      | `fix/auth-timeout`    |
 | 重构 | `refactor/<name>` | `refactor/connection` |
-| 文档 | `docs/<name>` | `docs/api-update` |
-| 其他 | `chore/<name>` | `chore/update-deps` |
+| 文档 | `docs/<name>`     | `docs/api-update`     |
+| 其他 | `chore/<name>`    | `chore/update-deps`   |
 
 ### 提交流程
 
 1. **创建分支**
+
    ```bash
    git checkout -b feat/your-feature
    ```
 
 2. **开发和提交**
+
    ```bash
    # 编写代码
    git add .
@@ -183,6 +185,7 @@ cd agent && go vet ./...
    ```
 
 3. **推送并创建 PR**
+
    ```bash
    git push origin feat/your-feature
    gh pr create
@@ -239,40 +242,40 @@ Reviewer 会检查：
 
 #### 优先级标签
 
-| 标签 | 颜色 | 说明 |
-|------|------|------|
-| `priority/critical` | 🔴 | 最高优先级，需立即处理 |
-| `priority/high` | 🟠 | 高优先级 |
-| `priority/medium` | 🟡 | 中优先级（默认） |
-| `priority/low` | 🟢 | 低优先级 |
+| 标签                | 颜色 | 说明                   |
+| ------------------- | ---- | ---------------------- |
+| `priority/critical` | 🔴   | 最高优先级，需立即处理 |
+| `priority/high`     | 🟠   | 高优先级               |
+| `priority/medium`   | 🟡   | 中优先级（默认）       |
+| `priority/low`      | 🟢   | 低优先级               |
 
 #### 模块标签
 
-| 标签 | 说明 |
-|------|------|
-| `module/frontend` | 前端模块 |
-| `module/server` | 服务端模块 |
-| `module/agent` | Agent 模块 |
-| `module/docs` | 文档模块 |
+| 标签              | 说明       |
+| ----------------- | ---------- |
+| `module/frontend` | 前端模块   |
+| `module/server`   | 服务端模块 |
+| `module/agent`    | Agent 模块 |
+| `module/docs`     | 文档模块   |
 
 #### 状态标签
 
-| 标签 | 说明 |
-|------|------|
-| `status/todo` | 待处理 |
-| `status/in-progress` | 进行中 |
-| `status/review` | 等待审查 |
-| `status/blocked` | 被阻塞 |
+| 标签                 | 说明     |
+| -------------------- | -------- |
+| `status/todo`        | 待处理   |
+| `status/in-progress` | 进行中   |
+| `status/review`      | 等待审查 |
+| `status/blocked`     | 被阻塞   |
 
 #### 类型标签
 
-| 标签 | 说明 |
-|------|------|
-| `type:bug` | 缺陷 |
-| `type:feature` | 新功能 |
-| `type:docs` | 文档 |
-| `type:refactor` | 重构 |
-| `type:test` | 测试 |
+| 标签            | 说明   |
+| --------------- | ------ |
+| `type:bug`      | 缺陷   |
+| `type:feature`  | 新功能 |
+| `type:docs`     | 文档   |
+| `type:refactor` | 重构   |
+| `type:test`     | 测试   |
 
 ### Issue 模板
 
@@ -280,15 +283,19 @@ Reviewer 会检查：
 
 ```markdown
 ### 需求描述
+
 <!-- 清晰描述功能需求 -->
 
 ### 验收标准
+
 <!-- 如何验证功能已完成 -->
 
 ### 技术方案
+
 <!-- 可选：实现思路 -->
 
 ### 优先级
+
 <!-- critical/high/medium/low -->
 ```
 
@@ -296,25 +303,31 @@ Reviewer 会检查：
 
 ```markdown
 ### 问题描述
+
 <!-- 简要描述问题 -->
 
 ### 复现步骤
-1. 
-2. 
-3. 
+
+1.
+2.
+3.
 
 ### 期望行为
+
 <!-- 应该发生什么 -->
 
 ### 实际行为
+
 <!-- 实际发生了什么 -->
 
 ### 环境信息
+
 - 版本：
 - 操作系统：
 - 浏览器：
 
 ### 日志/截图
+
 <!-- 相关日志或截图 -->
 ```
 
@@ -346,11 +359,11 @@ docs/
 
 ### 文档命名
 
-| 类型 | 命名格式 | 示例 |
-|------|----------|------|
-| 指南 | `UPPER-CASE.md` | `CONTRIBUTING.md` |
-| 规范 | `xxx-rules.md` | `engineering-rules.md` |
-| API | `xxx-api.md` | `server-api.md` |
+| 类型 | 命名格式        | 示例                   |
+| ---- | --------------- | ---------------------- |
+| 指南 | `UPPER-CASE.md` | `CONTRIBUTING.md`      |
+| 规范 | `xxx-rules.md`  | `engineering-rules.md` |
+| API  | `xxx-api.md`    | `server-api.md`        |
 
 ### 文档维护规则
 
@@ -360,7 +373,7 @@ docs/
 
 ### Markdown 规范
 
-```markdown
+````markdown
 # 一级标题（文档标题，仅一个）
 
 ## 二级标题（章节）
@@ -374,6 +387,7 @@ docs/
 ```语言
 代码块
 ```
+````
 
 - 无序列表项
 - 另一项
@@ -382,11 +396,12 @@ docs/
 2. 另一项
 
 | 列1 | 列2 |
-|-----|-----|
+| --- | --- |
 | 值1 | 值2 |
 
 [链接文本](url)
-```
+
+````
 
 ### 新成员指引
 
@@ -420,7 +435,7 @@ A: 每个 Issue 至少需要：
 
 **Q: PR 提交后 CI 失败怎么办？**
 
-A: 
+A:
 1. 查看 CI 日志定位问题
 2. 本地复现并修复
 3. 推送新的 commit
@@ -435,8 +450,8 @@ git rebase origin/main
 # 解决冲突
 git rebase --continue
 git push -f origin your-branch
-```
+````
 
 ---
 
-*最后更新: 2026-03-27*
+_最后更新: 2026-03-27_
