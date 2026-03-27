@@ -15,7 +15,7 @@ import java.util.UUID;
  * 定时任务实体类
  * 用于定义和管理定时任务的调度配置
  */
-@Entity
+@Entity(name = "AgentScheduledTask")
 @Table(name = "scheduled_task", indexes = {
     @Index(name = "idx_scheduled_task_category", columnList = "category"),
     @Index(name = "idx_scheduled_task_active", columnList = "is_active"),
