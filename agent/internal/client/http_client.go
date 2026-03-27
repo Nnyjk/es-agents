@@ -20,6 +20,9 @@ type HeartbeatRequest struct {
 	Timestamp time.Time `json:"timestamp"`
 	Version   string    `json:"version"`
 	OsType    string    `json:"osType"`
+	CPUUsage  float64   `json:"cpuUsage"`
+	MemUsage  float64   `json:"memUsage"`
+	DiskUsage float64   `json:"diskUsage"`
 }
 
 type AgentTask struct {

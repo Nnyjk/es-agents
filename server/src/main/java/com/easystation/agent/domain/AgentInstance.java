@@ -37,6 +37,12 @@ public class AgentInstance extends PanacheEntityBase {
 
     public LocalDateTime lastHeartbeatTime;
 
+    public Double cpuUsage;
+
+    public Double memoryUsage;
+
+    public Double diskUsage;
+
     @CreationTimestamp
     public LocalDateTime createdAt;
 

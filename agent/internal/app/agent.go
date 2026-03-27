@@ -18,6 +18,9 @@ import (
 	"github.com/easy-station/agent/internal/config"
 	"github.com/easy-station/agent/internal/plugin"
 	"github.com/easy-station/agent/internal/transport"
+	"github.com/shirou/gopsutil/v3/cpu"
+	"github.com/shirou/gopsutil/v3/disk"
+	"github.com/shirou/gopsutil/v3/mem"
 )
 
 type Agent struct {
@@ -141,6 +144,9 @@ func (a *Agent) sendHeartbeat() error {
 		Timestamp: time.Now(),
 		Version:   "0.0.1",
 		OsType:    getOsType(),
+		CPUUsage:  getCPUUsage(),
+		MemUsage:  getMemUsage(),
+		DiskUsage: getDiskUsage(),
 	}
 	return a.WSServer.SendJSON(map[string]interface{}{
 		"protocolVersion": "2.0",
@@ -346,4 +352,36 @@ func (a *Agent) handleFetchLogs() {
 		"type":    "LOG_HISTORY",
 		"content": logs,
 	})
+}
+
+// getCPUUsage returns the CPU usage percentage (0-100)
+func getCPUUsage() float64 {
+	percentages, err := cpu.Percent(time.Second, false)
+	if err != nil || len(percentages) == 0 {
+		return 0
+	}
+	return percentages[0]
+}
+
+// getMemUsage returns the memory usage percentage (0-100)
+func getMemUsage() float64 {
+	vmStat, err := mem.VirtualMemory()
+	if err != nil {
+		return 0
+	}
+	return vmStat.UsedPercent
+}
+
+// getDiskUsage returns the disk usage percentage (0-100) for the root mount
+func getDiskUsage() float64 {
+	// Get usage for root filesystem
+	path := "/"
+	if runtime.GOOS == "windows" {
+		path = "C:"
+	}
+	usage, err := disk.Usage(path)
+	if err != nil {
+		return 0
+	}
+	return usage.UsedPercent
 }
