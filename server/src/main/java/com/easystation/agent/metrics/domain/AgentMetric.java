@@ -44,7 +44,7 @@ public class AgentMetric extends PanacheEntityBase {
     /**
      * 指标值
      */
-    @Column(nullable = false)
+    @Column(name = "metric_value", nullable = false)
     public Double value;
 
     /**
