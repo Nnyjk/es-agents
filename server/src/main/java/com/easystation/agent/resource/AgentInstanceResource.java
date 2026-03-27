@@ -14,6 +14,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Path("/agents/instances")
@@ -83,11 +84,13 @@ public class AgentInstanceResource {
     public Response getTaskHistory(
             @PathParam("id") UUID id,
             @QueryParam("status") AgentTaskStatus status,
-            @QueryParam("startTime") LocalDateTime startTime,
-            @QueryParam("endTime") LocalDateTime endTime,
+            @QueryParam("startTime") String startTime,
+            @QueryParam("endTime") String endTime,
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("20") int size) {
-        return Response.ok(agentInstanceService.queryTaskHistory(id, status, startTime, endTime, page, size)).build();
+        LocalDateTime startDateTime = startTime != null ? LocalDateTime.parse(startTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null;
+        LocalDateTime endDateTime = endTime != null ? LocalDateTime.parse(endTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null;
+        return Response.ok(agentInstanceService.queryTaskHistory(id, status, startDateTime, endDateTime, page, size)).build();
     }
 
     @GET
@@ -96,9 +99,11 @@ public class AgentInstanceResource {
     public Response countTaskHistory(
             @PathParam("id") UUID id,
             @QueryParam("status") AgentTaskStatus status,
-            @QueryParam("startTime") LocalDateTime startTime,
-            @QueryParam("endTime") LocalDateTime endTime) {
-        return Response.ok(agentInstanceService.countTaskHistory(id, status, startTime, endTime)).build();
+            @QueryParam("startTime") String startTime,
+            @QueryParam("endTime") String endTime) {
+        LocalDateTime startDateTime = startTime != null ? LocalDateTime.parse(startTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null;
+        LocalDateTime endDateTime = endTime != null ? LocalDateTime.parse(endTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null;
+        return Response.ok(agentInstanceService.countTaskHistory(id, status, startDateTime, endDateTime)).build();
     }
 
     @GET
