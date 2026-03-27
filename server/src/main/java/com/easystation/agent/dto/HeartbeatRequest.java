@@ -10,5 +10,8 @@ public record HeartbeatRequest(
     AgentStatus status,
     LocalDateTime timestamp,
     String version,
-    String osType
+    String osType,
+    Double cpuUsage,
+    Double memoryUsage,
+    Double diskUsage
 ) {}

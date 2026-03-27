@@ -17,12 +17,18 @@ import com.easystation.agent.dto.AgentInstanceRecord.Update;
 import com.easystation.agent.dto.AgentRuntimeStatus;
 import com.easystation.agent.record.AgentTaskRecord;
 import com.easystation.agent.dto.HeartbeatRequest;
+import com.easystation.alert.enums.AlertEventType;
+import com.easystation.alert.enums.AlertLevel;
+import com.easystation.alert.service.AlertEventService;
 import com.easystation.infra.domain.Host;
 import com.easystation.infra.domain.enums.HostStatus;
+import io.quarkus.scheduler.Scheduled;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,8 +36,14 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @ApplicationScoped
 public class AgentInstanceService {
+
+    @Inject
+    AlertEventService alertEventService;
+
+    private static final long HEARTBEAT_TIMEOUT_SECONDS = 90;
 
     public List<AgentInstanceRecord> list(UUID hostId) {
         String query = "FROM AgentInstance i LEFT JOIN FETCH i.host LEFT JOIN FETCH i.template";
@@ -198,6 +210,15 @@ public class AgentInstanceService {
             instance.lastHeartbeatTime = LocalDateTime.now();
             if (request.version() != null) {
                 instance.version = request.version();
+            }
+            if (request.cpuUsage() != null) {
+                instance.cpuUsage = request.cpuUsage();
+            }
+            if (request.memoryUsage() != null) {
+                instance.memoryUsage = request.memoryUsage();
+            }
+            if (request.diskUsage() != null) {
+                instance.diskUsage = request.diskUsage();
             }
             instance.persist();
         }
@@ -541,5 +562,60 @@ public class AgentInstanceService {
             case OFFLINE -> "Agent offline";
             case ERROR -> "Agent error";
         };
+    }
+
+    /**
+     * 定时检测心跳超时
+     * 连续 90 秒未收到心跳标记为 OFFLINE 并触发 AGENT_OFFLINE 告警
+     */
+    @Scheduled(every = "30s")
+    @Transactional
+    public void checkHeartbeatTimeout() {
+        log.debug("开始检查 Agent 心跳超时...");
+
+        LocalDateTime timeoutThreshold = LocalDateTime.now().minusSeconds(HEARTBEAT_TIMEOUT_SECONDS);
+
+        // 查询所有 ONLINE 或 DEPLOYED 状态的 Agent，且心跳时间超过阈值
+        List<AgentInstance> timeoutAgents = AgentInstance.list(
+            "status in ?1 and lastHeartbeatTime < ?2",
+            List.of(AgentStatus.ONLINE, AgentStatus.DEPLOYED),
+            timeoutThreshold
+        );
+
+        for (AgentInstance instance : timeoutAgents) {
+            try {
+                log.info("Agent [{}] 心跳超时，lastHeartbeatTime={}, 标记为 OFFLINE",
+                    instance.id, instance.lastHeartbeatTime);
+
+                // 更新状态为 OFFLINE
+                instance.status = AgentStatus.OFFLINE;
+                instance.persist();
+
+                // 触发 AGENT_OFFLINE 告警
+                String agentName = instance.template != null ? instance.template.name : "Unknown";
+                String hostName = instance.host != null ? instance.host.name : "Unknown";
+                String message = String.format(
+                    "Agent [%s] on host [%s] heartbeat timeout. Last heartbeat: %s seconds ago.",
+                    agentName,
+                    hostName,
+                    java.time.Duration.between(instance.lastHeartbeatTime, LocalDateTime.now()).getSeconds()
+                );
+
+                alertEventService.trigger(
+                    AlertEventType.AGENT_OFFLINE,
+                    AlertLevel.WARNING,
+                    "Agent Offline: " + agentName,
+                    message,
+                    instance.id,
+                    "AgentInstance",
+                    null // environmentId
+                );
+
+            } catch (Exception e) {
+                log.error("处理 Agent [{}] 心跳超时时发生错误", instance.id, e);
+            }
+        }
+
+        log.debug("Agent 心跳超时检查完成，共检测到 {} 个超时 Agent", timeoutAgents.size());
     }
 }
