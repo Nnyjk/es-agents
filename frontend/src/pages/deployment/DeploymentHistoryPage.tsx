@@ -2,7 +2,6 @@ import React, { useState, useRef } from "react";
 import {
   ProTable,
   ModalForm,
-
   ProFormTextArea,
 } from "@ant-design/pro-components";
 import {
@@ -31,7 +30,6 @@ import {
   getDeploymentHistory,
   getDeploymentHistoryDetail,
   rollbackDeployment,
-
 } from "@/services/deployment";
 import type {
   DeploymentHistory,
@@ -71,7 +69,9 @@ const statusLabels: Record<DeploymentHistoryStatus, string> = {
 const DeploymentHistoryPage: React.FC = () => {
   const [detailDrawerVisible, setDetailDrawerVisible] = useState(false);
   const [rollbackModalVisible, setRollbackModalVisible] = useState(false);
-  const [currentRecord, setCurrentRecord] = useState<DeploymentHistory | null>(null);
+  const [currentRecord, setCurrentRecord] = useState<DeploymentHistory | null>(
+    null,
+  );
   const actionRef = useRef<ActionType>();
 
   const handleDetail = async (record: DeploymentHistory) => {
@@ -122,7 +122,9 @@ const DeploymentHistoryPage: React.FC = () => {
         rolled_back: { text: "已回滚", status: "Warning" },
       },
       render: (_, record) => (
-        <Tag color={statusColors[record.releaseStatus]}>{statusLabels[record.releaseStatus]}</Tag>
+        <Tag color={statusColors[record.releaseStatus]}>
+          {statusLabels[record.releaseStatus]}
+        </Tag>
       ),
     },
     {
@@ -224,16 +226,35 @@ const DeploymentHistoryPage: React.FC = () => {
       <Card style={{ marginBottom: 16 }}>
         <Row gutter={16}>
           <Col span={6}>
-            <Statistic title="总部署次数" value={0} prefix={<HistoryOutlined />} />
+            <Statistic
+              title="总部署次数"
+              value={0}
+              prefix={<HistoryOutlined />}
+            />
           </Col>
           <Col span={6}>
-            <Statistic title="成功" value={0} valueStyle={{ color: "#52c41a" }} prefix={<CheckCircleOutlined />} />
+            <Statistic
+              title="成功"
+              value={0}
+              valueStyle={{ color: "#52c41a" }}
+              prefix={<CheckCircleOutlined />}
+            />
           </Col>
           <Col span={6}>
-            <Statistic title="失败" value={0} valueStyle={{ color: "#ff4d4f" }} prefix={<CloseCircleOutlined />} />
+            <Statistic
+              title="失败"
+              value={0}
+              valueStyle={{ color: "#ff4d4f" }}
+              prefix={<CloseCircleOutlined />}
+            />
           </Col>
           <Col span={6}>
-            <Statistic title="回滚次数" value={0} valueStyle={{ color: "#faad14" }} prefix={<RollbackOutlined />} />
+            <Statistic
+              title="回滚次数"
+              value={0}
+              valueStyle={{ color: "#faad14" }}
+              prefix={<RollbackOutlined />}
+            />
           </Col>
         </Row>
       </Card>
@@ -263,7 +284,11 @@ const DeploymentHistoryPage: React.FC = () => {
           }
         }}
         columns={columns}
-        pagination={{ defaultPageSize: 10, showSizeChanger: true, showQuickJumper: true }}
+        pagination={{
+          defaultPageSize: 10,
+          showSizeChanger: true,
+          showQuickJumper: true,
+        }}
         dateFormatter="string"
       />
 
@@ -271,25 +296,46 @@ const DeploymentHistoryPage: React.FC = () => {
         title="部署详情"
         placement="right"
         width={720}
-        onClose={() => { setDetailDrawerVisible(false); setCurrentRecord(null); }}
+        onClose={() => {
+          setDetailDrawerVisible(false);
+          setCurrentRecord(null);
+        }}
         open={detailDrawerVisible}
       >
         {currentRecord && (
           <Descriptions column={1} bordered size="small">
-            <Descriptions.Item label="发布ID">{currentRecord.releaseId}</Descriptions.Item>
-            <Descriptions.Item label="版本"><Typography.Text code>{currentRecord.version}</Typography.Text></Descriptions.Item>
-            <Descriptions.Item label="状态">
-              <Tag color={statusColors[currentRecord.releaseStatus]}>{statusLabels[currentRecord.releaseStatus]}</Tag>
+            <Descriptions.Item label="发布ID">
+              {currentRecord.releaseId}
             </Descriptions.Item>
-            <Descriptions.Item label="触发类型">{currentRecord.triggerType}</Descriptions.Item>
-            <Descriptions.Item label="操作人">{currentRecord.triggeredBy}</Descriptions.Item>
-            <Descriptions.Item label="开始时间">{currentRecord.startedAt}</Descriptions.Item>
-            <Descriptions.Item label="结束时间">{currentRecord.finishedAt}</Descriptions.Item>
+            <Descriptions.Item label="版本">
+              <Typography.Text code>{currentRecord.version}</Typography.Text>
+            </Descriptions.Item>
+            <Descriptions.Item label="状态">
+              <Tag color={statusColors[currentRecord.releaseStatus]}>
+                {statusLabels[currentRecord.releaseStatus]}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="触发类型">
+              {currentRecord.triggerType}
+            </Descriptions.Item>
+            <Descriptions.Item label="操作人">
+              {currentRecord.triggeredBy}
+            </Descriptions.Item>
+            <Descriptions.Item label="开始时间">
+              {currentRecord.startedAt}
+            </Descriptions.Item>
+            <Descriptions.Item label="结束时间">
+              {currentRecord.finishedAt}
+            </Descriptions.Item>
             {currentRecord.duration && (
-              <Descriptions.Item label="耗时">{currentRecord.duration}秒</Descriptions.Item>
+              <Descriptions.Item label="耗时">
+                {currentRecord.duration}秒
+              </Descriptions.Item>
             )}
             {currentRecord.changeLog && (
-              <Descriptions.Item label="变更日志" span={2}>{currentRecord.changeLog}</Descriptions.Item>
+              <Descriptions.Item label="变更日志" span={2}>
+                {currentRecord.changeLog}
+              </Descriptions.Item>
             )}
           </Descriptions>
         )}
@@ -299,9 +345,14 @@ const DeploymentHistoryPage: React.FC = () => {
         title="确认回滚"
         open={rollbackModalVisible}
         onOpenChange={setRollbackModalVisible}
-        modalProps={{ destroyOnClose: true, onCancel: () => setRollbackModalVisible(false) }}
+        modalProps={{
+          destroyOnClose: true,
+          onCancel: () => setRollbackModalVisible(false),
+        }}
         onFinish={handleRollbackSubmit}
-        submitter={{ searchConfig: { submitText: "确认回滚", resetText: "取消" } }}
+        submitter={{
+          searchConfig: { submitText: "确认回滚", resetText: "取消" },
+        }}
       >
         <ProFormTextArea
           name="reason"

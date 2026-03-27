@@ -332,10 +332,8 @@ export async function getEnvironmentApplications(
 export async function getDeploymentHistory(
   params: DeploymentHistoryQueryParams,
 ): Promise<{ list: DeploymentHistory[]; total: number }> {
-  const result: { data: DeploymentHistory[]; total: number } = await request.get(
-    "/api/deployments/history",
-    { params },
-  );
+  const result: { data: DeploymentHistory[]; total: number } =
+    await request.get("/api/deployments/history", { params });
   // 后端返回 data 字段，转换为前端 list 字段
   return {
     list: result.data || [],
