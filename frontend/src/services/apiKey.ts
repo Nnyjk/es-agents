@@ -11,9 +11,7 @@ import type {
 } from "../pages/settings/ApiKey/types";
 
 // 获取 API Key 列表
-export const listApiKeys = async (
-  params?: ApiKeyQuery,
-): Promise<ApiKey[]> => {
+export const listApiKeys = async (params?: ApiKeyQuery): Promise<ApiKey[]> => {
   return request.get("/v1/api-keys", { params });
 };
 

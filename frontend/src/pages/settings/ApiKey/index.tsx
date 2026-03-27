@@ -37,11 +37,7 @@ import {
   refreshApiKey,
   getApiKeyLogs,
 } from "../../../services/apiKey";
-import type {
-  ApiKey,
-  ApiKeyCreate,
-  ApiKeyUsageLog,
-} from "./types";
+import type { ApiKey, ApiKeyCreate, ApiKeyUsageLog } from "./types";
 import dayjs from "dayjs";
 
 const { Text } = Typography;
@@ -50,7 +46,9 @@ const { TextArea } = Input;
 const ApiKeyList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [editingItem, setEditingItem] = useState<Partial<ApiKey> & { ipWhitelistText?: string } | null>(null);
+  const [editingItem, setEditingItem] = useState<
+    (Partial<ApiKey> & { ipWhitelistText?: string }) | null
+  >(null);
   const [detailVisible, setDetailVisible] = useState(false);
   const [selectedKey, setSelectedKey] = useState<ApiKey | null>(null);
   const [usageLogs, setUsageLogs] = useState<ApiKeyUsageLog[]>([]);
@@ -70,7 +68,7 @@ const ApiKeyList: React.FC = () => {
       tags.push(
         <Tag key="revoked" color="error">
           已吊销
-        </Tag>
+        </Tag>,
       );
     }
 
@@ -78,7 +76,7 @@ const ApiKeyList: React.FC = () => {
       tags.push(
         <Tag key="expired" color="warning">
           已过期
-        </Tag>
+        </Tag>,
       );
     }
 
@@ -86,7 +84,7 @@ const ApiKeyList: React.FC = () => {
       tags.push(
         <Tag key="disabled" color="default">
           已禁用
-        </Tag>
+        </Tag>,
       );
     }
 
@@ -94,11 +92,15 @@ const ApiKeyList: React.FC = () => {
       tags.push(
         <Tag key="valid" color="success">
           有效
-        </Tag>
+        </Tag>,
       );
     }
 
-    return tags.length > 0 ? <Space>{tags}</Space> : <Tag color="default">未知</Tag>;
+    return tags.length > 0 ? (
+      <Space>{tags}</Space>
+    ) : (
+      <Tag color="default">未知</Tag>
+    );
   };
 
   // 处理创建
@@ -107,7 +109,9 @@ const ApiKeyList: React.FC = () => {
       const createData: ApiKeyCreate = {
         name: data.name,
         description: data.description,
-        expiresAt: data.expiresAt ? dayjs(data.expiresAt).toISOString() : undefined,
+        expiresAt: data.expiresAt
+          ? dayjs(data.expiresAt).toISOString()
+          : undefined,
         permissions: data.permissions,
         ipWhitelist: data.ipWhitelist
           ? data.ipWhitelist.split("\n").filter((ip: string) => ip.trim())
@@ -140,7 +144,9 @@ const ApiKeyList: React.FC = () => {
       const updateData = {
         name: data.name,
         description: data.description,
-        expiresAt: data.expiresAt ? dayjs(data.expiresAt).toISOString() : undefined,
+        expiresAt: data.expiresAt
+          ? dayjs(data.expiresAt).toISOString()
+          : undefined,
         enabled: data.enabled,
         permissions: data.permissions,
         ipWhitelist: data.ipWhitelist
@@ -359,7 +365,9 @@ const ApiKeyList: React.FC = () => {
               </div>
             }
             onConfirm={() => {
-              const reasonInput = document.getElementById("revoke-reason") as HTMLTextAreaElement;
+              const reasonInput = document.getElementById(
+                "revoke-reason",
+              ) as HTMLTextAreaElement;
               handleRevoke(record.id, reasonInput?.value || "");
             }}
           >
@@ -433,7 +441,9 @@ const ApiKeyList: React.FC = () => {
       render: (status: number) =>
         status ? (
           <Tag color={status < 400 ? "success" : "error"}>{status}</Tag>
-        ) : "-",
+        ) : (
+          "-"
+        ),
     },
     {
       title: "响应时间",
@@ -447,15 +457,14 @@ const ApiKeyList: React.FC = () => {
       dataIndex: "permissionUsed",
       key: "permissionUsed",
       width: 120,
-      render: (perm: string) => perm ? <Tag>{perm}</Tag> : "-",
+      render: (perm: string) => (perm ? <Tag>{perm}</Tag> : "-"),
     },
     {
       title: "错误信息",
       dataIndex: "errorMessage",
       key: "errorMessage",
       ellipsis: true,
-      render: (msg: string) =>
-        msg ? <Text type="danger">{msg}</Text> : "-",
+      render: (msg: string) => (msg ? <Text type="danger">{msg}</Text> : "-"),
     },
   ];
 
@@ -537,11 +546,7 @@ const ApiKeyList: React.FC = () => {
           <Input placeholder="请输入密钥名称" maxLength={255} />
         </Form.Item>
         <Form.Item name="description" label="描述">
-          <TextArea
-            rows={3}
-            placeholder="请输入描述"
-            maxLength={500}
-          />
+          <TextArea rows={3} placeholder="请输入描述" maxLength={500} />
         </Form.Item>
         <Form.Item name="expiresAt" label="过期时间">
           <DatePicker
@@ -551,11 +556,7 @@ const ApiKeyList: React.FC = () => {
           />
         </Form.Item>
         {editingItem && (
-          <Form.Item
-            name="enabled"
-            label="状态"
-            valuePropName="checked"
-          >
+          <Form.Item name="enabled" label="状态" valuePropName="checked">
             <Switch checkedChildren="启用" unCheckedChildren="禁用" />
           </Form.Item>
         )}
