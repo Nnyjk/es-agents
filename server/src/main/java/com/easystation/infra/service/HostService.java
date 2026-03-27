@@ -1,5 +1,6 @@
 package com.easystation.infra.service;
 
+import com.easystation.agent.domain.AgentInstance;
 import com.easystation.agent.domain.AgentSource;
 import com.easystation.agent.domain.AgentTemplate;
 import com.easystation.agent.domain.enums.OsType;
@@ -21,6 +22,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -87,18 +89,34 @@ public class HostService {
         if (env == null) {
             throw new WebApplicationException("Environment not found", Response.Status.BAD_REQUEST);
         }
-        
+
+        // Generate or use provided identifier
+        String identifier = dto.identifier();
+        if (identifier == null || identifier.isBlank()) {
+            identifier = UUID.randomUUID().toString();
+        }
+
+        // Check identifier uniqueness
+        if (Host.count("identifier = ?1", identifier) > 0) {
+            throw new WebApplicationException("Host with identifier '" + identifier + "' already exists", Response.Status.CONFLICT);
+        }
+
         Host host = new Host();
+        host.setIdentifier(identifier);
         host.setName(dto.name());
         host.setHostname(dto.hostname());
         host.setOs(dto.os());
+        host.setIp(dto.ip());
+        host.setPort(dto.port() != null ? dto.port() : 9090);
         host.setEnvironment(env);
         host.setDescription(dto.description());
+        host.setTags(dto.tags() != null ? dto.tags() : new ArrayList<>());
+        host.setEnabled(true);
         host.setStatus(HostStatus.UNCONNECTED);
         host.setSecretKey(UUID.randomUUID().toString());
         host.setGatewayUrl(dto.gatewayUrl());
         if (dto.listenPort() != null) host.setListenPort(dto.listenPort());
-        
+
         host.persist();
         return toDto(host);
     }
@@ -109,11 +127,23 @@ public class HostService {
         if (host == null) {
             throw new WebApplicationException("Host not found", Response.Status.NOT_FOUND);
         }
-        
+
+        // Check identifier uniqueness if being changed
+        if (dto.identifier() != null && !dto.identifier().equals(host.getIdentifier())) {
+            if (Host.count("identifier = ?1", dto.identifier()) > 0) {
+                throw new WebApplicationException("Host with identifier '" + dto.identifier() + "' already exists", Response.Status.CONFLICT);
+            }
+            host.setIdentifier(dto.identifier());
+        }
+
         if (dto.name() != null) host.setName(dto.name());
         if (dto.hostname() != null) host.setHostname(dto.hostname());
         if (dto.os() != null) host.setOs(dto.os());
+        if (dto.ip() != null) host.setIp(dto.ip());
+        if (dto.port() != null) host.setPort(dto.port());
         if (dto.description() != null) host.setDescription(dto.description());
+        if (dto.tags() != null) host.setTags(dto.tags());
+        if (dto.enabled() != null) host.setEnabled(dto.enabled());
         if (dto.config() != null) host.setConfig(dto.config());
         if (dto.heartbeatInterval() != null) host.setHeartbeatInterval(dto.heartbeatInterval());
         if (dto.gatewayUrl() != null) host.setGatewayUrl(dto.gatewayUrl());
@@ -126,13 +156,27 @@ public class HostService {
             }
             host.setEnvironment(env);
         }
-        
+
         host.persist();
         return toDto(host);
     }
 
     @Transactional
     public void delete(UUID id) {
+        Host host = Host.findById(id);
+        if (host == null) {
+            throw new WebApplicationException("Host not found", Response.Status.NOT_FOUND);
+        }
+
+        // Check for associated AgentInstances
+        long agentInstanceCount = AgentInstance.count("host.id", id);
+        if (agentInstanceCount > 0) {
+            throw new WebApplicationException(
+                "Cannot delete host with " + agentInstanceCount + " associated agent instances",
+                Response.Status.CONFLICT
+            );
+        }
+
         if (!Host.deleteById(id)) {
             throw new WebApplicationException("Host not found", Response.Status.NOT_FOUND);
         }
@@ -303,16 +347,23 @@ public class HostService {
     private HostRecord toDto(Host host) {
         return new HostRecord(
             host.id,
+            host.identifier,
             host.name,
             host.hostname,
             host.os,
             host.cpuInfo,
             host.memInfo,
+            host.ip,
+            host.port,
             host.status,
             host.environment.id,
             host.environment.name,
             host.description,
+            host.tags,
+            host.enabled,
             host.createdAt,
+            host.updatedAt,
+            host.lastSeenAt,
             host.lastHeartbeat,
             host.config,
             host.heartbeatInterval,

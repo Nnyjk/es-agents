@@ -20,10 +20,10 @@ public class SystemSetting extends PanacheEntityBase {
     @GeneratedValue(strategy = GenerationType.UUID)
     public UUID id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "setting_key", unique = true, nullable = false)
     public String key;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "setting_value", columnDefinition = "TEXT")
     public String value;
 
     public String category;

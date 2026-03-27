@@ -11,7 +11,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 import java.util.UUID;
 
-@Path("/infra/hosts")
+@Path("/api/v1/hosts")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class HostResource {
@@ -21,8 +21,8 @@ public class HostResource {
 
     @GET
     @RequiresPermission("host:view")
-    public Response list(@QueryParam("envId") UUID envId) {
-        return Response.ok(hostService.list(envId)).build();
+    public Response list(@QueryParam("environmentId") UUID environmentId) {
+        return Response.ok(hostService.list(environmentId)).build();
     }
 
     @GET
@@ -41,7 +41,7 @@ public class HostResource {
     @PUT
     @Path("/{id}")
     @RequiresPermission("host:edit")
-    public Response update(@PathParam("id") UUID id, HostRecord.Update dto) {
+    public Response update(@PathParam("id") UUID id, @Valid HostRecord.Update dto) {
         return Response.ok(hostService.update(id, dto)).build();
     }
 
@@ -57,6 +57,17 @@ public class HostResource {
     @Path("/{id}/connect")
     @RequiresPermission("host:manage")
     public Response connect(@PathParam("id") UUID id) {
+        hostService.connect(id);
+        return Response.ok().build();
+    }
+
+    /**
+     * Check host reachability - verifies if the host agent is accessible
+     */
+    @POST
+    @Path("/{id}/check")
+    @RequiresPermission("host:view")
+    public Response checkReachability(@PathParam("id") UUID id) {
         hostService.connect(id);
         return Response.ok().build();
     }
