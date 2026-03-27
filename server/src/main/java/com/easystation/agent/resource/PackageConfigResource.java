@@ -10,7 +10,10 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * 打包配置 REST API
@@ -33,17 +36,7 @@ public class PackageConfigResource {
     }
 
     /**
-     * 获取指定类型的打包配置
-     */
-    @GET
-    @Path("/type/{type}")
-    @RequiresPermission("agent:view")
-    public Response listByType(@PathParam("type") PackageType type) {
-        return Response.ok(service.listByType(type)).build();
-    }
-
-    /**
-     * 获取单个打包配置
+     * 获取打包配置详情
      */
     @GET
     @Path("/{id}")
@@ -59,9 +52,7 @@ public class PackageConfigResource {
     @RequiresPermission("agent:create")
     public Response create(@Valid PackageConfigRecord.Create record) {
         PackageConfigRecord created = service.create(record);
-        return Response.status(Response.Status.CREATED)
-            .entity(created)
-            .build();
+        return Response.status(Response.Status.CREATED).entity(created).build();
     }
 
     /**
@@ -86,27 +77,36 @@ public class PackageConfigResource {
     }
 
     /**
-     * 导出打包配置
+     * 获取支持的打包类型列表
      */
     @GET
-    @Path("/{id}/export")
+    @Path("/types")
     @RequiresPermission("agent:view")
-    public Response export(@PathParam("id") UUID id) {
-        return Response.ok(service.export(id))
-            .header("Content-Disposition", "attachment; filename=package-config.json")
-            .build();
+    public Response getTypes() {
+        List<String> types = Arrays.stream(PackageType.values())
+            .map(Enum::name)
+            .collect(Collectors.toList());
+        return Response.ok(types).build();
     }
 
     /**
-     * 导入打包配置
+     * 按类型过滤打包配置列表
      */
-    @POST
-    @Path("/import")
-    @RequiresPermission("agent:create")
-    public Response importConfig(@Valid PackageConfigRecord.Import record) {
-        PackageConfigRecord imported = service.importConfig(record);
-        return Response.status(Response.Status.CREATED)
-            .entity(imported)
-            .build();
+    @GET
+    @Path("/type/{type}")
+    @RequiresPermission("agent:view")
+    public Response listByType(@PathParam("type") PackageType type) {
+        return Response.ok(service.listByType(type)).build();
     }
+
+    /**
+     * 启用/禁用打包配置
+     */
+    @PUT
+    @Path("/{id}/enabled")
+    @RequiresPermission("agent:edit")
+    public Response setEnabled(@PathParam("id") UUID id, @QueryParam("enabled") boolean enabled) {
+        return Response.ok(service.setEnabled(id, enabled)).build();
+    }
+
 }
