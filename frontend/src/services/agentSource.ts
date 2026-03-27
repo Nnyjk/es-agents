@@ -28,14 +28,19 @@ export const getAgentSource = (id: string): Promise<AgentSource> => {
 /**
  * 创建资源来源
  */
-export const createAgentSource = (data: AgentSourceCreate): Promise<AgentSource> => {
+export const createAgentSource = (
+  data: AgentSourceCreate,
+): Promise<AgentSource> => {
   return request.post(BASE_PATH, data);
 };
 
 /**
  * 更新资源来源
  */
-export const updateAgentSource = (id: string, data: AgentSourceUpdate): Promise<AgentSource> => {
+export const updateAgentSource = (
+  id: string,
+  data: AgentSourceUpdate,
+): Promise<AgentSource> => {
   return request.put(`${BASE_PATH}/${id}`, data);
 };
 

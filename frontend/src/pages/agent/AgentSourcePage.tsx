@@ -28,10 +28,7 @@ import {
   queryAgentCredentials,
   queryAgentRepositories,
 } from "../../services/agent";
-import type {
-  AgentSource,
-  AgentSourceType,
-} from "../../types/agent";
+import type { AgentSource, AgentSourceType } from "../../types/agent";
 import type { AgentCredential, AgentRepository } from "../../types";
 import { AgentSourceTypeLabels as sourceTypeLabels } from "../../types/agent";
 
@@ -39,7 +36,7 @@ const AgentSourcePage: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<AgentSource> | null>(
-    null
+    null,
   );
   const [credentials, setCredentials] = useState<AgentCredential[]>([]);
   const [repositories, setRepositories] = useState<AgentRepository[]>([]);
@@ -51,7 +48,10 @@ const AgentSourcePage: React.FC = () => {
     queryAgentRepositories().then(setRepositories).catch(console.error);
   }, []);
 
-  const typeValueEnum: Record<AgentSourceType, { text: string; status: string }> = {
+  const typeValueEnum: Record<
+    AgentSourceType,
+    { text: string; status: string }
+  > = {
     GITLAB: { text: "GitLab 仓库", status: "Processing" },
     MAVEN: { text: "Maven 仓库", status: "Success" },
     NEXTCLOUD: { text: "Nextcloud 仓库", status: "Default" },
@@ -106,7 +106,9 @@ const AgentSourcePage: React.FC = () => {
           >
             {record.config}
           </Typography.Text>
-        ) : "-",
+        ) : (
+          "-"
+        ),
     },
     {
       title: "创建时间",
@@ -237,12 +239,8 @@ const AgentSourcePage: React.FC = () => {
   const handleSave = async (data: Record<string, unknown>): Promise<void> => {
     try {
       const resolvedType = (data.type as AgentSourceType) || editingItem?.type;
-      const repositoryId =
-        data.repositoryId ||
-        editingItem?.repository?.id;
-      const credentialId =
-        data.credentialId ||
-        editingItem?.credential?.id;
+      const repositoryId = data.repositoryId || editingItem?.repository?.id;
+      const credentialId = data.credentialId || editingItem?.credential?.id;
       let config = data.config as string | undefined;
 
       switch (resolvedType) {
@@ -539,7 +537,7 @@ const AgentSourcePage: React.FC = () => {
           // 类型筛选
           if (filterType) {
             filteredData = filteredData.filter(
-              (item) => item.type === filterType
+              (item) => item.type === filterType,
             );
           }
 
@@ -547,7 +545,7 @@ const AgentSourcePage: React.FC = () => {
           if (params.name || searchKeyword) {
             const keyword = params.name || searchKeyword;
             filteredData = filteredData.filter((item) =>
-              item.name.toLowerCase().includes(keyword.toLowerCase())
+              item.name.toLowerCase().includes(keyword.toLowerCase()),
             );
           }
 
