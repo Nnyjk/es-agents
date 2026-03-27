@@ -3,30 +3,39 @@ import axios from "axios";
 import type {
   Host,
   Environment,
+  EnvironmentCreate,
+  EnvironmentUpdate,
   PageParams,
   ListResponse,
   HostInstallGuide,
 } from "../types";
 
-// Environments
+// Environments - using /api/v1/environments
 export const queryEnvironments = async (
   params?: PageParams,
 ): Promise<Environment[] | ListResponse<Environment>> => {
-  // 暂时直接返回列表，如果后端支持分页则返回 ListResponse
-  return request.get("/infra/environments", { params });
+  return request.get("/api/v1/environments", { params });
 };
 
-export const saveEnvironment = (
-  data: Partial<Environment>,
+export const getEnvironment = async (id: string): Promise<Environment> => {
+  return request.get(`/api/v1/environments/${id}`);
+};
+
+export const createEnvironment = async (
+  data: EnvironmentCreate,
 ): Promise<Environment> => {
-  if (data.id) {
-    return request.put(`/infra/environments/${data.id}`, data);
-  }
-  return request.post("/infra/environments", data);
+  return request.post("/api/v1/environments", data);
+};
+
+export const updateEnvironment = async (
+  id: string,
+  data: EnvironmentUpdate,
+): Promise<Environment> => {
+  return request.put(`/api/v1/environments/${id}`, data);
 };
 
 export const removeEnvironment = (id: string): Promise<void> => {
-  return request.delete(`/infra/environments/${id}`);
+  return request.delete(`/api/v1/environments/${id}`);
 };
 
 // Hosts
