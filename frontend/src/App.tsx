@@ -37,6 +37,7 @@ import {
   InstalledPluginsPage,
 } from "./pages/pluginMarketplace";
 import AuditLogList from "./pages/profile/AuditLog";
+import ApiKeyList from "./pages/settings/ApiKey";
 
 const App: React.FC = () => {
   return (
@@ -89,6 +90,9 @@ const App: React.FC = () => {
             <Route path="installed" element={<InstalledPluginsPage />} />
           </Route>
           <Route path="scheduled-tasks" element={<ScheduledTaskList />} />
+          <Route path="settings">
+            <Route path="api-keys" element={<ApiKeyList />} />
+          </Route>
         </Route>
       </Routes>
     </Router>
