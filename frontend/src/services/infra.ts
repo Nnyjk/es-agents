@@ -13,20 +13,20 @@ export const queryEnvironments = async (
   params?: PageParams,
 ): Promise<Environment[] | ListResponse<Environment>> => {
   // 暂时直接返回列表，如果后端支持分页则返回 ListResponse
-  return request.get("/infra/environments", { params });
+  return request.get("/v1/environments", { params });
 };
 
 export const saveEnvironment = (
   data: Partial<Environment>,
 ): Promise<Environment> => {
   if (data.id) {
-    return request.put(`/infra/environments/${data.id}`, data);
+    return request.put(`/v1/environments/${data.id}`, data);
   }
-  return request.post("/infra/environments", data);
+  return request.post("/v1/environments", data);
 };
 
 export const removeEnvironment = (id: string): Promise<void> => {
-  return request.delete(`/infra/environments/${id}`);
+  return request.delete(`/v1/environments/${id}`);
 };
 
 // Hosts
@@ -52,7 +52,7 @@ export const queryHosts = async (
     updatedAt?: string;
   };
 
-  const res = (await request.get("/infra/hosts", { params })) as unknown as
+  const res = (await request.get("/v1/hosts", { params })) as unknown as
     | HostApi[]
     | ListResponse<HostApi>;
   const normalizeHost = (item: HostApi): Host => ({
@@ -101,21 +101,21 @@ export const saveHost = (data: Partial<Host>): Promise<Host> => {
     gatewayUrl: data.gatewayUrl,
   };
   if (data.id) {
-    return request.put(`/infra/hosts/${data.id}`, payload);
+    return request.put(`/v1/hosts/${data.id}`, payload);
   }
-  return request.post("/infra/hosts", payload);
+  return request.post("/v1/hosts", payload);
 };
 
 export const removeHost = (id: string): Promise<void> => {
-  return request.delete(`/infra/hosts/${id}`);
+  return request.delete(`/v1/hosts/${id}`);
 };
 
 export const connectHost = (id: string): Promise<void> => {
-  return request.post(`/infra/hosts/${id}/connect`);
+  return request.post(`/v1/hosts/${id}/connect`);
 };
 
 export const getInstallGuide = (id: string): Promise<HostInstallGuide> => {
-  return request.get(`/infra/hosts/${id}/install-guide`);
+  return request.get(`/v1/hosts/${id}/install-guide`);
 };
 
 /**
@@ -175,7 +175,7 @@ export const downloadHostPackage = async (
 
 // Host package download URL validation and normalization
 const HOST_PACKAGE_DOWNLOAD_API_PATH =
-  /^\/(?:api\/)?infra\/hosts\/[^/]+\/package(?:\?.*)?$/;
+  /^\/(?:api\/)?v1\/hosts\/[^/]+\/package(?:\?.*)?$/;
 
 export const resolveHostPackageDownloadUrl = (downloadUrl: string): string => {
   if (!HOST_PACKAGE_DOWNLOAD_API_PATH.test(downloadUrl)) {
