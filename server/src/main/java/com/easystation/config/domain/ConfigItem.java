@@ -20,10 +20,10 @@ public class ConfigItem extends PanacheEntityBase {
     @GeneratedValue(strategy = GenerationType.UUID)
     public UUID id;
 
-    @Column(nullable = false)
+    @Column(name = "config_key", nullable = false)
     public String key;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "config_value", columnDefinition = "TEXT")
     public String value;
 
     @Column(nullable = false)
@@ -34,6 +34,7 @@ public class ConfigItem extends PanacheEntityBase {
     @Column(name = "environment_id")
     public UUID environmentId;
 
+    @Column(name = "config_group")
     public String group;
 
     @Column(name = "is_encrypted")
