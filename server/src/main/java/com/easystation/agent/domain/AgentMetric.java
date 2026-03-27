@@ -32,13 +32,13 @@ public class AgentMetric extends PanacheEntityBase {
     /**
      * CPU 使用率 (0-100)
      */
-    @Column(precision = 5, scale = 2)
+    @Column(columnDefinition = "DOUBLE PRECISION")
     public Double cpuUsage;
 
     /**
      * 内存使用率 (0-100)
      */
-    @Column(precision = 5, scale = 2)
+    @Column(columnDefinition = "DOUBLE PRECISION")
     public Double memoryUsage;
 
     /**
@@ -54,7 +54,7 @@ public class AgentMetric extends PanacheEntityBase {
     /**
      * 磁盘使用率 (0-100)
      */
-    @Column(precision = 5, scale = 2)
+    @Column(columnDefinition = "DOUBLE PRECISION")
     public Double diskUsage;
 
     /**
@@ -90,19 +90,19 @@ public class AgentMetric extends PanacheEntityBase {
     /**
      * 系统负载 (1分钟)
      */
-    @Column(precision = 8, scale = 2)
+    @Column(columnDefinition = "DOUBLE PRECISION")
     public Double loadAverage1;
 
     /**
      * 系统负载 (5分钟)
      */
-    @Column(precision = 8, scale = 2)
+    @Column(columnDefinition = "DOUBLE PRECISION")
     public Double loadAverage5;
 
     /**
      * 系统负载 (15分钟)
      */
-    @Column(precision = 8, scale = 2)
+    @Column(columnDefinition = "DOUBLE PRECISION")
     public Double loadAverage15;
 
     /**
