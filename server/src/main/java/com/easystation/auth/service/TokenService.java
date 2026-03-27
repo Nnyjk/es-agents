@@ -93,6 +93,25 @@ public class TokenService {
     }
 
     /**
+     * 验证刷新令牌，返回用户ID
+     */
+    @Transactional
+    public String validateRefreshToken(String refreshToken) {
+        String tokenHash = hashToken(refreshToken);
+        RefreshToken stored = RefreshToken.findByTokenHash(tokenHash);
+
+        if (stored == null || !stored.isValid()) {
+            Log.warnf("Invalid or expired refresh token");
+            return null;
+        }
+
+        // 更新最后使用时间
+        stored.lastUsedAt = LocalDateTime.now();
+
+        return stored.user.id.toString();
+    }
+
+    /**
      * 验证并刷新访问令牌
      */
     @Transactional

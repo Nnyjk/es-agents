@@ -56,6 +56,17 @@ public class SessionService {
     }
 
     @Transactional
+    public void invalidateByToken(String token) {
+        Session session = Session.findByToken(token);
+        if (session != null) {
+            session.isActive = false;
+            session.logoutAt = LocalDateTime.now();
+            session.logoutReason = "TOKEN_INVALIDATE";
+            session.persist();
+        }
+    }
+
+    @Transactional
     public void updateActivity(String token) {
         Session session = Session.findByToken(token);
         if (session != null && session.isActive) {

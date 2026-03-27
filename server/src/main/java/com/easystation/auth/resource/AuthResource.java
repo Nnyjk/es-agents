@@ -88,7 +88,7 @@ public class AuthResource {
     @Path("/refresh")
     @PermitAll
     public Response refreshToken(@Valid AuthRecord.RefreshTokenRequest request) {
-        return Response.ok(userRegistrationService.refreshToken(request.getRefreshToken())).build();
+        return Response.ok(userRegistrationService.refreshToken(request.refreshToken())).build();
     }
 
     // ========== 会话管理 ==========
@@ -156,7 +156,7 @@ public class AuthResource {
     public Response forgotPassword(@Valid AuthRecord.ForgotPasswordRequest request,
                                    @Context HttpHeaders headers) {
         String ipAddress = getClientIp(headers);
-        passwordService.initiatePasswordReset(request.getEmail(), ipAddress);
+        passwordService.initiatePasswordReset(request.email(), ipAddress);
         return Response.ok(Map.of("message", "重置链接已发送到邮箱")).build();
     }
 

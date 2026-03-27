@@ -33,18 +33,18 @@ public class PasswordService {
         }
 
         // 验证旧密码
-        if (!passwordUtil.check(request.getOldPassword(), user.password)) {
+        if (!passwordUtil.check(request.oldPassword(), user.password)) {
             throw new WebApplicationException("旧密码错误", 400);
         }
 
         // 验证新密码强度
-        AuthRecord.PasswordStrengthResponse strength = checkPasswordStrength(request.getNewPassword());
+        AuthRecord.PasswordStrengthResponse strength = checkPasswordStrength(request.newPassword());
         if (strength.getScore() < 3) {
             throw new WebApplicationException("新密码强度不足", 400);
         }
 
         // 检查密码历史
-        if (isPasswordInHistory(userId, request.getNewPassword())) {
+        if (isPasswordInHistory(userId, request.newPassword())) {
             throw new WebApplicationException("新密码不能与近期使用过的密码相同", 400);
         }
 
@@ -55,7 +55,7 @@ public class PasswordService {
         history.persist();
 
         // 更新密码
-        user.password = passwordUtil.hash(request.getNewPassword());
+        user.password = passwordUtil.hash(request.newPassword());
         user.passwordChangedAt = LocalDateTime.now();
         user.persist();
 
@@ -69,7 +69,7 @@ public class PasswordService {
         audit.persist();
 
         // 如果需要强制重新登录，使所有会话失效
-        if (Boolean.TRUE.equals(request.getForceRelogin())) {
+        if (Boolean.TRUE.equals(request.forceRelogin())) {
             // Session.invalidateByUserId(userId); // 可选
         }
     }
@@ -108,7 +108,7 @@ public class PasswordService {
 
     @Transactional
     public void resetPassword(AuthRecord.ResetPasswordRequest request, String ipAddress) {
-        PasswordReset reset = PasswordReset.findValidToken(request.getToken());
+        PasswordReset reset = PasswordReset.findValidToken(request.token());
         if (reset == null) {
             throw new WebApplicationException("无效或已过期的重置令牌", 400);
         }
@@ -119,13 +119,13 @@ public class PasswordService {
         }
 
         // 验证密码强度
-        AuthRecord.PasswordStrengthResponse strength = checkPasswordStrength(request.getNewPassword());
+        AuthRecord.PasswordStrengthResponse strength = checkPasswordStrength(request.newPassword());
         if (strength.getScore() < 3) {
             throw new WebApplicationException("密码强度不足", 400);
         }
 
         // 检查密码历史
-        if (isPasswordInHistory(user.id, request.getNewPassword())) {
+        if (isPasswordInHistory(user.id, request.newPassword())) {
             throw new WebApplicationException("新密码不能与近期使用过的密码相同", 400);
         }
 
@@ -136,7 +136,7 @@ public class PasswordService {
         history.persist();
 
         // 更新密码
-        user.password = passwordUtil.hash(request.getNewPassword());
+        user.password = passwordUtil.hash(request.newPassword());
         user.passwordChangedAt = LocalDateTime.now();
         user.persist();
 
@@ -156,34 +156,34 @@ public class PasswordService {
     }
 
     public AuthRecord.PasswordStrengthResponse checkPasswordStrength(String password) {
-        AuthRecord.PasswordStrengthResponse response = new AuthRecord.PasswordStrengthResponse();
-        response.setScore(0);
-        response.setSuggestions(new ArrayList<>());
+        List<String> suggestions = new ArrayList<>();
+        int score = 0;
 
-        if (password.length() >= 8) response.setScore(response.getScore() + 1);
-        if (password.length() >= 12) response.setScore(response.getScore() + 1);
-        if (password.matches(".*[A-Z].*")) response.setScore(response.getScore() + 1);
-        if (password.matches(".*[a-z].*")) response.setScore(response.getScore() + 1);
-        if (password.matches(".*[0-9].*")) response.setScore(response.getScore() + 1);
-        if (password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) response.setScore(response.getScore() + 1);
+        if (password.length() >= 8) score++;
+        if (password.length() >= 12) score++;
+        if (password.matches(".*[A-Z].*")) score++;
+        if (password.matches(".*[a-z].*")) score++;
+        if (password.matches(".*[0-9].*")) score++;
+        if (password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) score++;
 
-        if (password.length() < 8) response.getSuggestions().add("密码长度至少8位");
-        if (!password.matches(".*[A-Z].*")) response.getSuggestions().add("包含大写字母");
-        if (!password.matches(".*[a-z].*")) response.getSuggestions().add("包含小写字母");
-        if (!password.matches(".*[0-9].*")) response.getSuggestions().add("包含数字");
-        if (!password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) response.getSuggestions().add("包含特殊字符");
+        if (password.length() < 8) suggestions.add("密码长度至少8位");
+        if (!password.matches(".*[A-Z].*")) suggestions.add("包含大写字母");
+        if (!password.matches(".*[a-z].*")) suggestions.add("包含小写字母");
+        if (!password.matches(".*[0-9].*")) suggestions.add("包含数字");
+        if (!password.matches(".*[!@#$%^&*(),.?\":{}|<>].*")) suggestions.add("包含特殊字符");
 
         // 设置强度等级
-        if (response.getScore() <= 2) {
-            response.setLevel("弱");
-        } else if (response.getScore() <= 4) {
-            response.setLevel("中");
+        String level;
+        if (score <= 2) {
+            level = "弱";
+        } else if (score <= 4) {
+            level = "中";
         } else {
-            response.setLevel("强");
+            level = "强";
         }
 
-        response.setIsValid(response.getScore() >= 3);
-        return response;
+        boolean isValid = score >= 3;
+        return new AuthRecord.PasswordStrengthResponse(score, level, suggestions, isValid);
     }
 
     private boolean isPasswordInHistory(UUID userId, String newPassword) {
