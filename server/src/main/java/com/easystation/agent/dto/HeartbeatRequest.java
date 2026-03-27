@@ -3,6 +3,7 @@ package com.easystation.agent.dto;
 import com.easystation.agent.domain.enums.AgentStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record HeartbeatRequest(
@@ -13,5 +14,6 @@ public record HeartbeatRequest(
     String osType,
     Double cpuUsage,
     Double memoryUsage,
-    Double diskUsage
+    Double diskUsage,
+    List<PluginInfoDTO> plugins
 ) {}
