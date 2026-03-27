@@ -10,7 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "DeploymentPipelineExecution")
 @Table(name = "deployment_pipeline_execution")
 @Getter
 @Setter
