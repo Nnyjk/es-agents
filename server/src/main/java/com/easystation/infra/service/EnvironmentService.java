@@ -21,6 +21,14 @@ public class EnvironmentService {
             .toList();
     }
 
+    public EnvironmentRecord get(UUID id) {
+        Environment env = Environment.findById(id);
+        if (env == null) {
+            throw new WebApplicationException("Environment not found", Response.Status.NOT_FOUND);
+        }
+        return toDto(env);
+    }
+
     @Transactional
     public EnvironmentRecord create(EnvironmentRecord.Create dto) {
         if (Environment.count("code = ?1 or name = ?2", dto.code(), dto.name()) > 0) {
