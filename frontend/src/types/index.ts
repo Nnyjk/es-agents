@@ -423,3 +423,6 @@ export * from "./audit";
 
 // 命令执行相关类型（新 API）
 export * from "./command";
+
+// 批量操作相关类型
+export * from "./batch";

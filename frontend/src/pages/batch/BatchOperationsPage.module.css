@@ -1,0 +1,14 @@
+.batchPage {
+  padding: 24px;
+}
+
+.filterBar {
+  margin-bottom: 16px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.tableCard {
+  margin-top: 16px;
+}

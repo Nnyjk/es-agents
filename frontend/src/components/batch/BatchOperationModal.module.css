@@ -1,0 +1,40 @@
+.configContent {
+  padding: 16px 0;
+}
+
+.progressContent {
+  padding: 16px 0;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.progressInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.progressStats {
+  display: flex;
+  gap: 16px;
+}
+
+.successCount {
+  color: #52c41a;
+}
+
+.failedCount {
+  color: #ff4d4f;
+}
+
+.progressBar {
+  margin-bottom: 16px;
+}

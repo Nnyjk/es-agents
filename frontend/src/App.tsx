@@ -45,6 +45,7 @@ import NotificationTemplatesList from "./pages/settings/NotificationTemplates";
 import NotificationHistoryList from "./pages/settings/NotificationHistory";
 import CommandTemplatePage from "./pages/command/CommandTemplatePage";
 import { ConfigPage } from "./pages/config";
+import { BatchOperationsPage, BatchOperationDetailPage } from "./pages/batch";
 
 const App: React.FC = () => {
   return (
@@ -101,6 +102,10 @@ const App: React.FC = () => {
           <Route path="scheduled-tasks" element={<ScheduledTaskList />} />
           <Route path="command-templates" element={<CommandTemplatePage />} />
           <Route path="configs" element={<ConfigPage />} />
+          <Route path="batch">
+            <Route index element={<BatchOperationsPage />} />
+            <Route path=":id" element={<BatchOperationDetailPage />} />
+          </Route>
           <Route path="settings">
             <Route path="api-keys" element={<ApiKeyList />} />
             <Route
