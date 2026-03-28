@@ -5,7 +5,11 @@ import type {
 } from "../NotificationChannels/types";
 
 // Re-export types for convenience
-export type { NotificationStatus, NotificationHistory, NotificationHistoryQuery };
+export type {
+  NotificationStatus,
+  NotificationHistory,
+  NotificationHistoryQuery,
+};
 
 // Notification Status Labels
 export const NotificationStatusLabels: Record<NotificationStatus, string> = {
