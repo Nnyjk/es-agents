@@ -47,6 +47,8 @@ import type {
   LogLevel,
   CommandExecutionRecord,
 } from "../../types/agentMonitoring";
+import { AgentStatusDisplay } from "../../components/agent";
+import type { AgentStatus } from "../../components/agent/types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/zh-cn";
@@ -58,26 +60,6 @@ const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
 const { TabPane } = Tabs;
 const { RangePicker } = DatePicker;
-
-/**
- * 获取 Agent 状态标签
- */
-const getAgentStatusTag = (status: string) => {
-  const statusConfig: Record<string, { color: string; text: string }> = {
-    ONLINE: { color: "success", text: "在线" },
-    OFFLINE: { color: "default", text: "离线" },
-    ERROR: { color: "error", text: "异常" },
-    DEPLOYING: { color: "processing", text: "部署中" },
-    DEPLOYED: { color: "success", text: "已部署" },
-    PREPARING: { color: "processing", text: "准备中" },
-    READY: { color: "success", text: "就绪" },
-    PACKAGING: { color: "processing", text: "打包中" },
-    PACKAGED: { color: "success", text: "已打包" },
-    UNCONFIGURED: { color: "default", text: "未配置" },
-  };
-  const config = statusConfig[status] || { color: "default", text: status };
-  return <Tag color={config.color}>{config.text}</Tag>;
-};
 
 /**
  * 获取任务状态标签
@@ -577,7 +559,11 @@ const AgentDetailModal: React.FC<{
                   <Text copyable>{instance.id}</Text>
                 </Descriptions.Item>
                 <Descriptions.Item label="状态">
-                  {getAgentStatusTag(instance.status)}
+                  <AgentStatusDisplay
+                    status={instance.status as AgentStatus}
+                    mode="tag"
+                    showIcon
+                  />
                 </Descriptions.Item>
                 <Descriptions.Item label="主机 ID">
                   <Text copyable>{instance.hostId}</Text>
@@ -704,7 +690,14 @@ const AgentInstancePage: React.FC = () => {
       dataIndex: "status",
       key: "status",
       width: 100,
-      render: (status: string) => getAgentStatusTag(status),
+      render: (status: string) => (
+        <AgentStatusDisplay
+          status={status as AgentStatus}
+          mode="tag"
+          showIcon={false}
+          size="small"
+        />
+      ),
     },
     {
       title: "版本",

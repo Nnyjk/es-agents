@@ -13,6 +13,7 @@ import {
 } from "../../services/agent";
 import { queryHosts } from "../../services/infra";
 import type { AgentInstance, Host, AgentTemplate } from "../../types";
+import { AgentStatusDisplay } from "../../components/agent";
 
 const AgentList: React.FC = () => {
   const actionRef = useRef<ActionType>();
@@ -59,11 +60,21 @@ const AgentList: React.FC = () => {
     {
       title: "状态",
       dataIndex: "status",
-      valueEnum: {
-        OFFLINE: { text: "离线", status: "Default" },
-        ONLINE: { text: "在线", status: "Success" },
-        BUSY: { text: "繁忙", status: "Processing" },
-        UNCONFIGURED: { text: "未配置", status: "Warning" },
+      render: (_, record) => {
+        // 映射旧状态到新状态枚举
+        const statusMap: Record<string, string> = {
+          EXCEPTION: "ERROR",
+          BUSY: "ONLINE",
+        };
+        const mappedStatus = statusMap[record.status] || record.status;
+        return (
+          <AgentStatusDisplay
+            status={mappedStatus as any}
+            mode="tag"
+            showIcon={false}
+            size="small"
+          />
+        );
       },
     },
     {
