@@ -3,6 +3,7 @@
 ## 需求分析
 
 实现批量操作能力，提升运维效率：
+
 1. 批量选择主机/Agent 执行命令
 2. 批量部署 Agent 到多台主机
 3. 批量升级 Agent 版本
@@ -21,13 +22,13 @@ public class BatchOperationRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    
+
     private String operationType; // BATCH_COMMAND, BATCH_DEPLOY, BATCH_UPGRADE
     private String status; // PENDING, RUNNING, PARTIAL_SUCCESS, SUCCESS, FAILED
     private UUID operatorId;
     private LocalDateTime createdAt;
     private LocalDateTime completedAt;
-    
+
     @OneToMany(mappedBy = "batchOperation")
     private List<BatchOperationItemRecord> items;
 }
@@ -38,11 +39,11 @@ public class BatchOperationItemRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    
+
     @ManyToOne
     @JoinColumn(name = "batch_operation_id")
     private BatchOperationRecord batchOperation;
-    
+
     private UUID targetId; // hostId or agentId
     private String targetType; // HOST, AGENT
     private String status; // PENDING, RUNNING, SUCCESS, FAILED
@@ -68,19 +69,19 @@ public class BatchOperationResource {
     @POST
     @Path("/commands")
     public Response batchExecuteCommand(@Valid BatchCommandRequest request);
-    
+
     @POST
     @Path("/deploy")
     public Response batchDeploy(@Valid BatchDeployRequest request);
-    
+
     @POST
     @Path("/upgrade")
     public Response batchUpgrade(@Valid BatchUpgradeRequest request);
-    
+
     @GET
     @Path("/{id}")
     public Response getOperationStatus(@PathParam("id") UUID id);
-    
+
     @GET
     public Response listOperations(@QueryParam("page") int page, @QueryParam("size") int size);
 }
@@ -93,8 +94,8 @@ public class BatchOperationResource {
 ```typescript
 interface BatchOperation {
   id: string;
-  operationType: 'BATCH_COMMAND' | 'BATCH_DEPLOY' | 'BATCH_UPGRADE';
-  status: 'PENDING' | 'RUNNING' | 'PARTIAL_SUCCESS' | 'SUCCESS' | 'FAILED';
+  operationType: "BATCH_COMMAND" | "BATCH_DEPLOY" | "BATCH_UPGRADE";
+  status: "PENDING" | "RUNNING" | "PARTIAL_SUCCESS" | "SUCCESS" | "FAILED";
   createdAt: string;
   completedAt?: string;
   totalItems: number;
@@ -106,15 +107,15 @@ interface BatchOperationItem {
   id: string;
   targetId: string;
   targetName: string;
-  targetType: 'HOST' | 'AGENT';
-  status: 'PENDING' | 'RUNNING' | 'SUCCESS' | 'FAILED';
+  targetType: "HOST" | "AGENT";
+  status: "PENDING" | "RUNNING" | "SUCCESS" | "FAILED";
   errorMessage?: string;
 }
 ```
 
 #### 2. 服务层 (`services/batch.ts`)
 
-- `batchExecuteCommand(hostIds, command)` 
+- `batchExecuteCommand(hostIds, command)`
 - `batchDeploy(agentIds, deployConfig)`
 - `batchUpgrade(agentIds, version)`
 - `getBatchOperationStatus(id)`
@@ -136,11 +137,13 @@ interface BatchOperationItem {
 ## 实现步骤
 
 ### Step 1: 后端实体创建
+
 - [ ] 创建 `BatchOperationRecord.java`
 - [ ] 创建 `BatchOperationItemRecord.java`
 - [ ] 添加数据库迁移脚本
 
 ### Step 2: 后端服务实现
+
 - [ ] 创建 `BatchOperationService.java`
 - [ ] 实现批量命令执行逻辑
 - [ ] 实现批量部署逻辑
@@ -148,20 +151,24 @@ interface BatchOperationItem {
 - [ ] 添加异步任务处理
 
 ### Step 3: 后端 API 实现
+
 - [ ] 创建 `BatchOperationResource.java`
 - [ ] 创建请求/响应 DTO
 - [ ] 添加权限控制
 
 ### Step 4: 前端类型和服务
+
 - [ ] 创建 `types/batch.ts`
 - [ ] 创建 `services/batch.ts`
 
 ### Step 5: 前端组件和页面
+
 - [ ] 创建 `BatchOperationModal.tsx`
 - [ ] 创建 `BatchOperationsPage.tsx`
 - [ ] 集成到路由
 
 ### Step 6: 测试
+
 - [ ] 后端单元测试
 - [ ] 前端集成测试
 - [ ] 手动测试批量操作
