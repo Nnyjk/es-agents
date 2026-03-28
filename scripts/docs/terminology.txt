@@ -1,0 +1,29 @@
+# ESA 项目术语表
+# 格式：标准术语 | 常见错误写法 | 说明
+
+## 核心概念
+Environment | env, 环境 | 部署环境，包含多个 Host
+Host | machine, 服务器，主机 | 被管理的目标机器
+Agent | plugin, 插件，代理 | 部署在 Host 上的执行单元
+Deployment | deploy, 发布，部署任务 | 将 Agent 部署到 Environment 的过程
+
+## 技术术语
+Server | backend, 后端 | Quarkus 应用服务器
+Frontend | UI, 前端 | React 应用
+API | interface, 接口 | REST API 端点
+Job | task, 任务 | 异步执行的工作单元
+Export | export task, 导出 | 数据导出任务
+
+## 状态术语
+pending | waiting, 等待中 | 任务等待执行
+running | executing, 执行中 | 任务正在执行
+completed | done, 已完成 | 任务成功完成
+failed | error, 失败 | 任务执行失败
+cancelled | canceled, 已取消 | 任务被取消
+
+## 文件与目录
+scripts/ | bin/, tools/ | 脚本工具目录
+docs/ | documentation/ | 文档目录
+server/ | backend/ | Server 模块
+frontend/ | ui/, web/ | Frontend 模块
+agent/ | plugin/ | Agent 模块
