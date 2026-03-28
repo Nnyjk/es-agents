@@ -32,6 +32,7 @@ import SystemSettings from "./pages/system/Settings";
 import DeploymentPage from "./pages/deployment";
 import { ProfilePage } from "./pages/profile";
 import { AgentMonitorPage, AgentInstancePage } from "./pages/agentMonitoring";
+import { TemplateWizard } from "./pages/templates";
 import ScheduledTaskList from "./pages/scheduledTask";
 import {
   PluginMarketPage,
@@ -55,6 +56,7 @@ const App: React.FC = () => {
             <Route path=":id" element={<AgentDetail />} />
             <Route path="instances" element={<AgentList />} />
             <Route path="templates" element={<AgentTemplateList />} />
+            <Route path="templates/new" element={<TemplateWizard />} />
             <Route path="commands" element={<AgentCommandList />} />
             <Route path="resources" element={<AgentResourceList />} />
             <Route path="credentials" element={<AgentCredentialList />} />

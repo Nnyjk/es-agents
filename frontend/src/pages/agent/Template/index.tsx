@@ -5,7 +5,9 @@ import {
   ExportOutlined,
   EyeOutlined,
   CodeOutlined,
+  RocketOutlined,
 } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import {
@@ -71,6 +73,7 @@ const OS_TYPE_MAP: Record<OsType, string> = {
 };
 
 const AgentTemplateList: React.FC = () => {
+  const navigate = useNavigate();
   const actionRef = useRef<ActionType>();
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<AgentTemplate> | null>(
@@ -216,6 +219,14 @@ const AgentTemplateList: React.FC = () => {
     }
   };
 
+  // 创建实例向导
+  const handleCreateInstance = (templateId?: string) => {
+    const url = templateId
+      ? `/agents/templates/new?templateId=${templateId}`
+      : "/agents/templates/new";
+    navigate(url);
+  };
+
   const columns: ProColumns<AgentTemplate>[] = [
     {
       title: "模板名称",
@@ -296,9 +307,12 @@ const AgentTemplateList: React.FC = () => {
     {
       title: "操作",
       valueType: "option",
-      width: 200,
+      width: 250,
       fixed: "right",
       render: (_text, record) => [
+        <a key="create" onClick={() => handleCreateInstance(record.id)}>
+          <RocketOutlined /> 创建实例
+        </a>,
         <a key="preview" onClick={() => handlePreview(record.id)}>
           <EyeOutlined /> 预览
         </a>,
@@ -330,8 +344,15 @@ const AgentTemplateList: React.FC = () => {
         actionRef={actionRef}
         rowKey="id"
         search={{ labelWidth: 120 }}
-        scroll={{ x: 1400 }}
+        scroll={{ x: 1450 }}
         toolBarRender={() => [
+          <Button
+            key="create-instance"
+            icon={<RocketOutlined />}
+            onClick={() => handleCreateInstance()}
+          >
+            创建实例
+          </Button>,
           <Upload
             key="import"
             accept=".json"
