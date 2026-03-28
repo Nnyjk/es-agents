@@ -137,7 +137,7 @@ func (d *Deployer) deployLocal(ctx context.Context, config *DeploymentConfig) Ho
 	if err := os.MkdirAll(config.DeployDir, 0755); err != nil {
 		result.Status = DeploymentStatusFailed
 		result.FinishedAt = time.Now()
-		result.Error = fmt.Sprintf("failed to create deploy directory: %w", err)
+		result.Error = fmt.Sprintf("failed to create deploy directory: %v", err)
 		return result
 	}
 
@@ -154,7 +154,7 @@ func (d *Deployer) deployLocal(ctx context.Context, config *DeploymentConfig) Ho
 		if err := d.executeCommand(ctx, config.PreDeployCmd, config.DeployDir, config.Timeout); err != nil {
 			result.Status = DeploymentStatusFailed
 			result.FinishedAt = time.Now()
-			result.Error = fmt.Sprintf("pre-deploy command failed: %w", err)
+			result.Error = fmt.Sprintf("pre-deploy command failed: %v", err)
 			return result
 		}
 	}
@@ -163,7 +163,7 @@ func (d *Deployer) deployLocal(ctx context.Context, config *DeploymentConfig) Ho
 	if err := d.extractPackage(config.PackagePath, config.DeployDir); err != nil {
 		result.Status = DeploymentStatusFailed
 		result.FinishedAt = time.Now()
-		result.Error = fmt.Sprintf("package extraction failed: %w", err)
+		result.Error = fmt.Sprintf("package extraction failed: %v", err)
 		return result
 	}
 
@@ -172,7 +172,7 @@ func (d *Deployer) deployLocal(ctx context.Context, config *DeploymentConfig) Ho
 		if err := d.executeCommand(ctx, config.PostDeployCmd, config.DeployDir, config.Timeout); err != nil {
 			result.Status = DeploymentStatusFailed
 			result.FinishedAt = time.Now()
-			result.Error = fmt.Sprintf("post-deploy command failed: %w", err)
+			result.Error = fmt.Sprintf("post-deploy command failed: %v", err)
 			return result
 		}
 	}
@@ -182,7 +182,7 @@ func (d *Deployer) deployLocal(ctx context.Context, config *DeploymentConfig) Ho
 		if err := d.executeCommand(ctx, config.StartCmd, config.DeployDir, config.Timeout); err != nil {
 			result.Status = DeploymentStatusFailed
 			result.FinishedAt = time.Now()
-			result.Error = fmt.Sprintf("start command failed: %w", err)
+			result.Error = fmt.Sprintf("start command failed: %v", err)
 			return result
 		}
 	}

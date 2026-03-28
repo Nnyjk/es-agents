@@ -1,0 +1,80 @@
+.container {
+  padding: 0 24px;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.title {
+  margin-bottom: 8px !important;
+}
+
+.subtitle {
+  display: block;
+  margin-bottom: 24px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 992px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.goalCard {
+  height: 100%;
+  text-align: center;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.goalCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.iconWrapper {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.cardDescription {
+  color: rgba(0, 0, 0, 0.45);
+  margin-bottom: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.actionText {
+  display: inline-block;
+  padding: 4px 16px;
+  background-color: #f0f5ff;
+  border-radius: 4px;
+  color: #1890ff;
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+
+.goalCard:hover .actionText {
+  background-color: #1890ff;
+  color: #fff;
+}
