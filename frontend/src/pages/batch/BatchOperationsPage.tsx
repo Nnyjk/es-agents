@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Tag,
-  Space,
-  Button,
-  message,
-  Tooltip,
-} from "antd";
+import { Tag, Space, Button, message, Tooltip } from "antd";
 import {
   PlusOutlined,
   EyeOutlined,
@@ -150,11 +144,7 @@ const BatchOperationsPage: React.FC = () => {
       title: "目标数量",
       dataIndex: "totalItems",
       width: 100,
-      render: (_, record) => (
-        <span>
-          {record.totalItems} 个
-        </span>
-      ),
+      render: (_, record) => <span>{record.totalItems} 个</span>,
     },
     {
       title: "成功/失败",
@@ -171,7 +161,8 @@ const BatchOperationsPage: React.FC = () => {
       title: "创建时间",
       dataIndex: "createdAt",
       width: 180,
-      render: (_, record) => dayjs(record.createdAt).format("YYYY-MM-DD HH:mm:ss"),
+      render: (_, record) =>
+        dayjs(record.createdAt).format("YYYY-MM-DD HH:mm:ss"),
       sorter: true,
     },
     {
@@ -235,7 +226,10 @@ const BatchOperationsPage: React.FC = () => {
           },
         }}
         onChange={(_, tableFilters) => {
-          const newFilters: { operationType?: BatchOperationType; status?: BatchOperationStatus } = {};
+          const newFilters: {
+            operationType?: BatchOperationType;
+            status?: BatchOperationStatus;
+          } = {};
           if (tableFilters.operationType) {
             const values = tableFilters.operationType as string[];
             if (values.length > 0) {

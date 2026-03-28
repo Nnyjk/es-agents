@@ -91,7 +91,10 @@ const BatchOperationDetailPage: React.FC = () => {
       setItems(itemsData);
 
       // Start polling if operation is running
-      if (operationData.status === "PENDING" || operationData.status === "RUNNING") {
+      if (
+        operationData.status === "PENDING" ||
+        operationData.status === "RUNNING"
+      ) {
         setPolling(true);
       }
     } catch (error) {
@@ -118,7 +121,10 @@ const BatchOperationDetailPage: React.FC = () => {
         const itemsData = await getBatchOperationItems(id);
         setItems(itemsData);
 
-        if (operationData.status !== "PENDING" && operationData.status !== "RUNNING") {
+        if (
+          operationData.status !== "PENDING" &&
+          operationData.status !== "RUNNING"
+        ) {
           setPolling(false);
           clearInterval(interval);
         }
@@ -157,7 +163,7 @@ const BatchOperationDetailPage: React.FC = () => {
       dataIndex: "targetType",
       key: "targetType",
       width: 100,
-      render: (type: string) => type === "HOST" ? "主机" : "Agent",
+      render: (type: string) => (type === "HOST" ? "主机" : "Agent"),
     },
     {
       title: "状态",
@@ -165,9 +171,7 @@ const BatchOperationDetailPage: React.FC = () => {
       key: "status",
       width: 100,
       render: (status: BatchOperationItemStatus) => (
-        <Tag color={itemStatusColors[status]}>
-          {itemStatusLabels[status]}
-        </Tag>
+        <Tag color={itemStatusColors[status]}>{itemStatusLabels[status]}</Tag>
       ),
     },
     {
@@ -175,14 +179,16 @@ const BatchOperationDetailPage: React.FC = () => {
       dataIndex: "startedAt",
       key: "startedAt",
       width: 180,
-      render: (time: string) => time ? dayjs(time).format("YYYY-MM-DD HH:mm:ss") : "-",
+      render: (time: string) =>
+        time ? dayjs(time).format("YYYY-MM-DD HH:mm:ss") : "-",
     },
     {
       title: "完成时间",
       dataIndex: "completedAt",
       key: "completedAt",
       width: 180,
-      render: (time: string) => time ? dayjs(time).format("YYYY-MM-DD HH:mm:ss") : "-",
+      render: (time: string) =>
+        time ? dayjs(time).format("YYYY-MM-DD HH:mm:ss") : "-",
     },
     {
       title: "错误信息",
@@ -250,9 +256,7 @@ const BatchOperationDetailPage: React.FC = () => {
               {statusLabels[operation.status]}
             </Tag>
           </Descriptions.Item>
-          <Descriptions.Item label="操作ID">
-            {operation.id}
-          </Descriptions.Item>
+          <Descriptions.Item label="操作ID">{operation.id}</Descriptions.Item>
           <Descriptions.Item label="目标总数">
             {operation.totalItems} 个
           </Descriptions.Item>

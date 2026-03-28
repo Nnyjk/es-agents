@@ -118,13 +118,14 @@ export const BatchOperationTypeLabels: Record<BatchOperationType, string> = {
 /**
  * 批量操作状态显示名称映射
  */
-export const BatchOperationStatusLabels: Record<BatchOperationStatus, string> = {
-  PENDING: "待执行",
-  RUNNING: "执行中",
-  PARTIAL_SUCCESS: "部分成功",
-  SUCCESS: "成功",
-  FAILED: "失败",
-};
+export const BatchOperationStatusLabels: Record<BatchOperationStatus, string> =
+  {
+    PENDING: "待执行",
+    RUNNING: "执行中",
+    PARTIAL_SUCCESS: "部分成功",
+    SUCCESS: "成功",
+    FAILED: "失败",
+  };
 
 /**
  * 批量操作项状态显示名称映射
@@ -142,13 +143,14 @@ export const BatchOperationItemStatusLabels: Record<
 /**
  * 批量操作状态颜色映射
  */
-export const BatchOperationStatusColors: Record<BatchOperationStatus, string> = {
-  PENDING: "default",
-  RUNNING: "processing",
-  PARTIAL_SUCCESS: "warning",
-  SUCCESS: "success",
-  FAILED: "error",
-};
+export const BatchOperationStatusColors: Record<BatchOperationStatus, string> =
+  {
+    PENDING: "default",
+    RUNNING: "processing",
+    PARTIAL_SUCCESS: "warning",
+    SUCCESS: "success",
+    FAILED: "error",
+  };
 
 /**
  * 批量操作项状态颜色映射

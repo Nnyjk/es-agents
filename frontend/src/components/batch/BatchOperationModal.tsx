@@ -52,7 +52,11 @@ interface BatchOperationModalProps {
   onSuccess?: (operation: BatchOperation) => void;
 }
 
-const operationTypes: { value: BatchOperationType; label: string; icon: React.ReactNode }[] = [
+const operationTypes: {
+  value: BatchOperationType;
+  label: string;
+  icon: React.ReactNode;
+}[] = [
   { value: "BATCH_COMMAND", label: "批量命令执行", icon: <CodeOutlined /> },
   { value: "BATCH_DEPLOY", label: "批量部署", icon: <CloudServerOutlined /> },
   { value: "BATCH_UPGRADE", label: "批量升级", icon: <UploadOutlined /> },
@@ -94,13 +98,17 @@ const BatchOperationModal: React.FC<BatchOperationModalProps> = ({
   onSuccess,
 }) => {
   const [form] = Form.useForm();
-  const [operationType, setOperationType] = useState<BatchOperationType>("BATCH_COMMAND");
+  const [operationType, setOperationType] =
+    useState<BatchOperationType>("BATCH_COMMAND");
   const [hosts, setHosts] = useState<Host[]>([]);
   const [agents, setAgents] = useState<AgentInstance[]>([]);
   const [selectedTargets, setSelectedTargets] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [currentOperation, setCurrentOperation] = useState<BatchOperation | null>(null);
-  const [operationItems, setOperationItems] = useState<BatchOperationItem[]>([]);
+  const [currentOperation, setCurrentOperation] =
+    useState<BatchOperation | null>(null);
+  const [operationItems, setOperationItems] = useState<BatchOperationItem[]>(
+    [],
+  );
   const [polling, setPolling] = useState(false);
   const [activeTab, setActiveTab] = useState<"config" | "progress">("config");
 
@@ -108,11 +116,15 @@ const BatchOperationModal: React.FC<BatchOperationModalProps> = ({
   useEffect(() => {
     if (open) {
       queryHosts().then((res) => {
-        const hostList = Array.isArray(res) ? res : (res as ListResponse<Host>).data || [];
+        const hostList = Array.isArray(res)
+          ? res
+          : (res as ListResponse<Host>).data || [];
         setHosts(hostList);
       });
       queryAgentInstances().then((res) => {
-        const agentList = Array.isArray(res) ? res : (res as ListResponse<AgentInstance>).data || [];
+        const agentList = Array.isArray(res)
+          ? res
+          : (res as ListResponse<AgentInstance>).data || [];
         setAgents(agentList);
       });
     }
@@ -133,8 +145,13 @@ const BatchOperationModal: React.FC<BatchOperationModalProps> = ({
         if (operation.status !== "PENDING" && operation.status !== "RUNNING") {
           setPolling(false);
           clearInterval(interval);
-          if (operation.status === "SUCCESS" || operation.status === "PARTIAL_SUCCESS") {
-            message.success(`批量操作完成: ${operation.successCount} 成功, ${operation.failedCount} 失败`);
+          if (
+            operation.status === "SUCCESS" ||
+            operation.status === "PARTIAL_SUCCESS"
+          ) {
+            message.success(
+              `批量操作完成: ${operation.successCount} 成功, ${operation.failedCount} 失败`,
+            );
           } else {
             message.error("批量操作失败");
           }
@@ -221,7 +238,8 @@ const BatchOperationModal: React.FC<BatchOperationModalProps> = ({
 
   const getProgressPercent = () => {
     if (!currentOperation) return 0;
-    const completed = currentOperation.successCount + currentOperation.failedCount;
+    const completed =
+      currentOperation.successCount + currentOperation.failedCount;
     return Math.round((completed / currentOperation.totalItems) * 100);
   };
 
@@ -247,18 +265,16 @@ const BatchOperationModal: React.FC<BatchOperationModalProps> = ({
 
         <Form.Item
           name="targets"
-          label={
-            operationType === "BATCH_COMMAND"
-              ? "目标主机"
-              : "目标 Agent"
-          }
+          label={operationType === "BATCH_COMMAND" ? "目标主机" : "目标 Agent"}
           rules={[{ required: true, message: "请选择目标" }]}
         >
           <Transfer
             dataSource={getTargetOptions()}
             titles={["可选", "已选"]}
             targetKeys={selectedTargets}
-            onChange={(targetKeys) => setSelectedTargets(targetKeys as string[])}
+            onChange={(targetKeys) =>
+              setSelectedTargets(targetKeys as string[])
+            }
             render={(item) => item.title}
             listStyle={{
               width: 250,
@@ -277,10 +293,7 @@ const BatchOperationModal: React.FC<BatchOperationModalProps> = ({
             label="命令内容"
             rules={[{ required: true, message: "请输入命令内容" }]}
           >
-            <TextArea
-              rows={4}
-              placeholder="输入要执行的命令，如: ls -la"
-            />
+            <TextArea rows={4} placeholder="输入要执行的命令，如: ls -la" />
           </Form.Item>
         )}
 
@@ -343,7 +356,7 @@ const BatchOperationModal: React.FC<BatchOperationModalProps> = ({
             dataIndex: "targetType",
             key: "targetType",
             width: 80,
-            render: (type: string) => type === "HOST" ? "主机" : "Agent",
+            render: (type: string) => (type === "HOST" ? "主机" : "Agent"),
           },
           {
             title: "状态",

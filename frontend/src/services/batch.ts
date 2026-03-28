@@ -43,7 +43,9 @@ export const batchUpgrade = async (
 /**
  * 获取批量操作详情
  */
-export const getBatchOperation = async (id: string): Promise<BatchOperation> => {
+export const getBatchOperation = async (
+  id: string,
+): Promise<BatchOperation> => {
   return request.get(`/api/v1/batch-operations/${id}`);
 };
 
