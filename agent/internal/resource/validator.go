@@ -67,7 +67,7 @@ func (v *Validator) ValidateFile(path string, config ValidationConfig) Validatio
 	if err != nil {
 		return ValidationResult{
 			Valid: false,
-			Error: fmt.Sprintf("file not found: %w", err),
+			Error: fmt.Sprintf("file not found: %v", err),
 		}
 	}
 
@@ -76,7 +76,7 @@ func (v *Validator) ValidateFile(path string, config ValidationConfig) Validatio
 	if err != nil {
 		return ValidationResult{
 			Valid: false,
-			Error: fmt.Sprintf("checksum calculation failed: %w", err),
+			Error: fmt.Sprintf("checksum calculation failed: %v", err),
 		}
 	}
 
@@ -204,7 +204,7 @@ func (v *Validator) ValidateDirectory(path string, config ValidationConfig) Vali
 	if err != nil {
 		return ValidationResult{
 			Valid: false,
-			Error: fmt.Sprintf("directory validation failed: %w", err),
+			Error: fmt.Sprintf("directory validation failed: %v", err),
 		}
 	}
 
