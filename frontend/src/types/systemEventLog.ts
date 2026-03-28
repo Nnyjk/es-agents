@@ -1,10 +1,10 @@
 export interface SystemEventLog {
   id: number;
   eventType: string;
-  eventLevel: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
+  eventLevel: "INFO" | "WARN" | "ERROR" | "DEBUG";
   module: string;
   action: string;
-  status: 'SUCCESS' | 'FAILURE' | 'PENDING';
+  status: "SUCCESS" | "FAILURE" | "PENDING";
   userId?: number;
   username?: string;
   agentId?: number;
@@ -21,10 +21,10 @@ export interface SystemEventLog {
 
 export interface SystemEventLogDTO {
   eventType: string;
-  eventLevel: 'INFO' | 'WARN' | 'ERROR' | 'DEBUG';
+  eventLevel: "INFO" | "WARN" | "ERROR" | "DEBUG";
   module: string;
   action: string;
-  status: 'SUCCESS' | 'FAILURE' | 'PENDING';
+  status: "SUCCESS" | "FAILURE" | "PENDING";
   userId?: number;
   agentId?: number;
   goalId?: number;
