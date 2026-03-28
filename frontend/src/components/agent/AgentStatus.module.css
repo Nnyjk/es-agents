@@ -1,0 +1,165 @@
+/* Agent 状态组件样式 */
+
+.statusContainer {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* 状态标签样式 */
+.statusTag {
+  font-weight: 500;
+  border-radius: 4px;
+}
+
+.statusTag-small {
+  font-size: 12px;
+  padding: 0 6px;
+}
+
+.statusTag-default {
+  font-size: 14px;
+  padding: 2px 8px;
+}
+
+.statusTag-large {
+  font-size: 16px;
+  padding: 4px 12px;
+}
+
+/* 状态文本样式 */
+.statusText {
+  font-weight: 500;
+}
+
+.statusText-UNCONFIGURED {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.statusText-PREPARING,
+.statusText-PACKAGING,
+.statusText-DEPLOYING {
+  color: #1890ff;
+}
+
+.statusText-READY,
+.statusText-PACKAGED,
+.statusText-DEPLOYED,
+.statusText-ONLINE {
+  color: #52c41a;
+}
+
+.statusText-OFFLINE {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.statusText-ERROR {
+  color: #ff4d4f;
+}
+
+/* 时间线容器样式 */
+.timelineContainer {
+  padding: 16px 0;
+}
+
+.statusTimeline {
+  padding: 8px 0;
+}
+
+.historyTimeline {
+  padding: 8px 0;
+}
+
+.timeline-small .ant-timeline-item-content {
+  font-size: 12px;
+}
+
+.timeline-default .ant-timeline-item-content {
+  font-size: 14px;
+}
+
+/* 时间线项样式 */
+.timelineItem {
+  padding-bottom: 12px;
+}
+
+.timelineDescription {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+/* 历史记录项样式 */
+.historyItem {
+  padding-bottom: 8px;
+}
+
+.historyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.historyTime {
+  font-size: 12px;
+}
+
+.historyReason {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+}
+
+.historyTrigger {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+}
+
+/* 时间线圆点样式 */
+.timelineDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* 操作按钮容器样式 */
+.actionsContainer {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  min-width: 80px;
+}
+
+/* 状态描述样式 */
+.statusDescription {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  margin-top: 4px;
+}
+
+/* 错误高亮样式 */
+.errorHighlight {
+  border-color: #ff4d4f !important;
+  background-color: #fff1f0 !important;
+}
+
+/* 响应式样式 */
+@media (max-width: 768px) {
+  .timelineContainer {
+    padding: 8px 0;
+  }
+
+  .actionsContainer {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .actionButton {
+    width: 100%;
+  }
+}
