@@ -25,7 +25,10 @@ import styles from "../AgentDetail.module.css";
 interface AgentActionsProps {
   agentId: string;
   status: AgentStatus;
-  onActionComplete?: (action: AgentActionType, result: { success: boolean; message?: string; taskId?: string }) => void;
+  onActionComplete?: (
+    action: AgentActionType,
+    result: { success: boolean; message?: string; taskId?: string },
+  ) => void;
 }
 
 /**
@@ -34,8 +37,14 @@ interface AgentActionsProps {
 const getActionAvailability = (status: AgentStatus) => {
   return {
     DEPLOY: {
-      enabled: status === "UNCONFIGURED" || status === "OFFLINE" || status === "ERROR",
-      disabledReason: status === "DEPLOYING" ? "正在部署中" : status === "ONLINE" ? "Agent 已在线" : undefined,
+      enabled:
+        status === "UNCONFIGURED" || status === "OFFLINE" || status === "ERROR",
+      disabledReason:
+        status === "DEPLOYING"
+          ? "正在部署中"
+          : status === "ONLINE"
+            ? "Agent 已在线"
+            : undefined,
     },
     RESTART: {
       enabled: status === "ONLINE",
@@ -68,7 +77,10 @@ const AgentActions: React.FC<AgentActionsProps> = ({
   const availability = getActionAvailability(status);
 
   // 执行部署
-  const handleDeploy = async (values: { version: string; remarks?: string }) => {
+  const handleDeploy = async (values: {
+    version: string;
+    remarks?: string;
+  }) => {
     setLoading("DEPLOY");
     try {
       const response = await fetch(`/api/agents/instances/${agentId}/deploy`, {
@@ -84,7 +96,10 @@ const AgentActions: React.FC<AgentActionsProps> = ({
         onActionComplete?.("DEPLOY", { success: true, taskId: result.taskId });
       } else {
         message.error(result.message || "部署失败");
-        onActionComplete?.("DEPLOY", { success: false, message: result.message });
+        onActionComplete?.("DEPLOY", {
+          success: false,
+          message: result.message,
+        });
       }
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : "部署请求失败";
@@ -108,7 +123,10 @@ const AgentActions: React.FC<AgentActionsProps> = ({
       } else {
         const result = await response.json();
         message.error(result.message || "重启失败");
-        onActionComplete?.("RESTART", { success: false, message: result.message });
+        onActionComplete?.("RESTART", {
+          success: false,
+          message: result.message,
+        });
       }
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : "重启请求失败";
@@ -156,7 +174,10 @@ const AgentActions: React.FC<AgentActionsProps> = ({
       } else {
         const result = await response.json();
         message.error(result.message || "删除失败");
-        onActionComplete?.("DELETE", { success: false, message: result.message });
+        onActionComplete?.("DELETE", {
+          success: false,
+          message: result.message,
+        });
       }
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : "删除请求失败";
@@ -290,9 +311,7 @@ const AgentActions: React.FC<AgentActionsProps> = ({
               >
                 开始部署
               </Button>
-              <Button onClick={() => setDeployModalVisible(false)}>
-                取消
-              </Button>
+              <Button onClick={() => setDeployModalVisible(false)}>取消</Button>
             </Space>
           </Form.Item>
         </Form>

@@ -74,7 +74,7 @@ export const HostBinding: React.FC<HostBindingProps> = ({
 
       // Filter hosts that have gatewayUrl configured (required for instance binding)
       const validHosts = hostList.filter(
-        (h: Host) => h.gatewayUrl && h.gatewayUrl.trim() !== ""
+        (h: Host) => h.gatewayUrl && h.gatewayUrl.trim() !== "",
       );
 
       setHosts(validHosts);
@@ -92,8 +92,8 @@ export const HostBinding: React.FC<HostBindingProps> = ({
     return (
       host.name.toLowerCase().includes(searchLower) ||
       host.hostname.toLowerCase().includes(searchLower) ||
-      (host.os?.toLowerCase().includes(searchLower)) ||
-      (host.environmentName?.toLowerCase().includes(searchLower))
+      host.os?.toLowerCase().includes(searchLower) ||
+      host.environmentName?.toLowerCase().includes(searchLower)
     );
   });
 
@@ -126,10 +126,7 @@ export const HostBinding: React.FC<HostBindingProps> = ({
 
   if (hosts.length === 0) {
     return (
-      <Empty
-        description="暂无可用主机"
-        image={Empty.PRESENTED_IMAGE_SIMPLE}
-      >
+      <Empty description="暂无可用主机" image={Empty.PRESENTED_IMAGE_SIMPLE}>
         <Text type="secondary">
           {instanceConfig.environmentId
             ? "所选环境下没有可用主机，或主机未配置 Gateway URL"
@@ -187,13 +184,14 @@ export const HostBinding: React.FC<HostBindingProps> = ({
       dataIndex: "gatewayUrl",
       width: 180,
       ellipsis: true,
-      render: (url: string) => url ? (
-        <Text type="secondary" style={{ fontSize: 12 }}>
-          {url}
-        </Text>
-      ) : (
-        <Tag color="red">未配置</Tag>
-      ),
+      render: (url: string) =>
+        url ? (
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            {url}
+          </Text>
+        ) : (
+          <Tag color="red">未配置</Tag>
+        ),
     },
   ];
 
@@ -231,8 +229,11 @@ export const HostBinding: React.FC<HostBindingProps> = ({
           </Button>
         )}
         <Text type="secondary">
-          已选择 <Text strong style={{ color: "#1677ff" }}>{value.length}</Text> 台主机，
-          可用 {filteredHosts.length} 台
+          已选择{" "}
+          <Text strong style={{ color: "#1677ff" }}>
+            {value.length}
+          </Text>{" "}
+          台主机， 可用 {filteredHosts.length} 台
         </Text>
       </Space>
 
@@ -255,7 +256,9 @@ export const HostBinding: React.FC<HostBindingProps> = ({
                   const onlineKeys = filteredHosts
                     .filter((h) => h.status === "ONLINE")
                     .map((h) => h.id);
-                  onChange(filteredHosts.filter((h) => onlineKeys.includes(h.id)));
+                  onChange(
+                    filteredHosts.filter((h) => onlineKeys.includes(h.id)),
+                  );
                 },
               },
             ],

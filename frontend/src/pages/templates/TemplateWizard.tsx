@@ -6,7 +6,11 @@ import InstanceConfigComponent from "./components/InstanceConfig";
 import HostBinding from "./components/HostBinding";
 import ConfigPreview from "./components/ConfigPreview";
 import CreationResult from "./components/CreationResult";
-import { WizardStep, type InstanceConfig as InstanceConfigType, type CreatedInstance } from "./types";
+import {
+  WizardStep,
+  type InstanceConfig as InstanceConfigType,
+  type CreatedInstance,
+} from "./types";
 import { saveAgentInstance } from "../../services/agent";
 import type { AgentTemplate, Host } from "../../types";
 import styles from "./TemplateWizard.module.css";
@@ -23,15 +27,20 @@ const TemplateWizard: React.FC = () => {
   const navigate = useNavigate();
 
   // Wizard state
-  const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.SELECT_TEMPLATE);
-  const [selectedTemplate, setSelectedTemplate] = useState<AgentTemplate | null>(null);
+  const [currentStep, setCurrentStep] = useState<WizardStep>(
+    WizardStep.SELECT_TEMPLATE,
+  );
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<AgentTemplate | null>(null);
   const [instanceConfig, setInstanceConfig] = useState<InstanceConfigType>({
     name: "",
     environmentId: undefined,
     config: {},
   });
   const [selectedHosts, setSelectedHosts] = useState<Host[]>([]);
-  const [createdInstances, setCreatedInstances] = useState<CreatedInstance[]>([]);
+  const [createdInstances, setCreatedInstances] = useState<CreatedInstance[]>(
+    [],
+  );
   const [creating, setCreating] = useState(false);
 
   // Handle template selection with preselection support
@@ -122,7 +131,8 @@ const TemplateWizard: React.FC = () => {
           status: "success",
         });
       } catch (error: any) {
-        const errorMsg = error?.response?.data?.message || error?.message || "创建失败";
+        const errorMsg =
+          error?.response?.data?.message || error?.message || "创建失败";
         results.push({
           instanceId: "",
           name: instanceName,
@@ -142,7 +152,9 @@ const TemplateWizard: React.FC = () => {
     if (successCount === results.length) {
       message.success(`成功创建 ${successCount} 个实例`);
     } else if (successCount > 0) {
-      message.warning(`创建完成：成功 ${successCount} 个，失败 ${results.length - successCount} 个`);
+      message.warning(
+        `创建完成：成功 ${successCount} 个，失败 ${results.length - successCount} 个`,
+      );
     } else {
       message.error("所有实例创建失败");
     }
@@ -219,15 +231,9 @@ const TemplateWizard: React.FC = () => {
         <Button onClick={handleCancel}>返回模板列表</Button>
       </div>
 
-      <Steps
-        current={currentStep}
-        items={steps}
-        className={styles.steps}
-      />
+      <Steps current={currentStep} items={steps} className={styles.steps} />
 
-      <div className={styles.content}>
-        {renderStepContent()}
-      </div>
+      <div className={styles.content}>{renderStepContent()}</div>
 
       {currentStep < WizardStep.RESULT && (
         <div className={styles.footer}>

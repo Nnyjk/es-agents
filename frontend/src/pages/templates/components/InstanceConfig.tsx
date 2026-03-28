@@ -77,7 +77,9 @@ const InstanceConfig: React.FC<InstanceConfigProps> = ({
     <div>
       <Card title="模板信息" style={{ marginBottom: 16 }}>
         <Descriptions column={2} size="small">
-          <Descriptions.Item label="模板名称">{template.name}</Descriptions.Item>
+          <Descriptions.Item label="模板名称">
+            {template.name}
+          </Descriptions.Item>
           <Descriptions.Item label="操作系统">
             {template.osType || "-"}
           </Descriptions.Item>
@@ -119,9 +121,7 @@ const InstanceConfig: React.FC<InstanceConfigProps> = ({
               {environments.map((env) => (
                 <Select.Option key={env.id} value={env.id}>
                   <Space>
-                    {env.color && (
-                      <Tag color={env.color}>{env.name}</Tag>
-                    )}
+                    {env.color && <Tag color={env.color}>{env.name}</Tag>}
                     {!env.color && <span>{env.name}</span>}
                     <Text type="secondary" style={{ fontSize: 12 }}>
                       ({env.code})

@@ -315,8 +315,9 @@ case "FETCH_RESOURCE":
 			if healthReq.RequestID == "" {
 				healthReq.RequestID = fmt.Sprintf("health-%d", time.Now().UnixNano())
 			}
-			go a.handleHealthCheck(healthReq)
-case "EXEC_PLUGIN_TASK":
+						go a.handleHealthCheck(healthReq)
+		}
+		case "EXEC_PLUGIN_TASK":
 		var pluginTaskReq struct {
 			TaskID     string                 `json:"taskId"`
 			PluginID   string                 `json:"pluginId"`
@@ -332,7 +333,6 @@ case "EXEC_PLUGIN_TASK":
 			go a.executePluginTask(requestID, pluginTaskReq.TaskID, pluginTaskReq.PluginID, pluginTaskReq.TaskType, pluginTaskReq.Parameters, pluginTaskReq.TimeoutMs)
 		} else {
 			a.Log(fmt.Sprintf("Failed to parse EXEC_PLUGIN_TASK content: %v", err))
->>>>>>> origin/main
 		}
 	default:
 		a.Log(fmt.Sprintf("Unsupported message type: %s", generic.Type))

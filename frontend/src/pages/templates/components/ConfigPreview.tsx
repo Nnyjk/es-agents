@@ -10,10 +10,7 @@ import {
   Alert,
   Collapse,
 } from "antd";
-import {
-  CheckCircleOutlined,
-  InfoCircleOutlined,
-} from "@ant-design/icons";
+import { CheckCircleOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import type { AgentTemplate, Host } from "../../../types";
 import type { InstanceConfig } from "../types";
 
@@ -173,11 +170,7 @@ export const ConfigPreview: React.FC<ConfigPreviewProps> = ({
             <Text strong>{template.name}</Text>
           </Descriptions.Item>
           <Descriptions.Item label="分类">
-            {category ? (
-              <Tag color={category.color}>{category.text}</Tag>
-            ) : (
-              "-"
-            )}
+            {category ? <Tag color={category.color}>{category.text}</Tag> : "-"}
           </Descriptions.Item>
           <Descriptions.Item label="操作系统">
             {template.osType || "-"}
@@ -263,9 +256,7 @@ export const ConfigPreview: React.FC<ConfigPreviewProps> = ({
           dataSource={hosts}
           columns={hostColumns}
           pagination={
-            hosts.length > 10
-              ? { pageSize: 10, showSizeChanger: true }
-              : false
+            hosts.length > 10 ? { pageSize: 10, showSizeChanger: true } : false
           }
           size="small"
           scroll={{ x: 900 }}

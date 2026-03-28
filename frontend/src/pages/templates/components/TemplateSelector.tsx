@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { List, Card, Radio, Typography, Empty, Spin, Tag, Input, Space } from "antd";
+import {
+  List,
+  Card,
+  Radio,
+  Typography,
+  Empty,
+  Spin,
+  Tag,
+  Input,
+  Space,
+} from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { queryAgentTemplates } from "../../../services/agent";
 import type { AgentTemplate, TemplateCategory, OsType } from "../../../types";
@@ -7,16 +17,17 @@ import type { AgentTemplate, TemplateCategory, OsType } from "../../../types";
 const { Text } = Typography;
 
 // Template category mapping
-const CATEGORY_MAP: Record<TemplateCategory, { text: string; color: string }> = {
-  MONITORING: { text: "监控", color: "blue" },
-  DEPLOYMENT: { text: "部署", color: "green" },
-  BACKUP: { text: "备份", color: "orange" },
-  SECURITY: { text: "安全", color: "red" },
-  DATABASE: { text: "数据库", color: "purple" },
-  NETWORK: { text: "网络", color: "cyan" },
-  UTILITY: { text: "工具", color: "geekblue" },
-  CUSTOM: { text: "自定义", color: "default" },
-};
+const CATEGORY_MAP: Record<TemplateCategory, { text: string; color: string }> =
+  {
+    MONITORING: { text: "监控", color: "blue" },
+    DEPLOYMENT: { text: "部署", color: "green" },
+    BACKUP: { text: "备份", color: "orange" },
+    SECURITY: { text: "安全", color: "red" },
+    DATABASE: { text: "数据库", color: "purple" },
+    NETWORK: { text: "网络", color: "cyan" },
+    UTILITY: { text: "工具", color: "geekblue" },
+    CUSTOM: { text: "自定义", color: "default" },
+  };
 
 // OS type mapping
 const OS_TYPE_MAP: Record<OsType, string> = {
@@ -48,7 +59,9 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
     try {
       setLoading(true);
       const data = await queryAgentTemplates({});
-      const templateList = Array.isArray(data) ? data : (data as any)?.data || [];
+      const templateList = Array.isArray(data)
+        ? data
+        : (data as any)?.data || [];
       setTemplates(templateList);
     } catch (error) {
       console.error("Failed to fetch templates:", error);
@@ -63,8 +76,10 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
     const searchLower = searchText.toLowerCase();
     return (
       template.name.toLowerCase().includes(searchLower) ||
-      (template.description?.toLowerCase().includes(searchLower)) ||
-      (CATEGORY_MAP[template.category as TemplateCategory]?.text.toLowerCase().includes(searchLower))
+      template.description?.toLowerCase().includes(searchLower) ||
+      CATEGORY_MAP[template.category as TemplateCategory]?.text
+        .toLowerCase()
+        .includes(searchLower)
     );
   });
 
@@ -78,13 +93,8 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
 
   if (templates.length === 0) {
     return (
-      <Empty
-        description="暂无可用模板"
-        image={Empty.PRESENTED_IMAGE_SIMPLE}
-      >
-        <Text type="secondary">
-          请先在 Agent 管理 {">"} 模板中创建模板
-        </Text>
+      <Empty description="暂无可用模板" image={Empty.PRESENTED_IMAGE_SIMPLE}>
+        <Text type="secondary">请先在 Agent 管理 {">"} 模板中创建模板</Text>
       </Empty>
     );
   }
@@ -100,9 +110,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
           style={{ width: 300 }}
           allowClear
         />
-        <Text type="secondary">
-          共 {filteredTemplates.length} 个模板
-        </Text>
+        <Text type="secondary">共 {filteredTemplates.length} 个模板</Text>
       </Space>
 
       <Radio.Group
@@ -117,14 +125,18 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
           grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 4 }}
           dataSource={filteredTemplates}
           renderItem={(template) => {
-            const category = CATEGORY_MAP[template.category as TemplateCategory];
+            const category =
+              CATEGORY_MAP[template.category as TemplateCategory];
             const osType = OS_TYPE_MAP[template.osType as OsType];
             return (
               <List.Item>
                 <Card
                   hoverable
                   style={{
-                    border: value?.id === template.id ? "#1677ff 2px solid" : undefined,
+                    border:
+                      value?.id === template.id
+                        ? "#1677ff 2px solid"
+                        : undefined,
                     height: "100%",
                   }}
                 >
@@ -171,18 +183,16 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
       </Radio.Group>
 
       {value && (
-        <Card
-          style={{ marginTop: 16 }}
-          title="已选择模板"
-          size="small"
-        >
+        <Card style={{ marginTop: 16 }} title="已选择模板" size="small">
           <Space direction="vertical" size="small">
             <Text>
-              <Text strong>名称：</Text>{value.name}
+              <Text strong>名称：</Text>
+              {value.name}
             </Text>
             {value.description && (
               <Text>
-                <Text strong>描述：</Text>{value.description}
+                <Text strong>描述：</Text>
+                {value.description}
               </Text>
             )}
             <Text>
@@ -191,12 +201,14 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = ({
             </Text>
             {value.archSupport && (
               <Text>
-                <Text strong>架构：</Text>{value.archSupport}
+                <Text strong>架构：</Text>
+                {value.archSupport}
               </Text>
             )}
             {value.source?.name && (
               <Text>
-                <Text strong>来源：</Text>{value.source.name}
+                <Text strong>来源：</Text>
+                {value.source.name}
               </Text>
             )}
           </Space>
