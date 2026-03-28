@@ -108,6 +108,11 @@ public class Host extends PanacheEntityBase {
      */
     public LocalDateTime lastSeenAt;
 
+    /**
+     * Last time the host reachability was checked
+     */
+    public LocalDateTime lastCheckedAt;
+
     @CreationTimestamp
     public LocalDateTime createdAt;
 

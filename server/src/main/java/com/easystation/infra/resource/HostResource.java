@@ -62,14 +62,23 @@ public class HostResource {
     }
 
     /**
-     * Check host reachability - verifies if the host agent is accessible
+     * Check host reachability - verifies if the host is accessible via TCP
      */
     @POST
-    @Path("/{id}/check")
+    @Path("/{id}/check-reachability")
     @RequiresPermission("host:view")
     public Response checkReachability(@PathParam("id") UUID id) {
-        hostService.connect(id);
-        return Response.ok().build();
+        return Response.ok(hostService.checkReachability(id)).build();
+    }
+
+    /**
+     * Check reachability of all hosts
+     */
+    @POST
+    @Path("/check-reachability")
+    @RequiresPermission("host:view")
+    public Response checkReachabilityAll() {
+        return Response.ok(hostService.checkReachabilityAll()).build();
     }
 
     @GET

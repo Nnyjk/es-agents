@@ -22,6 +22,10 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 
 import java.io.InputStream;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -62,6 +66,66 @@ public class HostService {
                 "Failed to connect to HostAgent. Please ensure the agent is running and accessible.", 
                 Response.Status.BAD_GATEWAY
             );
+        }
+    }
+
+    /**
+     * Check host reachability using TCP connection
+     * @param id Host ID
+     * @return Host record with updated status
+     */
+    @Transactional
+    public HostRecord checkReachability(UUID id) {
+        Host host = Host.findById(id);
+        if (host == null) {
+            throw new WebApplicationException("Host not found", Response.Status.NOT_FOUND);
+        }
+        
+        boolean reachable = isHostReachable(host.hostname, host.port, 5000);
+        HostStatus newStatus = reachable ? HostStatus.ONLINE : HostStatus.OFFLINE;
+        
+        host.status = newStatus;
+        host.lastCheckedAt = LocalDateTime.now();
+        host.persist();
+        
+        Log.infof("Host %s (%s:%d) reachability check: %s", host.name, host.hostname, host.port, newStatus);
+        
+        return toDto(host);
+    }
+
+    /**
+     * Check reachability of all hosts
+     * @return List of host records with updated status
+     */
+    @Transactional
+    public List<HostRecord> checkReachabilityAll() {
+        List<Host> hosts = Host.listAll();
+        return hosts.stream()
+            .map(host -> {
+                try {
+                    return checkReachability(host.getId());
+                } catch (Exception e) {
+                    Log.errorf("Failed to check host %s: %s", host.name, e.getMessage());
+                    return toDto(host);
+                }
+            })
+            .toList();
+    }
+
+    /**
+     * Check if host is reachable using TCP connection
+     * @param address Host address
+     * @param port Host port
+     * @param timeout Timeout in milliseconds
+     * @return true if reachable, false otherwise
+     */
+    private boolean isHostReachable(String address, int port, int timeout) {
+        try (Socket socket = new Socket()) {
+            socket.connect(new InetSocketAddress(address, port), timeout);
+            return true;
+        } catch (IOException e) {
+            Log.debugf("Host %s:%d is not reachable: %s", address, port, e.getMessage());
+            return false;
         }
     }
 
