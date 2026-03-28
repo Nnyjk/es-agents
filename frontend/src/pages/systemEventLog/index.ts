@@ -1,1 +1,1 @@
-export { default } from './SystemEventLogPage';
+export { default } from "./SystemEventLogPage";
