@@ -1,4 +1,4 @@
-import api from './api';
+import request from '../utils/request';
 import type { SystemEventLogDTO, SystemEventLog, EventQueryCriteria, EventLogPage } from '../types/systemEventLog';
 
 export const systemEventLogApi = {
@@ -6,7 +6,7 @@ export const systemEventLogApi = {
    * 记录系统事件
    */
   logEvent(event: SystemEventLogDTO): Promise<void> {
-    return api.post('/v1/system-event-logs', event);
+    return request.post('/v1/system-event-logs', event);
   },
 
   /**
@@ -29,20 +29,20 @@ export const systemEventLogApi = {
     if (criteria.page) params.append('page', criteria.page.toString());
     if (criteria.size) params.append('size', criteria.size.toString());
 
-    return api.get(`/v1/system-event-logs?${params.toString()}`);
+    return request.get(`/v1/system-event-logs?${params.toString()}`);
   },
 
   /**
    * 获取事件详情
    */
   getEvent(id: number): Promise<SystemEventLog> {
-    return api.get(`/v1/system-event-logs/${id}`);
+    return request.get(`/v1/system-event-logs/${id}`);
   },
 
   /**
    * 清理旧日志
    */
   cleanupEvents(olderThanDays: number): Promise<void> {
-    return api.delete(`/v1/system-event-logs?olderThanDays=${olderThanDays}`);
+    return request.delete(`/v1/system-event-logs?olderThanDays=${olderThanDays}`);
   },
 };
