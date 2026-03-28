@@ -24,23 +24,26 @@ import {
 } from "@ant-design/icons";
 import { PageContainer } from "@ant-design/pro-components";
 import dayjs from "dayjs";
+import { queryAgentInstances, queryAgentCommands } from "@/services/agent";
 import {
-  queryAgentInstances,
-  queryAgentCommands,
   executeCommand,
-  getAgentTask,
-} from "@/services/agent";
+  getCommandExecutionStatus,
+  cancelCommandExecution,
+} from "@/services/commandExecution";
 import { queryHosts } from "@/services/infra";
-import type {
-  AgentInstance,
-  AgentCommand,
-  AgentTask,
-  Host,
-  ListResponse,
-} from "@/types";
+import type { AgentInstance, AgentCommand, Host, ListResponse } from "@/types";
+import type { CommandExecution, ExecutionStatus } from "@/types/command";
 
 const { Option } = Select;
 const { TextArea } = Input;
+
+const statusConfig: Record<ExecutionStatus, { color: string; text: string }> = {
+  PENDING: { color: "default", text: "等待中" },
+  RUNNING: { color: "processing", text: "执行中" },
+  SUCCESS: { color: "success", text: "成功" },
+  FAILED: { color: "error", text: "失败" },
+  CANCELLED: { color: "warning", text: "已取消" },
+};
 
 const CommandExecute: React.FC = () => {
   const [form] = Form.useForm();
@@ -49,7 +52,8 @@ const CommandExecute: React.FC = () => {
   const [commands, setCommands] = useState<AgentCommand[]>([]);
   const [selectedHostId, setSelectedHostId] = useState<string>();
   const [executing, setExecuting] = useState(false);
-  const [currentTask, setCurrentTask] = useState<AgentTask | null>(null);
+  const [currentExecution, setCurrentExecution] =
+    useState<CommandExecution | null>(null);
   const [output, setOutput] = useState<string>("");
   const [pollingInterval, setPollingInterval] = useState<NodeJS.Timeout | null>(
     null,
@@ -107,65 +111,78 @@ const CommandExecute: React.FC = () => {
       const values = await form.validateFields();
       setExecuting(true);
       setOutput(`[${dayjs().format("HH:mm:ss")}] 正在执行命令...\n`);
-      setCurrentTask(null);
+      setCurrentExecution(null);
 
-      const task = await executeCommand(values.agentInstanceId, {
-        commandId: values.commandId,
-        args: values.args,
+      // 查找选中的命令模板
+      const selectedCommand = commands.find((c) => c.id === values.commandId);
+
+      const result = await executeCommand({
+        agentInstanceId: values.agentInstanceId,
+        templateId: selectedCommand?.templateId,
+        command: selectedCommand?.script || "",
+        parameters: values.args ? { args: values.args } : undefined,
+        timeout: selectedCommand?.timeout,
       });
 
-      setCurrentTask(task);
       setOutput(
         (prev) =>
-          `${prev}[${dayjs().format("HH:mm:ss")}] 任务已创建: ${task.id}\n`,
+          `${prev}[${dayjs().format("HH:mm:ss")}] 任务已创建: ${result.executionId}\n`,
       );
 
-      // 开始轮询任务状态
+      // 开始轮询执行状态
       const interval = setInterval(async () => {
         try {
-          const updatedTask = await getAgentTask(task.id);
-          setCurrentTask(updatedTask);
+          const execution = await getCommandExecutionStatus(result.executionId);
+          setCurrentExecution(execution);
 
-          if (updatedTask.status === "RUNNING") {
+          if (execution.status === "RUNNING") {
             setOutput(
               (prev) =>
                 `${prev}[${dayjs().format("HH:mm:ss")}] 命令执行中...\n`,
             );
-          } else if (updatedTask.status === "SUCCESS") {
+          } else if (execution.status === "SUCCESS") {
+            const duration =
+              execution.startedAt && execution.finishedAt
+                ? dayjs(execution.finishedAt).diff(
+                    dayjs(execution.startedAt),
+                    "ms",
+                  )
+                : 0;
             setOutput(
               (prev) =>
-                `${prev}[${dayjs().format("HH:mm:ss")}] 执行成功 (${updatedTask.durationMs}ms)\n`,
+                `${prev}[${dayjs().format("HH:mm:ss")}] 执行成功 (${duration}ms)\n`,
             );
-            if (updatedTask.result) {
+            if (execution.output) {
               setOutput(
-                (prev) => `${prev}\n--- 输出结果 ---\n${updatedTask.result}\n`,
+                (prev) => `${prev}\n--- 输出结果 ---\n${execution.output}\n`,
               );
             }
             clearInterval(interval);
             setPollingInterval(null);
             setExecuting(false);
-          } else if (updatedTask.status === "FAILED") {
+          } else if (execution.status === "FAILED") {
             setOutput(
               (prev) => `${prev}[${dayjs().format("HH:mm:ss")}] 执行失败\n`,
             );
-            if (updatedTask.result) {
+            if (execution.errorMessage) {
               setOutput(
-                (prev) => `${prev}\n--- 错误信息 ---\n${updatedTask.result}\n`,
+                (prev) =>
+                  `${prev}\n--- 错误信息 ---\n${execution.errorMessage}\n`,
               );
             }
             clearInterval(interval);
             setPollingInterval(null);
             setExecuting(false);
-          } else if (updatedTask.status === "TIMEOUT") {
+          } else if (execution.status === "CANCELLED") {
             setOutput(
-              (prev) => `${prev}[${dayjs().format("HH:mm:ss")}] 执行超时\n`,
+              (prev) => `${prev}[${dayjs().format("HH:mm:ss")}] 已取消\n`,
             );
             clearInterval(interval);
             setPollingInterval(null);
             setExecuting(false);
           }
         } catch (error) {
-          console.error("轮询任务状态失败", error);
+          console.error("轮询执行状态失败", error);
         }
       }, 2000);
 
@@ -177,9 +194,14 @@ const CommandExecute: React.FC = () => {
   };
 
   const handleCancel = async () => {
-    if (pollingInterval) {
-      clearInterval(pollingInterval);
-      setPollingInterval(null);
+    if (currentExecution && pollingInterval) {
+      try {
+        await cancelCommandExecution(currentExecution.id);
+        clearInterval(pollingInterval);
+        setPollingInterval(null);
+      } catch (error) {
+        console.error("取消执行失败", error);
+      }
     }
     setExecuting(false);
     setOutput((prev) => `${prev}[${dayjs().format("HH:mm:ss")}] 已取消\n`);
@@ -187,21 +209,16 @@ const CommandExecute: React.FC = () => {
 
   const handleClear = () => {
     setOutput("");
-    setCurrentTask(null);
+    setCurrentExecution(null);
   };
 
-  const getStatusTag = (status?: string) => {
-    const config: Record<string, { color: string; text: string }> = {
-      PENDING: { color: "default", text: "等待中" },
-      RUNNING: { color: "processing", text: "执行中" },
-      SUCCESS: { color: "success", text: "成功" },
-      FAILED: { color: "error", text: "失败" },
-      CANCELLED: { color: "warning", text: "已取消" },
-      TIMEOUT: { color: "magenta", text: "超时" },
-    };
+  const getStatusTag = (status?: ExecutionStatus) => {
     if (!status) return null;
-    const c = config[status] || { color: "default", text: status };
-    return <Tag color={c.color}>{c.text}</Tag>;
+    const config = statusConfig[status] || {
+      color: "default",
+      text: status,
+    };
+    return <Tag color={config.color}>{config.text}</Tag>;
   };
 
   return (
@@ -307,7 +324,7 @@ const CommandExecute: React.FC = () => {
               <Space>
                 <CodeOutlined />
                 <span>执行输出</span>
-                {currentTask && getStatusTag(currentTask.status)}
+                {currentExecution && getStatusTag(currentExecution.status)}
               </Space>
             }
             extra={
@@ -347,7 +364,7 @@ const CommandExecute: React.FC = () => {
               </pre>
             </div>
 
-            {currentTask?.result && (
+            {currentExecution?.output && (
               <>
                 <Divider>执行结果</Divider>
                 <Paragraph>
@@ -358,7 +375,7 @@ const CommandExecute: React.FC = () => {
                       borderRadius: 4,
                     }}
                   >
-                    {currentTask.result}
+                    {currentExecution.output}
                   </pre>
                 </Paragraph>
               </>

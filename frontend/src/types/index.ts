@@ -396,3 +396,6 @@ export * from "./infrastructure";
 
 // 审计日志相关类型
 export * from "./audit";
+
+// 命令执行相关类型（新 API）
+export * from "./command";
