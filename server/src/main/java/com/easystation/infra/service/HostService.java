@@ -81,14 +81,14 @@ public class HostService {
             throw new WebApplicationException("Host not found", Response.Status.NOT_FOUND);
         }
         
-        boolean reachable = isHostReachable(host.address, host.port, 5000);
+        boolean reachable = isHostReachable(host.hostname, host.port, 5000);
         HostStatus newStatus = reachable ? HostStatus.ONLINE : HostStatus.OFFLINE;
         
         host.status = newStatus;
         host.lastCheckedAt = LocalDateTime.now();
         host.persist();
         
-        Log.infof("Host %s (%s:%d) reachability check: %s", host.name, host.address, host.port, newStatus);
+        Log.infof("Host %s (%s:%d) reachability check: %s", host.name, host.hostname, host.port, newStatus);
         
         return toDto(host);
     }
