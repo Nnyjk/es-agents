@@ -1,0 +1,23 @@
+.container {
+  padding: 24px;
+  background: #f0f2f5;
+  min-height: calc(100vh - 64px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.refreshIcon {
+  font-size: 18px;
+  color: #1890ff;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.refreshIcon:hover {
+  color: #40a9ff;
+}

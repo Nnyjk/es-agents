@@ -1,0 +1,30 @@
+/* 监控指标图表样式 */
+
+.metricChart {
+  border-radius: 8px;
+}
+
+.metricChart .ant-card-head-title {
+  font-weight: 600;
+}
+
+.metricChart .ant-card-body {
+  padding: 16px;
+}
+
+/* 图表容器样式 */
+.chartContainer {
+  width: 100%;
+  min-height: 200px;
+}
+
+/* 响应式样式 */
+@media (max-width: 768px) {
+  .metricChart .ant-card-body {
+    padding: 12px;
+  }
+
+  .metricChart .ant-card-extra {
+    margin-left: 0;
+  }
+}
