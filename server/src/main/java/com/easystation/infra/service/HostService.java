@@ -99,10 +99,11 @@ public class HostService {
      */
     @Transactional
     public List<HostRecord> checkReachabilityAll() {
-        return Host.listAll().stream()
+        List<Host> hosts = Host.listAll();
+        return hosts.stream()
             .map(host -> {
                 try {
-                    return checkReachability(host.id);
+                    return checkReachability(host.getId());
                 } catch (Exception e) {
                     Log.errorf("Failed to check host %s: %s", host.name, e.getMessage());
                     return toDto(host);
