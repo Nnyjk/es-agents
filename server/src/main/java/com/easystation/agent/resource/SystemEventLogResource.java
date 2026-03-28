@@ -15,6 +15,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 
 /**
  * 系统事件日志 API
@@ -55,11 +56,27 @@ public class SystemEventLogResource {
             @Parameter(description = "目标类型") @QueryParam("targetType") String targetType,
             @Parameter(description = "目标 ID") @QueryParam("targetId") Long targetId,
             @Parameter(description = "用户 ID") @QueryParam("userId") Long userId,
-            @Parameter(description = "开始时间") @QueryParam("startTime") LocalDateTime startTime,
-            @Parameter(description = "结束时间") @QueryParam("endTime") LocalDateTime endTime,
+            @Parameter(description = "开始时间 (ISO-8601 格式)") @QueryParam("startTime") String startTimeStr,
+            @Parameter(description = "结束时间 (ISO-8601 格式)") @QueryParam("endTime") String endTimeStr,
             @Parameter(description = "关键词") @QueryParam("keyword") String keyword,
             @Parameter(description = "页码") @QueryParam("page") @DefaultValue("0") int page,
             @Parameter(description = "每页大小") @QueryParam("size") @DefaultValue("20") int size) {
+        
+        // 解析时间参数
+        LocalDateTime startTime = null;
+        LocalDateTime endTime = null;
+        try {
+            if (startTimeStr != null && !startTimeStr.isEmpty()) {
+                startTime = LocalDateTime.parse(startTimeStr);
+            }
+            if (endTimeStr != null && !endTimeStr.isEmpty()) {
+                endTime = LocalDateTime.parse(endTimeStr);
+            }
+        } catch (DateTimeParseException e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity("{\"error\": \"时间格式错误，请使用 ISO-8601 格式 (如：2026-03-28T10:00:00)\"}")
+                .build();
+        }
         
         EventQueryCriteria criteria = new EventQueryCriteria(
             eventType, eventLevel, module, operation, targetType, targetId, userId,
