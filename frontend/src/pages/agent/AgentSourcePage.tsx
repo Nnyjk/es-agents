@@ -23,6 +23,7 @@ import {
   queryAgentSources,
   saveAgentSource,
   removeAgentSource,
+  testAgentSource,
 } from "../../services/agentSource";
 import {
   queryAgentCredentials,
@@ -127,8 +128,21 @@ const AgentSourcePage: React.FC = () => {
     {
       title: "操作",
       valueType: "option",
-      width: 150,
+      width: 200,
       render: (_text, record, _, action) => [
+        <a
+          key="test"
+          onClick={async () => {
+            try {
+              await testAgentSource(record.id);
+              message.success("连接测试成功");
+            } catch {
+              message.error("连接测试失败");
+            }
+          }}
+        >
+          测试连接
+        </a>,
         <a
           key="edit"
           onClick={() => {

@@ -72,3 +72,19 @@ export const downloadAgentSource = (id: string): Promise<Blob> => {
     responseType: "blob",
   });
 };
+
+/**
+ * 测试资源来源连接
+ */
+export const testAgentSource = (id: string): Promise<void> => {
+  return request.post(`${BASE_PATH}/${id}/test`);
+};
+
+/**
+ * 获取资源来源元数据
+ */
+export const getAgentSourceMetadata = (
+  id: string,
+): Promise<Record<string, unknown>> => {
+  return request.get(`${BASE_PATH}/${id}/metadata`);
+};
