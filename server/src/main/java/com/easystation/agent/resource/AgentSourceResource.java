@@ -1,6 +1,7 @@
 package com.easystation.agent.resource;
 
 import com.easystation.agent.dto.AgentSourceRecord;
+import com.easystation.agent.dto.ValidationResult;
 import com.easystation.agent.service.AgentSourceService;
 import com.easystation.auth.annotation.RequiresPermission;
 import jakarta.inject.Inject;
@@ -67,5 +68,20 @@ public class AgentSourceResource {
         return Response.ok(is)
                 .header("Content-Disposition", "attachment; filename=\"" + fileName[0] + "\"")
                 .build();
+    }
+
+    @POST
+    @Path("/{id}/test")
+    @RequiresPermission("agent:view")
+    public Response test(@PathParam("id") UUID id) {
+        ValidationResult result = agentSourceService.testSource(id);
+        return Response.ok(result).build();
+    }
+
+    @GET
+    @Path("/{id}/metadata")
+    @RequiresPermission("agent:view")
+    public Response metadata(@PathParam("id") UUID id) {
+        return Response.ok(agentSourceService.getSourceMetadata(id)).build();
     }
 }
