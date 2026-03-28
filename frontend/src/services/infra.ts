@@ -184,7 +184,7 @@ export const downloadHostPackage = async (
 
 // Host package download URL validation and normalization
 const HOST_PACKAGE_DOWNLOAD_API_PATH =
-  /^\/(?:api\/)?v1\/hosts\/[^/]+\/package(?:\?.*)?$/;
+  /^\/(?:api\/)?(?:v1\/|infra\/)hosts\/[^/]+\/package(?:\?.*)?$/;
 
 export const resolveHostPackageDownloadUrl = (downloadUrl: string): string => {
   if (!HOST_PACKAGE_DOWNLOAD_API_PATH.test(downloadUrl)) {

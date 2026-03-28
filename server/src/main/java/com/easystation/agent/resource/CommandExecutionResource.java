@@ -141,10 +141,9 @@ public class CommandExecutionResource {
      * @return 回调响应
      */
     @POST
-    @Path(/{executionId}/callback)
-    @Operation(summary = "Agent 任务执行结果回调", description = "接收 Agent 上报的任务执行结果，更新执行状态")
+    @Path("/{executionId}/callback")
     public Response callback(
-            @Parameter(description = "执行 ID") @PathParam("executionId") UUID executionId,
+            @PathParam("executionId") UUID executionId,
             @Valid CommandExecutionRecord.CallbackRequest request) {
         try {
             commandExecutionService.handleExecutionResult(
