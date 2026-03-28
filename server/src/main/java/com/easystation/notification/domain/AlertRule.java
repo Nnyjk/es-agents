@@ -11,7 +11,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "NotificationAlertRule")
 @Table(name = "alert_rule")
 @Getter
 @Setter
