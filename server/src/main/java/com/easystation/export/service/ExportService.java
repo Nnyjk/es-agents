@@ -160,10 +160,10 @@ public class ExportService {
             .collect(Collectors.toList());
 
         long total = exportTaskRepository.countByUserId(userId);
-        int pendingCount = (int) exportTaskRepository.countByUserIdAndStatus(userId, ExportStatus.PENDING.name());
-        int processingCount = (int) exportTaskRepository.countByUserIdAndStatus(userId, ExportStatus.PROCESSING.name());
-        int completedCount = (int) exportTaskRepository.countByUserIdAndStatus(userId, ExportStatus.COMPLETED.name());
-        int failedCount = (int) exportTaskRepository.countByUserIdAndStatus(userId, ExportStatus.FAILED.name());
+        int pendingCount = (int) exportTaskRepository.countByUserIdAndStatus(userId, ExportStatus.PENDING);
+        int processingCount = (int) exportTaskRepository.countByUserIdAndStatus(userId, ExportStatus.PROCESSING);
+        int completedCount = (int) exportTaskRepository.countByUserIdAndStatus(userId, ExportStatus.COMPLETED);
+        int failedCount = (int) exportTaskRepository.countByUserIdAndStatus(userId, ExportStatus.FAILED);
 
         return new ExportTaskListResponse(dtos, total, pendingCount, processingCount, completedCount, failedCount);
     }
