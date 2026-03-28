@@ -19,6 +19,7 @@ import (
 	"github.com/easy-station/agent/internal/plugin"
 	"github.com/easy-station/agent/internal/resource"
 	"github.com/easy-station/agent/internal/transport"
+	"github.com/easy-station/agent/internal/upgrade"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
 	"github.com/shirou/gopsutil/v3/mem"
@@ -31,6 +32,7 @@ type Agent struct {
 	Fetcher       *resource.Fetcher
 	Packer        *resource.Packer
 	Deployer      *resource.Deployer
+	Upgrader      *upgrade.Upgrader
 
 	LogBuffer   []string
 	LogBufferMu sync.Mutex
@@ -114,6 +116,7 @@ func New(cfg *config.Config) *Agent {
 		Fetcher:       resource.NewFetcher(),
 		Packer:        resource.NewPacker(),
 		Deployer:      resource.NewDeployer(),
+		Upgrader:      upgrade.NewUpgrader(cfg.Version, "backups", "downloads", os.Args[0]),
 	}
 
 	wsServer.OnMessage = a.handleMessage
@@ -333,6 +336,22 @@ case "FETCH_RESOURCE":
 			go a.executePluginTask(requestID, pluginTaskReq.TaskID, pluginTaskReq.PluginID, pluginTaskReq.TaskType, pluginTaskReq.Parameters, pluginTaskReq.TimeoutMs)
 		} else {
 			a.Log(fmt.Sprintf("Failed to parse EXEC_PLUGIN_TASK content: %v", err))
+		}
+	case "UPGRADE_AGENT":
+		var upgradeReq struct {
+			Version         string `json:"version"`
+			DownloadURL     string `json:"downloadUrl"`
+			Checksum        string `json:"checksum"`
+			RollbackVersion string `json:"rollbackVersion"`
+		}
+		if err := json.Unmarshal(generic.Content, &upgradeReq); err == nil {
+			requestID := generic.RequestID
+			if requestID == "" {
+				requestID = fmt.Sprintf("upgrade-%d", time.Now().UnixNano())
+			}
+			go a.handleAgentUpgrade(requestID, upgradeReq.Version, upgradeReq.DownloadURL, upgradeReq.Checksum, upgradeReq.RollbackVersion)
+		} else {
+			a.Log(fmt.Sprintf("Failed to parse UPGRADE_AGENT content: %v", err))
 		}
 	default:
 		a.Log(fmt.Sprintf("Unsupported message type: %s", generic.Type))
@@ -704,5 +723,47 @@ func (a *Agent) sendHealthCheckResult(response *resource.HealthCheckResponse) {
 		"timestamp":       time.Now().UTC().Format(time.RFC3339),
 		"type":            "HEALTH_CHECK_RESULT",
 		"content":         response,
+	})
+}
+
+// handleAgentUpgrade handles UPGRADE_AGENT message
+func (a *Agent) handleAgentUpgrade(requestID, version, downloadURL, checksum, rollbackVersion string) {
+	a.Log(fmt.Sprintf("Starting agent upgrade requestId=%s version=%s", requestID, version))
+
+	result := &upgrade.UpgradeResult{
+		NewVersion: version,
+	}
+
+	// Perform upgrade
+	upgradeResult, err := a.Upgrader.Upgrade(version, downloadURL, checksum)
+	if err != nil {
+		result.Error = err.Error()
+		result.Success = false
+		a.Log(fmt.Sprintf("Upgrade failed requestId=%s: %v", requestID, err))
+		
+		// Attempt rollback on failure
+		a.Log(fmt.Sprintf("Attempting rollback requestId=%s", requestID))
+		if rbErr := a.Upgrader.Rollback(); rbErr != nil {
+			a.Log(fmt.Sprintf("Rollback failed requestId=%s: %v", requestID, rbErr))
+			result.Error += fmt.Sprintf("; Rollback failed: %v", rbErr)
+		} else {
+			a.Log(fmt.Sprintf("Rollback successful requestId=%s", requestID))
+		}
+	} else {
+		a.Log(fmt.Sprintf("Upgrade successful requestId=%s newVersion=%s", requestID, upgradeResult.NewVersion))
+		result.Success = true
+	}
+
+	a.sendUpgradeResult(requestID, result)
+}
+
+// sendUpgradeResult sends upgrade result response
+func (a *Agent) sendUpgradeResult(requestID string, result *upgrade.UpgradeResult) {
+	_ = a.WSServer.SendJSON(map[string]interface{}{
+		"protocolVersion": "2.0",
+		"requestId":       requestID,
+		"timestamp":       time.Now().UTC().Format(time.RFC3339),
+		"type":            "UPGRADE_RESULT",
+		"content":         result,
 	})
 }
