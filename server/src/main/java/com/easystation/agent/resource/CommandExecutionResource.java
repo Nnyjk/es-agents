@@ -131,6 +131,36 @@ public class CommandExecutionResource {
                 .build();
     }
 
+
+    /**
+     * Agent callback - receive execution result from agent.
+     * POST /api/v1/agent-commands/{executionId}/callback
+     * 
+     * @param executionId 执行 ID
+     * @param request 回调请求（状态、退出码、输出、耗时）
+     * @return 回调响应
+     */
+    @POST
+    @Path(/{executionId}/callback)
+    @Operation(summary = "Agent 任务执行结果回调", description = "接收 Agent 上报的任务执行结果，更新执行状态")
+    public Response callback(
+            @Parameter(description = "执行 ID") @PathParam("executionId") UUID executionId,
+            @Valid CommandExecutionRecord.CallbackRequest request) {
+        try {
+            commandExecutionService.handleExecutionResult(
+                    executionId,
+                    request.status(),
+                    request.exitCode(),
+                    request.durationMs(),
+                    request.output()
+            );
+            return Response.ok(new CommandExecutionRecord.CallbackResponse(true, "Callback received")).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(new CommandExecutionRecord.CallbackResponse(false, e.getMessage()))
+                    .build();
+        }
+    }
     private LocalDateTime parseDateTime(String dateTimeStr) {
         if (dateTimeStr == null || dateTimeStr.isBlank()) {
             return null;

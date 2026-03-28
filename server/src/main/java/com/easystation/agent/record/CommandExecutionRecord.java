@@ -106,4 +106,22 @@ public class CommandExecutionRecord {
             );
         }
     }
+
+    /**
+     * Agent 回调请求 - 任务执行结果上报
+     */
+    public record CallbackRequest(
+            String status,        // SUCCESS, FAILED, TIMEOUT, CANCELLED
+            Integer exitCode,     // 退出码
+            String output,        // 执行输出
+            Long durationMs       // 执行耗时（毫秒）
+    ) {}
+
+    /**
+     * Agent 回调响应
+     */
+    public record CallbackResponse(
+            boolean success,
+            String message
+    ) {}
 }
