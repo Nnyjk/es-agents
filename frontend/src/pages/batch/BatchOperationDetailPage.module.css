@@ -1,0 +1,27 @@
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.emptyAction {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.infoCard {
+  margin-bottom: 24px;
+}
+
+.progressSection {
+  margin-top: 24px;
+  padding: 16px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.itemsCard {
+  margin-bottom: 24px;
+}

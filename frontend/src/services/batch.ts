@@ -10,6 +10,7 @@ import type {
   BatchDeployRequest,
   BatchUpgradeRequest,
   BatchOperationListResponse,
+  BatchOperationQueryParams,
 } from "../types/batch";
 
 /**
@@ -18,7 +19,7 @@ import type {
 export const batchExecuteCommand = async (
   requestParams: BatchCommandRequest,
 ): Promise<BatchOperation> => {
-  return request.post("/batch/command", requestParams);
+  return request.post("/api/v1/batch-operations/commands", requestParams);
 };
 
 /**
@@ -27,7 +28,7 @@ export const batchExecuteCommand = async (
 export const batchDeploy = async (
   requestParams: BatchDeployRequest,
 ): Promise<BatchOperation> => {
-  return request.post("/batch/deploy", requestParams);
+  return request.post("/api/v1/batch-operations/deploy", requestParams);
 };
 
 /**
@@ -36,14 +37,14 @@ export const batchDeploy = async (
 export const batchUpgrade = async (
   requestParams: BatchUpgradeRequest,
 ): Promise<BatchOperation> => {
-  return request.post("/batch/upgrade", requestParams);
+  return request.post("/api/v1/batch-operations/upgrade", requestParams);
 };
 
 /**
  * 获取批量操作详情
  */
 export const getBatchOperation = async (id: string): Promise<BatchOperation> => {
-  return request.get(`/batch/${id}`);
+  return request.get(`/api/v1/batch-operations/${id}`);
 };
 
 /**
@@ -52,15 +53,14 @@ export const getBatchOperation = async (id: string): Promise<BatchOperation> => 
 export const getBatchOperationItems = async (
   id: string,
 ): Promise<BatchOperationItem[]> => {
-  return request.get(`/batch/${id}/items`);
+  return request.get(`/api/v1/batch-operations/${id}/items`);
 };
 
 /**
  * 获取批量操作列表
  */
 export const listBatchOperations = async (
-  page: number,
-  size: number,
+  params?: BatchOperationQueryParams,
 ): Promise<BatchOperationListResponse> => {
-  return request.get("/batch", { params: { page, size } });
+  return request.get("/api/v1/batch-operations", { params });
 };

@@ -54,14 +54,13 @@ export interface BatchOperation {
  */
 export interface BatchOperationItem {
   id: string;
-  batchOperationId: string;
   targetId: string;
-  targetName?: string;
   targetType: BatchOperationTargetType;
   status: BatchOperationItemStatus;
   errorMessage?: string;
   startedAt?: string;
   completedAt?: string;
+  createdAt?: string;
 }
 
 /**
@@ -101,8 +100,10 @@ export interface BatchOperationQueryParams {
  * 批量操作列表响应
  */
 export interface BatchOperationListResponse {
-  items: BatchOperation[];
+  data: BatchOperation[];
   total: number;
+  page?: number;
+  size?: number;
 }
 
 /**
@@ -136,4 +137,28 @@ export const BatchOperationItemStatusLabels: Record<
   RUNNING: "执行中",
   SUCCESS: "成功",
   FAILED: "失败",
+};
+
+/**
+ * 批量操作状态颜色映射
+ */
+export const BatchOperationStatusColors: Record<BatchOperationStatus, string> = {
+  PENDING: "default",
+  RUNNING: "processing",
+  PARTIAL_SUCCESS: "warning",
+  SUCCESS: "success",
+  FAILED: "error",
+};
+
+/**
+ * 批量操作项状态颜色映射
+ */
+export const BatchOperationItemStatusColors: Record<
+  BatchOperationItemStatus,
+  string
+> = {
+  PENDING: "default",
+  RUNNING: "processing",
+  SUCCESS: "success",
+  FAILED: "error",
 };
