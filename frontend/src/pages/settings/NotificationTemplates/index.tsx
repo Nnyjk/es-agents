@@ -55,27 +55,16 @@ const templateTypeLabels: Record<TemplateType, string> = {
 const templateVariables: Record<TemplateType, string[]> = {
   ALERT: ["${alertName}", "${alertLevel}", "${alertTime}", "${alertContent}"],
   TASK_COMPLETE: ["${taskName}", "${taskId}", "${completeTime}", "${result}"],
-  DEPLOY_SUCCESS: [
-    "${appName}",
-    "${envName}",
-    "${deployTime}",
-    "${version}",
-  ],
-  DEPLOY_FAILED: [
-    "${appName}",
-    "${envName}",
-    "${deployTime}",
-    "${errorMsg}",
-  ],
+  DEPLOY_SUCCESS: ["${appName}", "${envName}", "${deployTime}", "${version}"],
+  DEPLOY_FAILED: ["${appName}", "${envName}", "${deployTime}", "${errorMsg}"],
   SYSTEM_NOTICE: ["${noticeTitle}", "${noticeContent}", "${noticeTime}"],
 };
 
 const NotificationTemplatesList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [editingItem, setEditingItem] = useState<
-    Partial<NotificationTemplate> | null
-  >(null);
+  const [editingItem, setEditingItem] =
+    useState<Partial<NotificationTemplate> | null>(null);
 
   const [createForm] = Form.useForm();
 
@@ -327,9 +316,7 @@ const NotificationTemplatesList: React.FC = () => {
           <Form.Item label="可用变量">
             <Space wrap>
               <InfoCircleOutlined style={{ color: "#1890ff" }} />
-              <Text type="secondary">
-                可使用以下变量占位符（点击可复制）：
-              </Text>
+              <Text type="secondary">可使用以下变量占位符（点击可复制）：</Text>
               {templateVariables[templateType as TemplateType]?.map((v) => (
                 <Tag
                   key={v}
@@ -363,7 +350,9 @@ const NotificationTemplatesList: React.FC = () => {
         >
           <TextArea
             rows={4}
-            placeholder={"可选：定义变量说明，如：\n{\n  \"alertName\": \"告警名称\",\n  \"alertLevel\": \"告警级别\"\n}"}
+            placeholder={
+              '可选：定义变量说明，如：\n{\n  "alertName": "告警名称",\n  "alertLevel": "告警级别"\n}'
+            }
           />
         </Form.Item>
       </DrawerForm>
