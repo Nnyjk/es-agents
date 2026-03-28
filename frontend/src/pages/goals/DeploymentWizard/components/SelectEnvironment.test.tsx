@@ -142,12 +142,7 @@ describe("SelectEnvironment", () => {
       vi.mocked(queryEnvironments).mockResolvedValue(mockEnvironments);
 
       const selectedEnv = mockEnvironments[0];
-      render(
-        <SelectEnvironment
-          value={selectedEnv}
-          onChange={vi.fn()}
-        />,
-      );
+      render(<SelectEnvironment value={selectedEnv} onChange={vi.fn()} />);
 
       await waitFor(() => {
         expect(screen.getByText("Development")).toBeInTheDocument();
@@ -211,9 +206,7 @@ describe("SelectEnvironment", () => {
     });
 
     it("handles API error gracefully", async () => {
-      vi.mocked(queryEnvironments).mockRejectedValue(
-        new Error("API Error"),
-      );
+      vi.mocked(queryEnvironments).mockRejectedValue(new Error("API Error"));
 
       render(<SelectEnvironment value={null} onChange={vi.fn()} />);
 
