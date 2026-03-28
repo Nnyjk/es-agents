@@ -17,7 +17,7 @@ public class ExportTaskRepository implements PanacheRepositoryBase<ExportTask, U
      * 根据用户 ID 查询导出任务列表
      */
     public List<ExportTask> findByUserIdOrderByCreatedAtDesc(UUID userId) {
-        return find("userId ORDER BY createdAt DESC", userId).list();
+        return find("userId = ?1 ORDER BY createdAt DESC", userId).list();
     }
 
     /**
@@ -38,7 +38,7 @@ public class ExportTaskRepository implements PanacheRepositoryBase<ExportTask, U
      * 查询指定状态的任务
      */
     public List<ExportTask> findByStatus(ExportStatus status) {
-        return find("status", status).list();
+        return find("status = ?1", status).list();
     }
 
     /**
@@ -52,20 +52,20 @@ public class ExportTaskRepository implements PanacheRepositoryBase<ExportTask, U
      * 根据用户 ID 查询最近的导出任务
      */
     public List<ExportTask> findRecentByUserId(UUID userId, int limit) {
-        return find("userId ORDER BY createdAt DESC", userId).page(0, limit).list();
+        return find("userId = ?1 ORDER BY createdAt DESC", userId).page(0, limit).list();
     }
 
     /**
      * 统计用户的任务数量
      */
     public long countByUserId(UUID userId) {
-        return count("userId", userId);
+        return count("userId = ?1", userId);
     }
 
     /**
      * 统计用户指定状态的任务数量
      */
     public long countByUserIdAndStatus(UUID userId, ExportStatus status) {
-        return count("userId = ?1 AND status = ?2", userId, status);
+        return count("userId = ?1 AND status = ?2", userId, status.name());
     }
 }
