@@ -4,9 +4,34 @@ import com.easystation.agent.domain.CommandExecution;
 import com.easystation.agent.domain.enums.ExecutionStatus;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 public class CommandExecutionRecord {
+
+    public record ExecuteRequest(
+            UUID agentInstanceId,
+            UUID templateId,
+            String command,
+            Map<String, Object> parameters,
+            Long timeout
+    ) {}
+
+    public record ExecuteResponse(
+            UUID executionId,
+            String message
+    ) {}
+
+    public record ListQuery(
+            UUID agentInstanceId,
+            UUID templateId,
+            ExecutionStatus status,
+            String executedBy,
+            LocalDateTime startTime,
+            LocalDateTime endTime,
+            Integer page,
+            Integer size
+    ) {}
 
     public record ListResponse(
             UUID id,
