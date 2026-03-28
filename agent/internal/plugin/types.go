@@ -60,3 +60,24 @@ func (p *PluginInfo) SetStatus(status PluginStatus) {
 	p.Status = status
 	p.UpdateLastSeen()
 }
+
+// PluginTaskStatus 任务执行状态
+type PluginTaskStatus string
+
+const (
+	TaskSuccess PluginTaskStatus = "SUCCESS"
+	TaskFailed  PluginTaskStatus = "FAILED"
+	TaskTimeout PluginTaskStatus = "TIMEOUT"
+)
+
+// PluginTaskResult 插件任务执行结果
+type PluginTaskResult struct {
+	TaskID     string                 `json:"taskId"`
+	PluginID   string                 `json:"pluginId"`
+	Status     PluginTaskStatus       `json:"status"`
+	ExitCode   int                    `json:"exitCode,omitempty"`
+	Output     string                 `json:"output,omitempty"`
+	Error      string                 `json:"error,omitempty"`
+	DurationMs int64                  `json:"durationMs"`
+	Data       map[string]interface{} `json:"data,omitempty"`
+}

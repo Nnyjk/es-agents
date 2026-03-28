@@ -92,6 +92,20 @@ func (r *Registry) UpdateStatus(id string, status PluginStatus) error {
 	return nil
 }
 
+// UpdateLastSeen 更新插件最后活跃时间
+func (r *Registry) UpdateLastSeen(id string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	info, exists := r.plugins[id]
+	if !exists {
+		return errors.New("plugin not found: " + id)
+	}
+
+	info.LastSeen = time.Now()
+	return nil
+}
+
 // HealthCheck 健康检查
 // 检查插件最后活跃时间，如果超过阈值则标记为 ERROR
 func (r *Registry) HealthCheck(id string, timeout time.Duration) error {
