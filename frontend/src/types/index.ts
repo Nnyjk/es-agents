@@ -256,6 +256,30 @@ export interface DeployResult {
   deployedAt: string;
 }
 
+// 部署进度 WebSocket 消息类型
+export type DeploymentStatus = "PENDING" | "RUNNING" | "SUCCESS" | "FAILED";
+export type DeploymentMessageType =
+  | "DEPLOYMENT_PROGRESS"
+  | "DEPLOYMENT_STATUS"
+  | "DEPLOYMENT_ERROR";
+
+export interface DeploymentProgressMessage {
+  type: DeploymentMessageType;
+  deploymentId: string;
+  status?: DeploymentStatus;
+  progress?: number;
+  stage?: string;
+  message?: string;
+  timestamp: string;
+}
+
+export interface DeploymentStage {
+  name: string;
+  status: DeploymentStatus;
+  progress: number;
+  message?: string;
+}
+
 export interface ExecuteCommandParams {
   commandId: string;
   args?: string;
