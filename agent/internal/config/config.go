@@ -12,6 +12,7 @@ type Config struct {
 	HostID            string        `mapstructure:"host_id"`
 	SecretKey         string        `mapstructure:"secret_key"`
 	HeartbeatInterval time.Duration `mapstructure:"heartbeat_interval"`
+	Version           string        `mapstructure:"version"`
 }
 
 func Load(path string) (*Config, error) {

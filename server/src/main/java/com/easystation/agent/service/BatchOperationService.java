@@ -6,6 +6,7 @@ import com.easystation.agent.domain.BatchOperationItem;
 import com.easystation.agent.domain.enums.BatchOperationStatus;
 import com.easystation.agent.domain.enums.OperationType;
 import com.easystation.infra.domain.Host;
+import com.easystation.infra.socket.AgentConnectionManager;
 import io.quarkus.logging.Log;
 import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -24,6 +25,9 @@ public class BatchOperationService {
 
     @Inject
     ManagedExecutor managedExecutor;
+
+    @Inject
+    AgentConnectionManager agentConnectionManager;
 
     private static final int DEFAULT_PAGE_SIZE = 20;
     private static final int MAX_PAGE_SIZE = 100;
@@ -472,12 +476,53 @@ public class BatchOperationService {
     }
 
     /**
-     * Upgrade agent instance (placeholder for actual implementation).
+     * Upgrade agent instance by sending UPGRADE_AGENT message via WebSocket.
      */
     private boolean upgradeAgentInstance(UUID agentId, String version) {
-        // TODO: Implement actual upgrade logic
-        Log.infof("Upgrading agent instance %s to version %s", agentId, version);
-        return true; // Simulate success for now
+        AgentInstance instance = AgentInstance.findById(agentId);
+        if (instance == null) {
+            Log.errorf("Agent instance not found: %s", agentId);
+            return false;
+        }
+
+        if (instance.host == null || instance.host.id == null) {
+            Log.errorf("Agent instance %s has no associated host", agentId);
+            return false;
+        }
+
+        UUID hostId = instance.host.id;
+        
+        // Build upgrade message
+        String downloadUrl = String.format(
+            "https://github.com/Nnyjk/es-agents/releases/download/v%s/host-agent-%s.tar.gz",
+            version, version
+        );
+        
+        String upgradeMessage = buildUpgradeMessage(agentId, version, downloadUrl, instance.version);
+        
+        Log.infof("Sending UPGRADE_AGENT message to agent %s (host %s), version: %s", 
+                  agentId, hostId, version);
+        
+        // Send message via WebSocket
+        boolean sent = agentConnectionManager.send(hostId, upgradeMessage);
+        if (!sent) {
+            Log.warnf("Failed to send upgrade message to agent %s (host %s) - agent may be offline", 
+                     agentId, hostId);
+            return false;
+        }
+        
+        Log.infof("Upgrade message sent successfully to agent %s", agentId);
+        return true;
+    }
+
+    /**
+     * Build UPGRADE_AGENT message in JSON format.
+     */
+    private String buildUpgradeMessage(UUID agentId, String version, String downloadUrl, String rollbackVersion) {
+        return String.format(
+            "{\"type\":\"UPGRADE_AGENT\",\"requestId\":\"upgrade-%s\",\"content\":{\"version\":\"%s\",\"downloadUrl\":\"%s\",\"rollbackVersion\":\"%s\"}}",
+            agentId, version, downloadUrl, rollbackVersion != null ? rollbackVersion : "unknown"
+        );
     }
 
     /**
