@@ -7,6 +7,7 @@ import com.easystation.agent.domain.enums.AgentSourceType;
 import com.easystation.agent.dto.AgentCredentialRecord;
 import com.easystation.agent.dto.AgentRepositoryRecord;
 import com.easystation.agent.dto.AgentSourceRecord;
+import com.easystation.agent.dto.ValidationResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,6 +28,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -605,5 +607,251 @@ public class AgentSourceService {
             return List.of("cmd", "/c", script);
         }
         return List.of("bash", "-lc", script);
+    }
+
+    // ==================== Resource Validation & Metadata ====================
+
+    public ValidationResult testSource(UUID id) {
+        AgentSource source = AgentSource.findById(id);
+        if (source == null) {
+            return ValidationResult.fail("Agent Source not found");
+        }
+        try {
+            JsonNode config = readConfig(source.config);
+            AgentCredential credential = source.credential != null ? source.credential :
+                (source.repository != null ? source.repository.credential : null);
+
+            switch (source.type) {
+                case LOCAL:
+                    return testLocal(config);
+                case HTTP:
+                case HTTPS:
+                case DOCKER:
+                case ALIYUN:
+                    return testHttpSource(source, config, credential);
+                case GIT:
+                    return testGitSource(source, config, credential);
+                case GITLAB:
+                    return testGitLabSource(source, config, credential);
+                case MAVEN:
+                    return testMavenSource(source, config, credential);
+                case NEXTCLOUD:
+                    return testNextcloudSource(source, config, credential);
+                default:
+                    return ValidationResult.fail("Unsupported source type: " + source.type);
+            }
+        } catch (JsonProcessingException e) {
+            return ValidationResult.fail("Failed to parse source config: " + e.getMessage());
+        } catch (Exception e) {
+            return ValidationResult.fail("Validation failed: " + e.getMessage());
+        }
+    }
+
+    private ValidationResult testLocal(JsonNode config) {
+        String fileName = config.path("file").asText();
+        if (fileName == null || fileName.isEmpty()) {
+            return ValidationResult.fail("File not configured for LOCAL source");
+        }
+        try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("agents/" + fileName)) {
+            if (is == null) {
+                return ValidationResult.fail("Agent binary not found in resources: " + fileName);
+            }
+            Map<String, Object> metadata = new HashMap<>();
+            metadata.put("fileName", fileName);
+            metadata.put("location", "classpath:agents/" + fileName);
+            return ValidationResult.success("Local file accessible", metadata);
+        } catch (IOException e) {
+            return ValidationResult.fail("Failed to access local file: " + e.getMessage());
+        }
+    }
+
+    private ValidationResult testHttpSource(AgentSource source, JsonNode config, AgentCredential credential) {
+        String url = resolveDirectDownloadUrl(source.type, source.repository, config);
+        if (url == null || url.isBlank()) {
+            return ValidationResult.fail("URL not configured for " + source.type + " source");
+        }
+        return performHttpTest(url, credential, source.type);
+    }
+
+    private ValidationResult testGitSource(AgentSource source, JsonNode config, AgentCredential credential) {
+        if (source.repository == null) {
+            String url = config.path("url").asText();
+            if (url == null || url.isBlank()) {
+                return ValidationResult.fail("Repository or URL not configured for GIT source");
+            }
+            return performHttpTest(url, credential, source.type);
+        }
+        String ref = config.path("ref").asText();
+        if (ref == null || ref.isBlank()) {
+            ref = source.repository.defaultBranch != null ? source.repository.defaultBranch : "main";
+        }
+        String archiveFormat = config.path("archiveFormat").asText("tar.gz");
+        String basePath = joinRepositoryBase(source.repository);
+        String archiveUrl = basePath + "/archive/" + urlEncode(ref) + "." + archiveFormat;
+        return performHttpTest(archiveUrl, credential, source.type);
+    }
+
+    private ValidationResult testGitLabSource(AgentSource source, JsonNode config, AgentCredential credential) {
+        if (source.repository == null) {
+            return ValidationResult.fail("Repository not configured for GitLab source");
+        }
+        String ref = config.path("ref").asText();
+        if (ref == null || ref.isBlank()) {
+            ref = source.repository.defaultBranch != null ? source.repository.defaultBranch : "main";
+        }
+        String filePath = config.path("filePath").asText();
+        if (filePath == null || filePath.isBlank()) {
+            return ValidationResult.fail("filePath not configured for GitLab source");
+        }
+        String encodedProject = urlEncode(source.repository.projectPath);
+        String encodedFile = urlEncode(filePath);
+        String encodedRef = urlEncode(ref);
+        String apiUrl = normalizeBaseUrl(source.repository.baseUrl) + "/api/v4/projects/" + encodedProject + "/repository/files/" + encodedFile + "/raw?ref=" + encodedRef;
+        return performHttpTest(apiUrl, credential, source.type);
+    }
+
+    private ValidationResult testMavenSource(AgentSource source, JsonNode config, AgentCredential credential) {
+        if (source.repository == null) {
+            return ValidationResult.fail("Repository not configured for Maven source");
+        }
+        String downloadUrl = buildRepositoryDownloadUrl(AgentSourceType.MAVEN, source.repository, config);
+        ValidationResult result = performHttpTest(downloadUrl, credential, source.type);
+        if (result.isSuccess()) {
+            result.getMetadata().put("groupId", config.path("groupId").asText());
+            result.getMetadata().put("artifactId", config.path("artifactId").asText());
+            result.getMetadata().put("version", config.path("version").asText());
+        }
+        return result;
+    }
+
+    private ValidationResult testNextcloudSource(AgentSource source, JsonNode config, AgentCredential credential) {
+        if (source.repository == null) {
+            return ValidationResult.fail("Repository not configured for Nextcloud source");
+        }
+        String downloadUrl = buildRepositoryDownloadUrl(AgentSourceType.NEXTCLOUD, source.repository, config);
+        return performHttpTest(downloadUrl, credential, source.type);
+    }
+
+    private ValidationResult performHttpTest(String url, AgentCredential credential, AgentSourceType sourceType) {
+        HttpClient client = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(10))
+            .followRedirects(HttpClient.Redirect.NORMAL)
+            .build();
+
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+            .uri(URI.create(url))
+            .GET();
+
+        if (isGitHubUrl(url)) {
+            builder.header("User-Agent", "easy-station-agent/1.0");
+        }
+
+        Map<String, String> headers = resolveAuthHeaders(credential, sourceType);
+        headers.forEach(builder::header);
+
+        try {
+            HttpResponse<byte[]> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
+            Map<String, Object> metadata = new HashMap<>();
+            metadata.put("url", url);
+            metadata.put("statusCode", response.statusCode());
+            metadata.put("contentLength", response.body() != null ? response.body().length : 0);
+
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                return ValidationResult.success("Source accessible", metadata);
+            }
+            return ValidationResult.fail("HTTP request failed with status: " + response.statusCode());
+        } catch (IOException e) {
+            return ValidationResult.fail("Failed to connect: " + e.getMessage());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return ValidationResult.fail("HTTP test interrupted");
+        }
+    }
+
+    public Map<String, Object> getSourceMetadata(UUID id) {
+        AgentSource source = AgentSource.findById(id);
+        if (source == null) {
+            throw new WebApplicationException("Agent Source not found", Response.Status.NOT_FOUND);
+        }
+
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("id", source.id);
+        metadata.put("name", source.name);
+        metadata.put("type", source.type.name());
+        metadata.put("createdAt", source.createdAt);
+        metadata.put("updatedAt", source.updatedAt);
+
+        try {
+            JsonNode config = readConfig(source.config);
+            Map<String, Object> configMetadata = extractConfigMetadata(source.type, config, source.repository);
+            metadata.put("config", configMetadata);
+        } catch (JsonProcessingException e) {
+            metadata.put("configError", "Failed to parse config: " + e.getMessage());
+        }
+
+        if (source.repository != null) {
+            Map<String, Object> repoMetadata = new HashMap<>();
+            repoMetadata.put("id", source.repository.id);
+            repoMetadata.put("name", source.repository.name);
+            repoMetadata.put("type", source.repository.type);
+            repoMetadata.put("baseUrl", source.repository.baseUrl);
+            repoMetadata.put("projectPath", source.repository.projectPath);
+            repoMetadata.put("defaultBranch", source.repository.defaultBranch);
+            metadata.put("repository", repoMetadata);
+        }
+
+        if (source.credential != null) {
+            Map<String, Object> credMetadata = new HashMap<>();
+            credMetadata.put("id", source.credential.id);
+            credMetadata.put("name", source.credential.name);
+            credMetadata.put("type", source.credential.type);
+            metadata.put("credential", credMetadata);
+        }
+
+        return metadata;
+    }
+
+    private Map<String, Object> extractConfigMetadata(AgentSourceType type, JsonNode config, AgentRepository repository) {
+        Map<String, Object> result = new HashMap<>();
+        String defaultBranch = repository != null ? repository.defaultBranch : "main";
+
+        switch (type) {
+            case LOCAL:
+                result.put("file", config.path("file").asText());
+                break;
+            case HTTP:
+            case HTTPS:
+                result.put("url", config.path("url").asText());
+                result.put("downloadUrl", config.path("downloadUrl").asText());
+                result.put("fileName", config.path("fileName").asText());
+                break;
+            case GIT:
+                result.put("url", config.path("url").asText());
+                result.put("ref", config.path("ref").asText(defaultBranch));
+                result.put("archiveFormat", config.path("archiveFormat").asText("tar.gz"));
+                break;
+            case GITLAB:
+                result.put("filePath", config.path("filePath").asText());
+                result.put("ref", config.path("ref").asText(defaultBranch));
+                break;
+            case MAVEN:
+                result.put("groupId", config.path("groupId").asText());
+                result.put("artifactId", config.path("artifactId").asText());
+                result.put("version", config.path("version").asText());
+                result.put("packaging", config.path("packaging").asText("jar"));
+                result.put("classifier", config.path("classifier").asText());
+                break;
+            case NEXTCLOUD:
+                result.put("filePath", config.path("filePath").asText());
+                result.put("fileName", config.path("fileName").asText());
+                break;
+            case DOCKER:
+            case ALIYUN:
+                result.put("url", config.path("url").asText());
+                result.put("downloadUrl", config.path("downloadUrl").asText());
+                result.put("fileName", config.path("fileName").asText());
+                break;
+        }
+        return result;
     }
 }
