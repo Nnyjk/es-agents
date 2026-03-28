@@ -55,7 +55,7 @@ const NotificationHistoryList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [detailVisible, setDetailVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState<NotificationHistory | null>(
-    null
+    null,
   );
   const [detailLoading, setDetailLoading] = useState(false);
 

@@ -49,9 +49,8 @@ const channelTypeLabels: Record<ChannelType, string> = {
 const NotificationChannelsList: React.FC = () => {
   const actionRef = useRef<ActionType>();
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [editingItem, setEditingItem] = useState<
-    Partial<NotificationChannel> | null
-  >(null);
+  const [editingItem, setEditingItem] =
+    useState<Partial<NotificationChannel> | null>(null);
   const [testVisible, setTestVisible] = useState(false);
   const [testingChannel, setTestingChannel] =
     useState<NotificationChannel | null>(null);
@@ -318,7 +317,9 @@ const NotificationChannelsList: React.FC = () => {
         >
           <TextArea
             rows={6}
-            placeholder={"请输入配置信息，如：\n{\n  \"host\": \"smtp.example.com\",\n  \"port\": 465\n}"}
+            placeholder={
+              '请输入配置信息，如：\n{\n  "host": "smtp.example.com",\n  "port": 465\n}'
+            }
           />
         </Form.Item>
         {editingItem && (
