@@ -25,7 +25,8 @@ import {
 import { DrawerForm } from "../../../components/DrawerForm";
 import {
   queryEnvironments,
-  saveEnvironment,
+  createEnvironment,
+  updateEnvironment,
   removeEnvironment,
   queryHosts,
 } from "../../../services/infra";
@@ -71,16 +72,29 @@ const EnvironmentList: React.FC = () => {
 
   const handleSave = async (data: any) => {
     try {
-      const saveData = {
-        ...editingItem,
-        ...data,
-        color:
-          typeof data.color === "string"
-            ? data.color
-            : data.color?.toHexString?.() || data.color,
-      };
-      await saveEnvironment(saveData);
-      message.success("保存成功");
+      const color =
+        typeof data.color === "string"
+          ? data.color
+          : data.color?.toHexString?.() || data.color;
+
+      if (editingItem?.id) {
+        // Update existing environment
+        await updateEnvironment(editingItem.id, {
+          description: data.description,
+          enabled: data.enabled,
+          color: color,
+        });
+        message.success("更新成功");
+      } else {
+        // Create new environment
+        await createEnvironment({
+          name: data.name,
+          code: data.code,
+          description: data.description,
+          color: color,
+        });
+        message.success("创建成功");
+      }
       setDrawerVisible(false);
       setEditingItem(null);
       actionRef.current?.reload();
