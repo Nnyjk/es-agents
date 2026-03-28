@@ -204,7 +204,7 @@ func (v *Validator) ValidateDirectory(path string, config ValidationConfig) Vali
 	if err != nil {
 		return ValidationResult{
 			Valid: false,
-			Error: fmt.Sprintf("directory validation failed: %w", err),
+			Error: fmt.Sprintf("directory validation failed: %v", err),
 		}
 	}
 

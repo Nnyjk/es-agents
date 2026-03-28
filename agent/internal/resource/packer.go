@@ -44,7 +44,7 @@ func (p *Packer) Build(ctx context.Context, req BuildRequest) (*BuildResult, err
 	// Check source path exists
 	if _, err := os.Stat(req.Config.SourcePath); err != nil {
 		result.Status = "FAILED"
-		result.Error = fmt.Sprintf("source path not found: %w", err)
+		result.Error = fmt.Sprintf("source path not found: %v", err)
 		result.FinishedAt = time.Now()
 		result.DurationMs = result.FinishedAt.Sub(started).Milliseconds()
 		return result, nil
@@ -53,7 +53,7 @@ func (p *Packer) Build(ctx context.Context, req BuildRequest) (*BuildResult, err
 	// Create output directory
 	if err := os.MkdirAll(req.Config.OutputDir, 0755); err != nil {
 		result.Status = "FAILED"
-		result.Error = fmt.Sprintf("failed to create output directory: %w", err)
+		result.Error = fmt.Sprintf("failed to create output directory: %v", err)
 		result.FinishedAt = time.Now()
 		result.DurationMs = result.FinishedAt.Sub(started).Milliseconds()
 		return result, nil
@@ -63,7 +63,7 @@ func (p *Packer) Build(ctx context.Context, req BuildRequest) (*BuildResult, err
 	if req.Config.BuildCommand != "" {
 		if err := p.runBuildCommand(ctx, &req.Config); err != nil {
 			result.Status = "FAILED"
-			result.Error = fmt.Sprintf("build command failed: %w", err)
+			result.Error = fmt.Sprintf("build command failed: %v", err)
 			result.FinishedAt = time.Now()
 			result.DurationMs = result.FinishedAt.Sub(started).Milliseconds()
 			return result, nil
