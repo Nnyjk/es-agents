@@ -48,6 +48,7 @@ import { ConfigPage } from "./pages/config";
 import { BatchOperationsPage, BatchOperationDetailPage } from "./pages/batch";
 import MonitoringPage from "./pages/monitoring/MonitoringPage";
 import GrafanaDashboardPage from "./pages/monitoring/GrafanaDashboardPage";
+import SystemEventLogPage from "./pages/systemEventLog";
 
 const App: React.FC = () => {
   return (
@@ -112,6 +113,7 @@ const App: React.FC = () => {
             <Route index element={<MonitoringPage />} />
             <Route path="grafana" element={<GrafanaDashboardPage />} />
           </Route>
+          <Route path="system-event-log" element={<SystemEventLogPage />} />
           <Route path="settings">
             <Route path="api-keys" element={<ApiKeyList />} />
             <Route
