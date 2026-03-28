@@ -22,7 +22,27 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
-      }
+      },
+      '/agents': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/auth': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/hosts': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/deployments': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+      '/q/openapi': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
     }
   }
 })
