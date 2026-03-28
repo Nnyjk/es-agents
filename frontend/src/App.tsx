@@ -44,6 +44,7 @@ import NotificationChannelsList from "./pages/settings/NotificationChannels";
 import NotificationTemplatesList from "./pages/settings/NotificationTemplates";
 import NotificationHistoryList from "./pages/settings/NotificationHistory";
 import CommandTemplatePage from "./pages/command/CommandTemplatePage";
+import { ConfigPage } from "./pages/config";
 
 const App: React.FC = () => {
   return (
@@ -99,6 +100,7 @@ const App: React.FC = () => {
           </Route>
           <Route path="scheduled-tasks" element={<ScheduledTaskList />} />
           <Route path="command-templates" element={<CommandTemplatePage />} />
+          <Route path="configs" element={<ConfigPage />} />
           <Route path="settings">
             <Route path="api-keys" element={<ApiKeyList />} />
             <Route
