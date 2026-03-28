@@ -30,9 +30,74 @@ type Agent struct {
 
 	LogBuffer   []string
 	LogBufferMu sync.Mutex
-	
+
 	LogFile     *os.File
 	LogFileMu   sync.Mutex
+
+	// TaskAggregator 收集多个 Plugin 执行结果
+	TaskAggregator *TaskAggregator
+}
+
+// TaskAggregator 收集多个 Plugin 执行结果，聚合后统一回传 Server
+type TaskAggregator struct {
+	results map[string]*plugin.PluginTaskResult
+	mu      sync.Mutex
+	agent   *Agent
+}
+
+// NewTaskAggregator 创建新的任务聚合器
+func NewTaskAggregator(agent *Agent) *TaskAggregator {
+	return &TaskAggregator{
+		results: make(map[string]*plugin.PluginTaskResult),
+		agent:   agent,
+	}
+}
+
+// AddResult 添加单个任务结果
+func (ta *TaskAggregator) AddResult(result *plugin.PluginTaskResult) {
+	ta.mu.Lock()
+	ta.results[result.TaskID] = result
+	ta.mu.Unlock()
+
+	// 立即回传单个结果
+	ta.agent.sendPluginTaskResult(result)
+}
+
+// AddResultBatch 批量添加结果（用于聚合场景）
+func (ta *TaskAggregator) AddResultBatch(results []*plugin.PluginTaskResult) {
+	ta.mu.Lock()
+	for _, r := range results {
+		ta.results[r.TaskID] = r
+	}
+	ta.mu.Unlock()
+}
+
+// GetResult 获取指定任务结果
+func (ta *TaskAggregator) GetResult(taskID string) *plugin.PluginTaskResult {
+	ta.mu.Lock()
+	defer ta.mu.Unlock()
+	return ta.results[taskID]
+}
+
+// RemoveResult 移除已处理的结果
+func (ta *TaskAggregator) RemoveResult(taskID string) {
+	ta.mu.Lock()
+	delete(ta.results, taskID)
+	ta.mu.Unlock()
+}
+
+// Clear 清空所有结果
+func (ta *TaskAggregator) Clear() {
+	ta.mu.Lock()
+	ta.results = make(map[string]*plugin.PluginTaskResult)
+	ta.mu.Unlock()
+}
+
+// Count 获取结果数量
+func (ta *TaskAggregator) Count() int {
+	ta.mu.Lock()
+	defer ta.mu.Unlock()
+	return len(ta.results)
 }
 
 func New(cfg *config.Config) *Agent {
@@ -49,6 +114,8 @@ func New(cfg *config.Config) *Agent {
 	a.PluginManager.OnOutput = func(line string) {
 		a.Log(line)
 	}
+
+	a.TaskAggregator = NewTaskAggregator(a)
 
 	return a
 }
@@ -207,6 +274,23 @@ func (a *Agent) handleMessage(msg []byte) {
 				a.Log("Interactive shell not available. Please use Command Palette.")
 			}
 		}
+	case "EXEC_PLUGIN_TASK":
+		var pluginTaskReq struct {
+			TaskID     string                 `json:"taskId"`
+			PluginID   string                 `json:"pluginId"`
+			TaskType   string                 `json:"taskType"`
+			Parameters map[string]interface{} `json:"parameters"`
+			TimeoutMs  int64                  `json:"timeoutMs"`
+		}
+		if err := json.Unmarshal(generic.Content, &pluginTaskReq); err == nil {
+			requestID := generic.RequestID
+			if requestID == "" {
+				requestID = pluginTaskReq.TaskID
+			}
+			go a.executePluginTask(requestID, pluginTaskReq.TaskID, pluginTaskReq.PluginID, pluginTaskReq.TaskType, pluginTaskReq.Parameters, pluginTaskReq.TimeoutMs)
+		} else {
+			a.Log(fmt.Sprintf("Failed to parse EXEC_PLUGIN_TASK content: %v", err))
+		}
 	default:
 		a.Log(fmt.Sprintf("Unsupported message type: %s", generic.Type))
 	}
@@ -351,6 +435,54 @@ func (a *Agent) handleFetchLogs() {
 	_ = a.WSServer.SendJSON(map[string]interface{}{
 		"type":    "LOG_HISTORY",
 		"content": logs,
+	})
+}
+
+// executePluginTask 执行插件任务并回传结果
+func (a *Agent) executePluginTask(requestID, taskID, pluginID, taskType string, parameters map[string]interface{}, timeoutMs int64) {
+	a.Log(fmt.Sprintf("Executing plugin task requestId=%s, taskId=%s, pluginId=%s, taskType=%s", requestID, taskID, pluginID, taskType))
+
+	// 使用 PluginManager.ExecutePluginDirect 执行任务
+	result := a.PluginManager.ExecutePluginDirect(context.Background(), pluginID, taskType, nil, parameters, timeoutMs)
+
+	// 确保使用正确的 TaskID
+	result.TaskID = taskID
+
+	// 记录执行日志
+	a.Log(fmt.Sprintf("Plugin task completed: taskId=%s, status=%s, durationMs=%d", result.TaskID, result.Status, result.DurationMs))
+
+	// 通过 TaskAggregator 添加结果并回传
+	a.TaskAggregator.AddResult(result)
+}
+
+// sendPluginTaskResult 发送插件任务执行结果到 Server
+func (a *Agent) sendPluginTaskResult(result *plugin.PluginTaskResult) {
+	content := map[string]interface{}{
+		"taskId":     result.TaskID,
+		"pluginId":   result.PluginID,
+		"status":     result.Status,
+		"durationMs": result.DurationMs,
+	}
+
+	if result.ExitCode != 0 {
+		content["exitCode"] = result.ExitCode
+	}
+	if result.Output != "" {
+		content["output"] = result.Output
+	}
+	if result.Error != "" {
+		content["error"] = result.Error
+	}
+	if result.Data != nil {
+		content["data"] = result.Data
+	}
+
+	_ = a.WSServer.SendJSON(map[string]interface{}{
+		"protocolVersion": "2.0",
+		"requestId":       result.TaskID,
+		"timestamp":       time.Now().UTC().Format(time.RFC3339),
+		"type":            "PLUGIN_TASK_RESULT",
+		"content":         content,
 	})
 }
 
