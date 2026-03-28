@@ -19,24 +19,24 @@ public class NotificationHistoryService {
         StringBuilder queryBuilder = new StringBuilder();
         java.util.Map<String, Object> params = new java.util.HashMap<>();
 
-        if (query.channelId() != null) {
+        if (query.getChannelId() != null) {
             queryBuilder.append("channelId = :channelId");
-            params.put("channelId", query.channelId());
+            params.put("channelId", query.getChannelId());
         }
-        if (query.status() != null) {
+        if (query.getStatus() != null) {
             if (queryBuilder.length() > 0) queryBuilder.append(" and ");
             queryBuilder.append("status = :status");
-            params.put("status", query.status());
+            params.put("status", query.getStatus());
         }
-        if (query.startTime() != null) {
+        if (query.getStartTime() != null) {
             if (queryBuilder.length() > 0) queryBuilder.append(" and ");
             queryBuilder.append("createdAt >= :startTime");
-            params.put("startTime", query.startTime());
+            params.put("startTime", query.getStartTime());
         }
-        if (query.endTime() != null) {
+        if (query.getEndTime() != null) {
             if (queryBuilder.length() > 0) queryBuilder.append(" and ");
             queryBuilder.append("createdAt <= :endTime");
-            params.put("endTime", query.endTime());
+            params.put("endTime", query.getEndTime());
         }
 
         List<NotificationHistory> histories;
