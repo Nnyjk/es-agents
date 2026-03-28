@@ -19,42 +19,47 @@ import {
   EyeOutlined,
   HistoryOutlined,
   CodeOutlined,
+  RedoOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import { PageContainer } from "@ant-design/pro-components";
 import dayjs from "dayjs";
-import { queryAgentTasks, getAgentTask } from "@/services/agent";
 import { queryAgentInstances } from "@/services/agent";
+import {
+  listCommandExecutions,
+  getCommandExecution,
+  retryCommandExecution,
+} from "@/services/commandExecution";
+import type { AgentInstance } from "@/types";
 import type {
-  AgentTask,
-  AgentTaskStatus,
-  AgentTaskQueryParams,
-  AgentInstance,
-} from "@/types";
+  CommandExecution,
+  ExecutionStatus,
+  CommandExecutionQueryParams,
+} from "@/types/command";
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
 
-const statusConfig: Record<AgentTaskStatus, { color: string; text: string }> = {
+const statusConfig: Record<ExecutionStatus, { color: string; text: string }> = {
   PENDING: { color: "default", text: "等待中" },
   RUNNING: { color: "processing", text: "执行中" },
   SUCCESS: { color: "success", text: "成功" },
   FAILED: { color: "error", text: "失败" },
   CANCELLED: { color: "warning", text: "已取消" },
-  TIMEOUT: { color: "magenta", text: "超时" },
 };
 
 const CommandHistory: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const [tasks, setTasks] = useState<AgentTask[]>([]);
+  const [executions, setExecutions] = useState<CommandExecution[]>([]);
   const [total, setTotal] = useState(0);
   const [instances, setInstances] = useState<AgentInstance[]>([]);
-  const [selectedTask, setSelectedTask] = useState<AgentTask | null>(null);
+  const [selectedExecution, setSelectedExecution] =
+    useState<CommandExecution | null>(null);
   const [detailVisible, setDetailVisible] = useState(false);
-  const [queryParams, setQueryParams] = useState<AgentTaskQueryParams>({
+  const [queryParams, setQueryParams] = useState<CommandExecutionQueryParams>({
     page: 1,
-    pageSize: 20,
+    size: 20,
   });
 
   useEffect(() => {
@@ -66,24 +71,24 @@ const CommandHistory: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    fetchTasks(queryParams);
+    fetchExecutions(queryParams);
   }, [queryParams]);
 
-  const fetchTasks = async (params: AgentTaskQueryParams) => {
+  const fetchExecutions = async (params: CommandExecutionQueryParams) => {
     setLoading(true);
     try {
-      const response = await queryAgentTasks(params);
-      setTasks(response.data || []);
+      const response = await listCommandExecutions(params);
+      setExecutions(response.items || []);
       setTotal(response.total || 0);
     } catch (error) {
-      message.error("获取任务列表失败");
+      message.error("获取执行历史失败");
     } finally {
       setLoading(false);
     }
   };
 
   const handleSearch = (values: any) => {
-    const params: AgentTaskQueryParams = {
+    const params: CommandExecutionQueryParams = {
       ...queryParams,
       ...values,
       page: 1,
@@ -95,37 +100,51 @@ const CommandHistory: React.FC = () => {
   };
 
   const handleReset = () => {
-    setQueryParams({ page: 1, pageSize: 20 });
+    setQueryParams({ page: 1, size: 20 });
   };
 
   const handleTableChange = (pagination: any) => {
     setQueryParams({
       ...queryParams,
       page: pagination.current,
-      pageSize: pagination.pageSize,
+      size: pagination.pageSize,
     });
   };
 
-  const handleViewDetail = async (task: AgentTask) => {
+  const handleViewDetail = async (execution: CommandExecution) => {
     try {
-      const detail = await getAgentTask(task.id);
-      setSelectedTask(detail);
+      const detail = await getCommandExecution(execution.id);
+      setSelectedExecution(detail);
       setDetailVisible(true);
     } catch (error) {
-      message.error("获取任务详情失败");
+      message.error("获取执行详情失败");
     }
   };
 
-  const formatDuration = (ms?: number) => {
-    if (!ms) return "-";
+  const handleRetry = async (execution: CommandExecution) => {
+    try {
+      const result = await retryCommandExecution(execution.id);
+      message.success(`重试任务已创建: ${result.executionId}`);
+      fetchExecutions(queryParams);
+    } catch (error) {
+      message.error("重试失败");
+    }
+  };
+
+  const formatDuration = (execution: CommandExecution) => {
+    if (!execution.startedAt || !execution.finishedAt) return "-";
+    const ms = dayjs(execution.finishedAt).diff(
+      dayjs(execution.startedAt),
+      "ms",
+    );
     if (ms < 1000) return `${ms}ms`;
     if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
     return `${(ms / 60000).toFixed(1)}min`;
   };
 
-  const columns: ColumnsType<AgentTask> = [
+  const columns: ColumnsType<CommandExecution> = [
     {
-      title: "任务ID",
+      title: "执行ID",
       dataIndex: "id",
       key: "id",
       width: 280,
@@ -138,33 +157,37 @@ const CommandHistory: React.FC = () => {
     },
     {
       title: "Agent 实例",
-      dataIndex: "agentInstanceName",
-      key: "agentInstanceName",
+      dataIndex: "agentInstanceId",
+      key: "agentInstanceId",
       width: 150,
       ellipsis: true,
+      render: (id: string) => {
+        const instance = instances.find((i) => i.id === id);
+        return instance?.template?.name || id;
+      },
+    },
+    {
+      title: "主机",
+      dataIndex: "hostName",
+      key: "hostName",
+      width: 120,
+      ellipsis: true,
+      render: (text: string) => text || "-",
     },
     {
       title: "命令",
-      dataIndex: "commandName",
-      key: "commandName",
-      width: 150,
-      ellipsis: true,
-      render: (text: string) => <Tag color="blue">{text || "-"}</Tag>,
-    },
-    {
-      title: "参数",
-      dataIndex: "args",
-      key: "args",
+      dataIndex: "command",
+      key: "command",
       width: 200,
       ellipsis: true,
-      render: (text: string) => text || "-",
+      render: (text: string) => <Tag color="blue">{text || "-"}</Tag>,
     },
     {
       title: "状态",
       dataIndex: "status",
       key: "status",
       width: 100,
-      render: (status: AgentTaskStatus) => {
+      render: (status: ExecutionStatus) => {
         const config = statusConfig[status] || {
           color: "default",
           text: status,
@@ -174,10 +197,9 @@ const CommandHistory: React.FC = () => {
     },
     {
       title: "耗时",
-      dataIndex: "durationMs",
-      key: "durationMs",
+      key: "duration",
       width: 100,
-      render: (ms: number) => formatDuration(ms),
+      render: (_, record) => formatDuration(record),
     },
     {
       title: "创建时间",
@@ -189,16 +211,28 @@ const CommandHistory: React.FC = () => {
     {
       title: "操作",
       key: "action",
-      width: 100,
+      width: 150,
       render: (_, record) => (
-        <Button
-          type="link"
-          size="small"
-          icon={<EyeOutlined />}
-          onClick={() => handleViewDetail(record)}
-        >
-          详情
-        </Button>
+        <Space>
+          <Button
+            type="link"
+            size="small"
+            icon={<EyeOutlined />}
+            onClick={() => handleViewDetail(record)}
+          >
+            详情
+          </Button>
+          {record.status === "FAILED" && (
+            <Button
+              type="link"
+              size="small"
+              icon={<RedoOutlined />}
+              onClick={() => handleRetry(record)}
+            >
+              重试
+            </Button>
+          )}
+        </Space>
       ),
     },
   ];
@@ -229,7 +263,6 @@ const CommandHistory: React.FC = () => {
               <Option value="SUCCESS">成功</Option>
               <Option value="FAILED">失败</Option>
               <Option value="CANCELLED">已取消</Option>
-              <Option value="TIMEOUT">超时</Option>
             </Select>
           </Form.Item>
           <Form.Item name="timeRange">
@@ -260,7 +293,7 @@ const CommandHistory: React.FC = () => {
         extra={
           <Button
             icon={<ReloadOutlined />}
-            onClick={() => fetchTasks(queryParams)}
+            onClick={() => fetchExecutions(queryParams)}
           >
             刷新
           </Button>
@@ -269,11 +302,11 @@ const CommandHistory: React.FC = () => {
         <Table
           rowKey="id"
           columns={columns}
-          dataSource={tasks}
+          dataSource={executions}
           loading={loading}
           pagination={{
             current: queryParams.page,
-            pageSize: queryParams.pageSize,
+            pageSize: queryParams.size,
             total,
             showSizeChanger: true,
             showQuickJumper: true,
@@ -284,56 +317,72 @@ const CommandHistory: React.FC = () => {
       </Card>
 
       <Modal
-        title="任务详情"
+        title="执行详情"
         open={detailVisible}
         onCancel={() => setDetailVisible(false)}
         footer={null}
         width={800}
       >
-        {selectedTask && (
+        {selectedExecution && (
           <div>
             <Descriptions column={2} bordered size="small">
-              <Descriptions.Item label="任务ID" span={2}>
+              <Descriptions.Item label="执行ID" span={2}>
                 <Text copyable style={{ fontSize: 12 }}>
-                  {selectedTask.id}
+                  {selectedExecution.id}
                 </Text>
               </Descriptions.Item>
               <Descriptions.Item label="Agent 实例">
-                {selectedTask.agentInstanceName || selectedTask.agentInstanceId}
+                {selectedExecution.agentInstanceId}
+              </Descriptions.Item>
+              <Descriptions.Item label="主机">
+                {selectedExecution.hostName || "-"}
               </Descriptions.Item>
               <Descriptions.Item label="命令">
-                {selectedTask.commandName || "-"}
+                {selectedExecution.command || "-"}
               </Descriptions.Item>
               <Descriptions.Item label="状态">
-                <Tag color={statusConfig[selectedTask.status]?.color}>
-                  {statusConfig[selectedTask.status]?.text ||
-                    selectedTask.status}
+                <Tag color={statusConfig[selectedExecution.status]?.color}>
+                  {statusConfig[selectedExecution.status]?.text ||
+                    selectedExecution.status}
                 </Tag>
               </Descriptions.Item>
               <Descriptions.Item label="耗时">
-                {formatDuration(selectedTask.durationMs)}
+                {formatDuration(selectedExecution)}
+              </Descriptions.Item>
+              <Descriptions.Item label="退出码">
+                {selectedExecution.exitCode ?? "-"}
+              </Descriptions.Item>
+              <Descriptions.Item label="重试次数">
+                {selectedExecution.retryCount ?? 0}
+              </Descriptions.Item>
+              <Descriptions.Item label="执行人">
+                {selectedExecution.executedBy}
               </Descriptions.Item>
               <Descriptions.Item label="创建时间">
-                {dayjs(selectedTask.createdAt).format("YYYY-MM-DD HH:mm:ss")}
+                {dayjs(selectedExecution.createdAt).format(
+                  "YYYY-MM-DD HH:mm:ss",
+                )}
               </Descriptions.Item>
-              <Descriptions.Item label="更新时间">
-                {selectedTask.updatedAt
-                  ? dayjs(selectedTask.updatedAt).format("YYYY-MM-DD HH:mm:ss")
+              <Descriptions.Item label="开始时间">
+                {selectedExecution.startedAt
+                  ? dayjs(selectedExecution.startedAt).format(
+                      "YYYY-MM-DD HH:mm:ss",
+                    )
                   : "-"}
               </Descriptions.Item>
-              {selectedTask.args && (
-                <Descriptions.Item label="参数" span={2}>
-                  <code style={{ background: "#f5f5f5", padding: "2px 6px" }}>
-                    {selectedTask.args}
-                  </code>
-                </Descriptions.Item>
-              )}
+              <Descriptions.Item label="结束时间">
+                {selectedExecution.finishedAt
+                  ? dayjs(selectedExecution.finishedAt).format(
+                      "YYYY-MM-DD HH:mm:ss",
+                    )
+                  : "-"}
+              </Descriptions.Item>
             </Descriptions>
 
-            {selectedTask.result && (
+            {selectedExecution.output && (
               <>
                 <Divider orientation="left">
-                  <CodeOutlined /> 执行结果
+                  <CodeOutlined /> 执行输出
                 </Divider>
                 <div
                   style={{
@@ -354,7 +403,37 @@ const CommandHistory: React.FC = () => {
                       wordBreak: "break-all",
                     }}
                   >
-                    {selectedTask.result}
+                    {selectedExecution.output}
+                  </pre>
+                </div>
+              </>
+            )}
+
+            {selectedExecution.errorMessage && (
+              <>
+                <Divider orientation="left">
+                  <CodeOutlined /> 错误信息
+                </Divider>
+                <div
+                  style={{
+                    background: "#2d1f1f",
+                    color: "#f5a6a6",
+                    padding: 16,
+                    borderRadius: 4,
+                    maxHeight: 200,
+                    overflow: "auto",
+                    fontFamily: "Consolas, Monaco, monospace",
+                    fontSize: 13,
+                  }}
+                >
+                  <pre
+                    style={{
+                      margin: 0,
+                      whiteSpace: "pre-wrap",
+                      wordBreak: "break-all",
+                    }}
+                  >
+                    {selectedExecution.errorMessage}
                   </pre>
                 </div>
               </>
