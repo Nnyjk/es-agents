@@ -1,11 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Card, Form, Input, Select, Button, DatePicker, Space, Tag, Typography, Row, Col, Modal } from 'antd';
-import { SearchOutlined, ReloadOutlined, ClearOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
-import dayjs from 'dayjs';
-import { systemEventLogApi } from '../../services/systemEventLog';
-import type { SystemEventLog, EventQueryCriteria } from '../../types/systemEventLog';
-import styles from './SystemEventLogPage.module.css';
+import React, { useEffect, useState } from "react";
+import {
+  Table,
+  Card,
+  Form,
+  Input,
+  Select,
+  Button,
+  DatePicker,
+  Space,
+  Tag,
+  Typography,
+  Row,
+  Col,
+  Modal,
+} from "antd";
+import {
+  SearchOutlined,
+  ReloadOutlined,
+  ClearOutlined,
+} from "@ant-design/icons";
+import type { ColumnsType } from "antd/es/table";
+import dayjs from "dayjs";
+import { systemEventLogApi } from "../../services/systemEventLog";
+import type {
+  SystemEventLog,
+  EventQueryCriteria,
+} from "../../types/systemEventLog";
+import styles from "./SystemEventLogPage.module.css";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -15,7 +36,9 @@ const SystemEventLogPage: React.FC = () => {
   const [events, setEvents] = useState<SystemEventLog[]>([]);
   const [total, setTotal] = useState(0);
   const [form] = Form.useForm();
-  const [selectedEvent, setSelectedEvent] = useState<SystemEventLog | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<SystemEventLog | null>(
+    null,
+  );
   const [detailModalVisible, setDetailModalVisible] = useState(false);
 
   const loadEvents = async (criteria: EventQueryCriteria = {}) => {
@@ -23,11 +46,15 @@ const SystemEventLogPage: React.FC = () => {
     try {
       const page = criteria.page || 1;
       const size = criteria.size || 10;
-      const result = await systemEventLogApi.queryEvents({ ...criteria, page, size });
+      const result = await systemEventLogApi.queryEvents({
+        ...criteria,
+        page,
+        size,
+      });
       setEvents(result.items);
       setTotal(result.total);
     } catch (error) {
-      console.error('Failed to load events:', error);
+      console.error("Failed to load events:", error);
     } finally {
       setLoading(false);
     }
@@ -39,7 +66,7 @@ const SystemEventLogPage: React.FC = () => {
 
   const handleSearch = (values: EventQueryCriteria) => {
     const criteria: EventQueryCriteria = {};
-    
+
     if (values.eventType) criteria.eventType = values.eventType;
     if (values.eventLevel) criteria.eventLevel = values.eventLevel;
     if (values.module) criteria.module = values.module;
@@ -47,9 +74,13 @@ const SystemEventLogPage: React.FC = () => {
     if (values.status) criteria.status = values.status;
     if (values.userId) criteria.userId = values.userId;
     if (values.agentId) criteria.agentId = values.agentId;
-    if (values.startTime) criteria.startTime = dayjs(values.startTime).format('YYYY-MM-DD HH:mm:ss');
-    if (values.endTime) criteria.endTime = dayjs(values.endTime).format('YYYY-MM-DD HH:mm:ss');
-    
+    if (values.startTime)
+      criteria.startTime = dayjs(values.startTime).format(
+        "YYYY-MM-DD HH:mm:ss",
+      );
+    if (values.endTime)
+      criteria.endTime = dayjs(values.endTime).format("YYYY-MM-DD HH:mm:ss");
+
     loadEvents(criteria);
   };
 
@@ -65,81 +96,97 @@ const SystemEventLogPage: React.FC = () => {
 
   const getLevelColor = (level: string) => {
     switch (level) {
-      case 'ERROR': return 'red';
-      case 'WARN': return 'orange';
-      case 'INFO': return 'blue';
-      case 'DEBUG': return 'gray';
-      default: return 'default';
+      case "ERROR":
+        return "red";
+      case "WARN":
+        return "orange";
+      case "INFO":
+        return "blue";
+      case "DEBUG":
+        return "gray";
+      default:
+        return "default";
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'SUCCESS': return 'green';
-      case 'FAILURE': return 'red';
-      case 'PENDING': return 'orange';
-      default: return 'default';
+      case "SUCCESS":
+        return "green";
+      case "FAILURE":
+        return "red";
+      case "PENDING":
+        return "orange";
+      default:
+        return "default";
     }
   };
 
   const columns: ColumnsType<SystemEventLog> = [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
       width: 80,
     },
     {
-      title: '事件类型',
-      dataIndex: 'eventType',
-      key: 'eventType',
+      title: "事件类型",
+      dataIndex: "eventType",
+      key: "eventType",
       width: 120,
     },
     {
-      title: '级别',
-      dataIndex: 'eventLevel',
-      key: 'eventLevel',
+      title: "级别",
+      dataIndex: "eventLevel",
+      key: "eventLevel",
       width: 80,
-      render: (level: string) => <Tag color={getLevelColor(level)}>{level}</Tag>,
+      render: (level: string) => (
+        <Tag color={getLevelColor(level)}>{level}</Tag>
+      ),
     },
     {
-      title: '模块',
-      dataIndex: 'module',
-      key: 'module',
+      title: "模块",
+      dataIndex: "module",
+      key: "module",
       width: 100,
     },
     {
-      title: '动作',
-      dataIndex: 'action',
-      key: 'action',
+      title: "动作",
+      dataIndex: "action",
+      key: "action",
       width: 120,
     },
     {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
+      title: "状态",
+      dataIndex: "status",
+      key: "status",
       width: 90,
-      render: (status: string) => <Tag color={getStatusColor(status)}>{status}</Tag>,
+      render: (status: string) => (
+        <Tag color={getStatusColor(status)}>{status}</Tag>
+      ),
     },
     {
-      title: '描述',
-      dataIndex: 'description',
-      key: 'description',
+      title: "描述",
+      dataIndex: "description",
+      key: "description",
       ellipsis: true,
     },
     {
-      title: '时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
+      title: "时间",
+      dataIndex: "createdAt",
+      key: "createdAt",
       width: 180,
-      render: (createdAt: string) => dayjs(createdAt).format('YYYY-MM-DD HH:mm:ss'),
+      render: (createdAt: string) =>
+        dayjs(createdAt).format("YYYY-MM-DD HH:mm:ss"),
     },
     {
-      title: '操作',
-      key: 'action',
+      title: "操作",
+      key: "action",
       width: 80,
       render: (_, record) => (
-        <Button type="link" onClick={() => showDetail(record)}>详情</Button>
+        <Button type="link" onClick={() => showDetail(record)}>
+          详情
+        </Button>
       ),
     },
   ];
@@ -182,17 +229,21 @@ const SystemEventLogPage: React.FC = () => {
           <Row gutter={16}>
             <Col span={6}>
               <Form.Item name="startTime" label="开始时间">
-                <DatePicker showTime style={{ width: '100%' }} />
+                <DatePicker showTime style={{ width: "100%" }} />
               </Form.Item>
             </Col>
             <Col span={6}>
               <Form.Item name="endTime" label="结束时间">
-                <DatePicker showTime style={{ width: '100%' }} />
+                <DatePicker showTime style={{ width: "100%" }} />
               </Form.Item>
             </Col>
-            <Col span={12} style={{ display: 'flex', alignItems: 'flex-end' }}>
+            <Col span={12} style={{ display: "flex", alignItems: "flex-end" }}>
               <Space>
-                <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  icon={<SearchOutlined />}
+                >
                   查询
                 </Button>
                 <Button onClick={handleReset} icon={<ClearOutlined />}>
@@ -234,33 +285,76 @@ const SystemEventLogPage: React.FC = () => {
           <div className={styles.detailContent}>
             <Row gutter={16}>
               <Col span={12}>
-                <p><strong>ID:</strong> {selectedEvent.id}</p>
-                <p><strong>事件类型:</strong> {selectedEvent.eventType}</p>
-                <p><strong>级别:</strong> <Tag color={getLevelColor(selectedEvent.eventLevel)}>{selectedEvent.eventLevel}</Tag></p>
-                <p><strong>模块:</strong> {selectedEvent.module}</p>
-                <p><strong>动作:</strong> {selectedEvent.action}</p>
-                <p><strong>状态:</strong> <Tag color={getStatusColor(selectedEvent.status)}>{selectedEvent.status}</Tag></p>
+                <p>
+                  <strong>ID:</strong> {selectedEvent.id}
+                </p>
+                <p>
+                  <strong>事件类型:</strong> {selectedEvent.eventType}
+                </p>
+                <p>
+                  <strong>级别:</strong>{" "}
+                  <Tag color={getLevelColor(selectedEvent.eventLevel)}>
+                    {selectedEvent.eventLevel}
+                  </Tag>
+                </p>
+                <p>
+                  <strong>模块:</strong> {selectedEvent.module}
+                </p>
+                <p>
+                  <strong>动作:</strong> {selectedEvent.action}
+                </p>
+                <p>
+                  <strong>状态:</strong>{" "}
+                  <Tag color={getStatusColor(selectedEvent.status)}>
+                    {selectedEvent.status}
+                  </Tag>
+                </p>
               </Col>
               <Col span={12}>
-                <p><strong>用户:</strong> {selectedEvent.username || selectedEvent.userId || '-'}</p>
-                <p><strong>Agent:</strong> {selectedEvent.agentName || selectedEvent.agentId || '-'}</p>
-                <p><strong>目标:</strong> {selectedEvent.goalName || selectedEvent.goalId || '-'}</p>
-                <p><strong>批次:</strong> {selectedEvent.batchOperationId || '-'}</p>
-                <p><strong>耗时:</strong> {selectedEvent.duration ? `${selectedEvent.duration}ms` : '-'}</p>
-                <p><strong>时间:</strong> {dayjs(selectedEvent.createdAt).format('YYYY-MM-DD HH:mm:ss')}</p>
+                <p>
+                  <strong>用户:</strong>{" "}
+                  {selectedEvent.username || selectedEvent.userId || "-"}
+                </p>
+                <p>
+                  <strong>Agent:</strong>{" "}
+                  {selectedEvent.agentName || selectedEvent.agentId || "-"}
+                </p>
+                <p>
+                  <strong>目标:</strong>{" "}
+                  {selectedEvent.goalName || selectedEvent.goalId || "-"}
+                </p>
+                <p>
+                  <strong>批次:</strong> {selectedEvent.batchOperationId || "-"}
+                </p>
+                <p>
+                  <strong>耗时:</strong>{" "}
+                  {selectedEvent.duration ? `${selectedEvent.duration}ms` : "-"}
+                </p>
+                <p>
+                  <strong>时间:</strong>{" "}
+                  {dayjs(selectedEvent.createdAt).format("YYYY-MM-DD HH:mm:ss")}
+                </p>
               </Col>
             </Row>
-            <p><strong>描述:</strong></p>
+            <p>
+              <strong>描述:</strong>
+            </p>
             <p>{selectedEvent.description}</p>
             {selectedEvent.errorMessage && (
               <>
-                <p><strong>错误信息:</strong></p>
-                <pre className={styles.errorMessage}>{selectedEvent.errorMessage}</pre>
+                <p>
+                  <strong>错误信息:</strong>
+                </p>
+                <pre className={styles.errorMessage}>
+                  {selectedEvent.errorMessage}
+                </pre>
               </>
             )}
             {selectedEvent.metadata && (
               <>
-                <p><strong>元数据:</strong></p>
+                <p>
+                  <strong>元数据:</strong>
+                </p>
                 <pre className={styles.metadata}>{selectedEvent.metadata}</pre>
               </>
             )}
