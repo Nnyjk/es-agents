@@ -185,5 +185,21 @@
                 <quarkus.native.enabled>true</quarkus.native.enabled>
             </properties>
         </profile>
+        <!-- Demo Profile - H2 Database -->
+        <profile>
+            <id>demo</id>
+            <activation>
+                <property>
+                    <name>quarkus.profile</name>
+                    <value>demo</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>io.quarkus</groupId>
+                    <artifactId>quarkus-jdbc-h2</artifactId>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 </project>
