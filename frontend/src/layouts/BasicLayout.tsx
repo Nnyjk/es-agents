@@ -9,6 +9,7 @@ import {
   AppstoreOutlined,
   SettingOutlined,
   CloudServerOutlined,
+  MonitorOutlined,
 } from "@ant-design/icons";
 import { logout, getRoutes, RouteItem } from "../services/auth";
 
@@ -19,6 +20,7 @@ const IconMap: Record<string, React.ReactNode> = {
   AppstoreOutlined: <AppstoreOutlined />,
   SettingOutlined: <SettingOutlined />,
   CloudServerOutlined: <CloudServerOutlined />,
+  MonitorOutlined: <MonitorOutlined />,
 };
 
 const loopMenuItem = (menus: RouteItem[]): any[] =>
