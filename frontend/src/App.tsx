@@ -46,6 +46,8 @@ import NotificationHistoryList from "./pages/settings/NotificationHistory";
 import CommandTemplatePage from "./pages/command/CommandTemplatePage";
 import { ConfigPage } from "./pages/config";
 import { BatchOperationsPage, BatchOperationDetailPage } from "./pages/batch";
+import MonitoringPage from "./pages/monitoring/MonitoringPage";
+import GrafanaDashboardPage from "./pages/monitoring/GrafanaDashboardPage";
 
 const App: React.FC = () => {
   return (
@@ -105,6 +107,10 @@ const App: React.FC = () => {
           <Route path="batch">
             <Route index element={<BatchOperationsPage />} />
             <Route path=":id" element={<BatchOperationDetailPage />} />
+          </Route>
+          <Route path="monitoring">
+            <Route index element={<MonitoringPage />} />
+            <Route path="grafana" element={<GrafanaDashboardPage />} />
           </Route>
           <Route path="settings">
             <Route path="api-keys" element={<ApiKeyList />} />
