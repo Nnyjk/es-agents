@@ -25,19 +25,17 @@ import {
 import type { LogLevel, LogEntry } from "@/types/agentMonitoring";
 import styles from "../AgentDetail.module.css";
 
-
 interface AgentLogViewerProps {
   agentId: string;
   wsConnected?: boolean;
 }
 
-const LogLevelConfig: Record<LogLevel, { color: string; className: string }> =
-  {
-    DEBUG: { color: "default", className: styles.logLevelDebug },
-    INFO: { color: "blue", className: styles.logLevelInfo },
-    WARN: { color: "orange", className: styles.logLevelWarn },
-    ERROR: { color: "red", className: styles.logLevelError },
-  };
+const LogLevelConfig: Record<LogLevel, { color: string; className: string }> = {
+  DEBUG: { color: "default", className: styles.logLevelDebug },
+  INFO: { color: "blue", className: styles.logLevelInfo },
+  WARN: { color: "orange", className: styles.logLevelWarn },
+  ERROR: { color: "red", className: styles.logLevelError },
+};
 
 /**
  * Agent 日志查看器组件
@@ -136,8 +134,7 @@ const AgentLogViewer: React.FC<AgentLogViewerProps> = ({
   // 自动滚动到底部
   useEffect(() => {
     if (autoScroll && !isPaused && logContainerRef.current) {
-      logContainerRef.current.scrollTop =
-        logContainerRef.current.scrollHeight;
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     }
   }, [filteredLogs, autoScroll, isPaused]);
 
@@ -175,10 +172,7 @@ const AgentLogViewer: React.FC<AgentLogViewerProps> = ({
   // 下载日志
   const handleDownload = () => {
     const content = filteredLogs
-      .map(
-        (log) =>
-          `[${log.timestamp}] [${log.level}] ${log.message}`,
-      )
+      .map((log) => `[${log.timestamp}] [${log.level}] ${log.message}`)
       .join("\n");
     const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
@@ -204,12 +198,13 @@ const AgentLogViewer: React.FC<AgentLogViewerProps> = ({
   const renderLogLine = (log: LogEntry) => {
     const levelConfig = LogLevelConfig[log.level];
     return (
-      <div key={`${log.lineNumber}-${log.timestamp}`} className={styles.logLine}>
+      <div
+        key={`${log.lineNumber}-${log.timestamp}`}
+        className={styles.logLine}
+      >
         <span className={styles.logLineNumber}>{log.lineNumber}</span>
         <span className={styles.logTimestamp}>
-          {log.timestamp
-            ? new Date(log.timestamp).toLocaleTimeString()
-            : ""}
+          {log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : ""}
         </span>
         <span className={`${styles.logLevel} ${levelConfig.className}`}>
           [{log.level}]
@@ -243,7 +238,11 @@ const AgentLogViewer: React.FC<AgentLogViewerProps> = ({
             />
           </Tooltip>
           <Tooltip title="清空">
-            <Button icon={<ClearOutlined />} onClick={handleClear} size="small" />
+            <Button
+              icon={<ClearOutlined />}
+              onClick={handleClear}
+              size="small"
+            />
           </Tooltip>
           <Tooltip title="下载">
             <Button
@@ -333,9 +332,11 @@ const AgentLogViewer: React.FC<AgentLogViewerProps> = ({
           className={styles.logContainer}
           style={{ position: "relative" }}
         >
-          {filteredLogs.length > 0
-            ? filteredLogs.map(renderLogLine)
-            : <Empty description="暂无日志" />}
+          {filteredLogs.length > 0 ? (
+            filteredLogs.map(renderLogLine)
+          ) : (
+            <Empty description="暂无日志" />
+          )}
           {isPaused && (
             <div className={styles.logPausedOverlay}>
               <Space>

@@ -72,7 +72,9 @@ const AgentHistory: React.FC<AgentHistoryProps> = ({ agentId }) => {
     const loadHistory = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/agents/instances/${agentId}/deployments`);
+        const response = await fetch(
+          `/api/agents/instances/${agentId}/deployments`,
+        );
         if (response.ok) {
           const data = await response.json();
           setHistory(data || []);
@@ -159,7 +161,11 @@ const AgentHistory: React.FC<AgentHistoryProps> = ({ agentId }) => {
   };
 
   return (
-    <Card className={styles.historyCard} title="部署历史" extra={<Text type="secondary">共 {history.length} 次</Text>}>
+    <Card
+      className={styles.historyCard}
+      title="部署历史"
+      extra={<Text type="secondary">共 {history.length} 次</Text>}
+    >
       <Spin spinning={loading}>
         {history.length > 0 ? (
           <Timeline className={styles.historyTimeline}>
@@ -191,11 +197,14 @@ const AgentHistory: React.FC<AgentHistoryProps> = ({ agentId }) => {
             </Descriptions.Item>
             <Descriptions.Item label="状态">
               <Tag color={StatusConfig[selectedRecord.status]?.color}>
-                {StatusConfig[selectedRecord.status]?.text || selectedRecord.status}
+                {StatusConfig[selectedRecord.status]?.text ||
+                  selectedRecord.status}
               </Tag>
             </Descriptions.Item>
             <Descriptions.Item label="触发类型">
-              {selectedRecord.triggerType === "MANUAL" ? "手动部署" : "自动部署"}
+              {selectedRecord.triggerType === "MANUAL"
+                ? "手动部署"
+                : "自动部署"}
             </Descriptions.Item>
             <Descriptions.Item label="触发人">
               {selectedRecord.triggeredBy || "系统"}

@@ -2,11 +2,7 @@
  * Agent 详情页类型定义
  */
 
-import type {
-  AgentStatus,
-  LogLevel,
-  LogEntry,
-} from "@/types/agentMonitoring";
+import type { AgentStatus, LogLevel, LogEntry } from "@/types/agentMonitoring";
 
 // Re-export for convenience
 export type { AgentStatus, LogLevel, LogEntry } from "@/types/agentMonitoring";
