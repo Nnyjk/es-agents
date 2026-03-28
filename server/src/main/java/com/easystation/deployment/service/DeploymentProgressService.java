@@ -6,7 +6,9 @@ import com.easystation.deployment.dto.DeploymentProgressDTO;
 import com.easystation.deployment.dto.DeploymentProgressHistoryDTO;
 import com.easystation.deployment.enums.ProgressStatus;
 import com.easystation.deployment.mapper.DeploymentProgressMapper;
+import com.easystation.deployment.websocket.DeploymentWebSocket;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDateTime;
@@ -18,6 +20,9 @@ import java.util.UUID;
  */
 @ApplicationScoped
 public class DeploymentProgressService {
+
+    @Inject
+    DeploymentWebSocket deploymentWebSocket;
 
     /**
      * 创建进展记录
@@ -36,6 +41,10 @@ public class DeploymentProgressService {
         }
 
         progress.persist();
+
+        // 推送 WebSocket 消息
+        pushProgressUpdate(deploymentId, stage, status, 0, message);
+
         return DeploymentProgressMapper.toDTO(progress);
     }
 
@@ -71,6 +80,9 @@ public class DeploymentProgressService {
         history.newStatus = status.name();
         history.message = message;
         history.persist();
+
+        // 推送 WebSocket 消息
+        pushProgressUpdate(progress.deploymentId, progress.stage, status, progressPercent, message);
 
         return DeploymentProgressMapper.toDTO(progress);
     }
@@ -143,5 +155,41 @@ public class DeploymentProgressService {
         }
 
         return updateProgress(progress.id, ProgressStatus.FAILED, progress.progressPercent, message);
+    }
+
+    /**
+     * 推送进度更新到 WebSocket
+     */
+    private void pushProgressUpdate(UUID deploymentId, String stage, ProgressStatus status, Integer progressPercent, String message) {
+        if (deploymentWebSocket != null) {
+            if (status == ProgressStatus.FAILED) {
+                deploymentWebSocket.pushError(deploymentId, message, stage);
+            } else {
+                int progress = progressPercent != null ? progressPercent : 0;
+                deploymentWebSocket.pushProgress(deploymentId, progress, stage, message);
+                deploymentWebSocket.pushStatus(deploymentId, status.name(), stage, message);
+            }
+        }
+    }
+
+    /**
+     * 手动推送进度（供外部调用）
+     */
+    public void pushProgress(UUID deploymentId, int progress, String stage, String message) {
+        deploymentWebSocket.pushProgress(deploymentId, progress, stage, message);
+    }
+
+    /**
+     * 手动推送状态（供外部调用）
+     */
+    public void pushStatus(UUID deploymentId, String status, String stage, String message) {
+        deploymentWebSocket.pushStatus(deploymentId, status, stage, message);
+    }
+
+    /**
+     * 手动推送错误（供外部调用）
+     */
+    public void pushError(UUID deploymentId, String error, String stage) {
+        deploymentWebSocket.pushError(deploymentId, error, stage);
     }
 }
