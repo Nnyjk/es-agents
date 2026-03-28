@@ -17,6 +17,7 @@ import (
 	"github.com/easy-station/agent/internal/client"
 	"github.com/easy-station/agent/internal/config"
 	"github.com/easy-station/agent/internal/plugin"
+	"github.com/easy-station/agent/internal/resource"
 	"github.com/easy-station/agent/internal/transport"
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/disk"
@@ -27,10 +28,13 @@ type Agent struct {
 	Config        *config.Config
 	WSServer      *transport.WSServer
 	PluginManager *plugin.Manager
+	Fetcher       *resource.Fetcher
+	Packer        *resource.Packer
+	Deployer      *resource.Deployer
 
 	LogBuffer   []string
 	LogBufferMu sync.Mutex
-	
+
 	LogFile     *os.File
 	LogFileMu   sync.Mutex
 }
@@ -42,6 +46,9 @@ func New(cfg *config.Config) *Agent {
 		Config:        cfg,
 		WSServer:      wsServer,
 		PluginManager: plugin.NewManager(),
+		Fetcher:       resource.NewFetcher(),
+		Packer:        resource.NewPacker(),
+		Deployer:      resource.NewDeployer(),
 	}
 
 	wsServer.OnMessage = a.handleMessage
@@ -206,6 +213,42 @@ func (a *Agent) handleMessage(msg []byte) {
 			if len(inputReq.Content) > 0 {
 				a.Log("Interactive shell not available. Please use Command Palette.")
 			}
+		}
+	case "FETCH_RESOURCE":
+		var fetchReq resource.FetchRequest
+		if err := json.Unmarshal(generic.Content, &fetchReq); err == nil {
+			fetchReq.RequestID = generic.RequestID
+			if fetchReq.RequestID == "" {
+				fetchReq.RequestID = fmt.Sprintf("fetch-%d", time.Now().UnixNano())
+			}
+			go a.handleFetchResource(fetchReq)
+		}
+	case "BUILD_PACKAGE":
+		var buildReq resource.BuildRequest
+		if err := json.Unmarshal(generic.Content, &buildReq); err == nil {
+			buildReq.RequestID = generic.RequestID
+			if buildReq.RequestID == "" {
+				buildReq.RequestID = fmt.Sprintf("build-%d", time.Now().UnixNano())
+			}
+			go a.handleBuildPackage(buildReq)
+		}
+	case "DEPLOY":
+		var deployReq resource.DeployRequest
+		if err := json.Unmarshal(generic.Content, &deployReq); err == nil {
+			deployReq.RequestID = generic.RequestID
+			if deployReq.RequestID == "" {
+				deployReq.RequestID = fmt.Sprintf("deploy-%d", time.Now().UnixNano())
+			}
+			go a.handleDeploy(deployReq)
+		}
+	case "HEALTH_CHECK":
+		var healthReq resource.HealthCheckRequest
+		if err := json.Unmarshal(generic.Content, &healthReq); err == nil {
+			healthReq.RequestID = generic.RequestID
+			if healthReq.RequestID == "" {
+				healthReq.RequestID = fmt.Sprintf("health-%d", time.Now().UnixNano())
+			}
+			go a.handleHealthCheck(healthReq)
 		}
 	default:
 		a.Log(fmt.Sprintf("Unsupported message type: %s", generic.Type))
@@ -384,4 +427,150 @@ func getDiskUsage() float64 {
 		return 0
 	}
 	return usage.UsedPercent
+}
+
+// handleFetchResource handles FETCH_RESOURCE message
+func (a *Agent) handleFetchResource(req resource.FetchRequest) {
+	a.Log(fmt.Sprintf("Fetching resource requestId=%s type=%s", req.RequestID, req.Source.Type))
+
+	ctx := context.Background()
+	result, err := a.Fetcher.Fetch(ctx, req)
+	if err != nil {
+		a.Log(fmt.Sprintf("Fetch failed requestId=%s: %v", req.RequestID, err))
+		result = &resource.FetchResult{
+			RequestID: req.RequestID,
+			Status:    "FAILED",
+			Error:     err.Error(),
+			StartedAt: time.Now(),
+			FinishedAt: time.Now(),
+		}
+	}
+
+	if result.Status == "SUCCESS" {
+		a.Log(fmt.Sprintf("Fetch succeeded requestId=%s path=%s", req.RequestID, result.Resource.Path))
+	} else {
+		a.Log(fmt.Sprintf("Fetch failed requestId=%s error=%s", req.RequestID, result.Error))
+	}
+
+	a.sendFetchResult(result)
+}
+
+// handleBuildPackage handles BUILD_PACKAGE message
+func (a *Agent) handleBuildPackage(req resource.BuildRequest) {
+	a.Log(fmt.Sprintf("Building package requestId=%s name=%s", req.RequestID, req.Config.Name))
+
+	ctx := context.Background()
+	result, err := a.Packer.Build(ctx, req)
+	if err != nil {
+		a.Log(fmt.Sprintf("Build failed requestId=%s: %v", req.RequestID, err))
+		result = &resource.BuildResult{
+			RequestID: req.RequestID,
+			Status:    "FAILED",
+			Error:     err.Error(),
+			StartedAt: time.Now(),
+			FinishedAt: time.Now(),
+		}
+	}
+
+	if result.Status == "SUCCESS" {
+		a.Log(fmt.Sprintf("Build succeeded requestId=%s path=%s", req.RequestID, result.Package.Path))
+	} else {
+		a.Log(fmt.Sprintf("Build failed requestId=%s error=%s", req.RequestID, result.Error))
+	}
+
+	a.sendBuildResult(result)
+}
+
+// handleDeploy handles DEPLOY message
+func (a *Agent) handleDeploy(req resource.DeployRequest) {
+	a.Log(fmt.Sprintf("Deploying requestId=%s targets=%v", req.RequestID, req.Config.TargetHosts))
+
+	ctx := context.Background()
+	result, err := a.Deployer.Deploy(ctx, req)
+	if err != nil {
+		a.Log(fmt.Sprintf("Deploy failed requestId=%s: %v", req.RequestID, err))
+		result = &resource.DeployResult{
+			RequestID: req.RequestID,
+			Status:    "FAILED",
+			Error:     err.Error(),
+			StartedAt: time.Now(),
+		}
+	}
+
+	if result.Status == "SUCCESS" {
+		a.Log(fmt.Sprintf("Deploy succeeded requestId=%s", req.RequestID))
+	} else {
+		a.Log(fmt.Sprintf("Deploy failed requestId=%s error=%s", req.RequestID, result.Error))
+	}
+
+	a.sendDeployResult(result)
+}
+
+// handleHealthCheck handles HEALTH_CHECK message
+func (a *Agent) handleHealthCheck(req resource.HealthCheckRequest) {
+	a.Log(fmt.Sprintf("Health check requestId=%s type=%s", req.RequestID, req.Config.Type))
+
+	ctx := context.Background()
+	response, err := a.Deployer.HealthCheck(ctx, req)
+	if err != nil {
+		a.Log(fmt.Sprintf("Health check failed requestId=%s: %v", req.RequestID, err))
+		response = &resource.HealthCheckResponse{
+			RequestID: req.RequestID,
+			Status:    "FAILED",
+			Error:     err.Error(),
+			CheckTime: time.Now(),
+		}
+	}
+
+	if response.Status == "SUCCESS" {
+		a.Log(fmt.Sprintf("Health check passed requestId=%s", req.RequestID))
+	} else {
+		a.Log(fmt.Sprintf("Health check failed requestId=%s error=%s", req.RequestID, response.Error))
+	}
+
+	a.sendHealthCheckResult(response)
+}
+
+// sendFetchResult sends fetch result response
+func (a *Agent) sendFetchResult(result *resource.FetchResult) {
+	_ = a.WSServer.SendJSON(map[string]interface{}{
+		"protocolVersion": "2.0",
+		"requestId":       result.RequestID,
+		"timestamp":       time.Now().UTC().Format(time.RFC3339),
+		"type":            "FETCH_RESULT",
+		"content":         result,
+	})
+}
+
+// sendBuildResult sends build result response
+func (a *Agent) sendBuildResult(result *resource.BuildResult) {
+	_ = a.WSServer.SendJSON(map[string]interface{}{
+		"protocolVersion": "2.0",
+		"requestId":       result.RequestID,
+		"timestamp":       time.Now().UTC().Format(time.RFC3339),
+		"type":            "BUILD_RESULT",
+		"content":         result,
+	})
+}
+
+// sendDeployResult sends deploy result response
+func (a *Agent) sendDeployResult(result *resource.DeployResult) {
+	_ = a.WSServer.SendJSON(map[string]interface{}{
+		"protocolVersion": "2.0",
+		"requestId":       result.RequestID,
+		"timestamp":       time.Now().UTC().Format(time.RFC3339),
+		"type":            "DEPLOY_RESULT",
+		"content":         result,
+	})
+}
+
+// sendHealthCheckResult sends health check result response
+func (a *Agent) sendHealthCheckResult(response *resource.HealthCheckResponse) {
+	_ = a.WSServer.SendJSON(map[string]interface{}{
+		"protocolVersion": "2.0",
+		"requestId":       response.RequestID,
+		"timestamp":       time.Now().UTC().Format(time.RFC3339),
+		"type":            "HEALTH_CHECK_RESULT",
+		"content":         response,
+	})
 }
