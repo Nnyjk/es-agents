@@ -236,7 +236,7 @@ public class ConfigService {
         if (config == null) {
             // Recreate deleted config
             config = new ConfigItem();
-            config.key = history.key;
+            config.key = history.configKey;
             config.environmentId = history.environmentId;
             config.createdBy = dto.changedBy();
         }
@@ -323,7 +323,7 @@ public class ConfigService {
     private void recordHistory(UUID configId, String key, String oldValue, String newValue, String changeType, Integer version, String changedBy, String reason, UUID environmentId) {
         ConfigHistory history = new ConfigHistory();
         history.configId = configId;
-        history.key = key;
+        history.configKey = key;
         history.oldValue = oldValue;
         history.newValue = newValue;
         history.changeType = changeType;
@@ -357,7 +357,7 @@ public class ConfigService {
         return new ConfigRecord.HistoryDetail(
                 history.id,
                 history.configId,
-                history.key,
+                history.configKey,
                 history.oldValue,
                 history.newValue,
                 history.changeType,
