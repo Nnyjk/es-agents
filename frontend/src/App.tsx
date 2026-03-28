@@ -23,7 +23,7 @@ import CommandExecute from "./pages/agent/CommandExecute";
 import CommandHistory from "./pages/agent/CommandHistory";
 import EnvironmentList from "./pages/infrastructure/Environment";
 import HostList from "./pages/infrastructure/Host";
-import GoalHub from "./pages/goals/GoalHub";
+import { GoalHub } from "./pages/goal-hub";
 import DeploymentWizard from "./pages/goals/DeploymentWizard";
 import AlertList from "./pages/alert/AlertList";
 import AlertRulePage from "./pages/alert/AlertRule";
@@ -50,7 +50,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<BasicLayout />}>
-          <Route index element={<Navigate to="/agents" replace />} />
+          <Route index element={<Navigate to="/goals" replace />} />
           <Route path="agents">
             <Route index element={<AgentList />} />
             <Route path=":id" element={<AgentDetail />} />
