@@ -38,6 +38,9 @@ import {
 } from "./pages/pluginMarketplace";
 import AuditLogList from "./pages/profile/AuditLog";
 import ApiKeyList from "./pages/settings/ApiKey";
+import NotificationChannelsList from "./pages/settings/NotificationChannels";
+import NotificationTemplatesList from "./pages/settings/NotificationTemplates";
+import NotificationHistoryList from "./pages/settings/NotificationHistory";
 
 const App: React.FC = () => {
   return (
@@ -92,6 +95,18 @@ const App: React.FC = () => {
           <Route path="scheduled-tasks" element={<ScheduledTaskList />} />
           <Route path="settings">
             <Route path="api-keys" element={<ApiKeyList />} />
+            <Route
+              path="notification-channels"
+              element={<NotificationChannelsList />}
+            />
+            <Route
+              path="notification-templates"
+              element={<NotificationTemplatesList />}
+            />
+            <Route
+              path="notification-history"
+              element={<NotificationHistoryList />}
+            />
           </Route>
         </Route>
       </Routes>
