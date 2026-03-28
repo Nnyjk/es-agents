@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, EyeOutlined } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import { Button, message, Popconfirm, Form, Select } from "antd";
+import { useNavigate } from "react-router-dom";
 import { DrawerForm } from "../../components/DrawerForm";
 import {
   queryAgentInstances,
@@ -15,6 +16,7 @@ import type { AgentInstance, Host, AgentTemplate } from "../../types";
 
 const AgentList: React.FC = () => {
   const actionRef = useRef<ActionType>();
+  const navigate = useNavigate();
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<Partial<AgentInstance> | null>(
     null,
@@ -79,6 +81,15 @@ const AgentList: React.FC = () => {
       title: "操作",
       valueType: "option",
       render: (_text, record, _, action) => [
+        <Button
+          key="detail"
+          type="link"
+          size="small"
+          icon={<EyeOutlined />}
+          onClick={() => navigate(`/agents/${record.id}`)}
+        >
+          详情
+        </Button>,
         <Popconfirm
           key="delete"
           title="确定删除该代理吗？"

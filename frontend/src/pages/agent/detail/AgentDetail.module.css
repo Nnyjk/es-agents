@@ -1,0 +1,212 @@
+.agentDetail {
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.statusCard {
+  margin-bottom: 24px;
+}
+
+.statusCardBody {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.statusInfo {
+  flex: 1;
+  min-width: 300px;
+}
+
+.statusTimeline {
+  flex: 1;
+  min-width: 300px;
+}
+
+.logViewer {
+  margin-bottom: 24px;
+}
+
+.logHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.logFilters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.logContainer {
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 16px;
+  border-radius: 4;
+  min-height: 300px;
+  max-height: 500px;
+  overflow: auto;
+  font-family: Consolas, Monaco, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.logLine {
+  display: flex;
+  padding: 2px 0;
+  border-bottom: 1px solid transparent;
+}
+
+.logLine:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.logLineNumber {
+  color: #858585;
+  width: 50px;
+  text-align: right;
+  padding-right: 16px;
+  user-select: none;
+}
+
+.logTimestamp {
+  color: #6a9955;
+  width: 100px;
+}
+
+.logLevel {
+  width: 60px;
+  font-weight: bold;
+}
+
+.logLevelDebug {
+  color: #858585;
+}
+
+.logLevelInfo {
+  color: #3794ff;
+}
+
+.logLevelWarn {
+  color: #cca700;
+}
+
+.logLevelError {
+  color: #f14c4c;
+}
+
+.logMessage {
+  flex: 1;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.logPausedOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 14px;
+}
+
+.historyCard {
+  margin-bottom: 24px;
+}
+
+.historyTimeline {
+  padding: 16px 0;
+}
+
+.actionsCard {
+  margin-bottom: 24px;
+}
+
+.actionsButtons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.wsIndicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.wsConnected {
+  color: #52c41a;
+}
+
+.wsDisconnected {
+  color: #ff4d4f;
+}
+
+.wsConnecting {
+  color: #faad14;
+}
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .agentDetail {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .statusCardBody {
+    flex-direction: column;
+  }
+
+  .statusInfo,
+  .statusTimeline {
+    min-width: 100%;
+  }
+
+  .logFilters {
+    flex-wrap: wrap;
+  }
+
+  .actionsButtons {
+    flex-direction: column;
+  }
+}

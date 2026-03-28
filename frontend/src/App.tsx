@@ -12,6 +12,7 @@ import RoleList from "./pages/system/Role";
 import ModuleList from "./pages/system/Module";
 import PermissionList from "./pages/system/Permission";
 import AgentList from "./pages/agent/AgentList";
+import AgentDetail from "./pages/agent/detail/AgentDetail";
 import AgentTemplateList from "./pages/agent/Template";
 import AgentCommandList from "./pages/agent/Command";
 import AgentResourceList from "./pages/agent/Resource";
@@ -51,6 +52,7 @@ const App: React.FC = () => {
           <Route index element={<Navigate to="/agents" replace />} />
           <Route path="agents">
             <Route index element={<AgentList />} />
+            <Route path=":id" element={<AgentDetail />} />
             <Route path="instances" element={<AgentList />} />
             <Route path="templates" element={<AgentTemplateList />} />
             <Route path="commands" element={<AgentCommandList />} />
