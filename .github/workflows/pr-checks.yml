@@ -94,7 +94,7 @@ jobs:
       - name: Download all coverage artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: '*-coverage'
+          pattern: "*-coverage"
           path: ./coverage-reports
           merge-multiple: true
 
@@ -111,9 +111,9 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
-            
+
             let report = '## 📊 Code Coverage Report\n\n';
-            
+
             // Check Server coverage
             const serverCoveragePath = './coverage-reports/server-coverage/jacoco.xml';
             if (fs.existsSync(serverCoveragePath)) {
@@ -121,7 +121,7 @@ jobs:
               report += '- ✅ JaCoCo coverage check passed (70% threshold)\n';
               report += '- Report: `server/target/site/jacoco/jacoco.xml`\n\n';
             }
-            
+
             // Check Agent coverage
             const agentCoveragePath = './coverage-reports/agent-coverage/cobertura.xml';
             if (fs.existsSync(agentCoveragePath)) {
@@ -129,7 +129,7 @@ jobs:
               report += '- ✅ Coverage report generated\n';
               report += '- Report: `agent/coverage/cobertura.xml`\n\n';
             }
-            
+
             // Check Frontend coverage
             const frontendCoveragePath = './coverage-reports/frontend-coverage/lcov.info';
             if (fs.existsSync(frontendCoveragePath)) {
@@ -137,10 +137,10 @@ jobs:
               report += '- ✅ Coverage report generated\n';
               report += '- Report: `frontend/coverage/lcov.info`\n\n';
             }
-            
+
             report += '---\n';
             report += '_Coverage reports are available as build artifacts. Download `combined-coverage` to view all reports._';
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
