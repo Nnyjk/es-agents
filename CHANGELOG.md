@@ -1,46 +1,176 @@
-# Changelog
+#  (2026-03-29)
 
-All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+### Bug Fixes
 
-## [Unreleased]
+* add debug output and ensure dist dir exists for agent builds ([7eb95bb](https://github.com/Nnyjk/es-agents/commit/7eb95bb26f92c7e5bc1dd7de9f87b4d60e8c1773))
+* add MACOS to OsType enum and format code ([7461737](https://github.com/Nnyjk/es-agents/commit/7461737513d6ea5c343b6c47781948d069d1a1d1))
+* Add missing create() and delete() methods to AuditLogService ([#332](https://github.com/Nnyjk/es-agents/issues/332)) ([385b959](https://github.com/Nnyjk/es-agents/commit/385b9599198c49e79118a6a17a4c11e91d39897e))
+* address review comments on validation script ([3e61320](https://github.com/Nnyjk/es-agents/commit/3e61320bfbb1687ae6220fe67e59f61b5e15af33))
+* address review on timeout default and command output streaming ([7bee832](https://github.com/Nnyjk/es-agents/commit/7bee83202b544855d36e153409713ef3ec5635f8))
+* **ci:** remove non-existent frontend scripts ([2822438](https://github.com/Nnyjk/es-agents/commit/28224385e8f5fb5555ec0e82a0b15b7c89ef6e05))
+* **ci:** use --legacy-peer-deps for frontend dependencies ([078e125](https://github.com/Nnyjk/es-agents/commit/078e12596c65f928f1ff5a71803e43e25d3f7b48))
+* **ci:** 修正前端构建缓存路径配置 ([0f533c9](https://github.com/Nnyjk/es-agents/commit/0f533c940a8fe070a6d53e2bcf9a43c78b484188)), closes [#3690](https://github.com/Nnyjk/es-agents/issues/3690)
+* **ci:** 修正前端缓存路径 (frontend/package-lock.json) ([ede54df](https://github.com/Nnyjk/es-agents/commit/ede54df34d450b5efb11db9a4fa26b108ab82f9a))
+* correct HostAgentPackageBuilder test for tar.gz format ([a4e19f1](https://github.com/Nnyjk/es-agents/commit/a4e19f168dcd04e0a6a4f03ca81ee16ddde1103c))
+* correct test assertions for package builder and resource resolver ([7f4b992](https://github.com/Nnyjk/es-agents/commit/7f4b992a22e27377b6ff498c24f8aa32d5ef6757))
+* correct working directory for server build in release workflow ([e3a0c75](https://github.com/Nnyjk/es-agents/commit/e3a0c75f3bf51e6ed967c30cf2adeed4468405d2))
+* Create PR for CHANGELOG update instead of direct push ([#333](https://github.com/Nnyjk/es-agents/issues/333)) ([0cc4645](https://github.com/Nnyjk/es-agents/commit/0cc46456079907c628df3df54f4c4a6d512880cc))
+* **frontend:** make login resilient when public key fetch is delayed ([a1400bd](https://github.com/Nnyjk/es-agents/commit/a1400bd73fdf14ce22db1c8698bf73e9c9e01010))
+* **frontend:** use local tsc invocation in pre-commit hook ([4d2d4b4](https://github.com/Nnyjk/es-agents/commit/4d2d4b4c658449b0129af66ec62f3166eeccd470))
+* **frontend:** 修正 API baseURL 配置 ([#302](https://github.com/Nnyjk/es-agents/issues/302)) ([5afa307](https://github.com/Nnyjk/es-agents/commit/5afa307dcb8ab077da83ce2f8b8643d2127e8761))
+* **frontend:** 更新 API 路径以匹配后端 v1 接口 [#62](https://github.com/Nnyjk/es-agents/issues/62) ([#266](https://github.com/Nnyjk/es-agents/issues/266)) ([5b86a12](https://github.com/Nnyjk/es-agents/commit/5b86a12f62e07a7327e2e505e9014db888dc478e))
+* **frontend:** 更新 Vite 代理配置以匹配 Server API 路径 ([#306](https://github.com/Nnyjk/es-agents/issues/306)) ([bc464e6](https://github.com/Nnyjk/es-agents/commit/bc464e6f787eea5f5fc9423967975bd74c262506))
+* **frontend:** 添加 Vite 代理 /v1 路径规则 ([#309](https://github.com/Nnyjk/es-agents/issues/309)) ([78f5f4e](https://github.com/Nnyjk/es-agents/commit/78f5f4e4ba39f817ef43b3231c6245101b339c99))
+* **frontend:** 移除 Vite 代理 API 路径重写规则 ([#308](https://github.com/Nnyjk/es-agents/issues/308)) ([2f9615b](https://github.com/Nnyjk/es-agents/commit/2f9615b373e5ede92804eceeea5d043e2883e8a3))
+* NotificationHistoryService 使用 getter 方法访问 Query 字段 ([#275](https://github.com/Nnyjk/es-agents/issues/275)) ([73c769a](https://github.com/Nnyjk/es-agents/commit/73c769a71e0846522a1f9a6eee2b32fc09027389))
+* npm ci must run in frontend directory ([af5b7c2](https://github.com/Nnyjk/es-agents/commit/af5b7c26586fa47b892119717492478fcb66cc64))
+* **plugin:** 修复 Query 类 BeanParam 兼容性问题 ([#252](https://github.com/Nnyjk/es-agents/issues/252)) ([880b435](https://github.com/Nnyjk/es-agents/commit/880b4354b0c462d2c507c1b49f85941e47d008f1)), closes [#247](https://github.com/Nnyjk/es-agents/issues/247)
+* **server:** AgentMetric 实体重复导致 Hibernate 启动失败 ([#248](https://github.com/Nnyjk/es-agents/issues/248)) ([91546bf](https://github.com/Nnyjk/es-agents/commit/91546bf9babb1b069c848db130cf264f2c4d4df2)), closes [#247](https://github.com/Nnyjk/es-agents/issues/247)
+* **server:** 修复 AgentMetric Double 字段的 PostgreSQL 兼容性问题 ([#250](https://github.com/Nnyjk/es-agents/issues/250)) ([d591093](https://github.com/Nnyjk/es-agents/commit/d591093a9592b437ed86cd6d0805d67287c2a981))
+* 任务 180 - Linux 部署包改用 tar.gz 格式 ([24b8ef0](https://github.com/Nnyjk/es-agents/commit/24b8ef04ee85634bc91bb93ae65a63c58a4e3675))
+* 任务 180 - 修复 GitHub 资源下载 502 错误，添加 User-Agent 请求头 ([b9f9855](https://github.com/Nnyjk/es-agents/commit/b9f98554c9a53b788bd46e7d71473d0cbb505a9b))
+* 任务 180 - 修复部署包下载按钮 loading 状态 ([4beaa40](https://github.com/Nnyjk/es-agents/commit/4beaa4018f05915f31a5ebe0544e37e52acfcba4))
+* 任务 180 - 完善 GLIBC 编译验证机制 ([2fbf605](https://github.com/Nnyjk/es-agents/commit/2fbf6053258898c864386052c51af9747c948c11))
+* 任务 181 - 修复 GitHub Actions 错误并实现 AgentTemplate 统一下载入口 ([c6bc722](https://github.com/Nnyjk/es-agents/commit/c6bc722717628e80d3e1d8230194eb8d1eb37447))
+* 修复 AgentSourceService 下载错误响应处理逻辑 ([b7dddbe](https://github.com/Nnyjk/es-agents/commit/b7dddbe1ac57357d73dd5e873e51c5cd8c73a29e))
+* 修复 CI 中所有 verify-linux-compat.sh 路径引用 ([b268977](https://github.com/Nnyjk/es-agents/commit/b268977ea123c4d12e74ad40a60252af45d25ff7))
+* 修复 CI 脚本路径并完善 GLIBC 验证机制 ([3584f38](https://github.com/Nnyjk/es-agents/commit/3584f38206383cc01b83a4ee2cad05ceac1b031a))
+* 修复 Server 测试失败问题 (Issue [#281](https://github.com/Nnyjk/es-agents/issues/281)) ([#319](https://github.com/Nnyjk/es-agents/issues/319)) ([b2ec7ab](https://github.com/Nnyjk/es-agents/commit/b2ec7abc5f2914823f81f2cc8b52b159d855f5b2))
+* 修复通知模块文件末尾换行符问题 ([#273](https://github.com/Nnyjk/es-agents/issues/273)) ([839f6d5](https://github.com/Nnyjk/es-agents/commit/839f6d5f009e32c0c0033d9cf8a86afd47fb7c77))
+* 修正 release 文件路径 (agent/bin/) ([78eb572](https://github.com/Nnyjk/es-agents/commit/78eb572d358c39076a03ee4f25eeb46465248d72))
+* 修正 release 文件路径 (仅 release 步骤使用 agent/bin/) ([15a3ecd](https://github.com/Nnyjk/es-agents/commit/15a3ecda5b0a919d49dccd1541593eb25cfb29cd))
+* 修正 release-agent.yml YAML 缩进问题 ([80b728d](https://github.com/Nnyjk/es-agents/commit/80b728d89f02b2e6cd8077dae036abad047b2264))
+* 修正演示数据导入脚本 API 路径 ([#307](https://github.com/Nnyjk/es-agents/issues/307)) ([bf03164](https://github.com/Nnyjk/es-agents/commit/bf03164d654e073599ddd2c43fbb2edd634ee523))
+* 同步 server/scripts/host-agent 脚本与部署包生成逻辑 ([ca6bdb3](https://github.com/Nnyjk/es-agents/commit/ca6bdb3544e25b00fb86db997ae6434d76acd62b))
+* 完善 CI 配置、GLIBC 验证及 Host 生命周期管理 ([6d05420](https://github.com/Nnyjk/es-agents/commit/6d05420fad0cc1f658a6d54d02b056078a4713aa))
+* 更新 HostInstallGuideModal 测试以匹配新增的卸载命令显示 ([3886bae](https://github.com/Nnyjk/es-agents/commit/3886bae1b22c16f31d2029c6c83140d0af6fede7))
+* 移除 pr-labels.yml 尾随空格 ([#154](https://github.com/Nnyjk/es-agents/issues/154)) ([aee285c](https://github.com/Nnyjk/es-agents/commit/aee285c13d45ef50e77bb8947157bc607948a419))
+* 移除不必要的 GLIBC 验证并修复前端测试 ([ba8d292](https://github.com/Nnyjk/es-agents/commit/ba8d2920b45e70f7ba53a54c8ff0fbca18788c3b))
 
-### Added
-- Initial changelog structure for automated version management
 
-### Changed
-- N/A
+### Features
 
-### Fixed
-- N/A
+* Add automated CHANGELOG generation and release workflow (Issue [#142](https://github.com/Nnyjk/es-agents/issues/142)) ([#330](https://github.com/Nnyjk/es-agents/issues/330)) ([69edfc1](https://github.com/Nnyjk/es-agents/commit/69edfc115777120f55cd9b40b869d473d226adc7)), closes [#133](https://github.com/Nnyjk/es-agents/issues/133) [#133](https://github.com/Nnyjk/es-agents/issues/133) [#133](https://github.com/Nnyjk/es-agents/issues/133) [#133](https://github.com/Nnyjk/es-agents/issues/133)
+* Agent 自动升级能力 ([#116](https://github.com/Nnyjk/es-agents/issues/116)) ([#295](https://github.com/Nnyjk/es-agents/issues/295)) ([9f3422b](https://github.com/Nnyjk/es-agents/commit/9f3422bf481b3ef11c6bd69a099fda479096d58f))
+* Agent 资源来源校验与元数据解析 API ([#35](https://github.com/Nnyjk/es-agents/issues/35), [#39](https://github.com/Nnyjk/es-agents/issues/39)) ([5adf811](https://github.com/Nnyjk/es-agents/commit/5adf8113c2da6d5e3e9ac81403894da67a948bd3))
+* **agent:** add deployment API for Agent instances ([#17](https://github.com/Nnyjk/es-agents/issues/17)) ([6ee2855](https://github.com/Nnyjk/es-agents/commit/6ee28550563ff260b781f7934a1e0d44186e09c7)), closes [#11](https://github.com/Nnyjk/es-agents/issues/11)
+* **agent:** Agent 任务调度与结果聚合机制 [#50](https://github.com/Nnyjk/es-agents/issues/50) ([#278](https://github.com/Nnyjk/es-agents/issues/278)) ([c5b7080](https://github.com/Nnyjk/es-agents/commit/c5b70807b4b6c6a862074d0609ff884f1a4cb57a))
+* **agent:** Agent 资源拉取与打包部署执行 [#58](https://github.com/Nnyjk/es-agents/issues/58) ([#279](https://github.com/Nnyjk/es-agents/issues/279)) ([5bfcaa3](https://github.com/Nnyjk/es-agents/commit/5bfcaa3a93ccde81f59848c4f8f03788b20a6890))
+* **agent:** Agent实例生命周期管理API ([c8f866c](https://github.com/Nnyjk/es-agents/commit/c8f866c8ac66c35e92aa8abe129b241d1a1551fd)), closes [#97](https://github.com/Nnyjk/es-agents/issues/97)
+* **agent:** Agent模板CRUD管理API ([6cd0bed](https://github.com/Nnyjk/es-agents/commit/6cd0bed4ab47c77a3e7f33f85c4411cadc94e64a)), closes [#76](https://github.com/Nnyjk/es-agents/issues/76)
+* **agent:** Agent资源来源版本管理与缓存能力 ([7663382](https://github.com/Nnyjk/es-agents/commit/7663382ca7ff71e18d48c777c603ffd9c4e7e741)), closes [#101](https://github.com/Nnyjk/es-agents/issues/101)
+* **agent:** 实现 Plugin 注册与发现机制 ([#79](https://github.com/Nnyjk/es-agents/issues/79)) ([#260](https://github.com/Nnyjk/es-agents/issues/260)) ([8f118be](https://github.com/Nnyjk/es-agents/commit/8f118be2c69b4bbeedbd1d86ffa83631a7ce0310))
+* **agent:** 实现心跳上报与超时告警 ([#83](https://github.com/Nnyjk/es-agents/issues/83)) ([#259](https://github.com/Nnyjk/es-agents/issues/259)) ([09860d0](https://github.com/Nnyjk/es-agents/commit/09860d0d8ad7a61b2a2963d2d3547e576f7ebd77))
+* **agent:** 添加心跳时间显示并优化依赖管理 ([c28d2ee](https://github.com/Nnyjk/es-agents/commit/c28d2ee4252d3bfff40c3a168cfad1c3b6420c53))
+* Agent运行监控与状态管理前端页面 ([#204](https://github.com/Nnyjk/es-agents/issues/204)) ([5593c5f](https://github.com/Nnyjk/es-agents/commit/5593c5f72a7d31d010b20bd75a792dda644e2920)), closes [#191](https://github.com/Nnyjk/es-agents/issues/191) [#184](https://github.com/Nnyjk/es-agents/issues/184) [#173](https://github.com/Nnyjk/es-agents/issues/173) [#169](https://github.com/Nnyjk/es-agents/issues/169) [#200](https://github.com/Nnyjk/es-agents/issues/200)
+* **alert:** add alert rule validation and silence configuration ([#158](https://github.com/Nnyjk/es-agents/issues/158)) ([855a70c](https://github.com/Nnyjk/es-agents/commit/855a70c0482fa2e8a0088261ab723b84bfd76543)), closes [#156](https://github.com/Nnyjk/es-agents/issues/156) [#156](https://github.com/Nnyjk/es-agents/issues/156)
+* **audit:** implement audit log management and alert system ([#214](https://github.com/Nnyjk/es-agents/issues/214)) ([af3ee97](https://github.com/Nnyjk/es-agents/commit/af3ee979d1a7681c72d68c8b67663e49ef139a25)), closes [#209](https://github.com/Nnyjk/es-agents/issues/209)
+* **audit:** 操作审计日志记录与查询API ([db32237](https://github.com/Nnyjk/es-agents/commit/db322377f1afdd3bfec79536ae1f51e20a847ae2)), closes [#104](https://github.com/Nnyjk/es-agents/issues/104)
+* **auth:** API密钥/访问令牌管理API ([#143](https://github.com/Nnyjk/es-agents/issues/143)) ([17610e8](https://github.com/Nnyjk/es-agents/commit/17610e89b53acdd56314f8372c63216d664f8604)), closes [#138](https://github.com/Nnyjk/es-agents/issues/138)
+* **auth:** RBAC权限管理完整API ([f4cda4f](https://github.com/Nnyjk/es-agents/commit/f4cda4f5f0205acaac4830655a9adc185462e53b)), closes [#96](https://github.com/Nnyjk/es-agents/issues/96)
+* **auth:** 添加 RBAC 权限注解和拦截器 ([#167](https://github.com/Nnyjk/es-agents/issues/167)) ([c500d12](https://github.com/Nnyjk/es-agents/commit/c500d1298d2d7c03516a9bb7b01bff8467ecab6e)), closes [#150](https://github.com/Nnyjk/es-agents/issues/150)
+* **auth:** 用户登录与认证管理后端API [#238](https://github.com/Nnyjk/es-agents/issues/238) ([#245](https://github.com/Nnyjk/es-agents/issues/245)) ([86d390d](https://github.com/Nnyjk/es-agents/commit/86d390dd9cf0ff35fbfd02e613a8bdce8c1155d9))
+* CI 增加单元测试覆盖率检查 (Issue [#91](https://github.com/Nnyjk/es-agents/issues/91)) ([59e04a1](https://github.com/Nnyjk/es-agents/commit/59e04a12f65a4b46e0ecb702397d826692de6a97))
+* **command:** 命令下发与执行结果返回机制 ([8455198](https://github.com/Nnyjk/es-agents/commit/84551988fb20df2a822ff49911ec57f573d19130)), closes [#75](https://github.com/Nnyjk/es-agents/issues/75)
+* **command:** 命令模板管理CRUD API ([9f67f6d](https://github.com/Nnyjk/es-agents/commit/9f67f6d048430ed7d70778319ce1db8a1aba729c)), closes [#112](https://github.com/Nnyjk/es-agents/issues/112)
+* **config:** 配置中心与环境差异化配置API ([#128](https://github.com/Nnyjk/es-agents/issues/128)) ([06af472](https://github.com/Nnyjk/es-agents/commit/06af4729d550217bf4a354a308b5e0b69b70dd91)), closes [#114](https://github.com/Nnyjk/es-agents/issues/114)
+* **deployment:** add deployment release API and entities ([#217](https://github.com/Nnyjk/es-agents/issues/217)) ([0760faf](https://github.com/Nnyjk/es-agents/commit/0760fafce8a3598409e0366c0f3d2ff2b05917fa)), closes [#215](https://github.com/Nnyjk/es-agents/issues/215)
+* **deployment:** Agent部署历史查询API ([99ff402](https://github.com/Nnyjk/es-agents/commit/99ff402d2cdae6c4ee453e412f86ac05e3d5d3fd)), closes [#95](https://github.com/Nnyjk/es-agents/issues/95)
+* **deployment:** 应用服务部署与发布管理模块 ([#176](https://github.com/Nnyjk/es-agents/issues/176)) ([5af4b67](https://github.com/Nnyjk/es-agents/commit/5af4b67a4828b5a2bae8517126bf8721f9632228)), closes [#174](https://github.com/Nnyjk/es-agents/issues/174)
+* enhance local dev workflow and add github release URL to host guide ([f1ec711](https://github.com/Nnyjk/es-agents/commit/f1ec711be26b0b8d176d035590b3acf9f377ac57))
+* **frontend:** Agent 实例详情页面 [#44](https://github.com/Nnyjk/es-agents/issues/44) ([#282](https://github.com/Nnyjk/es-agents/issues/282)) ([ca859d0](https://github.com/Nnyjk/es-agents/commit/ca859d0bf12b8d54b89e015c0b77255c799cac81)), closes [#58](https://github.com/Nnyjk/es-agents/issues/58)
+* **frontend:** Agent 状态流转前端可视化 ([#40](https://github.com/Nnyjk/es-agents/issues/40)) ([2859ddf](https://github.com/Nnyjk/es-agents/commit/2859ddf55afd1d48577dbca100267dc7b88e3a23))
+* **frontend:** Agent 资源来源管理前端页面 [#72](https://github.com/Nnyjk/es-agents/issues/72) ([#264](https://github.com/Nnyjk/es-agents/issues/264)) ([3262eff](https://github.com/Nnyjk/es-agents/commit/3262efffb5074c5dc1afdbd30a3046fa953d05cc))
+* **frontend:** Agent模板管理前端页面 ([#240](https://github.com/Nnyjk/es-agents/issues/240)) ([0557dee](https://github.com/Nnyjk/es-agents/commit/0557dee14c8195b2752270c8300f33aae1c3d01a)), closes [#87](https://github.com/Nnyjk/es-agents/issues/87)
+* **frontend:** Agent运行时监控前端页面增强 ([#210](https://github.com/Nnyjk/es-agents/issues/210)) ([c599afc](https://github.com/Nnyjk/es-agents/commit/c599afc348ef3e07fb37afdd5759349e4bdcede8)), closes [#73](https://github.com/Nnyjk/es-agents/issues/73)
+* **frontend:** API 密钥管理前端页面 [#152](https://github.com/Nnyjk/es-agents/issues/152) ([#268](https://github.com/Nnyjk/es-agents/issues/268)) ([028a121](https://github.com/Nnyjk/es-agents/commit/028a121e016fceaa2fad773056cc1bcccc53994c))
+* **frontend:** CMDB资源与资产管理前端页面 ([#173](https://github.com/Nnyjk/es-agents/issues/173)) ([88e5325](https://github.com/Nnyjk/es-agents/commit/88e532586e26b12d3633b1f3e4bfbc4559cb5b06)), closes [#172](https://github.com/Nnyjk/es-agents/issues/172)
+* **frontend:** Environment 环境管理前端页面 [#63](https://github.com/Nnyjk/es-agents/issues/63) ([#265](https://github.com/Nnyjk/es-agents/issues/265)) ([689b8ec](https://github.com/Nnyjk/es-agents/commit/689b8ecfefec1025571170e276afc4682193524b))
+* **frontend:** Prometheus 监控与 Grafana 大盘集成页面 ([#166](https://github.com/Nnyjk/es-agents/issues/166)) ([#294](https://github.com/Nnyjk/es-agents/issues/294)) ([146ebbd](https://github.com/Nnyjk/es-agents/commit/146ebbd24403b0c037e75d92108f411b401fbc70))
+* **frontend:** RBAC角色与权限管理前端页面 ([#201](https://github.com/Nnyjk/es-agents/issues/201)) ([1bef51a](https://github.com/Nnyjk/es-agents/commit/1bef51a78ebbfd007026cc283fdc68131f17d3d9)), closes [#151](https://github.com/Nnyjk/es-agents/issues/151) [#151](https://github.com/Nnyjk/es-agents/issues/151)
+* **frontend:** 告警中心前端页面 ([#145](https://github.com/Nnyjk/es-agents/issues/145)) ([bdc9988](https://github.com/Nnyjk/es-agents/commit/bdc99888e4527bb6e7506dc5ed1ff648ebeda024)), closes [#113](https://github.com/Nnyjk/es-agents/issues/113)
+* **frontend:** 命令执行与结果查看前端页面 ([#146](https://github.com/Nnyjk/es-agents/issues/146)) ([89bc936](https://github.com/Nnyjk/es-agents/commit/89bc936243be10b6f638478ae7f19a5129d81826)), closes [#103](https://github.com/Nnyjk/es-agents/issues/103)
+* **frontend:** 命令模板管理前端页面 ([#88](https://github.com/Nnyjk/es-agents/issues/88)) ([9ef5bed](https://github.com/Nnyjk/es-agents/commit/9ef5bed0a784822579ddf0862c3a6c79568f5d28))
+* **frontend:** 多云与混合云资源统一管理前端页面 ([#191](https://github.com/Nnyjk/es-agents/issues/191)) ([33d5aad](https://github.com/Nnyjk/es-agents/commit/33d5aad0693421b72465530a729cda891bfa488e)), closes [#188](https://github.com/Nnyjk/es-agents/issues/188)
+* **frontend:** 安全合规与等保测评管理前端页面 ([#184](https://github.com/Nnyjk/es-agents/issues/184)) ([4060252](https://github.com/Nnyjk/es-agents/commit/4060252f881c9d6f4260e21d6acdb5ddfff8ae45)), closes [#183](https://github.com/Nnyjk/es-agents/issues/183)
+* **frontend:** 定时任务管理前端页面 ([#207](https://github.com/Nnyjk/es-agents/issues/207)) ([b59cac9](https://github.com/Nnyjk/es-agents/commit/b59cac94f093775468bddf23eb80386c72d49b4c)), closes [#153](https://github.com/Nnyjk/es-agents/issues/153)
+* **frontend:** 实现部署 Agent 向导前端 ([#68](https://github.com/Nnyjk/es-agents/issues/68)) ([3d46201](https://github.com/Nnyjk/es-agents/commit/3d462011fe29484f33205ac9ee67f4c59522eb0b)), closes [#64](https://github.com/Nnyjk/es-agents/issues/64) [#76-79](https://github.com/Nnyjk/es-agents/issues/76-79)
+* **frontend:** 插件市场页面实现 ([#199](https://github.com/Nnyjk/es-agents/issues/199)) ([4a53ebe](https://github.com/Nnyjk/es-agents/commit/4a53ebe0cff638817c56b64bbed2247fc5bdafb1)), closes [#191](https://github.com/Nnyjk/es-agents/issues/191) [#184](https://github.com/Nnyjk/es-agents/issues/184) [#173](https://github.com/Nnyjk/es-agents/issues/173) [#169](https://github.com/Nnyjk/es-agents/issues/169) [#179](https://github.com/Nnyjk/es-agents/issues/179) [#179](https://github.com/Nnyjk/es-agents/issues/179)
+* **frontend:** 操作审计日志查看前端页面 [#239](https://github.com/Nnyjk/es-agents/issues/239) ([abace42](https://github.com/Nnyjk/es-agents/commit/abace420eee0725f4b1a0f35a34382fcefb5ef17)), closes [#106](https://github.com/Nnyjk/es-agents/issues/106)
+* **frontend:** 更新命令执行前端使用新 API [#55](https://github.com/Nnyjk/es-agents/issues/55) ([#272](https://github.com/Nnyjk/es-agents/issues/272)) ([e79d2dd](https://github.com/Nnyjk/es-agents/commit/e79d2dd206472d1f3f5dc2040be6f3ce03e19063))
+* **frontend:** 模板→实例→绑定可视化向导 [#57](https://github.com/Nnyjk/es-agents/issues/57) ([#285](https://github.com/Nnyjk/es-agents/issues/285)) ([66425e7](https://github.com/Nnyjk/es-agents/commit/66425e72edbd9ba2671e9bacd94d61229ece9f43))
+* **frontend:** 环境与主机管理前端页面 ([#147](https://github.com/Nnyjk/es-agents/issues/147)) ([ab222e5](https://github.com/Nnyjk/es-agents/commit/ab222e5234e576a5c8cbba41a6978aa49c928b50)), closes [#94](https://github.com/Nnyjk/es-agents/issues/94)
+* **frontend:** 用户个人中心/资料管理页面 ([#182](https://github.com/Nnyjk/es-agents/issues/182)) ([558f3fc](https://github.com/Nnyjk/es-agents/commit/558f3fcccca66df02cbbf6af713972887cc5f324)), closes [#155](https://github.com/Nnyjk/es-agents/issues/155)
+* **frontend:** 目标驱动 Goal Hub 页面 [#33](https://github.com/Nnyjk/es-agents/issues/33) ([b180154](https://github.com/Nnyjk/es-agents/commit/b180154a4cba86fd1469619203e17aa0ceb843a6))
+* **frontend:** 系统事件日志查询页面 [#59](https://github.com/Nnyjk/es-agents/issues/59) ([#297](https://github.com/Nnyjk/es-agents/issues/297)) ([4ffa92e](https://github.com/Nnyjk/es-agents/commit/4ffa92e9c947629657731478e28c339f856a7f76))
+* **frontend:** 系统数据备份与恢复管理前端页面 ([#169](https://github.com/Nnyjk/es-agents/issues/169)) ([353f212](https://github.com/Nnyjk/es-agents/commit/353f212d103073b047dca1215ae47d351d647fd2)), closes [#168](https://github.com/Nnyjk/es-agents/issues/168)
+* **frontend:** 通知配置管理前端页面 [#157](https://github.com/Nnyjk/es-agents/issues/157) ([#270](https://github.com/Nnyjk/es-agents/issues/270)) ([8b2ff8c](https://github.com/Nnyjk/es-agents/commit/8b2ff8cd80f34beb4f4555acc5332aab0f9674fe)), closes [#67](https://github.com/Nnyjk/es-agents/issues/67)
+* **frontend:** 部署历史记录与回滚前端页面 [#86](https://github.com/Nnyjk/es-agents/issues/86) ([#263](https://github.com/Nnyjk/es-agents/issues/263)) ([fcaac28](https://github.com/Nnyjk/es-agents/commit/fcaac2890dcc93e76399727bd0df14cc258f441d)), closes [#61](https://github.com/Nnyjk/es-agents/issues/61)
+* **frontend:** 部署流程实时进度展示 [#52](https://github.com/Nnyjk/es-agents/issues/52) ([#284](https://github.com/Nnyjk/es-agents/issues/284)) ([6cdeb2a](https://github.com/Nnyjk/es-agents/commit/6cdeb2afcee93debcaebc029f7780122778a43cd))
+* **frontend:** 配置管理前端页面 ([#115](https://github.com/Nnyjk/es-agents/issues/115)) ([#290](https://github.com/Nnyjk/es-agents/issues/290)) ([23baf44](https://github.com/Nnyjk/es-agents/commit/23baf44b5dfbddf2a399b6acdc55cd1e67649f7b))
+* **github:** add issue forms, pr template and label sync ([83a16a4](https://github.com/Nnyjk/es-agents/commit/83a16a432a4f12d39c92d3f8bb129d1dc11fcc42))
+* HostAgent 部署包优化和连接检测修复 ([30c64db](https://github.com/Nnyjk/es-agents/commit/30c64dbc8f7110ab078fd4ffe1c7c42eb8800bb3))
+* **host:** 新增主机接入指南功能并优化安装引导界面 ([615bf56](https://github.com/Nnyjk/es-agents/commit/615bf56ff917d289885c42619896eb84fe40e8b1))
+* implement profile center API ([#220](https://github.com/Nnyjk/es-agents/issues/220)) ([f791c17](https://github.com/Nnyjk/es-agents/commit/f791c175f48377d7905f8580e330d3b992c9d524)), closes [#202](https://github.com/Nnyjk/es-agents/issues/202)
+* **infra:** 完善 Environment CRUD API ([#261](https://github.com/Nnyjk/es-agents/issues/261)) ([aad0024](https://github.com/Nnyjk/es-agents/commit/aad002401c7b215f1f3b594956b3abc89df7f1d2))
+* **infra:** 完善 Host CRUD API ([#61](https://github.com/Nnyjk/es-agents/issues/61)) ([#262](https://github.com/Nnyjk/es-agents/issues/262)) ([7dc8dbf](https://github.com/Nnyjk/es-agents/commit/7dc8dbf542a1c1747cd36d20f6cb8b3a09d5f9a0))
+* **metrics:** Agent运行时监控与指标查询API ([aa43a6c](https://github.com/Nnyjk/es-agents/commit/aa43a6cade1159580f3a1e87b46654fb1e6f7c23)), closes [#102](https://github.com/Nnyjk/es-agents/issues/102)
+* **notification:** add WebSocket push integration (Issue [#130](https://github.com/Nnyjk/es-agents/issues/130) Phase 5) ([#335](https://github.com/Nnyjk/es-agents/issues/335)) ([223260a](https://github.com/Nnyjk/es-agents/commit/223260a40378957b0d0af94ed322d092defc2498))
+* **scheduler:** 定时任务/计划任务能力 ([#144](https://github.com/Nnyjk/es-agents/issues/144)) ([7afef74](https://github.com/Nnyjk/es-agents/commit/7afef744c5bb989a361b59ba7a9f93c537f37f17)), closes [#131](https://github.com/Nnyjk/es-agents/issues/131)
+* **scripts:** 本地开发一键启动脚本 ([6184a8b](https://github.com/Nnyjk/es-agents/commit/6184a8b7b309cf617613df36b83b972c4bec3c69)), closes [#90](https://github.com/Nnyjk/es-agents/issues/90)
+* **server:** add Agent log aggregation and query API ([#48](https://github.com/Nnyjk/es-agents/issues/48)) ([8a0cf4e](https://github.com/Nnyjk/es-agents/commit/8a0cf4eff213c6017be98b8283458ddd2930588e)), closes [#29](https://github.com/Nnyjk/es-agents/issues/29)
+* **server:** add deployment history and rollback API ([#100](https://github.com/Nnyjk/es-agents/issues/100)) ([ab31eb5](https://github.com/Nnyjk/es-agents/commit/ab31eb5f86f2a1135f9109587cfe7b3beb4b6e3e)), closes [#65](https://github.com/Nnyjk/es-agents/issues/65)
+* **server:** Add notification message entity (Issue [#130](https://github.com/Nnyjk/es-agents/issues/130) Phase 1) ([#334](https://github.com/Nnyjk/es-agents/issues/334)) ([1a040ad](https://github.com/Nnyjk/es-agents/commit/1a040adce4fd3ddc22b7f4b57135437f0086c0e9))
+* **server:** add task history query API ([#32](https://github.com/Nnyjk/es-agents/issues/32)) ([41052c2](https://github.com/Nnyjk/es-agents/commit/41052c23d5864740ba55e77169f7a94d3ec9c911))
+* **server:** Agent 任务执行结果回调 API [#42](https://github.com/Nnyjk/es-agents/issues/42) ([#276](https://github.com/Nnyjk/es-agents/issues/276)) ([94fb033](https://github.com/Nnyjk/es-agents/commit/94fb033119ac524fd969c084141832258182754a)), closes [#277](https://github.com/Nnyjk/es-agents/issues/277)
+* **server:** Agent 命令执行能力后端 API [#37](https://github.com/Nnyjk/es-agents/issues/37) ([#271](https://github.com/Nnyjk/es-agents/issues/271)) ([60ef73d](https://github.com/Nnyjk/es-agents/commit/60ef73ddd79db280b6f15b4806de32fd54caa520)), closes [#55](https://github.com/Nnyjk/es-agents/issues/55) [#157](https://github.com/Nnyjk/es-agents/issues/157)
+* **server:** Agent 实例与绑定管理 API ([57738b4](https://github.com/Nnyjk/es-agents/commit/57738b45fe1527911c85215abe84a90fdb73e335)), closes [#77](https://github.com/Nnyjk/es-agents/issues/77)
+* **server:** Agent 模板版本管理 (Issue [#47](https://github.com/Nnyjk/es-agents/issues/47)) ([#323](https://github.com/Nnyjk/es-agents/issues/323)) ([6a42b5b](https://github.com/Nnyjk/es-agents/commit/6a42b5b64ecb2c6a315f88b9084243e1755236fb))
+* **server:** Agent 状态机完整实现 ([#38](https://github.com/Nnyjk/es-agents/issues/38)) ([e81d718](https://github.com/Nnyjk/es-agents/commit/e81d718649bda4b5aed83226d328cbc7f8df4b4b))
+* **server:** Agent 资源权限控制注解 (Issue [#53](https://github.com/Nnyjk/es-agents/issues/53)) ([#322](https://github.com/Nnyjk/es-agents/issues/322)) ([07a6afc](https://github.com/Nnyjk/es-agents/commit/07a6afc28dc1468bc74402e1784c246d4156cd74))
+* **server:** Agent 部署流程 WebSocket 实时状态推送 [#51](https://github.com/Nnyjk/es-agents/issues/51) ([#280](https://github.com/Nnyjk/es-agents/issues/280)) ([0bec96d](https://github.com/Nnyjk/es-agents/commit/0bec96de29d79505bff4e4e9534e611f8d2e3604))
+* **server:** Agent插件市场管理后端API [#223](https://github.com/Nnyjk/es-agents/issues/223) ([5e2e560](https://github.com/Nnyjk/es-agents/commit/5e2e560c9e8346ad175ddaf3b322a2a29c205eed)), closes [#221](https://github.com/Nnyjk/es-agents/issues/221) [#222](https://github.com/Nnyjk/es-agents/issues/222)
+* **server:** API 密钥管理后端 API [#208](https://github.com/Nnyjk/es-agents/issues/208) ([#267](https://github.com/Nnyjk/es-agents/issues/267)) ([cf3c006](https://github.com/Nnyjk/es-agents/commit/cf3c00626ea9a8a3c3ff8475437964100c4af980))
+* **server:** OpenAPI/Swagger 文档注解 - 部署模块完整覆盖 (Issue [#254](https://github.com/Nnyjk/es-agents/issues/254)) ([#326](https://github.com/Nnyjk/es-agents/issues/326)) ([eb49bea](https://github.com/Nnyjk/es-agents/commit/eb49bea51c14fbff76608d119b4f9af80ebd3952))
+* **server:** 主机可达性检查 API (Issue [#36](https://github.com/Nnyjk/es-agents/issues/36)) ([#317](https://github.com/Nnyjk/es-agents/issues/317)) ([ce306ad](https://github.com/Nnyjk/es-agents/commit/ce306ad2afe326178535781d4b9e03a824c5f941))
+* **server:** 全链路数据导出能力 [#122](https://github.com/Nnyjk/es-agents/issues/122) ([c85ad47](https://github.com/Nnyjk/es-agents/commit/c85ad4768cf44e0acd5497a996a0cc81fd48bcea)), closes [#59](https://github.com/Nnyjk/es-agents/issues/59)
+* **server:** 命令模板管理 API ([062cce6](https://github.com/Nnyjk/es-agents/commit/062cce6a59d97dae810aec32076bfa979d979802)), closes [#71](https://github.com/Nnyjk/es-agents/issues/71)
+* **server:** 增强 Agent 模板 API 功能 ([#161](https://github.com/Nnyjk/es-agents/issues/161)) ([ed7b790](https://github.com/Nnyjk/es-agents/commit/ed7b790bef6f9f2d1b87709979d31c96277a2949)), closes [#160](https://github.com/Nnyjk/es-agents/issues/160)
+* **server:** 完成用户、权限、配置模块 OpenAPI 注解 (Issue [#255](https://github.com/Nnyjk/es-agents/issues/255)) ([#327](https://github.com/Nnyjk/es-agents/issues/327)) ([79317c9](https://github.com/Nnyjk/es-agents/commit/79317c900ab01856c7efb3d4b8d9cfa2714d87e7))
+* **server:** 实现 Agent 运行时监控后端 API ([#165](https://github.com/Nnyjk/es-agents/issues/165)) ([cffec48](https://github.com/Nnyjk/es-agents/commit/cffec48fb4a167c2282b4ef949f09a24c805841d)), closes [#159](https://github.com/Nnyjk/es-agents/issues/159)
+* **server:** 实现 Agent 运行时管理 API ([#163](https://github.com/Nnyjk/es-agents/issues/163)) ([7d1466d](https://github.com/Nnyjk/es-agents/commit/7d1466d8c9f0070ceb8ba19bcbbc493fd8659cbd)), closes [#70](https://github.com/Nnyjk/es-agents/issues/70)
+* **server:** 实现打包部署进展记录与状态追踪 [#54](https://github.com/Nnyjk/es-agents/issues/54) ([#274](https://github.com/Nnyjk/es-agents/issues/274)) ([a4d45da](https://github.com/Nnyjk/es-agents/commit/a4d45da0b5184a6ebbdf91fe4e053aa35274a297))
+* **server:** 异步数据导出任务支持 [#122](https://github.com/Nnyjk/es-agents/issues/122) ([#312](https://github.com/Nnyjk/es-agents/issues/312)) ([e3a8cfd](https://github.com/Nnyjk/es-agents/commit/e3a8cfd68b0a772fc881611d66cf13ca6c6dbbe5))
+* **server:** 打包配置管理 API ([#251](https://github.com/Nnyjk/es-agents/issues/251)) ([7fb58e7](https://github.com/Nnyjk/es-agents/commit/7fb58e725cdb1e179807daab5c91b561a61cfa8b)), closes [#66](https://github.com/Nnyjk/es-agents/issues/66)
+* **server:** 扩展系统设置API支持存储、资源、通知、维护、集成配置 ([#212](https://github.com/Nnyjk/es-agents/issues/212)) ([4ed16d0](https://github.com/Nnyjk/es-agents/commit/4ed16d025d37d2b79a67457c08591f08fce196dd)), closes [#211](https://github.com/Nnyjk/es-agents/issues/211)
+* **server:** 权限控制 - 角色定义与 API 注解 (Issue [#56](https://github.com/Nnyjk/es-agents/issues/56)) ([8b6b1b0](https://github.com/Nnyjk/es-agents/commit/8b6b1b047c396abe9112358a75028e311c94f2fb))
+* **server:** 添加 H2 演示环境 profile ([#303](https://github.com/Nnyjk/es-agents/issues/303)) ([4aab101](https://github.com/Nnyjk/es-agents/commit/4aab1014ccf86617e5b3e3222249d227f4463bd5))
+* **server:** 添加 Prometheus 指标暴露 (Issue [#133](https://github.com/Nnyjk/es-agents/issues/133)) ([#329](https://github.com/Nnyjk/es-agents/issues/329)) ([8e62715](https://github.com/Nnyjk/es-agents/commit/8e627157094f857e71bbed5fe07537f129031584))
+* **server:** 添加部署和主机模块 OpenAPI 注解 (Issue [#254](https://github.com/Nnyjk/es-agents/issues/254)) ([#325](https://github.com/Nnyjk/es-agents/issues/325)) ([021bceb](https://github.com/Nnyjk/es-agents/commit/021bcebdfe3505fea5776e9843a64b7f1aa1c230))
+* **server:** 系统事件日志记录与查询 ([#59](https://github.com/Nnyjk/es-agents/issues/59)) ([#296](https://github.com/Nnyjk/es-agents/issues/296)) ([81432ab](https://github.com/Nnyjk/es-agents/commit/81432ab16685d7c0cbbfb4608061a49906e5d04a)), closes [#116](https://github.com/Nnyjk/es-agents/issues/116) [#116](https://github.com/Nnyjk/es-agents/issues/116)
+* **server:** 系统审计日志 API (Issue [#31](https://github.com/Nnyjk/es-agents/issues/31)) ([#318](https://github.com/Nnyjk/es-agents/issues/318)) ([52ea88f](https://github.com/Nnyjk/es-agents/commit/52ea88f22bce987fbae6e1066051a5d8839957d0)), closes [#36](https://github.com/Nnyjk/es-agents/issues/36)
+* **server:** 通知配置管理 API [#67](https://github.com/Nnyjk/es-agents/issues/67) ([#269](https://github.com/Nnyjk/es-agents/issues/269)) ([aa46ae4](https://github.com/Nnyjk/es-agents/commit/aa46ae4afc057c3b7fcbe80bb9f8d1fd00b0b317)), closes [#152](https://github.com/Nnyjk/es-agents/issues/152) [#157](https://github.com/Nnyjk/es-agents/issues/157)
+* **server:** 部署模块审计日志功能 (Issue [#15](https://github.com/Nnyjk/es-agents/issues/15)) ([#324](https://github.com/Nnyjk/es-agents/issues/324)) ([6e96543](https://github.com/Nnyjk/es-agents/commit/6e965436ebd501a2d192a431c0b04882568b1c42))
+* **setting:** 系统全局设置管理API ([2d6d676](https://github.com/Nnyjk/es-agents/commit/2d6d676fd4276b32f649121110da1436c8353abb)), closes [#121](https://github.com/Nnyjk/es-agents/issues/121)
+* STORY-1 - 按主机 OS 绑定 Agent 资源并重构部署包生命周期脚本 ([df05674](https://github.com/Nnyjk/es-agents/commit/df05674ddceb86ac31369e155e22b4b72432e7fd))
+* STORY-2 - 重构主机管理接入弹窗以消费资源化安装引导 ([ea5a9d6](https://github.com/Nnyjk/es-agents/commit/ea5a9d64552e9c1099185836eb2351fb22ac86c9))
+* **system:** 系统全局设置管理前端页面 ([#171](https://github.com/Nnyjk/es-agents/issues/171)) ([f72fd29](https://github.com/Nnyjk/es-agents/commit/f72fd2989b8abeda49047c0bfbd69093a2409cc8)), closes [#170](https://github.com/Nnyjk/es-agents/issues/170)
+* 从 GitHub Releases 下载 HostAgent 部署包 ([905e19f](https://github.com/Nnyjk/es-agents/commit/905e19f5b4341ee956c36e3115283831104082f2))
+* 单元测试框架搭建 (Issue [#123](https://github.com/Nnyjk/es-agents/issues/123)) ([#314](https://github.com/Nnyjk/es-agents/issues/314)) ([bf1360a](https://github.com/Nnyjk/es-agents/commit/bf1360a7fa5b690dc8f8dfa4260d466c845ec53b)), closes [#312](https://github.com/Nnyjk/es-agents/issues/312) [#122](https://github.com/Nnyjk/es-agents/issues/122)
+* 完成任务更新 - 2026-03-02 ([ba1258a](https://github.com/Nnyjk/es-agents/commit/ba1258a740e75114c86bee12524d646721c3a016))
+* 完成所有模块 OpenAPI 注解 (Issue [#256](https://github.com/Nnyjk/es-agents/issues/256)) ([#328](https://github.com/Nnyjk/es-agents/issues/328)) ([d26228b](https://github.com/Nnyjk/es-agents/commit/d26228b6ec83213dda6cec168d516cfb40b69ebe))
+* 实现 AgentTemplate 统一下载入口并改进部署包脚本 ([b5612bc](https://github.com/Nnyjk/es-agents/commit/b5612bcbbfb3886c6d5bedb429b711dd0175d186))
+* 批量执行能力 ([#140](https://github.com/Nnyjk/es-agents/issues/140)) ([#292](https://github.com/Nnyjk/es-agents/issues/292)) ([37ed8e5](https://github.com/Nnyjk/es-agents/commit/37ed8e54b2a050f35b633a4e637b341d32ac4fa7))
+* 支持 GitHub Releases 直链下载部署包 ([93e226c](https://github.com/Nnyjk/es-agents/commit/93e226c2f1819361612082a434f7a7cd73310523))
+* 文档一致性检查 (Issue [#81](https://github.com/Nnyjk/es-agents/issues/81)) ([#316](https://github.com/Nnyjk/es-agents/issues/316)) ([5ce554a](https://github.com/Nnyjk/es-agents/commit/5ce554a49e5a589d8a0e6ee67958871c078a3b6b))
+* 暂时剔除登录加密功能，使用明文密码校验 ([67ceb4c](https://github.com/Nnyjk/es-agents/commit/67ceb4cfc679d5188c4ba344d2d357aab82a31cb)), closes [#3686](https://github.com/Nnyjk/es-agents/issues/3686)
+* 添加主机系统类型字段 ([395d448](https://github.com/Nnyjk/es-agents/commit/395d44822ff34c92df048b9ef192007e8fed0e6a))
+* 添加定时任务管理 API 领域模型 ([#257](https://github.com/Nnyjk/es-agents/issues/257)) ([5f2a70c](https://github.com/Nnyjk/es-agents/commit/5f2a70c5fbbd2f47487f3f09ef586be60ddd7112)), closes [#203](https://github.com/Nnyjk/es-agents/issues/203)
+* 添加运行时环境安装脚本 ([#244](https://github.com/Nnyjk/es-agents/issues/244)) ([be5beff](https://github.com/Nnyjk/es-agents/commit/be5beffdcd2ac35f9dd63d94e6d8c394756fe31a)), closes [#237](https://github.com/Nnyjk/es-agents/issues/237) [#241](https://github.com/Nnyjk/es-agents/issues/241) [#243](https://github.com/Nnyjk/es-agents/issues/243)
+* 部署流水线管理前端页面 (Issue [#98](https://github.com/Nnyjk/es-agents/issues/98)) ([#320](https://github.com/Nnyjk/es-agents/issues/320)) ([9614704](https://github.com/Nnyjk/es-agents/commit/9614704ed0163d4207d18812c52e37d0643e0d0e))
 
-### Removed
-- N/A
 
----
+### Reverts
 
-## [0.1.0] - 2026-03-29
-
-### Added
-- Initial release of ES Agents platform
-- Quarkus-based server with REST API
-- React-based frontend dashboard
-- Go-based agent for remote execution
-- Deployment management with wizard
-- Host management and monitoring
-- Authentication and authorization system
-- System event logging
-- Alert center with notification channels
-- WebSocket real-time communication
-- Prometheus metrics exposure
-- Grafana monitoring dashboards
-- OpenAPI/Swagger documentation
-
-### Technical Stack
-- **Server**: Quarkus 3.x, Java 21, Maven
-- **Frontend**: React 18, TypeScript, Vite
-- **Agent**: Go 1.21+
-- **Database**: PostgreSQL
-- **Monitoring**: Prometheus, Grafana
+* 回滚超出核心范围的已合并功能 ([#197](https://github.com/Nnyjk/es-agents/issues/197)) ([14afd32](https://github.com/Nnyjk/es-agents/commit/14afd329b234e4df3d7a5d54f41e814494809fe0)), closes [#191](https://github.com/Nnyjk/es-agents/issues/191) [#184](https://github.com/Nnyjk/es-agents/issues/184) [#173](https://github.com/Nnyjk/es-agents/issues/173) [#169](https://github.com/Nnyjk/es-agents/issues/169)
