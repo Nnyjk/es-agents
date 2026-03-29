@@ -16,6 +16,12 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.Parameter;
+import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.util.UUID;
 
@@ -25,6 +31,7 @@ import java.util.UUID;
 @Path("/api/deployment/applications/{applicationId}/configs")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Tag(name = "应用配置管理", description = "应用配置查询与管理")
 public class ApplicationConfigResource {
 
     @Inject
@@ -40,22 +47,35 @@ public class ApplicationConfigResource {
     HttpHeaders httpHeaders;
 
     @GET
+    @Operation(summary = "获取配置列表", description = "分页查询应用配置列表")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回配置列表"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("deployment:view")
     public PageResultDTO<ApplicationConfigDTO> list(
-            @PathParam("applicationId") UUID applicationId,
-            @QueryParam("environmentId") UUID environmentId,
-            @QueryParam("configType") ApplicationConfig.ConfigType configType,
-            @QueryParam("pageNum") @DefaultValue("1") int pageNum,
-            @QueryParam("pageSize") @DefaultValue("20") int pageSize) {
+            @Parameter(description = "应用 ID", in = ParameterIn.PATH) @PathParam("applicationId") UUID applicationId,
+            @Parameter(description = "环境 ID") @QueryParam("environmentId") UUID environmentId,
+            @Parameter(description = "配置类型") @QueryParam("configType") ApplicationConfig.ConfigType configType,
+            @Parameter(description = "页码") @QueryParam("pageNum") @DefaultValue("1") int pageNum,
+            @Parameter(description = "每页数量") @QueryParam("pageSize") @DefaultValue("20") int pageSize) {
         return configService.listConfigs(pageNum, pageSize, applicationId, environmentId, configType);
     }
 
     @GET
-    @RequiresPermission("deployment:view")
     @Path("/{id}")
+    @Operation(summary = "获取配置详情", description = "根据 ID 查询应用配置")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回配置详情"),
+        @APIResponse(responseCode = "404", description = "配置不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @RequiresPermission("deployment:view")
     public ApplicationConfigDTO get(
-            @PathParam("applicationId") UUID applicationId,
-            @PathParam("id") UUID id) {
+            @Parameter(description = "应用 ID", in = ParameterIn.PATH) @PathParam("applicationId") UUID applicationId,
+            @Parameter(description = "配置 ID") @PathParam("id") UUID id) {
         ApplicationConfigDTO dto = configService.getById(id);
         if (dto == null) {
             throw new WebApplicationException("Config not found", Response.Status.NOT_FOUND);
@@ -64,9 +84,17 @@ public class ApplicationConfigResource {
     }
 
     @POST
+    @Operation(summary = "创建配置", description = "创建新的应用配置")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "201", description = "成功创建配置"),
+        @APIResponse(responseCode = "400", description = "请求参数无效"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足"),
+        @APIResponse(responseCode = "409", description = "配置已存在")
+    })
     @RequiresPermission("deployment:create")
     public Response create(
-            @PathParam("applicationId") UUID applicationId,
+            @Parameter(description = "应用 ID", in = ParameterIn.PATH) @PathParam("applicationId") UUID applicationId,
             ApplicationConfigDTO dto) {
         dto.applicationId = applicationId;
         ApplicationConfigDTO created = configService.create(dto);
@@ -76,11 +104,19 @@ public class ApplicationConfigResource {
     }
 
     @PUT
-    @RequiresPermission("deployment:edit")
     @Path("/{id}")
+    @Operation(summary = "更新配置", description = "更新应用配置")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功更新配置"),
+        @APIResponse(responseCode = "404", description = "配置不存在"),
+        @APIResponse(responseCode = "400", description = "请求参数无效"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @RequiresPermission("deployment:edit")
     public ApplicationConfigDTO update(
-            @PathParam("applicationId") UUID applicationId,
-            @PathParam("id") UUID id,
+            @Parameter(description = "应用 ID", in = ParameterIn.PATH) @PathParam("applicationId") UUID applicationId,
+            @Parameter(description = "配置 ID") @PathParam("id") UUID id,
             ApplicationConfigDTO dto) {
         ApplicationConfigDTO updated = configService.update(id, dto);
         if (updated == null) {
@@ -92,11 +128,18 @@ public class ApplicationConfigResource {
     }
 
     @DELETE
-    @RequiresPermission("deployment:delete")
     @Path("/{id}")
+    @Operation(summary = "删除配置", description = "删除单个应用配置")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "204", description = "成功删除配置"),
+        @APIResponse(responseCode = "404", description = "配置不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @RequiresPermission("deployment:delete")
     public Response delete(
-            @PathParam("applicationId") UUID applicationId,
-            @PathParam("id") UUID id) {
+            @Parameter(description = "应用 ID", in = ParameterIn.PATH) @PathParam("applicationId") UUID applicationId,
+            @Parameter(description = "配置 ID") @PathParam("id") UUID id) {
         boolean deleted = configService.delete(id);
         if (!deleted) {
             throw new WebApplicationException("Config not found", Response.Status.NOT_FOUND);
@@ -107,8 +150,14 @@ public class ApplicationConfigResource {
     }
 
     @DELETE
+    @Operation(summary = "批量删除配置", description = "删除应用的所有配置")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功删除配置"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("deployment:delete")
-    public Response deleteByApplication(@PathParam("applicationId") UUID applicationId) {
+    public Response deleteByApplication(@Parameter(description = "应用 ID", in = ParameterIn.PATH) @PathParam("applicationId") UUID applicationId) {
         long count = configService.deleteByApplication(applicationId);
         recordAuditLog(AuditAction.DELETE_APPLICATION_CONFIG, AuditResult.SUCCESS,
                 "删除应用所有配置，数量：" + count, "ApplicationConfig", applicationId);

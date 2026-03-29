@@ -124,8 +124,15 @@ public class HostResource {
 
     @POST
     @Path("/{id}/connect")
+    @Operation(summary = "连接主机", description = "建立与指定主机的连接")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功连接主机"),
+        @APIResponse(responseCode = "404", description = "主机不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("host:manage")
-    public Response connect(@PathParam("id") UUID id) {
+    public Response connect(@Parameter(description = "主机 ID") @PathParam("id") UUID id) {
         hostService.connect(id);
         recordAuditLog(AuditAction.START_AGENT, AuditResult.SUCCESS,
                 "连接主机", "Host", id);
@@ -137,8 +144,15 @@ public class HostResource {
      */
     @POST
     @Path("/{id}/check-reachability")
+    @Operation(summary = "检查主机可达性", description = "验证指定主机是否可通过 TCP 访问")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回可达性状态"),
+        @APIResponse(responseCode = "404", description = "主机不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("host:view")
-    public Response checkReachability(@PathParam("id") UUID id) {
+    public Response checkReachability(@Parameter(description = "主机 ID") @PathParam("id") UUID id) {
         return Response.ok(hostService.checkReachability(id)).build();
     }
 
@@ -147,6 +161,12 @@ public class HostResource {
      */
     @POST
     @Path("/check-reachability")
+    @Operation(summary = "检查所有主机可达性", description = "批量验证所有主机的 TCP 连接状态")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回所有主机可达性状态"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("host:view")
     public Response checkReachabilityAll() {
         return Response.ok(hostService.checkReachabilityAll()).build();
@@ -154,16 +174,31 @@ public class HostResource {
 
     @GET
     @Path("/{id}/install-guide")
+    @Operation(summary = "获取安装指南", description = "获取指定主机的 Agent 安装指南")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回安装指南"),
+        @APIResponse(responseCode = "404", description = "主机不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("host:view")
-    public Response getInstallGuide(@PathParam("id") UUID id) {
+    public Response getInstallGuide(@Parameter(description = "主机 ID") @PathParam("id") UUID id) {
         return Response.ok(hostService.getInstallGuide(id)).build();
     }
 
     @GET
     @Path("/{id}/package")
+    @Operation(summary = "下载主机安装包", description = "下载指定主机的 Agent 安装包")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回安装包文件"),
+        @APIResponse(responseCode = "400", description = "缺少 sourceId 参数"),
+        @APIResponse(responseCode = "404", description = "主机不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("host:view")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response downloadPackage(@PathParam("id") UUID id, @QueryParam("sourceId") UUID sourceId) {
+    public Response downloadPackage(@Parameter(description = "主机 ID") @PathParam("id") UUID id, @Parameter(description = "制品源 ID") @QueryParam("sourceId") UUID sourceId) {
         if (sourceId == null) {
             throw new WebApplicationException("sourceId is required", Response.Status.BAD_REQUEST);
         }
