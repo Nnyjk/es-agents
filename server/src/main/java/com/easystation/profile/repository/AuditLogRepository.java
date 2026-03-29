@@ -89,4 +89,91 @@ public class AuditLogRepository implements PanacheRepository<UserAuditLog> {
             .setMaxResults(limit)
             .getResultList();
     }
+
+    // ========== 新增方法：审计日志增强查询 ==========
+
+    /**
+     * 按小时统计失败操作次数
+     */
+    @SuppressWarnings("unchecked")
+    public List<Object[]> countFailuresByHour(UUID userId, LocalDateTime startTime, LocalDateTime endTime) {
+        String jpql = "SELECT DATE_TRUNC('hour', createdAt) as hour, COUNT(*) as cnt " +
+            "FROM UserAuditLog WHERE userId = :userId AND status = 'failure' " +
+            "AND createdAt >= :startTime AND createdAt <= :endTime " +
+            "GROUP BY DATE_TRUNC('hour', createdAt) ORDER BY hour";
+        return getEntityManager().createQuery(jpql)
+            .setParameter("userId", userId)
+            .setParameter("startTime", startTime)
+            .setParameter("endTime", endTime)
+            .getResultList();
+    }
+
+    /**
+     * 查找用户的敏感操作日志
+     */
+    public List<UserAuditLog> findSensitiveByUser(UUID userId, LocalDateTime startTime, LocalDateTime endTime) {
+        return find("userId = ?1 AND isSensitive = true AND createdAt >= ?2 AND createdAt <= ?3 ORDER BY createdAt DESC",
+            userId, startTime, endTime).list();
+    }
+
+    /**
+     * 查找用户的常用 IP 地址
+     */
+    @SuppressWarnings("unchecked")
+    public List<String> findCommonIPs(UUID userId, int limit) {
+        String jpql = "SELECT ipAddress FROM UserAuditLog WHERE userId = :userId AND ipAddress IS NOT NULL " +
+            "GROUP BY ipAddress ORDER BY COUNT(*) DESC";
+        return getEntityManager().createQuery(jpql)
+            .setParameter("userId", userId)
+            .setMaxResults(limit)
+            .getResultList();
+    }
+
+    /**
+     * 查找带 IP 的日志
+     */
+    public List<UserAuditLog> findByUserIdWithIP(UUID userId, LocalDateTime startTime, LocalDateTime endTime) {
+        return find("userId = ?1 AND createdAt >= ?2 AND createdAt <= ?3 ORDER BY createdAt DESC",
+            userId, startTime, endTime).list();
+    }
+
+    /**
+     * 查找批量操作日志
+     */
+    public List<UserAuditLog> findBatchOperations(UUID userId, LocalDateTime startTime, LocalDateTime endTime) {
+        return find("userId = ?1 AND (action LIKE ?2 OR action LIKE ?3) AND createdAt >= ?4 AND createdAt <= ?5 ORDER BY createdAt DESC",
+            userId, "BATCH_%", "BATCH_%", startTime, endTime).list();
+    }
+
+    /**
+     * 查找需要审查的日志
+     */
+    public List<UserAuditLog> findRequiresReview() {
+        return find("requiresReview = true AND reviewStatus = 'PENDING' ORDER BY createdAt DESC").list();
+    }
+
+    /**
+     * 按风险等级查找日志
+     */
+    public List<UserAuditLog> findByRiskLevel(String riskLevel, LocalDateTime startTime, LocalDateTime endTime) {
+        return find("riskLevel = ?1 AND createdAt >= ?2 AND createdAt <= ?3 ORDER BY createdAt DESC",
+            riskLevel, startTime, endTime).list();
+    }
+
+    /**
+     * 导出查询 - 支持大结果集
+     */
+    public List<UserAuditLog> findForExport(UUID userId, LocalDateTime startTime, LocalDateTime endTime, int limit) {
+        return find("userId = ?1 AND createdAt >= ?2 AND createdAt <= ?3 ORDER BY createdAt DESC",
+            userId, startTime, endTime)
+            .page(0, limit)
+            .list();
+    }
+
+    /**
+     * 验证日志完整性时批量查询
+     */
+    public List<UserAuditLog> findByIds(List<UUID> ids) {
+        return find("id IN ?1", ids).list();
+    }
 }
