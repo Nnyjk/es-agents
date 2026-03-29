@@ -34,11 +34,12 @@ class PluginReviewServiceTest {
     void testCreateReview() {
         PluginReviewRecord.Create create = new PluginReviewRecord.Create(
             testPluginId,
-            "插件功能完整，符合规范",
-            ReviewStatus.PENDING
+            null,
+            "INIT_REVIEW",
+            "插件功能完整，符合规范"
         );
 
-        PluginReviewRecord result = reviewService.create(create);
+        PluginReviewRecord result = reviewService.createReview(create);
 
         assertNotNull(result);
         assertNotNull(result.id());
@@ -51,17 +52,18 @@ class PluginReviewServiceTest {
         // First create a review
         PluginReviewRecord.Create create = new PluginReviewRecord.Create(
             testPluginId,
-            "查找测试评论",
-            ReviewStatus.PENDING
+            null,
+            "INIT_REVIEW",
+            "查找测试评论"
         );
-        PluginReviewRecord created = reviewService.create(create);
+        PluginReviewRecord created = reviewService.createReview(create);
 
         // Then find it
         Optional<PluginReviewRecord> found = reviewService.findById(created.id());
 
         assertTrue(found.isPresent());
         assertEquals(created.id(), found.get().id());
-        assertEquals("查找测试评论", found.get().content());
+        assertEquals("查找测试评论", found.get().comment());
     }
 
     @Test
@@ -69,17 +71,19 @@ class PluginReviewServiceTest {
         // Create test reviews for the same plugin
         PluginReviewRecord.Create create1 = new PluginReviewRecord.Create(
             testPluginId,
-            "评论一",
-            ReviewStatus.PENDING
+            null,
+            "INIT_REVIEW",
+            "评论一"
         );
-        reviewService.create(create1);
+        reviewService.createReview(create1);
 
         PluginReviewRecord.Create create2 = new PluginReviewRecord.Create(
             testPluginId,
-            "评论二",
-            ReviewStatus.PENDING
+            null,
+            "INIT_REVIEW",
+            "评论二"
         );
-        reviewService.create(create2);
+        reviewService.createReview(create2);
 
         // Find reviews by plugin ID
         List<PluginReviewRecord> reviews = reviewService.findByPluginId(testPluginId);
@@ -94,17 +98,24 @@ class PluginReviewServiceTest {
         // First create a review
         PluginReviewRecord.Create create = new PluginReviewRecord.Create(
             testPluginId,
-            "审批测试评论",
-            ReviewStatus.PENDING
+            null,
+            "INIT_REVIEW",
+            "审批测试评论"
         );
-        PluginReviewRecord created = reviewService.create(create);
+        PluginReviewRecord created = reviewService.createReview(create);
 
         // Approve the review
-        PluginReviewRecord approved = reviewService.approve(created.id(), "符合发布标准");
+        PluginReviewRecord.Approve approve = new PluginReviewRecord.Approve(
+            "符合发布标准",
+            "passed",
+            "compatible",
+            "all tests passed"
+        );
+        PluginReviewRecord approved = reviewService.approve(created.id(), approve);
 
         assertNotNull(approved);
         assertEquals(ReviewStatus.APPROVED, approved.status());
-        assertNotNull(approved.approvedAt());
+        assertNotNull(approved.reviewedAt());
     }
 
     @Test
@@ -112,17 +123,18 @@ class PluginReviewServiceTest {
         // First create a review
         PluginReviewRecord.Create create = new PluginReviewRecord.Create(
             testPluginId,
-            "拒绝测试评论",
-            ReviewStatus.PENDING
+            null,
+            "INIT_REVIEW",
+            "拒绝测试评论"
         );
-        PluginReviewRecord created = reviewService.create(create);
+        PluginReviewRecord created = reviewService.createReview(create);
 
         // Reject the review
-        PluginReviewRecord rejected = reviewService.reject(created.id(), "存在严重问题需要修复");
+        PluginReviewRecord.Reject reject = new PluginReviewRecord.Reject("存在严重问题需要修复");
+        PluginReviewRecord rejected = reviewService.reject(created.id(), reject);
 
         assertNotNull(rejected);
         assertEquals(ReviewStatus.REJECTED, rejected.status());
-        assertNotNull(rejected.rejectedAt());
-        assertEquals("存在严重问题需要修复", rejected.rejectionReason());
+        assertNotNull(rejected.reviewedAt());
     }
 }

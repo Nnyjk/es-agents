@@ -20,11 +20,12 @@ class PluginCategoryServiceTest {
     @Test
     void testCreateCategory() {
         PluginCategoryRecord.Create create = new PluginCategoryRecord.Create(
-            "test-category-" + System.currentTimeMillis(),
+            null,
             "测试分类",
+            "test-category-" + System.currentTimeMillis(),
+            null,
             "用于测试的分类",
-            1,
-            true
+            1
         );
 
         PluginCategoryRecord result = categoryService.create(create);
@@ -33,18 +34,19 @@ class PluginCategoryServiceTest {
         assertNotNull(result.id());
         assertEquals("test-category-" + System.currentTimeMillis(), result.code());
         assertEquals("测试分类", result.name());
-        assertTrue(result.enabled());
+        assertTrue(result.isActive());
     }
 
     @Test
     void testFindById() {
         // First create a category
         PluginCategoryRecord.Create create = new PluginCategoryRecord.Create(
-            "find-by-id-cat",
+            null,
             "查找分类测试",
+            "find-by-id-cat",
+            null,
             "用于测试查找功能",
-            1,
-            true
+            1
         );
         PluginCategoryRecord created = categoryService.create(create);
 
@@ -60,20 +62,22 @@ class PluginCategoryServiceTest {
     void testFindAll() {
         // Create test categories
         PluginCategoryRecord.Create create1 = new PluginCategoryRecord.Create(
-            "cat-test-1",
+            null,
             "测试分类一",
+            "cat-test-1",
+            null,
             "第一个测试分类",
-            1,
-            true
+            1
         );
         categoryService.create(create1);
 
         PluginCategoryRecord.Create create2 = new PluginCategoryRecord.Create(
-            "cat-test-2",
+            null,
             "测试分类二",
+            "cat-test-2",
+            null,
             "第二个测试分类",
-            2,
-            true
+            2
         );
         categoryService.create(create2);
 
@@ -88,17 +92,21 @@ class PluginCategoryServiceTest {
     void testUpdate() {
         // First create a category
         PluginCategoryRecord.Create create = new PluginCategoryRecord.Create(
-            "update-cat",
+            null,
             "更新前名称",
+            "update-cat",
+            null,
             "更新前描述",
-            1,
-            true
+            1
         );
         PluginCategoryRecord created = categoryService.create(create);
 
         // Update the category
         PluginCategoryRecord.Update update = new PluginCategoryRecord.Update(
+            null,
             "更新后名称",
+            null,
+            null,
             "更新后描述",
             2,
             false
@@ -109,18 +117,19 @@ class PluginCategoryServiceTest {
         assertEquals("更新后名称", updated.name());
         assertEquals("更新后描述", updated.description());
         assertEquals(2, updated.sortOrder());
-        assertFalse(updated.enabled());
+        assertFalse(updated.isActive());
     }
 
     @Test
     void testDelete() {
         // First create a category
         PluginCategoryRecord.Create create = new PluginCategoryRecord.Create(
-            "delete-cat",
+            null,
             "删除分类测试",
+            "delete-cat",
+            null,
             "用于测试删除功能",
-            1,
-            true
+            1
         );
         PluginCategoryRecord created = categoryService.create(create);
 
