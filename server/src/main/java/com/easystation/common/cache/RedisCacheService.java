@@ -1,8 +1,8 @@
 package com.easystation.common.cache;
 
 import io.quarkus.redis.datasource.RedisDataSource;
+import io.quarkus.redis.datasource.value.SetArgs;
 import io.quarkus.redis.datasource.value.ValueCommands;
-import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -46,19 +46,15 @@ public class RedisCacheService implements CacheService {
 
     @Override
     public void set(String key, Object value) {
-        try {
-            String json = objectMapper.writeValueAsString(value);
-            getValueCommands().set(key, json);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Failed to serialize cache value for key: " + key, e);
-        }
+        set(key, value, 3600, TimeUnit.SECONDS);
     }
 
     @Override
     public void set(String key, Object value, long ttl, TimeUnit unit) {
         try {
             String json = objectMapper.writeValueAsString(value);
-            getValueCommands().set(key, json, unit.toSeconds(ttl));
+            SetArgs setArgs = new SetArgs().ex(unit.toSeconds(ttl));
+            getValueCommands().set(key, json, setArgs);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to serialize cache value for key: " + key, e);
         }
@@ -66,7 +62,7 @@ public class RedisCacheService implements CacheService {
 
     @Override
     public void delete(String key) {
-        getValueCommands().del(key);
+        redisDataSource.key(String.class).del(key);
     }
 
     @Override
@@ -76,27 +72,29 @@ public class RedisCacheService implements CacheService {
 
     @Override
     public <T> Map<String, T> multiGet(List<String> keys, Class<T> clazz) {
-        throw new UnsupportedOperationException("multiGet not yet implemented");
+        // TODO: 实现批量获取
+        throw new UnsupportedOperationException("multiGet not implemented yet");
     }
 
     @Override
     public void multiSet(Map<String, Object> map) {
-        throw new UnsupportedOperationException("multiSet not yet implemented");
+        multiSet(map, 3600, TimeUnit.SECONDS);
     }
 
     @Override
     public void multiSet(Map<String, Object> map, long ttl, TimeUnit unit) {
-        throw new UnsupportedOperationException("multiSet with TTL not yet implemented");
+        // TODO: 实现批量设置
+        throw new UnsupportedOperationException("multiSet not implemented yet");
     }
 
     @Override
     public long increment(String key) {
-        return redisDataSource.key(String.class).incr(key);
+        return redisDataSource.string(String.class).incr(key);
     }
 
     @Override
     public long decrement(String key) {
-        return redisDataSource.key(String.class).decr(key);
+        return redisDataSource.string(String.class).decr(key);
     }
 
     @Override
@@ -106,10 +104,10 @@ public class RedisCacheService implements CacheService {
 
     @Override
     public long getTTL(String key, TimeUnit unit) {
-        Long seconds = redisDataSource.key(String.class).ttl(key);
-        if (seconds == null || seconds < 0) {
+        Long ttlSeconds = redisDataSource.key(String.class).ttl(key);
+        if (ttlSeconds == null || ttlSeconds < 0) {
             return -1;
         }
-        return unit.convert(seconds, TimeUnit.SECONDS);
+        return unit.convert(ttlSeconds, TimeUnit.SECONDS);
     }
 }
