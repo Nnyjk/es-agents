@@ -48,6 +48,7 @@ import type {
   DeploymentProgress,
   DeploymentStageProgress,
   CreateDeploymentParams,
+  DeploymentQueryParams,
 } from "@/types/deployment";
 
 const statusColors: Record<DeploymentRecordStatus, string> = {
@@ -120,7 +121,7 @@ const DeploymentListPage: React.FC = () => {
     if (pollingId) {
       clearInterval(pollingId);
     }
-    const idNum = window setInterval(() => {
+    const idNum = window.setInterval(() => {
       fetchProgress(id);
     }, 5000);
     setPollingId(idNum);
@@ -417,7 +418,7 @@ const DeploymentListPage: React.FC = () => {
         search={{ labelWidth: "auto" }}
         request={async (params) => {
           const { timeRange, ...restParams } = params;
-          const queryParams = {
+          const queryParams: DeploymentQueryParams = {
             current: params.current || 1,
             pageSize: params.pageSize || 10,
             ...restParams,

@@ -17,7 +17,6 @@ import {
   ArrowLeftOutlined,
   RocketOutlined,
   AppstoreOutlined,
-  CloudServerOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
 import { createDeployment, getApplications, getEnvironments } from "@/services/deployment";

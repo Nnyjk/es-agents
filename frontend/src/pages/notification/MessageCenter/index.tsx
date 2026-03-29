@@ -48,7 +48,6 @@ import type {
   NotificationMessage,
   MessageType,
   MessageLevel,
-  UnreadCount,
   NotificationStatistics,
 } from '@/types/notification';
 
@@ -65,7 +64,6 @@ const MessageCenter: React.FC = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [detailVisible, setDetailVisible] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<NotificationMessage | null>(null);
-  const [unreadCount, setUnreadCount] = useState<UnreadCount | null>(null);
   const [statistics, setStatistics] = useState<NotificationStatistics | null>(null);
 
   // 查询参数
@@ -117,11 +115,10 @@ const MessageCenter: React.FC = () => {
   const loadStatistics = async () => {
     try {
       const userId = getCurrentUserId();
-      const [unread, stats] = await Promise.all([
+      const [, stats] = await Promise.all([
         getUnreadCount(userId),
         getStatistics(userId),
       ]);
-      setUnreadCount(unread);
       setStatistics(stats);
     } catch (error: any) {
       console.error('加载统计信息失败:', error);
@@ -143,7 +140,6 @@ const MessageCenter: React.FC = () => {
   // 查看详情
   const handleViewDetail = async (id: string) => {
     try {
-      const detail = await getMessages({} as NotificationQueryParams);
       // 实际应该调用 getMessageDetail，这里简化处理
       const msg = messages.find((m) => m.id === id);
       if (msg) {
@@ -348,25 +344,21 @@ const MessageCenter: React.FC = () => {
   ];
 
   // 批量操作菜单
-  const batchMenu = (
-    <Dropdown.Menu>
-      <Dropdown.Menu.Item
-        key="read"
-        icon={<CheckCircleOutlined />}
-        onClick={handleBatchMarkRead}
-      >
-        标记已读
-      </Dropdown.Menu.Item>
-      <Dropdown.Menu.Item
-        key="delete"
-        icon={<DeleteOutlined />}
-        danger
-        onClick={handleBatchDelete}
-      >
-        删除
-      </Dropdown.Menu.Item>
-    </Dropdown.Menu>
-  );
+  const batchMenuItems = [
+    {
+      key: 'read',
+      icon: <CheckCircleOutlined />,
+      label: '标记已读',
+      onClick: handleBatchMarkRead,
+    },
+    {
+      key: 'delete',
+      icon: <DeleteOutlined />,
+      label: '删除',
+      danger: true,
+      onClick: handleBatchDelete,
+    },
+  ];
 
   return (
     <PageContainer
@@ -492,7 +484,7 @@ const MessageCenter: React.FC = () => {
       <Card>
         <Row style={{ marginBottom: 16 }}>
           <Col>
-            <Dropdown overlay={batchMenu} trigger={['click']}>
+            <Dropdown menu={{ items: batchMenuItems }} trigger={['click']}>
               <Button disabled={selectedRowKeys.length === 0}>
                 批量操作 <span style={{ marginLeft: 4 }}>▼</span>
               </Button>
