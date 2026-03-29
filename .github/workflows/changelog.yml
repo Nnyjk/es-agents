@@ -1,0 +1,48 @@
+name: Update CHANGELOG
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-changelog:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'chore(release)') && !contains(github.event.head_commit.message, 'ci skip')"
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install conventional-changelog-cli
+        run: npm install -g conventional-changelog-cli
+
+      - name: Generate CHANGELOG
+        run: |
+          # Generate changelog from all commits
+          conventional-changelog -p angular -i CHANGELOG.md -s -r 0
+          
+      - name: Commit CHANGELOG changes
+        run: |
+          git config --local user.email "y-bot-n@example.com"
+          git config --local user.name "Y-Bot-N"
+          git add CHANGELOG.md
+          if ! git diff --staged --quiet; then
+            git commit -m "docs(changelog): update CHANGELOG.md [skip ci]"
+            git push
+          else
+            echo "No changes to commit"
+          fi
