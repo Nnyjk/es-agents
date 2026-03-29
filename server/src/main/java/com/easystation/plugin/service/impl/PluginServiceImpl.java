@@ -398,7 +398,7 @@ public class PluginServiceImpl implements PluginService {
 
     @Override
     @Transactional
-    public PluginVersionRecord updateVersion(UUID versionId, PluginVersionRecord.Create update) {
+    public PluginVersionRecord updateVersion(UUID versionId, PluginVersionRecord.Update update) {
         PluginVersion version = versionRepository.findByIdOptional(versionId)
             .orElseThrow(() -> new NotFoundException("Version not found: " + versionId));
 

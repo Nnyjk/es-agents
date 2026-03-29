@@ -182,7 +182,7 @@ public class AgentTemplateResource {
     @Parameter(name = "versionId", description = "版本 ID", required = true)
     @RequiresPermission("agent:view")
     public Response getVersion(@PathParam("id") UUID id, @PathParam("versionId") UUID versionId) {
-        return Response.ok(versionService.getVersion(versionId)).build();
+        return Response.ok(versionService.get(versionId)).build();
     }
 
     @POST

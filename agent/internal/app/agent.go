@@ -16,6 +16,7 @@ import (
 
 	"github.com/easy-station/agent/internal/client"
 	"github.com/easy-station/agent/internal/config"
+	"github.com/easy-station/agent/internal/metrics"
 	"github.com/easy-station/agent/internal/plugin"
 	"github.com/easy-station/agent/internal/resource"
 	"github.com/easy-station/agent/internal/transport"
@@ -26,13 +27,15 @@ import (
 )
 
 type Agent struct {
-	Config        *config.Config
-	WSServer      *transport.WSServer
-	PluginManager *plugin.Manager
-	Fetcher       *resource.Fetcher
-	Packer        *resource.Packer
-	Deployer      *resource.Deployer
-	Upgrader      *upgrade.Upgrader
+	Config           *config.Config
+	WSServer         *transport.WSServer
+	PluginManager    *plugin.Manager
+	Fetcher          *resource.Fetcher
+	Packer           *resource.Packer
+	Deployer         *resource.Deployer
+	Upgrader         *upgrade.Upgrader
+	MetricsCollector *metrics.Collector
+	MetricsServer    *metrics.Server
 
 	LogBuffer   []string
 	LogBufferMu sync.Mutex
@@ -110,13 +113,15 @@ func New(cfg *config.Config) *Agent {
 	wsServer := transport.NewWSServer(cfg.SecretKey)
 
 	a := &Agent{
-		Config:        cfg,
-		WSServer:      wsServer,
-		PluginManager: plugin.NewManager(),
-		Fetcher:       resource.NewFetcher(),
-		Packer:        resource.NewPacker(),
-		Deployer:      resource.NewDeployer(),
-		Upgrader:      upgrade.NewUpgrader(cfg.Version, "backups", "downloads", os.Args[0]),
+		Config:           cfg,
+		WSServer:         wsServer,
+		PluginManager:    plugin.NewManager(),
+		Fetcher:          resource.NewFetcher(),
+		Packer:           resource.NewPacker(),
+		Deployer:         resource.NewDeployer(),
+		Upgrader:         upgrade.NewUpgrader(cfg.Version, "backups", "downloads", os.Args[0]),
+		MetricsCollector: nil,
+		MetricsServer:    metrics.NewServer(":9090"),
 	}
 
 	wsServer.OnMessage = a.handleMessage
@@ -180,6 +185,18 @@ func (a *Agent) Run() error {
 	// Initialize log file
 	if err := a.initLogFile(); err != nil {
 		fmt.Printf("Warning: failed to initialize log file: %v\n", err)
+	}
+	
+	// Start metrics collection
+	ctx := context.Background()
+	a.MetricsCollector = metrics.NewCollector(ctx)
+	go a.MetricsCollector.StartCollection()
+	
+	// Start metrics HTTP server
+	if err := a.MetricsServer.Start(); err != nil {
+		a.Log(fmt.Sprintf("Warning: failed to start metrics server: %v", err))
+	} else {
+		a.Log("Metrics server started on :9090/metrics")
 	}
 	
 	a.Log(fmt.Sprintf("Host Agent %s started. Listening on port %d", a.Config.HostID, a.Config.ListenPort))
@@ -502,6 +519,7 @@ func (a *Agent) handleFetchLogs() {
 
 // executePluginTask 执行插件任务并回传结果
 func (a *Agent) executePluginTask(requestID, taskID, pluginID, taskType string, parameters map[string]interface{}, timeoutMs int64) {
+	startTime := time.Now()
 	a.Log(fmt.Sprintf("Executing plugin task requestId=%s, taskId=%s, pluginId=%s, taskType=%s", requestID, taskID, pluginID, taskType))
 
 	// 使用 PluginManager.ExecutePluginDirect 执行任务
@@ -510,8 +528,15 @@ func (a *Agent) executePluginTask(requestID, taskID, pluginID, taskType string, 
 	// 确保使用正确的 TaskID
 	result.TaskID = taskID
 
+	// 计算执行时长（秒）
+	durationSeconds := float64(time.Since(startTime).Milliseconds()) / 1000.0
+
 	// 记录执行日志
 	a.Log(fmt.Sprintf("Plugin task completed: taskId=%s, status=%s, durationMs=%d", result.TaskID, result.Status, result.DurationMs))
+
+	// 记录 Prometheus 指标
+	success := result.Status == "success" || result.Status == "completed"
+	metrics.RecordTaskExecution(durationSeconds, success)
 
 	// 通过 TaskAggregator 添加结果并回传
 	a.TaskAggregator.AddResult(result)

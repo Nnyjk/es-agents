@@ -78,7 +78,7 @@ public class HostResource {
     })
     @RequiresPermission("host:create")
     public Response create(@Valid HostRecord.Create dto) {
-        HostRecord.Detail created = hostService.create(dto);
+        HostRecord created = hostService.create(dto);
         recordAuditLog(AuditAction.CREATE_HOST, AuditResult.SUCCESS,
                 "创建主机：" + created.name(), "Host", created.id());
         return Response.status(Response.Status.CREATED).entity(created).build();
@@ -97,7 +97,7 @@ public class HostResource {
     })
     @RequiresPermission("host:edit")
     public Response update(@Parameter(description = "主机 ID") @PathParam("id") UUID id, @Valid HostRecord.Update dto) {
-        HostRecord.Detail updated = hostService.update(id, dto);
+        HostRecord updated = hostService.update(id, dto);
         recordAuditLog(AuditAction.UPDATE_HOST, AuditResult.SUCCESS,
                 "更新主机：" + updated.name(), "Host", id);
         return Response.ok(updated).build();
@@ -115,7 +115,7 @@ public class HostResource {
     })
     @RequiresPermission("host:delete")
     public Response delete(@Parameter(description = "主机 ID") @PathParam("id") UUID id) {
-        HostRecord.Detail host = hostService.get(id);
+        HostRecord host = hostService.get(id);
         hostService.delete(id);
         recordAuditLog(AuditAction.DELETE_HOST, AuditResult.SUCCESS,
                 "删除主机：" + (host != null ? host.name() : id), "Host", id);

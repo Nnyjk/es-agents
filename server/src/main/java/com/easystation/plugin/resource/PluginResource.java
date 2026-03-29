@@ -4,7 +4,6 @@ import com.easystation.auth.annotation.RequiresPermission;
 import com.easystation.plugin.dto.PluginRecord;
 import com.easystation.plugin.dto.PluginVersionRecord;
 import com.easystation.plugin.service.PluginService;
-import io.quarkus.panache.common.Page;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -62,8 +61,18 @@ public class PluginResource {
             @QueryParam("size") Integer size,
             @QueryParam("keyword") String keyword,
             @QueryParam("category") String category) {
-        Page pg = (page != null && size != null) ? Page.of(page, size) : Page.of(0, 20);
-        return Response.ok(pluginService.findAll(pg, keyword, category)).build();
+        PluginRecord.Query query = new PluginRecord.Query();
+        query.setKeyword(keyword);
+        query.setPage(page != null ? page : 0);
+        query.setSize(size != null ? size : 20);
+        if (category != null && !category.isEmpty()) {
+            try {
+                query.setCategoryId(java.util.UUID.fromString(category));
+            } catch (IllegalArgumentException ignored) {
+                // 忽略无效的 UUID
+            }
+        }
+        return Response.ok(pluginService.search(query)).build();
     }
 
     @GET
@@ -131,7 +140,10 @@ public class PluginResource {
     public Response search(
             @QueryParam("keyword") String keyword,
             @QueryParam("limit") Integer limit) {
-        return Response.ok(pluginService.search(keyword, limit != null ? limit : 20)).build();
+        PluginRecord.Query query = new PluginRecord.Query();
+        query.setKeyword(keyword);
+        query.setSize(limit != null ? limit : 20);
+        return Response.ok(pluginService.search(query)).build();
     }
 
     @POST

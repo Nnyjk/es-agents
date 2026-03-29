@@ -13,8 +13,8 @@ import io.quarkus.security.Authenticated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.responses.APIResponse;
-import io.swagger.v3.oas.annotations.responses.APIResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -57,10 +57,10 @@ public class DeploymentChangeResource {
      */
     @GET
     @Operation(summary = "查询变更记录", description = "分页查询部署变更记录列表")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回变更记录列表"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回变更记录列表"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:view")
     public PageResultDTO<DeploymentChangeDTO> listChanges(
@@ -81,11 +81,11 @@ public class DeploymentChangeResource {
      */
     @GET
     @Operation(summary = "获取变更详情", description = "根据 ID 获取部署变更记录详情")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回变更记录"),
-        @APIResponse(responseCode = "404", description = "变更记录不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回变更记录"),
+        @ApiResponse(responseCode = "404", description = "变更记录不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:view")
     @Path("/{id}")
@@ -100,11 +100,11 @@ public class DeploymentChangeResource {
      */
     @POST
     @Operation(summary = "创建变更记录", description = "创建新的部署变更记录")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功创建变更记录"),
-        @APIResponse(responseCode = "400", description = "请求参数错误"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功创建变更记录"),
+        @ApiResponse(responseCode = "400", description = "请求参数错误"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:create")
     public DeploymentChangeDTO createChange(
@@ -124,11 +124,11 @@ public class DeploymentChangeResource {
      */
     @POST
     @Operation(summary = "批量创建变更记录", description = "批量创建部署变更记录")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功批量创建变更记录"),
-        @APIResponse(responseCode = "400", description = "请求参数错误"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功批量创建变更记录"),
+        @ApiResponse(responseCode = "400", description = "请求参数错误"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:create")
     @Path("/batch")
@@ -149,10 +149,10 @@ public class DeploymentChangeResource {
      */
     @GET
     @Operation(summary = "获取版本的变更记录", description = "获取指定部署版本的所有变更记录")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回变更记录列表"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回变更记录列表"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:view")
     @Path("/versions/{versionId}")
@@ -167,10 +167,10 @@ public class DeploymentChangeResource {
      */
     @GET
     @Operation(summary = "分析变更影响", description = "分析指定部署版本的变更影响范围")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回影响分析结果"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回影响分析结果"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:view")
     @Path("/versions/{versionId}/impact")

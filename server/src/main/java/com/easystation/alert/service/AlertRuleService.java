@@ -87,6 +87,26 @@ public class AlertRuleService {
         rule.delete();
     }
 
+    @Transactional
+    public AlertRuleRecord.Detail enable(UUID id) {
+        AlertRule rule = AlertRule.findById(id);
+        if (rule == null) {
+            throw new WebApplicationException("Alert rule not found", Response.Status.NOT_FOUND);
+        }
+        rule.enabled = true;
+        return toDetail(rule);
+    }
+
+    @Transactional
+    public AlertRuleRecord.Detail disable(UUID id) {
+        AlertRule rule = AlertRule.findById(id);
+        if (rule == null) {
+            throw new WebApplicationException("Alert rule not found", Response.Status.NOT_FOUND);
+        }
+        rule.enabled = false;
+        return toDetail(rule);
+    }
+
     /**
      * 校验告警规则条件
      */

@@ -12,8 +12,8 @@ import io.quarkus.logging.Log;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.responses.APIResponse;
-import io.swagger.v3.oas.annotations.responses.APIResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -49,10 +49,10 @@ public class ArtifactRepositoryResource {
 
     @GET
     @Operation(summary = "查询仓库列表", description = "分页查询制品仓库列表")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回仓库列表"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回仓库列表"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:view")
     public PageResultDTO<ArtifactRepositoryDTO> list(
@@ -67,10 +67,10 @@ public class ArtifactRepositoryResource {
     @GET
     @Path("/type/{type}")
     @Operation(summary = "按类型查询仓库", description = "根据类型查询制品仓库列表")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回仓库列表"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回仓库列表"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:view")
     public List<ArtifactRepositoryDTO> listByType(@Parameter(description = "仓库类型", in = ParameterIn.PATH) @PathParam("type") ArtifactRepository.RepositoryType type) {
@@ -80,11 +80,11 @@ public class ArtifactRepositoryResource {
     @GET
     @Path("/default/{type}")
     @Operation(summary = "获取默认仓库", description = "获取指定类型的默认制品仓库")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回默认仓库"),
-        @APIResponse(responseCode = "404", description = "默认仓库不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回默认仓库"),
+        @ApiResponse(responseCode = "404", description = "默认仓库不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:view")
     public ArtifactRepositoryDTO getDefault(@PathParam("type") ArtifactRepository.RepositoryType type) {
@@ -98,11 +98,11 @@ public class ArtifactRepositoryResource {
     @GET
     @Path("/{id}")
     @Operation(summary = "获取仓库详情", description = "根据 ID 查询制品仓库详情")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回仓库详情"),
-        @APIResponse(responseCode = "404", description = "仓库不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回仓库详情"),
+        @ApiResponse(responseCode = "404", description = "仓库不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:view")
     public ArtifactRepositoryDTO get(@Parameter(description = "仓库 ID") @PathParam("id") UUID id) {
@@ -116,11 +116,11 @@ public class ArtifactRepositoryResource {
     @GET
     @Path("/name/{name}")
     @Operation(summary = "按名称查询仓库", description = "根据名称查询制品仓库")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回仓库详情"),
-        @APIResponse(responseCode = "404", description = "仓库不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回仓库详情"),
+        @ApiResponse(responseCode = "404", description = "仓库不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:view")
     public ArtifactRepositoryDTO getByName(@Parameter(description = "仓库名称") @PathParam("name") String name) {
@@ -133,12 +133,12 @@ public class ArtifactRepositoryResource {
 
     @POST
     @Operation(summary = "创建仓库", description = "创建新的制品仓库配置")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "201", description = "成功创建仓库"),
-        @APIResponse(responseCode = "400", description = "请求参数无效"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足"),
-        @APIResponse(responseCode = "409", description = "仓库已存在")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "成功创建仓库"),
+        @ApiResponse(responseCode = "400", description = "请求参数无效"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足"),
+        @ApiResponse(responseCode = "409", description = "仓库已存在")
     })
     @RequiresPermission("deployment:create")
     public Response create(ArtifactRepositoryDTO dto) {
@@ -155,13 +155,13 @@ public class ArtifactRepositoryResource {
     @PUT
     @Path("/{id}")
     @Operation(summary = "更新仓库", description = "更新制品仓库配置")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功更新仓库"),
-        @APIResponse(responseCode = "404", description = "仓库不存在"),
-        @APIResponse(responseCode = "400", description = "请求参数无效"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足"),
-        @APIResponse(responseCode = "409", description = "仓库名称冲突")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功更新仓库"),
+        @ApiResponse(responseCode = "404", description = "仓库不存在"),
+        @ApiResponse(responseCode = "400", description = "请求参数无效"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足"),
+        @ApiResponse(responseCode = "409", description = "仓库名称冲突")
     })
     @RequiresPermission("deployment:edit")
     public ArtifactRepositoryDTO update(@Parameter(description = "仓库 ID") @PathParam("id") UUID id, ArtifactRepositoryDTO dto) {
@@ -181,11 +181,11 @@ public class ArtifactRepositoryResource {
     @DELETE
     @Path("/{id}")
     @Operation(summary = "删除仓库", description = "删除制品仓库配置")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "204", description = "成功删除仓库"),
-        @APIResponse(responseCode = "404", description = "仓库不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "成功删除仓库"),
+        @ApiResponse(responseCode = "404", description = "仓库不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:delete")
     public Response delete(@Parameter(description = "仓库 ID") @PathParam("id") UUID id) {
@@ -202,11 +202,11 @@ public class ArtifactRepositoryResource {
     @POST
     @Path("/{id}/activate")
     @Operation(summary = "激活仓库", description = "激活制品仓库")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功激活仓库"),
-        @APIResponse(responseCode = "404", description = "仓库不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功激活仓库"),
+        @ApiResponse(responseCode = "404", description = "仓库不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:edit")
     public ArtifactRepositoryDTO activate(@Parameter(description = "仓库 ID") @PathParam("id") UUID id) {
@@ -222,11 +222,11 @@ public class ArtifactRepositoryResource {
     @POST
     @Path("/{id}/deactivate")
     @Operation(summary = "停用仓库", description = "停用制品仓库")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功停用仓库"),
-        @APIResponse(responseCode = "404", description = "仓库不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功停用仓库"),
+        @ApiResponse(responseCode = "404", description = "仓库不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:edit")
     public ArtifactRepositoryDTO deactivate(@Parameter(description = "仓库 ID") @PathParam("id") UUID id) {
@@ -242,11 +242,11 @@ public class ArtifactRepositoryResource {
     @POST
     @Path("/{id}/default")
     @Operation(summary = "设为默认", description = "设置默认制品仓库")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功设置默认仓库"),
-        @APIResponse(responseCode = "404", description = "仓库不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功设置默认仓库"),
+        @ApiResponse(responseCode = "404", description = "仓库不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:edit")
     public ArtifactRepositoryDTO setDefault(@Parameter(description = "仓库 ID") @PathParam("id") UUID id) {
