@@ -89,12 +89,14 @@ public class RedisCacheService implements CacheService {
 
     @Override
     public long increment(String key) {
-        return redisDataSource.string(String.class).incr(key);
+        // TODO: 使用 Redis Lua 脚本实现原子自增
+        throw new UnsupportedOperationException("increment not implemented yet");
     }
 
     @Override
     public long decrement(String key) {
-        return redisDataSource.string(String.class).decr(key);
+        // TODO: 使用 Redis Lua 脚本实现原子自减
+        throw new UnsupportedOperationException("decrement not implemented yet");
     }
 
     @Override
