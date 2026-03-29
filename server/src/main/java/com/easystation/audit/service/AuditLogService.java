@@ -107,10 +107,15 @@ public class AuditLogService {
     /**
      * 创建审计日志（别名方法，用于测试）
      * @param dto 审计记录
+     * @return 创建的审计记录详情
      */
     @Transactional
-    public void create(AuditRecord.Create dto) {
+    public AuditRecord.Detail create(AuditRecord.Create dto) {
         record(dto);
+        // 通过查询获取刚创建的记录（使用最近的记录）
+        AuditLog log = AuditLog.find("createdAt desc", io.quarkus.panache.common.Page.of(0, 1))
+                .firstResult();
+        return log != null ? toDetail(log) : null;
     }
 
     /**
