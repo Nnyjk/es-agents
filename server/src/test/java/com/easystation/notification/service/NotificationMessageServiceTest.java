@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -75,11 +74,11 @@ class NotificationMessageServiceTest {
         NotificationMessage created = notificationService.create(createRequest);
 
         // 查找
-        NotificationMessage found = notificationService.findById(created.id);
+        NotificationRecord.Detail detail = notificationService.findById(created.id);
 
-        assertNotNull(found);
-        assertEquals(created.id, found.id);
-        assertEquals("查找测试", found.title);
+        assertNotNull(detail);
+        assertEquals(created.id, detail.id());
+        assertEquals("查找测试", detail.title());
     }
 
     @Test
@@ -101,10 +100,13 @@ class NotificationMessageServiceTest {
         }
 
         // 查询所有
-        List<NotificationMessage> messages = notificationService.findAll(testUserId, null, null, null, null, null, 0, 10);
+        NotificationRecord.Query query = new NotificationRecord.Query(
+                testUserId, null, null, null, null, null, null, null, null, 0, 10
+        );
+        List<NotificationRecord.ListItem> list = notificationService.findAll(query);
 
-        assertNotNull(messages);
-        assertTrue(messages.size() >= 3);
+        assertNotNull(list);
+        assertTrue(list.size() >= 3);
     }
 
     @Test
@@ -127,9 +129,9 @@ class NotificationMessageServiceTest {
         notificationService.markAsRead(created.id);
 
         // 验证
-        NotificationMessage updated = notificationService.findById(created.id);
-        assertTrue(updated.isRead);
-        assertNotNull(updated.readAt);
+        NotificationRecord.Detail detail = notificationService.findById(created.id);
+        assertTrue(detail.isRead());
+        assertNotNull(detail.readAt());
     }
 
     @Test
@@ -157,8 +159,8 @@ class NotificationMessageServiceTest {
 
         // 验证
         for (UUID id : messageIds) {
-            NotificationMessage message = notificationService.findById(id);
-            assertTrue(message.isRead);
+            NotificationRecord.Detail detail = notificationService.findById(id);
+            assertTrue(detail.isRead());
         }
     }
 
@@ -182,7 +184,7 @@ class NotificationMessageServiceTest {
         notificationService.delete(created.id);
 
         // 验证已删除
-        NotificationMessage deleted = notificationService.findById(created.id);
+        NotificationRecord.Detail deleted = notificationService.findById(created.id);
         assertNull(deleted);
     }
 
@@ -211,8 +213,8 @@ class NotificationMessageServiceTest {
 
         // 验证已删除
         for (UUID id : messageIds) {
-            NotificationMessage message = notificationService.findById(id);
-            assertNull(message);
+            NotificationRecord.Detail detail = notificationService.findById(id);
+            assertNull(detail);
         }
     }
 
@@ -235,9 +237,10 @@ class NotificationMessageServiceTest {
         }
 
         // 获取未读数
-        int unreadCount = notificationService.getUnreadCount(testUserId);
+        NotificationRecord.UnreadCount unreadCount = notificationService.getUnreadCount(testUserId);
 
-        assertTrue(unreadCount >= 5);
+        assertNotNull(unreadCount);
+        assertTrue(unreadCount.total() >= 5);
     }
 
     @Test
@@ -257,12 +260,10 @@ class NotificationMessageServiceTest {
         ));
 
         // 获取统计
-        Map<String, Object> statistics = notificationService.getStatistics(testUserId);
+        NotificationRecord.Statistics statistics = notificationService.getStatistics(testUserId);
 
         assertNotNull(statistics);
-        assertTrue((int) statistics.get("totalCount") >= 3);
-        assertNotNull(statistics.get("unreadCount"));
-        assertNotNull(statistics.get("typeDistribution"));
-        assertNotNull(statistics.get("levelDistribution"));
+        assertTrue(statistics.totalCount() >= 3);
+        assertNotNull(statistics.unreadCount());
     }
 }
