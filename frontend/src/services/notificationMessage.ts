@@ -8,13 +8,12 @@ import type {
   NotificationCreateRequest,
 } from '../types/notification';
 
+export type { NotificationQueryParams };
+
 /**
  * 查询参数（API 格式）
  */
-interface ApiQueryParams extends NotificationQueryParams {
-  type?: string;
-  level?: string;
-}
+interface ApiQueryParams extends NotificationQueryParams {}
 
 /**
  * 获取消息列表

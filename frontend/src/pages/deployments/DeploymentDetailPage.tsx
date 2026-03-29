@@ -100,7 +100,9 @@ const DeploymentDetailPage: React.FC = () => {
     if (pollingId) {
       clearInterval(pollingId);
     }
-    const idNum = window setInterval(fetchProgress, 5000);
+    const idNum = window.setInterval(() => {
+      fetchProgress();
+    }, 5000);
     setPollingId(idNum);
   };
 
