@@ -1,7 +1,9 @@
 package com.easystation.agent.resource;
 
 import com.easystation.agent.dto.AgentTemplateRecord;
+import com.easystation.agent.dto.AgentTemplateVersionRecord;
 import com.easystation.agent.service.AgentTemplateService;
+import com.easystation.agent.service.AgentTemplateVersionService;
 import com.easystation.auth.annotation.RequiresPermission;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -21,6 +23,9 @@ public class AgentTemplateResource {
 
     @Inject
     AgentTemplateService agentTemplateService;
+
+    @Inject
+    AgentTemplateVersionService versionService;
 
     /**
      * 列表查询模板
@@ -112,5 +117,59 @@ public class AgentTemplateResource {
         return Response.ok(is)
                 .header("Content-Disposition", "attachment; filename=\"" + fileName[0] + "\"")
                 .build();
+    }
+
+    // ==================== 版本管理 API ====================
+
+    /**
+     * 获取模板的所有版本
+     */
+    @GET
+    @Path("/{id}/versions")
+    @RequiresPermission("agent:view")
+    public Response listVersions(@PathParam("id") UUID id) {
+        // 先验证模板存在
+        agentTemplateService.get(id);
+        return Response.ok(versionService.listByTemplate(id)).build();
+    }
+
+    /**
+     * 获取指定版本详情
+     */
+    @GET
+    @Path("/{id}/versions/{versionId}")
+    @RequiresPermission("agent:view")
+    public Response getVersion(@PathParam("id") UUID id, @PathParam("versionId") UUID versionId) {
+        return Response.ok(versionService.getVersion(versionId)).build();
+    }
+
+    /**
+     * 创建新版本
+     */
+    @POST
+    @Path("/{id}/versions")
+    @RequiresPermission("agent:edit")
+    public Response createVersion(@PathParam("id") UUID id, @Valid AgentTemplateVersionRecord.Create dto) {
+        return Response.ok(versionService.create(dto)).build();
+    }
+
+    /**
+     * 发布版本
+     */
+    @POST
+    @Path("/{id}/versions/{versionId}/publish")
+    @RequiresPermission("agent:execute")
+    public Response publishVersion(@PathParam("id") UUID id, @PathParam("versionId") UUID versionId) {
+        return Response.ok(versionService.publish(versionId, null)).build();
+    }
+
+    /**
+     * 回滚到指定版本
+     */
+    @POST
+    @Path("/{id}/versions/{versionId}/rollback")
+    @RequiresPermission("agent:execute")
+    public Response rollbackToVersion(@PathParam("id") UUID id, @PathParam("versionId") UUID versionId) {
+        return Response.ok(versionService.rollback(id, versionId)).build();
     }
 }

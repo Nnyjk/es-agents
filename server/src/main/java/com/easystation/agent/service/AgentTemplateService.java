@@ -12,6 +12,7 @@ import com.easystation.agent.dto.AgentCredentialRecord;
 import com.easystation.agent.dto.AgentRepositoryRecord;
 import com.easystation.agent.dto.AgentSourceRecord;
 import com.easystation.agent.dto.AgentTemplateRecord;
+import com.easystation.agent.validator.AgentTemplateValidator;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -31,6 +32,9 @@ public class AgentTemplateService {
 
     @Inject
     AgentSourceService agentSourceService;
+
+    @Inject
+    AgentTemplateValidator templateValidator;
 
     /**
      * 列表查询（支持分类筛选）
@@ -74,6 +78,9 @@ public class AgentTemplateService {
      */
     @Transactional
     public AgentTemplateRecord create(AgentTemplateRecord.Create dto) {
+        // 校验模板数据
+        templateValidator.validateCreate(dto);
+
         // 验证名称唯一性
         if (AgentTemplate.find("name", dto.name()).firstResult() != null) {
             throw new WebApplicationException("Agent Template with name '" + dto.name() + "' already exists", Response.Status.CONFLICT);
@@ -138,6 +145,9 @@ public class AgentTemplateService {
         if (template == null) {
             throw new WebApplicationException("Agent Template not found", Response.Status.NOT_FOUND);
         }
+
+        // 校验模板数据
+        templateValidator.validateUpdate(dto);
 
         // 验证名称唯一性
         if (dto.name() != null && !dto.name().equals(template.name)) {
