@@ -1,6 +1,7 @@
 package com.easystation.profile.service;
 
 import com.easystation.profile.domain.UserAuditLog;
+import com.easystation.profile.repository.AuditLogRepository;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
