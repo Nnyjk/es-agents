@@ -30,6 +30,11 @@ import AlertRulePage from "./pages/alert/AlertRule";
 import AlertChannelPage from "./pages/alert/AlertChannel";
 import SystemSettings from "./pages/system/Settings";
 import DeploymentPage from "./pages/deployment";
+import {
+  DeploymentListPage,
+  DeploymentDetailPage,
+  DeploymentCreatePage,
+} from "./pages/deployments";
 import { ProfilePage } from "./pages/profile";
 import { AgentMonitorPage, AgentInstancePage } from "./pages/agentMonitoring";
 import { TemplateWizard } from "./pages/templates";
@@ -95,6 +100,11 @@ const App: React.FC = () => {
           <Route path="goals" element={<GoalHub />} />
           <Route path="goals/deploy" element={<DeploymentWizard />} />
           <Route path="deployment" element={<DeploymentPage />} />
+          <Route path="deployments">
+            <Route index element={<DeploymentListPage />} />
+            <Route path=":id" element={<DeploymentDetailPage />} />
+            <Route path="create" element={<DeploymentCreatePage />} />
+          </Route>
           <Route path="profile" element={<ProfilePage />} />
           <Route path="audit-logs" element={<AuditLogList />} />
           <Route path="plugins">

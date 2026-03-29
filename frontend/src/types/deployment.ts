@@ -420,3 +420,116 @@ export interface DeploymentStatistics {
     successRate: number;
   }>;
 }
+
+/**
+ * 部署进度阶段状态
+ */
+export type DeploymentStageStatus = "pending" | "running" | "success" | "failed";
+
+/**
+ * 部署进度阶段
+ */
+export interface DeploymentStageProgress {
+  id: string;
+  name: string;
+  status: DeploymentStageStatus;
+  progress: number;
+  message?: string;
+  startTime?: string;
+  endTime?: string;
+  logs?: string[];
+}
+
+/**
+ * 部署进度
+ */
+export interface DeploymentProgress {
+  id: string;
+  deploymentId: string;
+  status: DeploymentStageStatus;
+  currentStage: string;
+  progress: number;
+  stages: DeploymentStageProgress[];
+  startTime: string;
+  estimatedEndTime?: string;
+  message?: string;
+}
+
+/**
+ * 部署记录状态
+ */
+export type DeploymentRecordStatus =
+  | "pending"
+  | "running"
+  | "success"
+  | "failed"
+  | "cancelled";
+
+/**
+ * 部署记录
+ */
+export interface DeploymentRecord {
+  id: string;
+  applicationId: string;
+  applicationName?: string;
+  environmentId: string;
+  environmentName?: string;
+  pipelineId?: string;
+  pipelineName?: string;
+  version: string;
+  status: DeploymentRecordStatus;
+  triggerType: "manual" | "auto" | "webhook" | "schedule";
+  triggeredBy: string;
+  progress?: number;
+  currentStage?: string;
+  startTime?: string;
+  endTime?: string;
+  duration?: number;
+  message?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+/**
+ * 部署详情
+ */
+export interface DeploymentDetail extends DeploymentRecord {
+  stages: DeploymentStageProgress[];
+  logs?: string;
+  config?: Record<string, unknown>;
+  artifacts?: Array<{
+    name: string;
+    url: string;
+    size?: number;
+  }>;
+}
+
+/**
+ * 部署查询参数
+ */
+export interface DeploymentQueryParams {
+  current?: number;
+  pageSize?: number;
+  applicationId?: string;
+  environmentId?: string;
+  pipelineId?: string;
+  status?: DeploymentRecordStatus;
+  triggeredBy?: string;
+  version?: string;
+  startTime?: string;
+  endTime?: string;
+  keyword?: string;
+}
+
+/**
+ * 创建部署参数
+ */
+export interface CreateDeploymentParams {
+  applicationId: string;
+  environmentId: string;
+  pipelineId?: string;
+  version: string;
+  triggerType?: "manual" | "auto" | "webhook" | "schedule";
+  description?: string;
+  config?: Record<string, unknown>;
+}
