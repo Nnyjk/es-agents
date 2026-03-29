@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="https://jakarta.ee/xml/ns/jakartaee"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/beans_4_0.xsd"
+       xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/beans_4.0.xsd"
        bean-discovery-mode="all">
-    
+
+    <!-- 拦截器注册 -->
     <interceptors>
+        <!-- 限流拦截器 (Issue #345) -->
         <class>com.easystation.common.ratelimit.RateLimitInterceptor</class>
+        <!-- JWT 黑名单拦截器 (Issue #344) -->
+        <class>com.easystation.auth.interceptor.JwtBlacklistInterceptor</class>
+        <!-- 权限验证拦截器 (Issue #346) -->
+        <class>com.easystation.common.permission.PermissionInterceptor</class>
     </interceptors>
+
 </beans>

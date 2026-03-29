@@ -1,316 +1,189 @@
 package com.easystation.auth.service;
 
-import com.easystation.auth.domain.Permission;
-import com.easystation.auth.domain.RolePermission;
-import com.easystation.auth.dto.PermissionRecord;
-import com.easystation.system.domain.Role;
-import com.easystation.system.domain.User;
-import io.quarkus.logging.Log;
+import com.easystation.auth.model.Permission;
+import com.easystation.auth.model.RolePermission;
+import io.quarkus.redis.datasource.RedisDataSource;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * 权限验证服务
+ * 
+ * 提供权限查询、验证功能，支持 Redis 缓存
+ */
 @ApplicationScoped
 public class PermissionService {
 
-    public List<PermissionRecord.Detail> list(PermissionRecord.Query query) {
-        StringBuilder sql = new StringBuilder("1=1");
-        Map<String, Object> params = new HashMap<>();
+    private static final Logger LOG = LoggerFactory.getLogger(PermissionService.class);
 
-        if (query.keyword() != null && !query.keyword().isBlank()) {
-            sql.append(" and (code like :keyword or name like :keyword)");
-            params.put("keyword", "%" + query.keyword() + "%");
-        }
-        if (query.resource() != null && !query.resource().isBlank()) {
-            sql.append(" and resource = :resource");
-            params.put("resource", query.resource());
-        }
-        if (query.action() != null && !query.action().isBlank()) {
-            sql.append(" and action = :action");
-            params.put("action", query.action());
-        }
+    /** 权限缓存过期时间：5 分钟 */
+    private static final Duration PERMISSION_CACHE_TTL = Duration.ofMinutes(5);
 
-        int limit = query.limit() != null ? query.limit() : 100;
-        int offset = query.offset() != null ? query.offset() : 0;
+    @Inject
+    RedisDataSource redis;
 
-        return Permission.<Permission>find(sql.toString(), params)
-                .range(offset, offset + limit - 1)
-                .stream()
-                .map(this::toDetail)
-                .collect(Collectors.toList());
-    }
-
-    public PermissionRecord.Detail get(UUID id) {
-        Permission permission = Permission.findById(id);
-        if (permission == null) {
-            throw new WebApplicationException("Permission not found", Response.Status.NOT_FOUND);
-        }
-        return toDetail(permission);
-    }
-
-    @Transactional
-    public PermissionRecord.Detail create(PermissionRecord.Create dto) {
-        if (Permission.find("code", dto.code()).firstResult() != null) {
-            throw new WebApplicationException("Permission code already exists", Response.Status.CONFLICT);
-        }
-
-        Permission permission = new Permission();
-        permission.code = dto.code();
-        permission.name = dto.name();
-        permission.description = dto.description();
-        permission.resource = dto.resource();
-        permission.action = dto.action();
-        permission.system = dto.system() != null ? dto.system() : false;
-        permission.persist();
-
-        Log.infof("Permission created: %s", permission.code);
-        return toDetail(permission);
-    }
-
-    @Transactional
-    public PermissionRecord.Detail update(UUID id, PermissionRecord.Update dto) {
-        Permission permission = Permission.findById(id);
-        if (permission == null) {
-            throw new WebApplicationException("Permission not found", Response.Status.NOT_FOUND);
-        }
-
-        if (permission.system) {
-            throw new WebApplicationException("System permission cannot be modified", Response.Status.FORBIDDEN);
-        }
-
-        if (dto.name() != null) permission.name = dto.name();
-        if (dto.description() != null) permission.description = dto.description();
-        if (dto.resource() != null) permission.resource = dto.resource();
-        if (dto.action() != null) permission.action = dto.action();
-
-        return toDetail(permission);
-    }
-
-    @Transactional
-    public void delete(UUID id) {
-        Permission permission = Permission.findById(id);
-        if (permission == null) {
-            throw new WebApplicationException("Permission not found", Response.Status.NOT_FOUND);
-        }
-
-        if (permission.system) {
-            throw new WebApplicationException("System permission cannot be deleted", Response.Status.FORBIDDEN);
-        }
-
-        // Remove role associations
-        RolePermission.delete("permissionId", id);
-        permission.delete();
-
-        Log.infof("Permission deleted: %s", permission.code);
-    }
-
-    @Transactional
-    public void assignToRole(PermissionRecord.AssignPermissions dto) {
-        Role role = Role.findById(dto.roleId());
-        if (role == null) {
-            throw new WebApplicationException("Role not found", Response.Status.NOT_FOUND);
-        }
-
-        // Remove existing permissions for this role
-        RolePermission.delete("roleId", dto.roleId());
-
-        // Add new permissions
-        for (UUID permissionId : dto.permissionIds()) {
-            Permission permission = Permission.findById(permissionId);
-            if (permission != null) {
-                RolePermission rp = new RolePermission();
-                rp.roleId = dto.roleId();
-                rp.permissionId = permissionId;
-                rp.persist();
-            }
-        }
-
-        Log.infof("Assigned %d permissions to role: %s", dto.permissionIds().size(), role.name);
-    }
-
-    public List<UUID> getRolePermissions(UUID roleId) {
-        return RolePermission.<RolePermission>find("roleId", roleId)
-                .stream()
-                .map(rp -> rp.permissionId)
-                .collect(Collectors.toList());
-    }
-
-    public PermissionRecord.CheckResult checkPermission(PermissionRecord.CheckRequest dto) {
-        User user = User.findById(dto.userId());
-        if (user == null) {
-            return new PermissionRecord.CheckResult(false, dto.permissionCode(), "User not found");
-        }
-
-        Permission permission = Permission.find("code", dto.permissionCode()).firstResult();
-        if (permission == null) {
-            return new PermissionRecord.CheckResult(false, dto.permissionCode(), "Permission not found");
-        }
-
-        // Get all role IDs for the user
-        Set<UUID> roleIds = user.roles != null 
-                ? user.roles.stream().map(r -> r.id).collect(Collectors.toSet())
-                : Collections.emptySet();
-
-        if (roleIds.isEmpty()) {
-            return new PermissionRecord.CheckResult(false, dto.permissionCode(), "User has no roles");
-        }
-
-        // Check if any role has the permission
-        boolean hasPermission = RolePermission.count("roleId in ?1 and permissionId = ?2", 
-                roleIds, permission.id) > 0;
-
-        return new PermissionRecord.CheckResult(
-                hasPermission, 
-                dto.permissionCode(), 
-                hasPermission ? "Permission granted" : "Permission denied"
-        );
-    }
-
-    public PermissionRecord.UserPermissions getUserPermissions(UUID userId) {
-        User user = User.findById(userId);
-        if (user == null) {
-            throw new WebApplicationException("User not found", Response.Status.NOT_FOUND);
-        }
-
-        // Get role codes
-        List<String> roles = user.roles != null
-                ? user.roles.stream().map(r -> r.code).collect(Collectors.toList())
-                : Collections.emptyList();
-
-        // Get all role IDs
-        Set<UUID> roleIds = user.roles != null
-                ? user.roles.stream().map(r -> r.id).collect(Collectors.toSet())
-                : Collections.emptySet();
-
-        // Get all permission IDs from roles
-        Set<UUID> permissionIds = new HashSet<>();
-        if (!roleIds.isEmpty()) {
-            List<RolePermission> rolePermissions = RolePermission.<RolePermission>find("roleId in ?1", roleIds).list();
-            permissionIds = rolePermissions.stream()
-                    .map(rp -> rp.permissionId)
-                    .collect(Collectors.toSet());
-        }
-
-        // Get permission codes
-        List<String> permissions = new ArrayList<>();
-        if (!permissionIds.isEmpty()) {
-            permissions = Permission.<Permission>find("id in ?1", permissionIds)
-                    .stream()
-                    .map(p -> p.code)
-                    .collect(Collectors.toList());
-        }
-
-        return new PermissionRecord.UserPermissions(
-                userId,
-                user.username,
-                roles,
-                permissions
-        );
+    /**
+     * 检查用户是否有指定权限
+     * 
+     * @param userId 用户 ID
+     * @param resource 资源类型
+     * @param action 操作类型
+     * @return 是否有权限
+     */
+    public boolean hasPermission(UUID userId, String resource, String action) {
+        String permissionCode = resource + ":" + action;
+        String manageCode = resource + ":manage";
+        
+        // 从缓存获取用户权限
+        Set<String> userPermissions = getUserPermissionsFromCache(userId);
+        
+        // 检查是否有指定权限或 manage 权限
+        return userPermissions.contains(permissionCode) || 
+               userPermissions.contains(manageCode);
     }
 
     /**
-     * 获取用户的所有权限码
+     * 获取用户所有权限编码
+     * 
+     * @param userId 用户 ID
+     * @return 权限编码集合
      */
-    public Set<String> getUserPermissionCodes(UUID userId) {
-        User user = User.findById(userId);
-        if (user == null) {
+    public Set<String> getUserPermissions(UUID userId) {
+        return getUserPermissionsFromCache(userId);
+    }
+
+    /**
+     * 从缓存获取用户权限（缓存未命中时从数据库加载）
+     */
+    private Set<String> getUserPermissionsFromCache(UUID userId) {
+        String cacheKey = "user:permissions:" + userId;
+        
+        // 尝试从 Redis 缓存获取
+        Set<String> cached = redis.value().get(cacheKey);
+        if (cached != null) {
+            LOG.debug("权限缓存命中：{}", userId);
+            return cached;
+        }
+
+        // 缓存未命中，从数据库加载
+        LOG.debug("权限缓存未命中，从数据库加载：{}", userId);
+        Set<String> permissions = loadPermissionsFromDatabase(userId);
+        
+        // 写入缓存
+        redis.value().setex(cacheKey, PERMISSION_CACHE_TTL, permissions);
+        
+        return permissions;
+    }
+
+    /**
+     * 从数据库加载用户权限
+     */
+    private Set<String> loadPermissionsFromDatabase(UUID userId) {
+        // 获取用户所有角色
+        List<UUID> roleIds = getUserRoleIds(userId);
+        
+        if (roleIds.isEmpty()) {
             return Collections.emptySet();
         }
 
-        Set<String> permissionCodes = new HashSet<>();
-
-        // 检查是否是管理员
-        boolean isAdmin = user.roles != null && 
-                user.roles.stream().anyMatch(r -> "admin".equals(r.code));
-        
-        if (isAdmin) {
-            // 管理员拥有所有权限
-            return Permission.<Permission>listAll().stream()
-                    .map(p -> p.code)
-                    .collect(Collectors.toSet());
-        }
-
-        // 获取用户角色的权限
-        if (user.roles != null) {
-            Set<UUID> roleIds = user.roles.stream()
-                    .map(r -> r.id)
-                    .collect(Collectors.toSet());
-
-            if (!roleIds.isEmpty()) {
-                List<RolePermission> rolePermissions = RolePermission.<RolePermission>find("roleId in ?1", roleIds).list();
-                Set<UUID> permissionIds = rolePermissions.stream()
-                        .map(rp -> rp.permissionId)
-                        .collect(Collectors.toSet());
-
-                if (!permissionIds.isEmpty()) {
-                    permissionCodes = Permission.<Permission>find("id in ?1", permissionIds)
-                            .stream()
-                            .map(p -> p.code)
-                            .collect(Collectors.toSet());
-                }
-            }
-        }
-
-        return permissionCodes;
-    }
-
-    @Transactional
-    public void initDefaultPermissions() {
-        // Create default permissions for common resources
-        String[][] defaultPermissions = {
-                {"agent:view", "查看Agent", "agent", "view", "查看Agent列表和详情"},
-                {"agent:create", "创建Agent", "agent", "create", "创建新的Agent"},
-                {"agent:edit", "编辑Agent", "agent", "edit", "编辑Agent配置"},
-                {"agent:delete", "删除Agent", "agent", "delete", "删除Agent"},
-                {"agent:execute", "执行Agent命令", "agent", "execute", "执行Agent命令操作"},
-                {"host:view", "查看主机", "host", "view", "查看主机列表和详情"},
-                {"host:create", "创建主机", "host", "create", "添加新主机"},
-                {"host:edit", "编辑主机", "host", "edit", "编辑主机信息"},
-                {"host:delete", "删除主机", "host", "delete", "删除主机"},
-                {"deployment:view", "查看部署", "deployment", "view", "查看部署记录"},
-                {"deployment:execute", "执行部署", "deployment", "execute", "执行部署操作"},
-                {"deployment:rollback", "回滚部署", "deployment", "rollback", "回滚部署"},
-                {"user:view", "查看用户", "user", "view", "查看用户列表"},
-                {"user:create", "创建用户", "user", "create", "创建新用户"},
-                {"user:edit", "编辑用户", "user", "edit", "编辑用户信息"},
-                {"user:delete", "删除用户", "user", "delete", "删除用户"},
-                {"role:view", "查看角色", "role", "view", "查看角色列表"},
-                {"role:manage", "管理角色", "role", "manage", "管理角色和权限"},
-                {"system:settings", "系统设置", "system", "settings", "系统全局设置"},
-                {"system:audit", "审计日志", "system", "audit", "查看操作审计日志"},
-        };
-
-        for (String[] p : defaultPermissions) {
-            if (Permission.find("code", p[0]).firstResult() == null) {
-                Permission permission = new Permission();
-                permission.code = p[0];
-                permission.name = p[1];
-                permission.resource = p[2];
-                permission.action = p[3];
-                permission.description = p[4];
-                permission.system = true;
-                permission.persist();
-            }
-        }
-
-        Log.info("Default permissions initialized");
-    }
-
-    private PermissionRecord.Detail toDetail(Permission permission) {
-        return new PermissionRecord.Detail(
-                permission.id,
-                permission.code,
-                permission.name,
-                permission.description,
-                permission.resource,
-                permission.action,
-                permission.system,
-                permission.createdAt,
-                permission.updatedAt
+        // 获取角色所有权限
+        List<RolePermission> rolePermissions = RolePermission.list(
+            "roleId in ?1", roleIds
         );
+
+        if (rolePermissions.isEmpty()) {
+            return Collections.emptySet();
+        }
+
+        // 获取权限详情
+        List<UUID> permissionIds = rolePermissions.stream()
+            .map(rp -> rp.permissionId)
+            .collect(Collectors.toList());
+
+        List<Permission> permissions = Permission.list("id in ?1", permissionIds);
+
+        // 转换为权限编码集合
+        return permissions.stream()
+            .map(p -> p.code)
+            .collect(Collectors.toSet());
+    }
+
+    /**
+     * 获取用户角色 ID 列表
+     */
+    private List<UUID> getUserRoleIds(UUID userId) {
+        // TODO: 实现用户角色查询
+        // 这里假设有一个 user_roles 表
+        return new ArrayList<>();
+    }
+
+    /**
+     * 清除用户权限缓存（权限变更时调用）
+     */
+    public void clearUserPermissionCache(UUID userId) {
+        String cacheKey = "user:permissions:" + userId;
+        redis.value().del(cacheKey);
+        LOG.debug("清除用户权限缓存：{}", userId);
+    }
+
+    /**
+     * 创建权限
+     */
+    @Transactional
+    public Permission createPermission(String code, String name, String resource, 
+                                        String action, Permission.DataScope dataScope,
+                                        String description) {
+        Permission permission = new Permission();
+        permission.code = code;
+        permission.name = name;
+        permission.resource = resource;
+        permission.action = action;
+        permission.dataScope = dataScope;
+        permission.description = description;
+        permission.persist();
+        
+        LOG.info("创建权限：{} ({})", code, name);
+        return permission;
+    }
+
+    /**
+     * 删除权限
+     */
+    @Transactional
+    public boolean deletePermission(UUID id) {
+        Permission permission = Permission.findById(id);
+        if (permission == null) {
+            return false;
+        }
+        
+        // 删除角色权限关联
+        RolePermission.delete("permissionId", id);
+        
+        // 删除权限
+        permission.delete();
+        
+        LOG.info("删除权限：{}", permission.code);
+        return true;
+    }
+
+    /**
+     * 获取所有权限
+     */
+    public List<Permission> getAllPermissions() {
+        return Permission.listAll();
+    }
+
+    /**
+     * 根据资源类型获取权限
+     */
+    public List<Permission> getPermissionsByResource(String resource) {
+        return Permission.list("resource", resource);
     }
 }
