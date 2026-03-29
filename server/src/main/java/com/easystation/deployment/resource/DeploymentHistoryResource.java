@@ -2,13 +2,20 @@ package com.easystation.deployment.resource;
 
 import com.easystation.deployment.dto.DeploymentStatisticsDTO;
 import com.easystation.auth.annotation.RequiresPermission;
+import com.easystation.audit.enums.AuditAction;
+import com.easystation.audit.enums.AuditResult;
+import com.easystation.audit.service.AuditLogService;
 import com.easystation.deployment.dto.PageResultDTO;
 import com.easystation.deployment.service.DeploymentHistoryService;
+import io.quarkus.logging.Log;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,9 +30,18 @@ import java.util.UUID;
 @Consumes(MediaType.APPLICATION_JSON)
 @Authenticated
 public class DeploymentHistoryResource {
-    
+
     @Inject
     DeploymentHistoryService historyService;
+
+    @Inject
+    AuditLogService auditLogService;
+
+    @Context
+    SecurityContext securityContext;
+
+    @Context
+    HttpHeaders httpHeaders;
     
     /**
      * 查询部署历史
@@ -101,17 +117,17 @@ public class DeploymentHistoryResource {
             @QueryParam("startTime") String startTimeStr,
             @QueryParam("endTime") String endTimeStr,
             @QueryParam("fields") String fieldsStr) {
-        
+
         LocalDateTime startTime = startTimeStr != null ? LocalDateTime.parse(startTimeStr) : null;
         LocalDateTime endTime = endTimeStr != null ? LocalDateTime.parse(endTimeStr) : null;
-        
-        List<String> fields = fieldsStr != null ? 
+
+        List<String> fields = fieldsStr != null ?
                 List.of(fieldsStr.split(",")) : List.of();
-        
+
         List<Map<String, Object>> data = historyService.exportHistory(
                 applicationId, environmentId, startTime, endTime, fields
         );
-        
+
         // 简单的 CSV 导出
         StringBuilder csv = new StringBuilder();
         if (!data.isEmpty()) {
@@ -125,9 +141,29 @@ public class DeploymentHistoryResource {
                         .append("\n");
             }
         }
-        
+
+        recordAuditLog(AuditAction.EXPORT_DATA, AuditResult.SUCCESS,
+                "导出部署历史，数量：" + data.size(), "DeploymentHistory", null);
+
         return Response.ok(csv.toString())
                 .header("Content-Disposition", "attachment; filename=deployment_history.csv")
                 .build();
+    }
+
+    private void recordAuditLog(AuditAction action, AuditResult result,
+                               String description, String resourceType, UUID resourceId) {
+        try {
+            String username = securityContext != null && securityContext.getUserPrincipal() != null
+                    ? securityContext.getUserPrincipal().getName() : "system";
+            String clientIp = httpHeaders != null
+                    ? httpHeaders.getHeaderString("X-Forwarded-For")
+                    : null;
+            if (clientIp == null && httpHeaders != null) {
+                clientIp = httpHeaders.getHeaderString("X-Real-IP");
+            }
+            auditLogService.log(username, null, action, result, description, resourceType, resourceId, clientIp, "/api/deployments/history");
+        } catch (Exception e) {
+            Log.warnf("Failed to record audit log: %s", e.getMessage());
+        }
     }
 }
