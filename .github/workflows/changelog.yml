@@ -35,14 +35,25 @@ jobs:
           # Generate changelog from all commits
           conventional-changelog -p angular -i CHANGELOG.md -s -r 0
           
-      - name: Commit CHANGELOG changes
+      - name: Commit CHANGELOG and create PR
         run: |
           git config --local user.email "y-bot-n@example.com"
           git config --local user.name "Y-Bot-N"
           git add CHANGELOG.md
           if ! git diff --staged --quiet; then
             git commit -m "docs(changelog): update CHANGELOG.md [skip ci]"
-            git push
+            # Create a new branch for the changelog update
+            BRANCH_NAME="chore/changelog-update-$(date +%Y%m%d-%H%M%S)"
+            git checkout -b $BRANCH_NAME
+            git push -u origin $BRANCH_NAME
+            # Create PR using gh cli
+            gh pr create --title "docs(changelog): Update CHANGELOG.md" \
+              --body "Auto-generated CHANGELOG update" \
+              --base main \
+              --head $BRANCH_NAME \
+              --label "type:docs"
           else
             echo "No changes to commit"
           fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
