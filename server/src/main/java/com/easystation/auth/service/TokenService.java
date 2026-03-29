@@ -18,6 +18,9 @@ import java.util.UUID;
 @ApplicationScoped
 public class TokenService {
 
+    @Inject
+    TokenBlacklistService tokenBlacklistService;
+
     @ConfigProperty(name = "auth.jwt.access-token.expires-in", defaultValue = "3600")
     long accessTokenExpiresIn;  // 默认 1 小时
 
@@ -117,6 +120,13 @@ public class TokenService {
     @Transactional
     public String validateAndRefresh(String refreshToken, String deviceInfo, String ipAddress, String userAgent) {
         String tokenHash = hashToken(refreshToken);
+        
+        // 检查 Token 是否在黑名单中
+        if (tokenBlacklistService.isBlacklisted(tokenHash)) {
+            Log.warnf("Token is blacklisted, refresh denied: %s", tokenHash);
+            return null;
+        }
+        
         RefreshToken stored = RefreshToken.findByTokenHash(tokenHash);
 
         if (stored == null || !stored.isValid()) {
@@ -146,6 +156,8 @@ public class TokenService {
 
         if (stored != null) {
             stored.revoked = true;
+            // 将 Token 加入黑名单，防止在剩余有效期内被使用
+            tokenBlacklistService.addToBlacklist(tokenHash);
             return true;
         }
         return false;
