@@ -69,6 +69,16 @@ export const removeAgentInstance = (id: string): Promise<void> => {
   return request.delete(`/agents/instances/${id}`);
 };
 
+/**
+ * 批量删除 Agent 实例
+ * @param ids Agent ID 数组
+ */
+export const batchRemoveAgentInstances = (ids: string[]): Promise<void> => {
+  return request.delete("/agents/instances/batch", {
+    data: { ids },
+  });
+};
+
 // Agent 部署
 export const deployAgentInstance = (
   id: string,

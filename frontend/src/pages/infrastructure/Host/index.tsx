@@ -25,7 +25,7 @@ import {
   Descriptions,
   Typography,
 } from "antd";
-import Editor from "@monaco-editor/react";
+import { LazyMonacoEditor } from "@/components/LazyMonacoEditor";
 import { DrawerForm } from "@/components/DrawerForm";
 import { TerminalCommandModal } from "./components/TerminalCommandModal";
 import { HostInstallGuideModal } from "./components/HostInstallGuideModal";
@@ -532,16 +532,11 @@ const HostList: React.FC = () => {
         <div
           style={{ height: "calc(100vh - 150px)", border: "1px solid #d9d9d9" }}
         >
-          <Editor
+          <LazyMonacoEditor
             height="100%"
             defaultLanguage="yaml"
             value={configContent}
             onChange={(value) => setConfigContent(value || "")}
-            options={{
-              minimap: { enabled: false },
-              scrollBeyondLastLine: false,
-              fontSize: 14,
-            }}
           />
         </div>
       </Drawer>
