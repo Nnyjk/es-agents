@@ -20,6 +20,11 @@ import type {
   DeploymentHistoryDetail,
   DeploymentHistoryQueryParams,
   DeploymentStatistics,
+  DeploymentRecord,
+  DeploymentDetail,
+  DeploymentProgress,
+  DeploymentQueryParams,
+  CreateDeploymentParams,
 } from "@/types/deployment";
 
 // ============== 应用管理 API ==============
@@ -372,4 +377,54 @@ export async function rollbackDeployment(
   return request.post(`/api/deployment/releases/${releaseId}/rollback`, null, {
     params: { rolledBackBy: reason || "system" },
   });
+}
+
+// ============== 部署流水线管理 API ==============
+
+/**
+ * 获取部署列表
+ */
+export async function getDeployments(
+  params: DeploymentQueryParams,
+): Promise<PageResult<DeploymentRecord>> {
+  return request.get("/api/deployments", { params });
+}
+
+/**
+ * 获取部署详情
+ */
+export async function getDeployment(id: string): Promise<DeploymentDetail> {
+  return request.get(`/api/deployments/${id}`);
+}
+
+/**
+ * 创建新部署
+ */
+export async function createDeployment(
+  data: CreateDeploymentParams,
+): Promise<DeploymentRecord> {
+  return request.post("/api/deployments", data);
+}
+
+/**
+ * 取消部署
+ */
+export async function cancelDeployment(id: string): Promise<void> {
+  return request.post(`/api/deployments/${id}/cancel`);
+}
+
+/**
+ * 重试部署
+ */
+export async function retryDeployment(id: string): Promise<DeploymentRecord> {
+  return request.post(`/api/deployments/${id}/retry`);
+}
+
+/**
+ * 获取部署进度
+ */
+export async function getDeploymentProgress(
+  id: string,
+): Promise<DeploymentProgress> {
+  return request.get(`/api/deployments/progress/${id}`);
 }
