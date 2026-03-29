@@ -10,7 +10,11 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +23,9 @@ public class AuthResource {
 
     @Inject
     AuthService authService;
+
+    @ConfigProperty(name = "mp.jwt.verify.publickey.location")
+    String publicKeyLocation;
 
     // ========== 登录相关 ==========
 
@@ -90,6 +97,21 @@ public class AuthResource {
     }
 
     // ========== 路由 ==========
+
+    @GET
+    @Path("/public-key")
+    @PermitAll
+    public Response getPublicKey() {
+        try {
+            // 读取公钥文件
+            String publicKey = Files.readString(Path.of(publicKeyLocation));
+            return Response.ok(Map.of("publicKey", publicKey.trim())).build();
+        } catch (IOException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "无法读取公钥文件"))
+                    .build();
+        }
+    }
 
     @GET
     @Path("/routes")
