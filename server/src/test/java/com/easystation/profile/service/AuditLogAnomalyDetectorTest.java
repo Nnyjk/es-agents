@@ -51,7 +51,7 @@ public class AuditLogAnomalyDetectorTest {
         assertNotNull(anomalies);
         // 应该检测到频繁失败登录
         assertTrue(anomalies.stream().anyMatch(a -> 
-            a.anomalyType.contains("FREQUENT_FAILURE") || a.description.contains("失败")
+            a.type.contains("FREQUENT_FAILURE") || a.description.contains("失败")
         ));
     }
 
@@ -77,7 +77,7 @@ public class AuditLogAnomalyDetectorTest {
         assertNotNull(anomalies);
         // 应该检测到多 IP 登录
         assertTrue(anomalies.stream().anyMatch(a -> 
-            a.anomalyType.contains("MULTIPLE_IP") || a.description.contains("IP")
+            a.type.contains("MULTIPLE_IP") || a.description.contains("IP")
         ));
     }
 
@@ -102,7 +102,7 @@ public class AuditLogAnomalyDetectorTest {
         assertNotNull(anomalies);
         // 应该检测到高风险活动
         assertTrue(anomalies.stream().anyMatch(a -> 
-            a.anomalyType.contains("HIGH_RISK") || a.description.contains("风险")
+            a.type.contains("HIGH_RISK") || a.description.contains("风险")
         ));
     }
 
@@ -128,7 +128,7 @@ public class AuditLogAnomalyDetectorTest {
         assertNotNull(anomalies);
         // 应该检测到敏感数据访问
         assertTrue(anomalies.stream().anyMatch(a -> 
-            a.anomalyType.contains("SENSITIVE_ACCESS") || a.description.contains("敏感")
+            a.type.contains("SENSITIVE_ACCESS") || a.description.contains("敏感")
         ));
     }
 
@@ -176,7 +176,7 @@ public class AuditLogAnomalyDetectorTest {
         assertNotNull(anomalies);
         // 应该检测到非工作时间活动
         assertTrue(anomalies.stream().anyMatch(a -> 
-            a.anomalyType.contains("AFTER_HOURS") || a.description.contains("时间") || a.description.contains("凌晨")
+            a.type.contains("AFTER_HOURS") || a.description.contains("时间") || a.description.contains("凌晨")
         ));
     }
 
@@ -201,7 +201,7 @@ public class AuditLogAnomalyDetectorTest {
         assertNotNull(anomalies);
         // 应该检测到批量操作
         assertTrue(anomalies.stream().anyMatch(a -> 
-            a.anomalyType.contains("BULK") || a.description.contains("批量")
+            a.type.contains("BULK") || a.description.contains("批量")
         ));
     }
 
@@ -225,11 +225,10 @@ public class AuditLogAnomalyDetectorTest {
         assertFalse(anomalies.isEmpty());
         
         AuditAnomaly anomaly = anomalies.get(0);
-        assertNotNull(anomaly.anomalyType);
+        assertNotNull(anomaly.type);
         assertNotNull(anomaly.description);
         assertNotNull(anomaly.severity);
-        assertNotNull(anomaly.detectedAt);
-        assertNotNull(anomaly.relatedLogs);
-        assertTrue(anomaly.relatedLogs.size() > 0);
+        assertNotNull(anomaly.userId);
+        assertNotNull(anomaly.count);
     }
 }

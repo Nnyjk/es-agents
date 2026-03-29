@@ -61,7 +61,7 @@ public class PermissionInterceptor {
         }
 
         // 获取用户所有权限码（包含管理员判断）
-        Set<String> userPermissions = permissionService.getUserPermissionCodes(user.id);
+        Set<String> userPermissions = permissionService.getUserPermissions(user.id);
         
         if (userPermissions.contains(permissionCode)) {
             Log.debugf("Permission granted: %s for user %s", permissionCode, username);

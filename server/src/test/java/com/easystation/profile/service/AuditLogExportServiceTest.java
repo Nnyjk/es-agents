@@ -1,6 +1,7 @@
 package com.easystation.profile.service;
 
 import com.easystation.profile.domain.UserAuditLog;
+import com.easystation.profile.repository.AuditLogRepository;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
@@ -188,7 +189,7 @@ public class AuditLogExportServiceTest {
             log.isSensitive = false;
             log.riskLevel = "LOW";
             log.operationCategory = i % 4 == 0 ? "LOGIN" : "DATA_ACCESS";
-            log.durationMs = 100 + i * 10;
+            log.durationMs = (long)(100 + i * 10);
             log.description = "Test log " + i;
             log.createdAt = LocalDateTime.now().minusHours(i);
             log.persist();
