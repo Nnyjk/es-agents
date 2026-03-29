@@ -31,7 +31,7 @@ jobs:
         run: |
           # Generate changelog for the specific version
           conventional-changelog -p angular -i CHANGELOG.md -s -r 0
-          
+
       - name: Extract CHANGELOG section for version
         id: changelog
         run: |
@@ -42,7 +42,7 @@ jobs:
             found && /^## \[/ {found=0}
             found {print}
           ' CHANGELOG.md > RELEASE_NOTES.md
-          
+
           # If no section found, use generate-notes fallback
           if [ ! -s RELEASE_NOTES.md ]; then
             echo "No CHANGELOG section found, will use GitHub generated notes"
@@ -84,7 +84,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${{ inputs.version }}"
-          
+
           if [ "${{ steps.changelog.outputs.fallback }}" = "false" ]; then
             # Use generated CHANGELOG section
             gh release create "$VERSION" \
