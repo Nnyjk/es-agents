@@ -1,0 +1,261 @@
+/* ============================================
+   ESA 主题系统 - 深色模式支持 (Issue #349)
+   ============================================ */
+
+/* 浅色主题（默认） */
+:root {
+  /* 背景色 */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-tertiary: #fafafa;
+  --bg-elevated: #ffffff;
+  
+  /* 文字色 */
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --text-tertiary: #999999;
+  --text-disabled: #cccccc;
+  
+  /* 边框色 */
+  --border-color: #e0e0e0;
+  --border-light: #f0f0f0;
+  --border-dark: #d0d0d0;
+  
+  /* 强调色 */
+  --accent-color: #1890ff;
+  --accent-hover: #40a9ff;
+  --accent-active: #096dd9;
+  
+  /* 功能色 */
+  --success-color: #52c41a;
+  --warning-color: #faad14;
+  --error-color: #ff4d4f;
+  --info-color: #1890ff;
+  
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  
+  /* 过渡 */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+}
+
+/* 深色主题 */
+[data-theme="dark"] {
+  /* 背景色 */
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #3d3d3d;
+  --bg-elevated: #252525;
+  
+  /* 文字色 */
+  --text-primary: #ffffff;
+  --text-secondary: #b0b0b0;
+  --text-tertiary: #808080;
+  --text-disabled: #505050;
+  
+  /* 边框色 */
+  --border-color: #404040;
+  --border-light: #353535;
+  --border-dark: #505050;
+  
+  /* 强调色 */
+  --accent-color: #40a9ff;
+  --accent-hover: #69c0ff;
+  --accent-active: #1890ff;
+  
+  /* 功能色 */
+  --success-color: #73d13d;
+  --warning-color: #ffc53d;
+  --error-color: #ff7875;
+  --info-color: #40a9ff;
+  
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
+   全局样式
+   ============================================ */
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* 链接 */
+a {
+  color: var(--accent-color);
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+/* 卡片 */
+.ant-card {
+  background-color: var(--bg-elevated);
+  border-color: var(--border-color);
+  transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+.ant-card-bordered {
+  border-color: var(--border-color);
+}
+
+/* 表格 */
+.ant-table {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.ant-table-thead > tr > th {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.ant-table-tbody > tr > td {
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.ant-table-tbody > tr:hover > td {
+  background-color: var(--bg-secondary);
+}
+
+/* 菜单 */
+.ant-menu {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.ant-menu-item {
+  color: var(--text-primary);
+}
+
+.ant-menu-item:hover {
+  background-color: var(--bg-secondary);
+}
+
+.ant-menu-item-selected {
+  background-color: var(--accent-color);
+  color: #ffffff;
+}
+
+/* 布局 */
+.ant-layout {
+  background-color: var(--bg-primary);
+}
+
+.ant-layout-header {
+  background-color: var(--bg-elevated);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.ant-layout-sider {
+  background-color: var(--bg-primary);
+  border-right: 1px solid var(--border-color);
+}
+
+/* 按钮 */
+.ant-btn {
+  border-color: var(--border-color);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+
+.ant-btn-default {
+  background-color: var(--bg-primary);
+}
+
+.ant-btn-default:hover {
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.ant-btn-primary {
+  background-color: var(--accent-color);
+  color: #ffffff;
+}
+
+.ant-btn-primary:hover {
+  background-color: var(--accent-hover);
+}
+
+/* 输入框 */
+.ant-input {
+  background-color: var(--bg-primary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.ant-input:hover {
+  border-color: var(--accent-color);
+}
+
+.ant-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* 下拉菜单 */
+.ant-dropdown-menu {
+  background-color: var(--bg-elevated);
+  border-color: var(--border-color);
+}
+
+.ant-dropdown-menu-item {
+  color: var(--text-primary);
+}
+
+.ant-dropdown-menu-item:hover {
+  background-color: var(--bg-secondary);
+}
+
+/* 模态框 */
+.ant-modal {
+  background-color: var(--bg-elevated);
+}
+
+.ant-modal-header {
+  background-color: var(--bg-elevated);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.ant-modal-content {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.ant-modal-footer {
+  border-color: var(--border-color);
+}
+
+/* 通知 */
+.ant-notification-notice {
+  background-color: var(--bg-elevated);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* 过渡动画 */
+* {
+  transition: background-color var(--transition-normal), 
+              border-color var(--transition-normal), 
+              color var(--transition-normal);
+}
+
+/* 排除不需要过渡的元素 */
+* img,
+* svg,
+* canvas {
+  transition: none;
+}
