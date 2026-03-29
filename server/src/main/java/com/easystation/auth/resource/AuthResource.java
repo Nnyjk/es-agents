@@ -2,6 +2,7 @@ package com.easystation.auth.resource;
 
 import com.easystation.auth.dto.AuthRecord;
 import com.easystation.auth.service.AuthService;
+import com.easystation.common.ratelimit.RateLimit;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -43,6 +44,7 @@ public class AuthResource {
         @APIResponse(responseCode = "401", description = "用户名或密码错误")
     })
     @PermitAll
+    @RateLimit(key = "login", maxRequests = 5, windowSeconds = 300, limitType = RateLimit.LimitType.IP)
     public Response login(@Valid AuthRecord.LoginRequest request,
                           @Context HttpHeaders headers) {
         String ipAddress = getClientIp(headers);
@@ -59,6 +61,7 @@ public class AuthResource {
         @APIResponse(responseCode = "409", description = "用户名已存在")
     })
     @PermitAll
+    @RateLimit(key = "register", maxRequests = 3, windowSeconds = 3600, limitType = RateLimit.LimitType.IP)
     public Response register(@Valid AuthRecord.Register request,
                              @Context HttpHeaders headers) {
         return Response.ok(authService.register(request)).build();
@@ -88,6 +91,7 @@ public class AuthResource {
         @APIResponse(responseCode = "401", description = "刷新 Token 无效或已过期")
     })
     @PermitAll
+    @RateLimit(key = "refresh", maxRequests = 10, windowSeconds = 60, limitType = RateLimit.LimitType.IP)
     public Response refreshToken(@Valid AuthRecord.RefreshTokenRequest request,
                                 @Context HttpHeaders headers) {
         String ipAddress = getClientIp(headers);
