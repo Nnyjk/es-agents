@@ -2,7 +2,7 @@ package com.easystation.agent.planning.repository;
 
 import com.easystation.agent.planning.domain.PlanningTaskExecutionLog;
 import com.easystation.agent.planning.domain.enums.PlanningTaskStatus;
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.LocalDateTime;
@@ -14,7 +14,7 @@ import java.util.UUID;
  * 提供任务执行日志的数据访问操作
  */
 @ApplicationScoped
-public class PlanningTaskExecutionLogRepository implements PanacheRepository<PlanningTaskExecutionLog> {
+public class PlanningTaskExecutionLogRepository implements PanacheRepositoryBase<PlanningTaskExecutionLog, UUID> {
 
     /**
      * 查询任务的执行日志（按时间倒序）

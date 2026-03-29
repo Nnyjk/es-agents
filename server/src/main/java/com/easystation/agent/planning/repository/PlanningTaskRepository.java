@@ -2,7 +2,7 @@ package com.easystation.agent.planning.repository;
 
 import com.easystation.agent.planning.domain.PlanningTask;
 import com.easystation.agent.planning.domain.enums.PlanningTaskStatus;
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.LocalDateTime;
@@ -14,7 +14,7 @@ import java.util.UUID;
  * 提供任务规划相关的数据访问操作
  */
 @ApplicationScoped
-public class PlanningTaskRepository implements PanacheRepository<PlanningTask> {
+public class PlanningTaskRepository implements PanacheRepositoryBase<PlanningTask, UUID> {
 
     /**
      * 根据目标 ID 查询所有任务

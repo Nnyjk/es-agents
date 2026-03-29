@@ -1,7 +1,7 @@
 package com.easystation.agent.planning.repository;
 
 import com.easystation.agent.planning.domain.PlanningTaskDependency;
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.UUID;
  * 提供任务依赖关系的数据访问操作
  */
 @ApplicationScoped
-public class PlanningTaskDependencyRepository implements PanacheRepository<PlanningTaskDependency> {
+public class PlanningTaskDependencyRepository implements PanacheRepositoryBase<PlanningTaskDependency, UUID> {
 
     /**
      * 查询任务的所有依赖（该任务依赖哪些任务）
