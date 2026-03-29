@@ -12,8 +12,8 @@ import io.quarkus.security.Authenticated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.responses.APIResponse;
-import io.swagger.v3.oas.annotations.responses.APIResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -55,11 +55,11 @@ public class DeploymentProgressResource {
      */
     @GET
     @Operation(summary = "获取当前进展", description = "获取部署任务的当前进展状态")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回当前进展"),
-        @APIResponse(responseCode = "404", description = "部署任务不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回当前进展"),
+        @ApiResponse(responseCode = "404", description = "部署任务不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @Path("/{deploymentId}")
     @RequiresPermission("deployment:view")
@@ -78,11 +78,11 @@ public class DeploymentProgressResource {
      */
     @GET
     @Operation(summary = "获取进展历史", description = "获取部署任务的进展历史记录")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回进展历史列表"),
-        @APIResponse(responseCode = "404", description = "部署任务不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回进展历史列表"),
+        @ApiResponse(responseCode = "404", description = "部署任务不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @Path("/{deploymentId}/history")
     @RequiresPermission("deployment:view")
@@ -98,11 +98,11 @@ public class DeploymentProgressResource {
      */
     @GET
     @Operation(summary = "获取状态变更历史", description = "获取部署任务的状态变更历史记录")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回状态变更历史列表"),
-        @APIResponse(responseCode = "404", description = "部署任务不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回状态变更历史列表"),
+        @ApiResponse(responseCode = "404", description = "部署任务不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @Path("/{deploymentId}/status-history")
     @RequiresPermission("deployment:view")
@@ -118,11 +118,11 @@ public class DeploymentProgressResource {
      */
     @GET
     @Operation(summary = "获取总体进度", description = "获取部署任务的总体进度百分比")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回总体进度"),
-        @APIResponse(responseCode = "404", description = "部署任务不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回总体进度"),
+        @ApiResponse(responseCode = "404", description = "部署任务不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @Path("/{deploymentId}/overall")
     @RequiresPermission("deployment:view")
@@ -138,12 +138,12 @@ public class DeploymentProgressResource {
      */
     @POST
     @Operation(summary = "标记阶段完成", description = "标记部署任务的某个阶段为完成状态")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功标记阶段完成"),
-        @APIResponse(responseCode = "400", description = "请求参数错误"),
-        @APIResponse(responseCode = "404", description = "部署任务不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功标记阶段完成"),
+        @ApiResponse(responseCode = "400", description = "请求参数错误"),
+        @ApiResponse(responseCode = "404", description = "部署任务不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @Path("/{deploymentId}/complete")
     @RequiresPermission("deployment:edit")
@@ -168,12 +168,12 @@ public class DeploymentProgressResource {
      */
     @POST
     @Operation(summary = "标记阶段失败", description = "标记部署任务的某个阶段为失败状态")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功标记阶段失败"),
-        @APIResponse(responseCode = "400", description = "请求参数错误"),
-        @APIResponse(responseCode = "404", description = "部署任务不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功标记阶段失败"),
+        @ApiResponse(responseCode = "400", description = "请求参数错误"),
+        @ApiResponse(responseCode = "404", description = "部署任务不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @Path("/{deploymentId}/fail")
     @RequiresPermission("deployment:edit")

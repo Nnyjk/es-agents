@@ -43,7 +43,7 @@ public interface PluginService {
 
     PluginVersionRecord createVersion(UUID pluginId, PluginVersionRecord.Create create);
 
-    PluginVersionRecord updateVersion(UUID versionId, PluginVersionRecord.Create update);
+    PluginVersionRecord updateVersion(UUID versionId, PluginVersionRecord.Update update);
 
     Optional<PluginVersionRecord> findVersionById(UUID versionId);
 

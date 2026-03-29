@@ -18,64 +18,56 @@ public class AgentTemplateValidator {
     private static final int MAX_DESCRIPTION_LENGTH = 2000;
 
     /**
-     * 校验模板创建/更新数据
-     * 
-     * @param record 模板数据
-     * @param isUpdate 是否为更新操作
-     * @throws BadRequestException 校验失败时抛出
+     * 校验模板创建数据
      */
-    public void validate(AgentTemplateRecord record, boolean isUpdate) {
+    public void validateCreate(AgentTemplateRecord.Create record) {
         // 名称校验
-        if (record.name == null || record.name.isBlank()) {
+        if (record.name() == null || record.name().isBlank()) {
             throw new BadRequestException("模板名称不能为空");
         }
-        if (record.name.length() > MAX_NAME_LENGTH) {
+        if (record.name().length() > MAX_NAME_LENGTH) {
             throw new BadRequestException("模板名称不能超过 " + MAX_NAME_LENGTH + " 个字符");
         }
 
         // 描述校验
-        if (record.description != null && record.description.length() > MAX_DESCRIPTION_LENGTH) {
+        if (record.description() != null && record.description().length() > MAX_DESCRIPTION_LENGTH) {
             throw new BadRequestException("描述不能超过 " + MAX_DESCRIPTION_LENGTH + " 个字符");
         }
 
         // OS 类型校验
-        if (record.osType == null) {
+        if (record.osType() == null) {
             throw new BadRequestException("操作系统类型不能为空");
         }
 
         // 分类校验
-        if (record.category == null) {
+        if (record.category() == null) {
             throw new BadRequestException("模板分类不能为空");
         }
 
         // 安装脚本校验
-        if (record.installScript == null || record.installScript.isBlank()) {
+        if (record.installScript() == null || record.installScript().isBlank()) {
             throw new BadRequestException("安装脚本不能为空");
         }
-
-        // 版本号校验（仅更新时）
-        if (isUpdate && record.version != null && !VERSION_PATTERN.matcher(record.version).matches()) {
-            throw new BadRequestException("版本号格式不正确，应为语义化版本 (如 1.0.0)");
-        }
-    }
-
-    /**
-     * 校验模板创建数据
-     */
-    public void validateCreate(AgentTemplateRecord record) {
-        validate(record, false);
     }
 
     /**
      * 校验模板更新数据
      */
-    public void validateUpdate(AgentTemplateRecord record) {
-        validate(record, true);
+    public void validateUpdate(AgentTemplateRecord.Update record) {
+        // 名称校验（如果提供）
+        if (record.name() != null && record.name().length() > MAX_NAME_LENGTH) {
+            throw new BadRequestException("模板名称不能超过 " + MAX_NAME_LENGTH + " 个字符");
+        }
+
+        // 描述校验（如果提供）
+        if (record.description() != null && record.description().length() > MAX_DESCRIPTION_LENGTH) {
+            throw new BadRequestException("描述不能超过 " + MAX_DESCRIPTION_LENGTH + " 个字符");
+        }
     }
 
     /**
      * 校验版本号格式
-     * 
+     *
      * @param version 版本号
      * @throws BadRequestException 校验失败时抛出
      */
@@ -90,7 +82,7 @@ public class AgentTemplateValidator {
 
     /**
      * 校验 YAML/JSON 格式
-     * 
+     *
      * @param content 内容
      * @param format 格式 (YAML 或 JSON)
      * @throws BadRequestException 校验失败时抛出

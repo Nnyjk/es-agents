@@ -13,8 +13,8 @@ import io.quarkus.security.Authenticated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
-import io.swagger.v3.oas.annotations.responses.APIResponse;
-import io.swagger.v3.oas.annotations.responses.APIResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -55,10 +55,10 @@ public class DeploymentVersionResource {
      */
     @GET
     @Operation(summary = "查询版本列表", description = "分页查询部署版本列表")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回版本列表"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回版本列表"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:view")
     public PageResultDTO<DeploymentVersionDTO> listVersions(
@@ -80,11 +80,11 @@ public class DeploymentVersionResource {
      */
     @GET
     @Operation(summary = "获取版本详情", description = "根据 ID 获取部署版本详情")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回版本详情"),
-        @APIResponse(responseCode = "404", description = "版本不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回版本详情"),
+        @ApiResponse(responseCode = "404", description = "版本不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:view")
     @Path("/{id}")
@@ -99,11 +99,11 @@ public class DeploymentVersionResource {
      */
     @POST
     @Operation(summary = "创建版本", description = "创建新的部署版本")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "201", description = "成功创建版本"),
-        @APIResponse(responseCode = "400", description = "请求参数错误"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "成功创建版本"),
+        @ApiResponse(responseCode = "400", description = "请求参数错误"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:create")
     public Response createVersion(
@@ -122,12 +122,12 @@ public class DeploymentVersionResource {
      */
     @PUT
     @Operation(summary = "更新版本", description = "更新部署版本信息")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功更新版本"),
-        @APIResponse(responseCode = "400", description = "请求参数错误"),
-        @APIResponse(responseCode = "404", description = "版本不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功更新版本"),
+        @ApiResponse(responseCode = "400", description = "请求参数错误"),
+        @ApiResponse(responseCode = "404", description = "版本不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:edit")
     @Path("/{id}")
@@ -146,11 +146,11 @@ public class DeploymentVersionResource {
      */
     @DELETE
     @Operation(summary = "删除版本", description = "删除部署版本")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "204", description = "成功删除版本"),
-        @APIResponse(responseCode = "404", description = "版本不存在"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "204", description = "成功删除版本"),
+        @ApiResponse(responseCode = "404", description = "版本不存在"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:delete")
     @Path("/{id}")
@@ -169,11 +169,11 @@ public class DeploymentVersionResource {
      */
     @POST
     @Operation(summary = "版本比对", description = "比对两个部署版本的差异")
-    @APIResponses(value = {
-        @APIResponse(responseCode = "200", description = "成功返回比对结果"),
-        @APIResponse(responseCode = "400", description = "请求参数错误"),
-        @APIResponse(responseCode = "401", description = "未授权"),
-        @APIResponse(responseCode = "403", description = "权限不足")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "成功返回比对结果"),
+        @ApiResponse(responseCode = "400", description = "请求参数错误"),
+        @ApiResponse(responseCode = "401", description = "未授权"),
+        @ApiResponse(responseCode = "403", description = "权限不足")
     })
     @RequiresPermission("deployment:view")
     @Path("/compare")
