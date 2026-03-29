@@ -4,6 +4,7 @@ import com.easystation.agent.domain.enums.ScheduledTaskCategory;
 import com.easystation.agent.record.ScheduledTaskExecutionRecord;
 import com.easystation.agent.record.ScheduledTaskRecord;
 import com.easystation.agent.service.ScheduledTaskService;
+import com.easystation.auth.annotation.RequiresPermission;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -34,6 +35,7 @@ public class ScheduledTaskResource {
      */
     @GET
     @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @RequiresPermission("agent:view")
     public List<ScheduledTaskRecord.ListResponse> list(
             @QueryParam("category") ScheduledTaskCategory category,
             @QueryParam("activeOnly") Boolean activeOnly
@@ -48,6 +50,7 @@ public class ScheduledTaskResource {
     @GET
     @Path("/{id}")
     @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @RequiresPermission("agent:view")
     public ScheduledTaskRecord.DetailResponse getById(@PathParam("id") UUID id) {
         return scheduledTaskService.getById(id);
     }
@@ -58,6 +61,7 @@ public class ScheduledTaskResource {
      */
     @POST
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:create")
     public Response create(@Valid ScheduledTaskRecord.CreateRequest request) {
         ScheduledTaskRecord.DetailResponse task = scheduledTaskService.create(request);
         return Response.status(Response.Status.CREATED).entity(task).build();
@@ -70,6 +74,7 @@ public class ScheduledTaskResource {
     @PUT
     @Path("/{id}")
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:edit")
     public ScheduledTaskRecord.DetailResponse update(
             @PathParam("id") UUID id,
             @Valid ScheduledTaskRecord.UpdateRequest request
@@ -84,6 +89,7 @@ public class ScheduledTaskResource {
     @DELETE
     @Path("/{id}")
     @RolesAllowed({"Admin"})
+    @RequiresPermission("agent:delete")
     public void delete(@PathParam("id") UUID id) {
         scheduledTaskService.delete(id);
     }
@@ -95,6 +101,7 @@ public class ScheduledTaskResource {
     @POST
     @Path("/{id}/enable")
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:execute")
     public ScheduledTaskRecord.DetailResponse enable(@PathParam("id") UUID id) {
         return scheduledTaskService.enable(id);
     }
@@ -106,6 +113,7 @@ public class ScheduledTaskResource {
     @POST
     @Path("/{id}/disable")
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:execute")
     public ScheduledTaskRecord.DetailResponse disable(@PathParam("id") UUID id) {
         return scheduledTaskService.disable(id);
     }
@@ -117,6 +125,7 @@ public class ScheduledTaskResource {
     @POST
     @Path("/{id}/execute")
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:execute")
     public ScheduledTaskExecutionRecord.DetailResponse executeNow(
             @PathParam("id") UUID id,
             @Context SecurityContext securityContext,
@@ -136,6 +145,7 @@ public class ScheduledTaskResource {
     @GET
     @Path("/{id}/executions")
     @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @RequiresPermission("agent:view")
     public List<ScheduledTaskExecutionRecord.ListResponse> getExecutionHistory(@PathParam("id") UUID id) {
         return scheduledTaskService.getExecutionHistory(id);
     }
@@ -147,6 +157,7 @@ public class ScheduledTaskResource {
     @GET
     @Path("/executions/{executionId}")
     @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @RequiresPermission("agent:view")
     public ScheduledTaskExecutionRecord.DetailResponse getExecutionById(@PathParam("executionId") UUID executionId) {
         return scheduledTaskService.getExecutionById(executionId);
     }
@@ -158,6 +169,7 @@ public class ScheduledTaskResource {
     @PUT
     @Path("/executions/{executionId}/status")
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:edit")
     public ScheduledTaskExecutionRecord.DetailResponse updateExecutionStatus(
             @PathParam("executionId") UUID executionId,
             @Valid ScheduledTaskExecutionRecord.UpdateStatusRequest request
@@ -172,6 +184,7 @@ public class ScheduledTaskResource {
     @POST
     @Path("/validate-cron")
     @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @RequiresPermission("agent:view")
     public ScheduledTaskRecord.CronValidateResponse validateCron(
             @Valid ScheduledTaskRecord.CronValidateRequest request
     ) {
@@ -187,6 +200,7 @@ public class ScheduledTaskResource {
     @GET
     @Path("/due")
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:view")
     public List<ScheduledTaskRecord.ListResponse> findDueTasks() {
         return scheduledTaskService.findDueTasks();
     }

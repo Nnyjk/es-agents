@@ -4,6 +4,7 @@ import com.easystation.agent.domain.enums.AgentTaskStatus;
 import com.easystation.agent.record.AgentTaskRecord;
 import com.easystation.agent.record.TaskRecord;
 import com.easystation.agent.service.AgentTaskService;
+import com.easystation.auth.annotation.RequiresPermission;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -32,6 +33,7 @@ public class AgentTaskResource {
     @POST
     @Path("/execute")
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:execute")
     public Response executeCommand(
             @Valid TaskRecord.ExecuteRequest request,
             @Context SecurityContext securityContext) {
@@ -54,6 +56,7 @@ public class AgentTaskResource {
     @POST
     @Path("/execute-script")
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:execute")
     public Response executeScript(
             @Valid TaskRecord.ExecuteScriptRequest request,
             @Context SecurityContext securityContext) {
@@ -76,6 +79,7 @@ public class AgentTaskResource {
     @GET
     @Path("/{id}")
     @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @RequiresPermission("agent:view")
     public AgentTaskRecord getById(@PathParam("id") UUID id) {
         return agentTaskService.get(id);
     }
@@ -86,6 +90,7 @@ public class AgentTaskResource {
      */
     @GET
     @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @RequiresPermission("agent:view")
     public List<AgentTaskRecord> list(
             @QueryParam("agentInstanceId") UUID agentInstanceId,
             @QueryParam("status") AgentTaskStatus status,
@@ -104,6 +109,7 @@ public class AgentTaskResource {
     @POST
     @Path("/{id}/retry")
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:execute")
     public AgentTaskRecord retry(
             @PathParam("id") UUID id,
             @Context SecurityContext securityContext) {
@@ -120,6 +126,7 @@ public class AgentTaskResource {
     @POST
     @Path("/{id}/cancel")
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:execute")
     public AgentTaskRecord cancel(@PathParam("id") UUID id) {
         return agentTaskService.cancel(id);
     }
@@ -131,6 +138,7 @@ public class AgentTaskResource {
     @DELETE
     @Path("/{id}")
     @RolesAllowed({"Admin"})
+    @RequiresPermission("agent:delete")
     public Response delete(@PathParam("id") UUID id) {
         agentTaskService.delete(id);
         return Response.noContent().build();
@@ -143,6 +151,7 @@ public class AgentTaskResource {
     @GET
     @Path("/counts")
     @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @RequiresPermission("agent:view")
     public TaskRecord.TaskCounts getCounts() {
         Map<AgentTaskStatus, Long> counts = agentTaskService.countByStatus();
         return new TaskRecord.TaskCounts(

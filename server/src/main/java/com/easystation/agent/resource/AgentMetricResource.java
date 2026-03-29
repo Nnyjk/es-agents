@@ -2,6 +2,7 @@ package com.easystation.agent.resource;
 
 import com.easystation.agent.dto.AgentMetricRecord;
 import com.easystation.agent.service.AgentMetricService;
+import com.easystation.auth.annotation.RequiresPermission;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -30,6 +31,7 @@ public class AgentMetricResource {
      */
     @POST
     @Path("/metrics")
+    @RequiresPermission("agent:execute")
     public Response reportMetric(AgentMetricRecord.MetricReport report) {
         agentMetricService.reportMetric(report);
         return Response.accepted().build();
@@ -40,6 +42,7 @@ public class AgentMetricResource {
      */
     @POST
     @Path("/metrics/batch")
+    @RequiresPermission("agent:execute")
     public Response reportMetricsBatch(AgentMetricRecord.BatchMetricReport batch) {
         agentMetricService.reportMetricsBatch(batch);
         return Response.accepted().build();
@@ -50,6 +53,7 @@ public class AgentMetricResource {
      */
     @GET
     @Path("/metrics")
+    @RequiresPermission("agent:view")
     public Response queryMetrics(
             @QueryParam("agentId") UUID agentId,
             @QueryParam("startTime") String startTime,
@@ -74,6 +78,7 @@ public class AgentMetricResource {
      */
     @GET
     @Path("/metrics/{agentId}/latest")
+    @RequiresPermission("agent:view")
     public Response getLatestMetric(@PathParam("agentId") UUID agentId) {
         var result = agentMetricService.getLatestMetric(agentId);
         if (result == null) {
@@ -89,6 +94,7 @@ public class AgentMetricResource {
      */
     @GET
     @Path("/metrics/{agentId}/aggregation")
+    @RequiresPermission("agent:view")
     public Response getMetricAggregation(
             @PathParam("agentId") UUID agentId,
             @QueryParam("startTime") String startTime,
@@ -111,6 +117,7 @@ public class AgentMetricResource {
      */
     @POST
     @Path("/snapshots/{agentId}")
+    @RequiresPermission("agent:execute")
     public Response createSnapshot(@PathParam("agentId") UUID agentId) {
         agentMetricService.createStatusSnapshot(agentId);
         return Response.accepted().build();
@@ -121,6 +128,7 @@ public class AgentMetricResource {
      */
     @GET
     @Path("/snapshots")
+    @RequiresPermission("agent:view")
     public Response querySnapshots(
             @QueryParam("agentId") UUID agentId,
             @QueryParam("startTime") String startTime,
@@ -145,6 +153,7 @@ public class AgentMetricResource {
      */
     @GET
     @Path("/stats")
+    @RequiresPermission("agent:view")
     public Response getMonitoringStats() {
         var result = agentMetricService.getMonitoringStats();
         return Response.ok(result).build();
@@ -155,6 +164,7 @@ public class AgentMetricResource {
      */
     @GET
     @Path("/status/batch")
+    @RequiresPermission("agent:view")
     public Response getBatchStatus(@QueryParam("agentIds") String agentIds) {
         List<UUID> ids = null;
         if (agentIds != null && !agentIds.isEmpty()) {
@@ -173,6 +183,7 @@ public class AgentMetricResource {
      */
     @POST
     @Path("/alerts/trigger")
+    @RequiresPermission("agent:execute")
     public Response triggerAlert(AgentMetricRecord.AlertTriggerRequest request) {
         agentMetricService.triggerAlert(request);
         return Response.accepted().build();
