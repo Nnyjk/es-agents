@@ -9,6 +9,12 @@ import com.easystation.deployment.dto.PageResultDTO;
 import com.easystation.deployment.service.DeploymentHistoryService;
 import io.quarkus.logging.Log;
 import io.quarkus.security.Authenticated;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.APIResponse;
+import io.swagger.v3.oas.annotations.responses.APIResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -29,6 +35,7 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Authenticated
+@Tag(name = "部署历史管理", description = "部署历史记录管理 API")
 public class DeploymentHistoryResource {
 
     @Inject
@@ -48,20 +55,26 @@ public class DeploymentHistoryResource {
      * GET /api/deployments/history
      */
     @GET
+    @Operation(summary = "查询部署历史", description = "分页查询部署历史记录列表")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回部署历史列表"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("deployment:view")
     public PageResultDTO<Map<String, Object>> listHistory(
-            @QueryParam("pageNum") @DefaultValue("1") int pageNum,
-            @QueryParam("pageSize") @DefaultValue("20") int pageSize,
-            @QueryParam("applicationId") UUID applicationId,
-            @QueryParam("environmentId") UUID environmentId,
-            @QueryParam("version") String version,
-            @QueryParam("status") String status,
-            @QueryParam("triggeredBy") String triggeredBy,
-            @QueryParam("startTime") String startTimeStr,
-            @QueryParam("endTime") String endTimeStr,
-            @QueryParam("keyword") String keyword,
-            @QueryParam("sortBy") @DefaultValue("createdAt") String sortBy,
-            @QueryParam("sortOrder") @DefaultValue("DESC") String sortOrder) {
+            @Parameter(description = "页码", in = ParameterIn.QUERY) @QueryParam("pageNum") @DefaultValue("1") int pageNum,
+            @Parameter(description = "每页数量", in = ParameterIn.QUERY) @QueryParam("pageSize") @DefaultValue("20") int pageSize,
+            @Parameter(description = "应用 ID", in = ParameterIn.QUERY) @QueryParam("applicationId") UUID applicationId,
+            @Parameter(description = "环境 ID", in = ParameterIn.QUERY) @QueryParam("environmentId") UUID environmentId,
+            @Parameter(description = "版本号", in = ParameterIn.QUERY) @QueryParam("version") String version,
+            @Parameter(description = "状态", in = ParameterIn.QUERY) @QueryParam("status") String status,
+            @Parameter(description = "触发人", in = ParameterIn.QUERY) @QueryParam("triggeredBy") String triggeredBy,
+            @Parameter(description = "开始时间", in = ParameterIn.QUERY) @QueryParam("startTime") String startTimeStr,
+            @Parameter(description = "结束时间", in = ParameterIn.QUERY) @QueryParam("endTime") String endTimeStr,
+            @Parameter(description = "关键词", in = ParameterIn.QUERY) @QueryParam("keyword") String keyword,
+            @Parameter(description = "排序字段", in = ParameterIn.QUERY) @QueryParam("sortBy") @DefaultValue("createdAt") String sortBy,
+            @Parameter(description = "排序方式", in = ParameterIn.QUERY) @QueryParam("sortOrder") @DefaultValue("DESC") String sortOrder) {
         
         LocalDateTime startTime = startTimeStr != null ? LocalDateTime.parse(startTimeStr) : null;
         LocalDateTime endTime = endTimeStr != null ? LocalDateTime.parse(endTimeStr) : null;
@@ -78,9 +91,17 @@ public class DeploymentHistoryResource {
      * GET /api/deployments/history/{releaseId}
      */
     @GET
-    @Path("/{releaseId}")
+    @Operation(summary = "获取部署详情", description = "根据发布 ID 获取部署历史详情")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回部署详情"),
+        @APIResponse(responseCode = "404", description = "部署记录不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("deployment:view")
-    public Map<String, Object> getHistoryDetail(@PathParam("releaseId") UUID releaseId) {
+    @Path("/{releaseId}")
+    public Map<String, Object> getHistoryDetail(
+            @Parameter(description = "发布 ID", in = ParameterIn.PATH) @PathParam("releaseId") UUID releaseId) {
         return historyService.getHistoryDetail(releaseId);
     }
     
@@ -89,13 +110,19 @@ public class DeploymentHistoryResource {
      * GET /api/deployments/history/statistics
      */
     @GET
-    @Path("/statistics")
+    @Operation(summary = "获取部署统计", description = "获取部署历史统计数据")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回统计数据"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("deployment:view")
+    @Path("/statistics")
     public DeploymentStatisticsDTO getStatistics(
-            @QueryParam("applicationId") UUID applicationId,
-            @QueryParam("environmentId") UUID environmentId,
-            @QueryParam("startTime") String startTimeStr,
-            @QueryParam("endTime") String endTimeStr) {
+            @Parameter(description = "应用 ID", in = ParameterIn.QUERY) @QueryParam("applicationId") UUID applicationId,
+            @Parameter(description = "环境 ID", in = ParameterIn.QUERY) @QueryParam("environmentId") UUID environmentId,
+            @Parameter(description = "开始时间", in = ParameterIn.QUERY) @QueryParam("startTime") String startTimeStr,
+            @Parameter(description = "结束时间", in = ParameterIn.QUERY) @QueryParam("endTime") String endTimeStr) {
         
         LocalDateTime startTime = startTimeStr != null ? LocalDateTime.parse(startTimeStr) : null;
         LocalDateTime endTime = endTimeStr != null ? LocalDateTime.parse(endTimeStr) : null;
@@ -108,15 +135,21 @@ public class DeploymentHistoryResource {
      * GET /api/deployments/history/export
      */
     @GET
+    @Operation(summary = "导出部署历史", description = "导出部署历史记录为 CSV 文件")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回 CSV 文件"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @RequiresPermission("deployment:view")
     @Path("/export")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    @RequiresPermission("deployment:view")
     public Response exportHistory(
-            @QueryParam("applicationId") UUID applicationId,
-            @QueryParam("environmentId") UUID environmentId,
-            @QueryParam("startTime") String startTimeStr,
-            @QueryParam("endTime") String endTimeStr,
-            @QueryParam("fields") String fieldsStr) {
+            @Parameter(description = "应用 ID", in = ParameterIn.QUERY) @QueryParam("applicationId") UUID applicationId,
+            @Parameter(description = "环境 ID", in = ParameterIn.QUERY) @QueryParam("environmentId") UUID environmentId,
+            @Parameter(description = "开始时间", in = ParameterIn.QUERY) @QueryParam("startTime") String startTimeStr,
+            @Parameter(description = "结束时间", in = ParameterIn.QUERY) @QueryParam("endTime") String endTimeStr,
+            @Parameter(description = "导出字段", in = ParameterIn.QUERY) @QueryParam("fields") String fieldsStr) {
 
         LocalDateTime startTime = startTimeStr != null ? LocalDateTime.parse(startTimeStr) : null;
         LocalDateTime endTime = endTimeStr != null ? LocalDateTime.parse(endTimeStr) : null;
