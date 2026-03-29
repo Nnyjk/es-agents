@@ -1,6 +1,7 @@
 package com.easystation.deployment.resource;
 
 import com.easystation.deployment.dto.DeploymentChangeDTO;
+import com.easystation.auth.annotation.RequiresPermission;
 import com.easystation.deployment.dto.PageResultDTO;
 import com.easystation.deployment.enums.ChangeType;
 import com.easystation.deployment.service.DeploymentChangeService;
@@ -32,6 +33,7 @@ public class DeploymentChangeResource {
      * GET /api/deployments/changes
      */
     @GET
+    @RequiresPermission("deployment:view")
     public PageResultDTO<DeploymentChangeDTO> listChanges(
             @QueryParam("pageNum") @DefaultValue("1") int pageNum,
             @QueryParam("pageSize") @DefaultValue("20") int pageSize,
@@ -49,6 +51,7 @@ public class DeploymentChangeResource {
      * GET /api/deployments/changes/{id}
      */
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/{id}")
     public DeploymentChangeDTO getChange(@PathParam("id") UUID id) {
         return changeService.getChange(id);
@@ -59,6 +62,7 @@ public class DeploymentChangeResource {
      * POST /api/deployments/changes
      */
     @POST
+    @RequiresPermission("deployment:create")
     public DeploymentChangeDTO createChange(@Valid DeploymentChangeDTO dto) {
         // TODO: 从安全上下文获取当前用户
         String createdBy = "system";
@@ -70,6 +74,7 @@ public class DeploymentChangeResource {
      * POST /api/deployments/changes/batch
      */
     @POST
+    @RequiresPermission("deployment:create")
     @Path("/batch")
     public List<DeploymentChangeDTO> batchCreateChanges(@Valid List<DeploymentChangeDTO> dtos) {
         // TODO: 从安全上下文获取当前用户
@@ -82,6 +87,7 @@ public class DeploymentChangeResource {
      * GET /api/deployments/versions/{versionId}/changes
      */
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/versions/{versionId}")
     public List<DeploymentChangeDTO> getVersionChanges(@PathParam("versionId") UUID versionId) {
         return changeService.getVersionChanges(versionId);
@@ -92,6 +98,7 @@ public class DeploymentChangeResource {
      * GET /api/deployments/versions/{versionId}/impact
      */
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/versions/{versionId}/impact")
     public Map<String, Object> analyzeImpact(@PathParam("versionId") UUID versionId) {
         return changeService.analyzeImpact(versionId);

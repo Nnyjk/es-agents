@@ -1,6 +1,7 @@
 package com.easystation.deployment.resource;
 
 import com.easystation.deployment.dto.DeploymentStatisticsDTO;
+import com.easystation.auth.annotation.RequiresPermission;
 import com.easystation.deployment.dto.PageResultDTO;
 import com.easystation.deployment.service.DeploymentHistoryService;
 import io.quarkus.security.Authenticated;
@@ -31,6 +32,7 @@ public class DeploymentHistoryResource {
      * GET /api/deployments/history
      */
     @GET
+    @RequiresPermission("deployment:view")
     public PageResultDTO<Map<String, Object>> listHistory(
             @QueryParam("pageNum") @DefaultValue("1") int pageNum,
             @QueryParam("pageSize") @DefaultValue("20") int pageSize,
@@ -61,6 +63,7 @@ public class DeploymentHistoryResource {
      */
     @GET
     @Path("/{releaseId}")
+    @RequiresPermission("deployment:view")
     public Map<String, Object> getHistoryDetail(@PathParam("releaseId") UUID releaseId) {
         return historyService.getHistoryDetail(releaseId);
     }
@@ -71,6 +74,7 @@ public class DeploymentHistoryResource {
      */
     @GET
     @Path("/statistics")
+    @RequiresPermission("deployment:view")
     public DeploymentStatisticsDTO getStatistics(
             @QueryParam("applicationId") UUID applicationId,
             @QueryParam("environmentId") UUID environmentId,
@@ -90,6 +94,7 @@ public class DeploymentHistoryResource {
     @GET
     @Path("/export")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    @RequiresPermission("deployment:view")
     public Response exportHistory(
             @QueryParam("applicationId") UUID applicationId,
             @QueryParam("environmentId") UUID environmentId,

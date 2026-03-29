@@ -1,5 +1,6 @@
 package com.easystation.deployment.resource;
 
+import com.easystation.auth.annotation.RequiresPermission;
 import com.easystation.deployment.dto.*;
 import com.easystation.deployment.enums.EnvironmentType;
 import com.easystation.deployment.service.EnvironmentService;
@@ -20,6 +21,7 @@ public class EnvironmentResource {
     EnvironmentService environmentService;
 
     @GET
+    @RequiresPermission("environment:view")
     public PageResultDTO<EnvironmentDTO> list(
             @QueryParam("pageNum") @DefaultValue("1") int pageNum,
             @QueryParam("pageSize") @DefaultValue("10") int pageSize,
@@ -31,23 +33,27 @@ public class EnvironmentResource {
 
     @GET
     @Path("/{id}")
+    @RequiresPermission("environment:view")
     public EnvironmentDTO get(@PathParam("id") UUID id) {
         return environmentService.getEnvironment(id);
     }
 
     @POST
+    @RequiresPermission("environment:create")
     public EnvironmentDTO create(EnvironmentDTO dto) {
         return environmentService.createEnvironment(dto);
     }
 
     @PUT
     @Path("/{id}")
+    @RequiresPermission("environment:edit")
     public EnvironmentDTO update(@PathParam("id") UUID id, EnvironmentDTO dto) {
         return environmentService.updateEnvironment(id, dto);
     }
 
     @DELETE
     @Path("/{id}")
+    @RequiresPermission("environment:delete")
     public Response delete(@PathParam("id") UUID id) {
         environmentService.deleteEnvironment(id);
         return Response.noContent().build();
@@ -55,12 +61,14 @@ public class EnvironmentResource {
 
     @GET
     @Path("/{id}/resources")
+    @RequiresPermission("environment:view")
     public List<EnvironmentResourceDTO> getResources(@PathParam("id") UUID id) {
         return environmentService.getEnvironmentResources(id);
     }
 
     @GET
     @Path("/{id}/applications")
+    @RequiresPermission("environment:view")
     public List<EnvironmentApplicationDTO> getApplications(@PathParam("id") UUID id) {
         return environmentService.getEnvironmentApplications(id);
     }

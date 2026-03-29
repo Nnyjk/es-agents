@@ -1,6 +1,7 @@
 package com.easystation.deployment.resource;
 
 import com.easystation.deployment.dto.*;
+import com.easystation.auth.annotation.RequiresPermission;
 import com.easystation.deployment.enums.ReleaseStatus;
 import com.easystation.deployment.service.ReleaseService;
 import jakarta.inject.Inject;
@@ -19,6 +20,7 @@ public class ReleaseResource {
     ReleaseService releaseService;
 
     @GET
+    @RequiresPermission("deployment:view")
     public PageResultDTO<ReleaseDTO> list(
             @QueryParam("pageNum") @DefaultValue("1") int pageNum,
             @QueryParam("pageSize") @DefaultValue("10") int pageSize,
@@ -30,23 +32,27 @@ public class ReleaseResource {
     }
 
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/{id}")
     public ReleaseDTO get(@PathParam("id") UUID id) {
         return releaseService.getRelease(id);
     }
 
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/{id}/detail")
     public ReleaseDTO getDetail(@PathParam("id") UUID id) {
         return releaseService.getReleaseDetail(id);
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     public ReleaseDTO create(ReleaseDTO dto) {
         return releaseService.createRelease(dto);
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     @Path("/{id}/submit")
     public ReleaseDTO submitForApproval(@PathParam("id") UUID id,
                                         @QueryParam("submittedBy") @DefaultValue("system") String submittedBy) {
@@ -54,6 +60,7 @@ public class ReleaseResource {
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     @Path("/{id}/approve")
     public ReleaseDTO approve(@PathParam("id") UUID id,
                               @QueryParam("approvedBy") @DefaultValue("system") String approvedBy) {
@@ -61,6 +68,7 @@ public class ReleaseResource {
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     @Path("/{id}/reject")
     public ReleaseDTO reject(@PathParam("id") UUID id,
                              @QueryParam("rejectedBy") @DefaultValue("system") String rejectedBy,
@@ -69,6 +77,7 @@ public class ReleaseResource {
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     @Path("/{id}/start")
     public ReleaseDTO start(@PathParam("id") UUID id,
                             @QueryParam("deployedBy") @DefaultValue("system") String deployedBy) {
@@ -76,6 +85,7 @@ public class ReleaseResource {
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     @Path("/{id}/rollback")
     public ReleaseDTO rollback(@PathParam("id") UUID id,
                                @QueryParam("rolledBackBy") @DefaultValue("system") String rolledBackBy) {
@@ -83,6 +93,7 @@ public class ReleaseResource {
     }
 
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/history/{applicationId}")
     public List<ReleaseDTO> getHistory(@PathParam("applicationId") UUID applicationId) {
         return releaseService.getReleaseHistory(applicationId);

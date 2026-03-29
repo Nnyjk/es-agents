@@ -1,6 +1,7 @@
 package com.easystation.deployment.resource;
 
 import com.easystation.deployment.domain.ArtifactRepository;
+import com.easystation.auth.annotation.RequiresPermission;
 import com.easystation.deployment.dto.ArtifactRepositoryDTO;
 import com.easystation.deployment.dto.PageResultDTO;
 import com.easystation.deployment.service.ArtifactRepositoryService;
@@ -24,6 +25,7 @@ public class ArtifactRepositoryResource {
     ArtifactRepositoryService repositoryService;
 
     @GET
+    @RequiresPermission("deployment:view")
     public PageResultDTO<ArtifactRepositoryDTO> list(
             @QueryParam("type") ArtifactRepository.RepositoryType type,
             @QueryParam("active") Boolean active,
@@ -34,12 +36,14 @@ public class ArtifactRepositoryResource {
     }
 
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/type/{type}")
     public List<ArtifactRepositoryDTO> listByType(@PathParam("type") ArtifactRepository.RepositoryType type) {
         return repositoryService.getByType(type);
     }
 
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/default/{type}")
     public ArtifactRepositoryDTO getDefault(@PathParam("type") ArtifactRepository.RepositoryType type) {
         ArtifactRepositoryDTO dto = repositoryService.getDefaultRepository(type);
@@ -50,6 +54,7 @@ public class ArtifactRepositoryResource {
     }
 
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/{id}")
     public ArtifactRepositoryDTO get(@PathParam("id") UUID id) {
         ArtifactRepositoryDTO dto = repositoryService.getById(id);
@@ -60,6 +65,7 @@ public class ArtifactRepositoryResource {
     }
 
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/name/{name}")
     public ArtifactRepositoryDTO getByName(@PathParam("name") String name) {
         ArtifactRepositoryDTO dto = repositoryService.getByName(name);
@@ -70,6 +76,7 @@ public class ArtifactRepositoryResource {
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     public Response create(ArtifactRepositoryDTO dto) {
         try {
             ArtifactRepositoryDTO created = repositoryService.create(dto);
@@ -80,6 +87,7 @@ public class ArtifactRepositoryResource {
     }
 
     @PUT
+    @RequiresPermission("deployment:edit")
     @Path("/{id}")
     public ArtifactRepositoryDTO update(@PathParam("id") UUID id, ArtifactRepositoryDTO dto) {
         try {
@@ -94,6 +102,7 @@ public class ArtifactRepositoryResource {
     }
 
     @DELETE
+    @RequiresPermission("deployment:delete")
     @Path("/{id}")
     public Response delete(@PathParam("id") UUID id) {
         boolean deleted = repositoryService.delete(id);
@@ -104,6 +113,7 @@ public class ArtifactRepositoryResource {
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     @Path("/{id}/activate")
     public ArtifactRepositoryDTO activate(@PathParam("id") UUID id) {
         ArtifactRepositoryDTO dto = repositoryService.setActive(id, true);
@@ -114,6 +124,7 @@ public class ArtifactRepositoryResource {
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     @Path("/{id}/deactivate")
     public ArtifactRepositoryDTO deactivate(@PathParam("id") UUID id) {
         ArtifactRepositoryDTO dto = repositoryService.setActive(id, false);
@@ -124,6 +135,7 @@ public class ArtifactRepositoryResource {
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     @Path("/{id}/default")
     public ArtifactRepositoryDTO setDefault(@PathParam("id") UUID id) {
         ArtifactRepositoryDTO dto = repositoryService.setDefault(id);

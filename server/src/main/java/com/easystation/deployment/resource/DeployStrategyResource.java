@@ -1,6 +1,7 @@
 package com.easystation.deployment.resource;
 
 import com.easystation.deployment.domain.DeployStrategy;
+import com.easystation.auth.annotation.RequiresPermission;
 import com.easystation.deployment.dto.DeployStrategyDTO;
 import com.easystation.deployment.dto.PageResultDTO;
 import com.easystation.deployment.service.DeployStrategyService;
@@ -24,6 +25,7 @@ public class DeployStrategyResource {
     DeployStrategyService strategyService;
 
     @GET
+    @RequiresPermission("deployment:view")
     public PageResultDTO<DeployStrategyDTO> list(
             @PathParam("applicationId") UUID applicationId,
             @QueryParam("environmentId") UUID environmentId,
@@ -34,12 +36,14 @@ public class DeployStrategyResource {
     }
 
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/all")
     public List<DeployStrategyDTO> listAll(@PathParam("applicationId") UUID applicationId) {
         return strategyService.getByApplicationId(applicationId);
     }
 
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/default")
     public DeployStrategyDTO getDefault(
             @PathParam("applicationId") UUID applicationId,
@@ -52,6 +56,7 @@ public class DeployStrategyResource {
     }
 
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/{id}")
     public DeployStrategyDTO get(
             @PathParam("applicationId") UUID applicationId,
@@ -64,6 +69,7 @@ public class DeployStrategyResource {
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     public Response create(
             @PathParam("applicationId") UUID applicationId,
             DeployStrategyDTO dto) {
@@ -73,6 +79,7 @@ public class DeployStrategyResource {
     }
 
     @PUT
+    @RequiresPermission("deployment:edit")
     @Path("/{id}")
     public DeployStrategyDTO update(
             @PathParam("applicationId") UUID applicationId,
@@ -86,6 +93,7 @@ public class DeployStrategyResource {
     }
 
     @DELETE
+    @RequiresPermission("deployment:delete")
     @Path("/{id}")
     public Response delete(
             @PathParam("applicationId") UUID applicationId,
@@ -98,12 +106,14 @@ public class DeployStrategyResource {
     }
 
     @DELETE
+    @RequiresPermission("deployment:delete")
     public Response deleteByApplication(@PathParam("applicationId") UUID applicationId) {
         long count = strategyService.deleteByApplication(applicationId);
         return Response.ok().entity("{\"deleted\": " + count + "}").build();
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     @Path("/{id}/activate")
     public DeployStrategyDTO activate(@PathParam("id") UUID id) {
         DeployStrategyDTO dto = strategyService.setActive(id, true);
@@ -114,6 +124,7 @@ public class DeployStrategyResource {
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     @Path("/{id}/deactivate")
     public DeployStrategyDTO deactivate(@PathParam("id") UUID id) {
         DeployStrategyDTO dto = strategyService.setActive(id, false);
@@ -124,6 +135,7 @@ public class DeployStrategyResource {
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     @Path("/{id}/default")
     public DeployStrategyDTO setDefault(@PathParam("id") UUID id) {
         DeployStrategyDTO dto = strategyService.setDefault(id);
