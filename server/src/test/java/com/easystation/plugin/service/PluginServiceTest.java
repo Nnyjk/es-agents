@@ -36,14 +36,23 @@ class PluginServiceTest {
     @Test
     void testCreatePlugin() {
         PluginRecord.Create create = new PluginRecord.Create(
-            "test-plugin-" + System.currentTimeMillis(),
-            "测试插件",
-            "这是一个测试插件",
-            testCategoryId,
             testDeveloperId,
-            testDeveloperName,
-            "1.0.0",
+            "测试插件",
+            "test-plugin-" + System.currentTimeMillis(),
+            testCategoryId,
             "https://example.com/icon.png",
+            "这是一个测试插件",
+            null,
+            null,
+            null,
+            null,
+            true,
+            null,
+            null,
+            null,
+            List.of("测试", "工具"),
+            List.of(),
+            null,
             List.of("测试", "工具")
         );
 
@@ -59,13 +68,22 @@ class PluginServiceTest {
     void testFindById() {
         // First create a plugin
         PluginRecord.Create create = new PluginRecord.Create(
-            "find-by-id-test",
-            "查找测试",
-            "用于测试查找功能",
-            testCategoryId,
             testDeveloperId,
-            testDeveloperName,
-            "1.0.0",
+            "查找测试",
+            "find-by-id-test",
+            testCategoryId,
+            null,
+            "用于测试查找功能",
+            null,
+            null,
+            null,
+            null,
+            true,
+            null,
+            null,
+            null,
+            List.of(),
+            List.of(),
             null,
             List.of()
         );
@@ -83,13 +101,22 @@ class PluginServiceTest {
     void testFindByCode() {
         // First create a plugin
         PluginRecord.Create create = new PluginRecord.Create(
-            "find-by-code-test",
-            "代码查找测试",
-            "用于测试代码查找功能",
-            testCategoryId,
             testDeveloperId,
-            testDeveloperName,
-            "1.0.0",
+            "代码查找测试",
+            "find-by-code-test",
+            testCategoryId,
+            null,
+            "用于测试代码查找功能",
+            null,
+            null,
+            null,
+            null,
+            true,
+            null,
+            null,
+            null,
+            List.of(),
+            List.of(),
             null,
             List.of()
         );
@@ -107,26 +134,44 @@ class PluginServiceTest {
     void testSearch() {
         // Create test plugins
         PluginRecord.Create create1 = new PluginRecord.Create(
-            "search-test-1",
-            "搜索测试插件一",
-            "用于测试搜索功能",
-            testCategoryId,
             testDeveloperId,
-            testDeveloperName,
-            "1.0.0",
+            "搜索测试插件一",
+            "search-test-1",
+            testCategoryId,
+            null,
+            "用于测试搜索功能",
+            null,
+            null,
+            null,
+            null,
+            true,
+            null,
+            null,
+            null,
+            List.of(),
+            List.of(),
             null,
             List.of("搜索", "测试")
         );
         pluginService.create(create1);
 
         PluginRecord.Create create2 = new PluginRecord.Create(
-            "search-test-2",
-            "搜索测试插件二",
-            "用于测试搜索功能",
-            testCategoryId,
             testDeveloperId,
-            testDeveloperName,
-            "1.0.0",
+            "搜索测试插件二",
+            "search-test-2",
+            testCategoryId,
+            null,
+            "用于测试搜索功能",
+            null,
+            null,
+            null,
+            null,
+            true,
+            null,
+            null,
+            null,
+            List.of(),
+            List.of(),
             null,
             List.of("搜索", "工具")
         );
@@ -144,23 +189,44 @@ class PluginServiceTest {
     void testUpdate() {
         // First create a plugin
         PluginRecord.Create create = new PluginRecord.Create(
-            "update-test",
-            "更新前名称",
-            "更新前描述",
-            testCategoryId,
             testDeveloperId,
-            testDeveloperName,
-            "1.0.0",
+            "更新前名称",
+            "update-test-" + System.currentTimeMillis(),
+            testCategoryId,
+            "https://example.com/icon.png",
+            "更新前描述",
             null,
-            List.of()
+            null,
+            null,
+            null,
+            true,
+            null,
+            null,
+            null,
+            List.of(),
+            List.of(),
+            null,
+            List.of("测试")
         );
         PluginRecord created = pluginService.create(create);
 
         // Update the plugin
         PluginRecord.Update update = new PluginRecord.Update(
             "更新后名称",
-            "更新后描述",
+            testCategoryId,
             "https://example.com/new-icon.png",
+            "更新后描述",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            List.of("更新", "测试"),
+            List.of(),
+            null,
             List.of("更新", "测试")
         );
         PluginRecord updated = pluginService.update(created.id(), update);
@@ -168,20 +234,29 @@ class PluginServiceTest {
         assertNotNull(updated);
         assertEquals("更新后名称", updated.name());
         assertEquals("更新后描述", updated.description());
-        assertEquals("https://example.com/new-icon.png", updated.iconUrl());
+        assertEquals("https://example.com/new-icon.png", updated.icon());
     }
 
     @Test
     void testPublish() {
         // First create a plugin
         PluginRecord.Create create = new PluginRecord.Create(
-            "publish-test",
-            "发布测试",
-            "用于测试发布功能",
-            testCategoryId,
             testDeveloperId,
-            testDeveloperName,
-            "1.0.0",
+            "发布测试",
+            "publish-test",
+            testCategoryId,
+            null,
+            "用于测试发布功能",
+            null,
+            null,
+            null,
+            null,
+            true,
+            null,
+            null,
+            null,
+            List.of(),
+            List.of(),
             null,
             List.of()
         );
@@ -198,13 +273,22 @@ class PluginServiceTest {
     void testSuspend() {
         // First create and publish a plugin
         PluginRecord.Create create = new PluginRecord.Create(
-            "suspend-test",
-            "暂停测试",
-            "用于测试暂停功能",
-            testCategoryId,
             testDeveloperId,
-            testDeveloperName,
-            "1.0.0",
+            "暂停测试",
+            "suspend-test",
+            testCategoryId,
+            null,
+            "用于测试暂停功能",
+            null,
+            null,
+            null,
+            null,
+            true,
+            null,
+            null,
+            null,
+            List.of(),
+            List.of(),
             null,
             List.of()
         );
@@ -223,13 +307,22 @@ class PluginServiceTest {
     void testDelete() {
         // First create a plugin
         PluginRecord.Create create = new PluginRecord.Create(
-            "delete-test",
-            "删除测试",
-            "用于测试删除功能",
-            testCategoryId,
             testDeveloperId,
-            testDeveloperName,
-            "1.0.0",
+            "删除测试",
+            "delete-test",
+            testCategoryId,
+            null,
+            "用于测试删除功能",
+            null,
+            null,
+            null,
+            null,
+            true,
+            null,
+            null,
+            null,
+            List.of(),
+            List.of(),
             null,
             List.of()
         );
@@ -246,13 +339,22 @@ class PluginServiceTest {
     void testCreateVersion() {
         // First create a plugin
         PluginRecord.Create create = new PluginRecord.Create(
-            "version-test",
-            "版本测试",
-            "用于测试版本功能",
-            testCategoryId,
             testDeveloperId,
-            testDeveloperName,
-            "1.0.0",
+            "版本测试",
+            "version-test",
+            testCategoryId,
+            null,
+            "用于测试版本功能",
+            null,
+            null,
+            null,
+            null,
+            true,
+            null,
+            null,
+            null,
+            List.of(),
+            List.of(),
             null,
             List.of()
         );
@@ -280,13 +382,22 @@ class PluginServiceTest {
     void testFindLatestVersion() {
         // First create a plugin and versions
         PluginRecord.Create create = new PluginRecord.Create(
-            "latest-version-test",
-            "最新版本测试",
-            "用于测试最新版本功能",
-            testCategoryId,
             testDeveloperId,
-            testDeveloperName,
-            "1.0.0",
+            "最新版本测试",
+            "latest-version-test",
+            testCategoryId,
+            null,
+            "用于测试最新版本功能",
+            null,
+            null,
+            null,
+            null,
+            true,
+            null,
+            null,
+            null,
+            List.of(),
+            List.of(),
             null,
             List.of()
         );
