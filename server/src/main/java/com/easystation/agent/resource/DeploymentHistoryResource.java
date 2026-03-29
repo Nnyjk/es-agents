@@ -3,6 +3,7 @@ package com.easystation.agent.resource;
 import com.easystation.agent.domain.enums.DeploymentStatus;
 import com.easystation.agent.record.DeploymentHistoryRecord;
 import com.easystation.agent.service.DeploymentHistoryService;
+import com.easystation.auth.annotation.RequiresPermission;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -29,6 +30,7 @@ public class DeploymentHistoryResource {
     @GET
     @Path("/history")
     @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @RequiresPermission("agent:view")
     public List<DeploymentHistoryRecord.ListResponse> getHistory(
             @QueryParam("agentInstanceId") UUID agentInstanceId) {
         if (agentInstanceId == null) {
@@ -44,6 +46,7 @@ public class DeploymentHistoryResource {
     @GET
     @Path("/history/{id}")
     @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @RequiresPermission("agent:view")
     public DeploymentHistoryRecord.DetailResponse getById(@PathParam("id") UUID id) {
         return deploymentHistoryService.getById(id);
     }
@@ -55,6 +58,7 @@ public class DeploymentHistoryResource {
     @POST
     @Path("/history")
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:create")
     public Response create(
             DeploymentHistoryRecord.CreateRequest request,
             @Context SecurityContext securityContext) {
@@ -72,6 +76,7 @@ public class DeploymentHistoryResource {
     @PUT
     @Path("/history/{id}/status")
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:edit")
     public DeploymentHistoryRecord.DetailResponse updateStatus(
             @PathParam("id") UUID id,
             @QueryParam("status") DeploymentStatus status) {
@@ -88,6 +93,7 @@ public class DeploymentHistoryResource {
     @POST
     @Path("/history/{id}/rollback")
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:execute")
     public DeploymentHistoryRecord.RollbackResponse rollback(
             @PathParam("id") UUID id,
             DeploymentHistoryRecord.RollbackRequest request,
@@ -105,6 +111,7 @@ public class DeploymentHistoryResource {
     @DELETE
     @Path("/history/{id}")
     @RolesAllowed({"Admin"})
+    @RequiresPermission("agent:delete")
     public Response delete(@PathParam("id") UUID id) {
         deploymentHistoryService.delete(id);
         return Response.noContent().build();
@@ -117,6 +124,7 @@ public class DeploymentHistoryResource {
     @GET
     @Path("/latest")
     @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @RequiresPermission("agent:view")
     public DeploymentHistoryRecord.DetailResponse getLatestSuccessful(
             @QueryParam("agentInstanceId") UUID agentInstanceId) {
         if (agentInstanceId == null) {

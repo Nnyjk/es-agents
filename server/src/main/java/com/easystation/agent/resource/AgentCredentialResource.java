@@ -2,6 +2,7 @@ package com.easystation.agent.resource;
 
 import com.easystation.agent.dto.AgentCredentialRecord;
 import com.easystation.agent.service.AgentCredentialService;
+import com.easystation.auth.annotation.RequiresPermission;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -19,17 +20,20 @@ public class AgentCredentialResource {
     AgentCredentialService agentCredentialService;
 
     @GET
+    @RequiresPermission("agent:view")
     public Response list() {
         return Response.ok(agentCredentialService.list()).build();
     }
 
     @GET
     @Path("/{id}")
+    @RequiresPermission("agent:view")
     public Response get(@PathParam("id") UUID id) {
         return Response.ok(agentCredentialService.get(id)).build();
     }
 
     @POST
+    @RequiresPermission("agent:create")
     public Response create(@Valid AgentCredentialRecord.Create dto) {
         return Response.status(Response.Status.CREATED)
             .entity(agentCredentialService.create(dto))
@@ -38,12 +42,14 @@ public class AgentCredentialResource {
 
     @PUT
     @Path("/{id}")
+    @RequiresPermission("agent:edit")
     public Response update(@PathParam("id") UUID id, @Valid AgentCredentialRecord.Update dto) {
         return Response.ok(agentCredentialService.update(id, dto)).build();
     }
 
     @DELETE
     @Path("/{id}")
+    @RequiresPermission("agent:delete")
     public Response delete(@PathParam("id") UUID id) {
         agentCredentialService.delete(id);
         return Response.noContent().build();

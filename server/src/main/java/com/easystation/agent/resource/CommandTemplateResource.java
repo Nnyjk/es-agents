@@ -4,6 +4,7 @@ import com.easystation.agent.domain.enums.CommandCategory;
 import com.easystation.agent.record.CommandExecutionRecord;
 import com.easystation.agent.record.CommandTemplateRecord;
 import com.easystation.agent.service.CommandTemplateService;
+import com.easystation.auth.annotation.RequiresPermission;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -30,6 +31,7 @@ public class CommandTemplateResource {
      */
     @GET
     @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @RequiresPermission("agent:view")
     public List<CommandTemplateRecord.ListResponse> list(
             @QueryParam("category") CommandCategory category,
             @QueryParam("activeOnly") Boolean activeOnly) {
@@ -43,6 +45,7 @@ public class CommandTemplateResource {
     @GET
     @Path("/{id}")
     @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @RequiresPermission("agent:view")
     public CommandTemplateRecord.DetailResponse getById(@PathParam("id") UUID id) {
         return commandTemplateService.getById(id);
     }
@@ -53,6 +56,7 @@ public class CommandTemplateResource {
      */
     @POST
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:create")
     public Response create(
             @Valid CommandTemplateRecord.CreateRequest request,
             @Context SecurityContext securityContext) {
@@ -70,6 +74,7 @@ public class CommandTemplateResource {
     @PUT
     @Path("/{id}")
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:edit")
     public CommandTemplateRecord.DetailResponse update(
             @PathParam("id") UUID id,
             @Valid CommandTemplateRecord.UpdateRequest request) {
@@ -83,6 +88,7 @@ public class CommandTemplateResource {
     @DELETE
     @Path("/{id}")
     @RolesAllowed({"Admin"})
+    @RequiresPermission("agent:delete")
     public Response delete(@PathParam("id") UUID id) {
         commandTemplateService.delete(id);
         return Response.noContent().build();
@@ -95,6 +101,7 @@ public class CommandTemplateResource {
     @POST
     @Path("/{id}/execute")
     @RolesAllowed({"Admin", "Ops"})
+    @RequiresPermission("agent:execute")
     public CommandTemplateRecord.ExecuteResponse execute(
             @PathParam("id") UUID id,
             @Valid CommandTemplateRecord.ExecuteRequest request,
@@ -112,6 +119,7 @@ public class CommandTemplateResource {
     @GET
     @Path("/{id}/executions")
     @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @RequiresPermission("agent:view")
     public List<CommandExecutionRecord.ListResponse> getExecutionHistory(@PathParam("id") UUID id) {
         return commandTemplateService.getExecutionHistory(id);
     }
@@ -123,6 +131,7 @@ public class CommandTemplateResource {
     @GET
     @Path("/executions/{executionId}")
     @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @RequiresPermission("agent:view")
     public CommandExecutionRecord.DetailResponse getExecutionById(@PathParam("executionId") UUID executionId) {
         return commandTemplateService.getExecutionById(executionId);
     }

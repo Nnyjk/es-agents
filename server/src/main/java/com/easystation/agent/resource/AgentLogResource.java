@@ -5,6 +5,7 @@ import com.easystation.agent.dto.AgentLogRecord.DeploymentLogQuery;
 import com.easystation.agent.dto.AgentLogRecord.CommandLogQuery;
 import com.easystation.agent.dto.AgentLogRecord.TaskLogRecord;
 import com.easystation.agent.service.AgentLogService;
+import com.easystation.auth.annotation.RequiresPermission;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -24,6 +25,7 @@ public class AgentLogResource {
 
     @GET
     @Path("/{agentId}")
+    @RequiresPermission("agent:view")
     public Response queryLogs(
             @PathParam("agentId") UUID agentId,
             @QueryParam("limit") Integer limit,
@@ -48,6 +50,7 @@ public class AgentLogResource {
     }
 
     @GET
+    @RequiresPermission("agent:view")
     @Path("/{agentId}/stats")
     public Response getLogStats(@PathParam("agentId") UUID agentId) {
         var stats = agentLogService.getLogStats(agentId);
@@ -55,6 +58,7 @@ public class AgentLogResource {
     }
 
     @GET
+    @RequiresPermission("agent:view")
     @Path("/{agentId}/tail")
     public Response tailLogs(
             @PathParam("agentId") UUID agentId,
@@ -68,6 +72,7 @@ public class AgentLogResource {
      * 获取部署过程日志
      */
     @GET
+    @RequiresPermission("agent:view")
     @Path("/{agentId}/deployment")
     public Response getDeploymentLogs(
             @PathParam("agentId") UUID agentId,
@@ -97,6 +102,7 @@ public class AgentLogResource {
      * 获取命令执行日志
      */
     @GET
+    @RequiresPermission("agent:view")
     @Path("/{agentId}/command/{executionId}")
     public Response getCommandLogs(
             @PathParam("agentId") UUID agentId,
@@ -126,6 +132,7 @@ public class AgentLogResource {
      * 获取特定任务的执行日志
      */
     @GET
+    @RequiresPermission("agent:view")
     @Path("/tasks/{taskId}")
     public Response getTaskLog(@PathParam("taskId") UUID taskId) {
         var result = agentLogService.getTaskLog(taskId);

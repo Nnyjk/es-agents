@@ -2,6 +2,7 @@ package com.easystation.agent.resource;
 
 import com.easystation.agent.dto.AgentSourceVersionRecord;
 import com.easystation.agent.service.AgentSourceVersionService;
+import com.easystation.auth.annotation.RequiresPermission;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -21,6 +22,7 @@ public class AgentSourceVersionResource {
     // Version endpoints
     @GET
     @Path("/{sourceId}/versions")
+    @RequiresPermission("agent:view")
     public Response listVersions(
             @PathParam("sourceId") UUID sourceId,
             @QueryParam("version") String version,
@@ -35,12 +37,14 @@ public class AgentSourceVersionResource {
 
     @GET
     @Path("/versions/{id}")
+    @RequiresPermission("agent:view")
     public Response getVersion(@PathParam("id") UUID id) {
         return Response.ok(versionService.getVersion(id)).build();
     }
 
     @POST
     @Path("/{sourceId}/versions")
+    @RequiresPermission("agent:create")
     public Response createVersion(
             @PathParam("sourceId") UUID sourceId,
             @Valid AgentSourceVersionRecord.Create dto) {
@@ -56,12 +60,14 @@ public class AgentSourceVersionResource {
 
     @PUT
     @Path("/versions/{id}")
+    @RequiresPermission("agent:edit")
     public Response updateVersion(@PathParam("id") UUID id, @Valid AgentSourceVersionRecord.Update dto) {
         return Response.ok(versionService.updateVersion(id, dto)).build();
     }
 
     @DELETE
     @Path("/versions/{id}")
+    @RequiresPermission("agent:delete")
     public Response deleteVersion(@PathParam("id") UUID id) {
         versionService.deleteVersion(id);
         return Response.noContent().build();
@@ -69,6 +75,7 @@ public class AgentSourceVersionResource {
 
     @POST
     @Path("/versions/{id}/verify")
+    @RequiresPermission("agent:execute")
     public Response verifyVersion(@PathParam("id") UUID id, @Valid AgentSourceVersionRecord.VerifyRequest dto) {
         return Response.ok(versionService.verifyVersion(id, dto)).build();
     }
@@ -76,6 +83,7 @@ public class AgentSourceVersionResource {
     // Cache endpoints
     @GET
     @Path("/{sourceId}/cache")
+    @RequiresPermission("agent:view")
     public Response listCache(
             @PathParam("sourceId") UUID sourceId,
             @QueryParam("valid") Boolean valid,
@@ -89,6 +97,7 @@ public class AgentSourceVersionResource {
 
     @POST
     @Path("/{sourceId}/pull")
+    @RequiresPermission("agent:execute")
     public Response pull(
             @PathParam("sourceId") UUID sourceId,
             @Valid AgentSourceVersionRecord.PullRequest dto) {
@@ -100,6 +109,7 @@ public class AgentSourceVersionResource {
 
     @DELETE
     @Path("/cache/{cacheId}")
+    @RequiresPermission("agent:delete")
     public Response invalidateCache(@PathParam("cacheId") UUID cacheId) {
         versionService.invalidateCache(cacheId);
         return Response.noContent().build();
@@ -107,6 +117,7 @@ public class AgentSourceVersionResource {
 
     @DELETE
     @Path("/{sourceId}/cache")
+    @RequiresPermission("agent:delete")
     public Response clearCache(@PathParam("sourceId") UUID sourceId) {
         versionService.clearCache(sourceId);
         return Response.noContent().build();

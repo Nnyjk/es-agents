@@ -3,6 +3,7 @@ package com.easystation.agent.metrics.resource;
 import com.easystation.agent.metrics.dto.MetricRecord;
 import com.easystation.agent.metrics.enums.MetricType;
 import com.easystation.agent.metrics.service.AgentMetricService;
+import com.easystation.auth.annotation.RequiresPermission;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -27,6 +28,7 @@ public class AgentMetricResource {
      */
     @POST
     @Path("/report")
+    @RequiresPermission("agent:execute")
     public Response report(@Valid MetricRecord.Report dto) {
         metricService.report(dto);
         return Response.ok().build();
@@ -36,6 +38,7 @@ public class AgentMetricResource {
      * 查询指标列表
      */
     @GET
+    @RequiresPermission("agent:view")
     public Response list(
             @QueryParam("agentId") UUID agentId,
             @QueryParam("hostId") UUID hostId,
@@ -59,6 +62,7 @@ public class AgentMetricResource {
      */
     @GET
     @Path("/hosts/{hostId}/summary")
+    @RequiresPermission("agent:view")
     public Response getHostSummary(@PathParam("hostId") UUID hostId) {
         MetricRecord.HostMetricsSummary summary = metricService.getHostSummary(hostId);
         if (summary == null) {
@@ -74,6 +78,7 @@ public class AgentMetricResource {
      */
     @GET
     @Path("/agents/{agentId}/summary")
+    @RequiresPermission("agent:view")
     public Response getAgentSummary(@PathParam("agentId") UUID agentId) {
         MetricRecord.AgentMetricsSummary summary = metricService.getAgentSummary(agentId);
         if (summary == null) {
@@ -89,6 +94,7 @@ public class AgentMetricResource {
      */
     @GET
     @Path("/agents/{agentId}/history/{type}")
+    @RequiresPermission("agent:view")
     public Response getMetricHistory(
             @PathParam("agentId") UUID agentId,
             @PathParam("type") MetricType type,
@@ -110,6 +116,7 @@ public class AgentMetricResource {
      */
     @GET
     @Path("/types")
+    @RequiresPermission("agent:view")
     public Response getMetricTypes() {
         List<MetricTypeInfo> types = List.of(MetricType.values()).stream()
                 .map(t -> new MetricTypeInfo(t.name(), t.getDescription(), t.getUnit()))
@@ -122,6 +129,7 @@ public class AgentMetricResource {
      */
     @DELETE
     @Path("/expired")
+    @RequiresPermission("agent:delete")
     public Response deleteExpired(@QueryParam("retentionDays") @DefaultValue("30") int retentionDays) {
         long deleted = metricService.deleteExpired(retentionDays);
         return Response.ok(Map.of("deleted", deleted)).build();
