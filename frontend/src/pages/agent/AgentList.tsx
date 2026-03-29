@@ -1,8 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
-import { PlusOutlined, EyeOutlined } from "@ant-design/icons";
+import { PlusOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
-import { Button, message, Popconfirm, Form, Select } from "antd";
+import { Button, message, Popconfirm, Form, Select, Space, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
 import { DrawerForm } from "../../components/DrawerForm";
 import {
@@ -10,6 +10,7 @@ import {
   removeAgentInstance,
   saveAgentInstance,
   queryAgentTemplates,
+  batchRemoveAgentInstances,
 } from "../../services/agent";
 import { queryHosts } from "../../services/infra";
 import type { AgentInstance, Host, AgentTemplate } from "../../types";
@@ -25,6 +26,7 @@ const AgentList: React.FC = () => {
 
   const [hosts, setHosts] = useState<Host[]>([]);
   const [templates, setTemplates] = useState<AgentTemplate[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   // Load dependency data
   useEffect(() => {
@@ -38,6 +40,33 @@ const AgentList: React.FC = () => {
       })
       .catch(console.error);
   }, []);
+
+  // 批量删除
+  const handleBatchDelete = async () => {
+    if (selectedRowKeys.length === 0) {
+      message.warning("请选择要删除的 Agent");
+      return;
+    }
+
+    Modal.confirm({
+      title: `确定要删除选中的 ${selectedRowKeys.length} 个 Agent 吗？`,
+      content: "此操作不可恢复，请谨慎操作",
+      okText: "确定删除",
+      cancelText: "取消",
+      okType: "danger",
+      onOk: async () => {
+        try {
+          await batchRemoveAgentInstances(selectedRowKeys as string[]);
+          message.success(`成功删除 ${selectedRowKeys.length} 个 Agent`);
+          setSelectedRowKeys([]);
+          actionRef.current?.reload();
+        } catch (error: any) {
+          console.error(error);
+          message.error(error.message || "批量删除失败");
+        }
+      },
+    });
+  };
 
   const columns: ProColumns<AgentInstance>[] = [
     {
@@ -143,6 +172,34 @@ const AgentList: React.FC = () => {
         search={{
           labelWidth: 120,
         }}
+        rowSelection={{
+          selectedRowKeys,
+          onChange: setSelectedRowKeys,
+        }}
+        tableAlertRender={({
+          selectedRowKeys,
+          selectedRows,
+          onCleanSelected,
+        }) => (
+          <Space>
+            <span>已选择 {selectedRowKeys.length} 项</span>
+            <Button type="link" onClick={onCleanSelected}>
+              取消选择
+            </Button>
+          </Space>
+        )}
+        tableAlertOptionRender={() => (
+          <Space>
+            <Button
+              danger
+              icon={<DeleteOutlined />}
+              onClick={handleBatchDelete}
+              disabled={selectedRowKeys.length === 0}
+            >
+              批量删除
+            </Button>
+          </Space>
+        )}
         toolBarRender={() => [
           <Button
             key="button"

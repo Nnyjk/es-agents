@@ -21,6 +21,8 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+import java.util.List;
+import java.util.Map;
 
 @Path("/agents/instances")
 @Produces(MediaType.APPLICATION_JSON)
@@ -98,6 +100,25 @@ public class AgentInstanceResource {
     @RequiresPermission("agent:delete")
     public Response delete(@PathParam("id") UUID id) {
         agentInstanceService.delete(id);
+        return Response.noContent().build();
+    }
+
+    @DELETE
+    @Path("/batch")
+    @Operation(summary = "批量删除 Agent 实例")
+    @APIResponses({
+        @APIResponse(responseCode = "204", description = "成功批量删除 Agent 实例"),
+        @APIResponse(responseCode = "401", description = "未授权访问")
+    })
+    @RequiresPermission("agent:delete")
+    public Response batchDelete(Map<String, List<UUID>> body) {
+        List<UUID> ids = body.get("ids");
+        if (ids == null || ids.isEmpty()) {
+            throw new BadRequestException("ID 列表不能为空");
+        }
+        for (UUID id : ids) {
+            agentInstanceService.delete(id);
+        }
         return Response.noContent().build();
     }
 
