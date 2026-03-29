@@ -105,6 +105,25 @@ public class AuditLogService {
     }
 
     /**
+     * 创建审计日志（别名方法，用于测试）
+     * @param dto 审计记录
+     */
+    @Transactional
+    public void create(AuditRecord.Create dto) {
+        record(dto);
+    }
+
+    /**
+     * 删除审计日志
+     * @param id 审计日志 ID
+     * @return 是否删除成功
+     */
+    @Transactional
+    public boolean delete(UUID id) {
+        return AuditLog.deleteById(id);
+    }
+
+    /**
      * 快捷记录审计日志
      */
     @Transactional
