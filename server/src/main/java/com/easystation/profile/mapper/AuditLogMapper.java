@@ -25,4 +25,23 @@ public class AuditLogMapper {
             entity.createdAt
         );
     }
+
+    public UserAuditLog toEntity(AuditLogRecord record) {
+        if (record == null) {
+            return null;
+        }
+        UserAuditLog log = new UserAuditLog();
+        log.id = record.id();
+        log.action = record.action();
+        log.resourceType = record.resourceType();
+        log.resourceId = record.resourceId();
+        log.description = record.description();
+        log.ipAddress = record.ipAddress();
+        log.userAgent = record.userAgent();
+        log.status = record.status();
+        log.errorMessage = record.errorMessage();
+        log.durationMs = record.durationMs();
+        log.createdAt = record.createdAt();
+        return log;
+    }
 }

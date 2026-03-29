@@ -1,6 +1,7 @@
 package com.easystation.profile.service;
 
 import com.easystation.profile.domain.UserAuditLog;
+import com.easystation.profile.repository.AuditLogRepository;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
