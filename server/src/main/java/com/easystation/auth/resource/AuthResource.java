@@ -99,6 +99,21 @@ public class AuthResource {
     // ========== 路由 ==========
 
     @GET
+    @Path("/public-key")
+    @PermitAll
+    public Response getPublicKey() {
+        try {
+            // 读取公钥文件
+            String publicKey = Files.readString(Path.of(publicKeyLocation));
+            return Response.ok(Map.of("publicKey", publicKey.trim())).build();
+        } catch (IOException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "无法读取公钥文件"))
+                    .build();
+        }
+    }
+
+    @GET
     @Path("/routes")
     public Response getRoutes(@Context SecurityContext securityContext) {
         String username = securityContext.getUserPrincipal() != null ? 
