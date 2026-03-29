@@ -16,6 +16,11 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +31,7 @@ import java.util.UUID;
 @Path("/api/deployment/applications/{applicationId}/strategies")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Tag(name = "部署策略管理", description = "应用部署策略配置与管理")
 public class DeployStrategyResource {
 
     @Inject
@@ -41,13 +47,19 @@ public class DeployStrategyResource {
     HttpHeaders httpHeaders;
 
     @GET
+    @Operation(summary = "获取策略列表", description = "分页查询部署策略列表，支持环境和类型筛选")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回策略列表"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("deployment:view")
     public PageResultDTO<DeployStrategyDTO> list(
-            @PathParam("applicationId") UUID applicationId,
-            @QueryParam("environmentId") UUID environmentId,
-            @QueryParam("type") DeployStrategy.StrategyType type,
-            @QueryParam("pageNum") @DefaultValue("1") int pageNum,
-            @QueryParam("pageSize") @DefaultValue("20") int pageSize) {
+            @Parameter(description = "应用 ID") @PathParam("applicationId") UUID applicationId,
+            @Parameter(description = "环境 ID") @QueryParam("environmentId") UUID environmentId,
+            @Parameter(description = "策略类型") @QueryParam("type") DeployStrategy.StrategyType type,
+            @Parameter(description = "页码") @QueryParam("pageNum") @DefaultValue("1") int pageNum,
+            @Parameter(description = "每页数量") @QueryParam("pageSize") @DefaultValue("20") int pageSize) {
         return strategyService.listStrategies(pageNum, pageSize, applicationId, environmentId, type);
     }
 
