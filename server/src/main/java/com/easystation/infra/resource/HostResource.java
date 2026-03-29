@@ -16,11 +16,17 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.core.StreamingOutput;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import java.util.UUID;
 
 @Path("/api/v1/hosts")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Tag(name = "主机管理", description = "主机管理 API")
 public class HostResource {
 
     @Inject
@@ -36,19 +42,40 @@ public class HostResource {
     HttpHeaders httpHeaders;
 
     @GET
+    @Operation(summary = "获取主机列表", description = "查询所有主机，支持按环境 ID 筛选")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回主机列表"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("host:view")
-    public Response list(@QueryParam("environmentId") UUID environmentId) {
+    public Response list(@Parameter(description = "环境 ID") @QueryParam("environmentId") UUID environmentId) {
         return Response.ok(hostService.list(environmentId)).build();
     }
 
     @GET
     @Path("/{id}")
+    @Operation(summary = "获取主机详情", description = "根据 ID 查询单个主机详情")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回主机详情"),
+        @APIResponse(responseCode = "404", description = "主机不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("host:view")
-    public Response get(@PathParam("id") UUID id) {
+    public Response get(@Parameter(description = "主机 ID") @PathParam("id") UUID id) {
         return Response.ok(hostService.get(id)).build();
     }
 
     @POST
+    @Operation(summary = "创建主机", description = "创建新的主机记录")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "201", description = "成功创建主机"),
+        @APIResponse(responseCode = "400", description = "请求参数无效"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足"),
+        @APIResponse(responseCode = "409", description = "主机名称已存在")
+    })
     @RequiresPermission("host:create")
     public Response create(@Valid HostRecord.Create dto) {
         HostRecord.Detail created = hostService.create(dto);
@@ -59,8 +86,17 @@ public class HostResource {
 
     @PUT
     @Path("/{id}")
+    @Operation(summary = "更新主机", description = "更新指定主机的配置信息")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功更新主机"),
+        @APIResponse(responseCode = "400", description = "请求参数无效"),
+        @APIResponse(responseCode = "404", description = "主机不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足"),
+        @APIResponse(responseCode = "409", description = "主机名称已存在")
+    })
     @RequiresPermission("host:edit")
-    public Response update(@PathParam("id") UUID id, @Valid HostRecord.Update dto) {
+    public Response update(@Parameter(description = "主机 ID") @PathParam("id") UUID id, @Valid HostRecord.Update dto) {
         HostRecord.Detail updated = hostService.update(id, dto);
         recordAuditLog(AuditAction.UPDATE_HOST, AuditResult.SUCCESS,
                 "更新主机：" + updated.name(), "Host", id);
@@ -69,8 +105,16 @@ public class HostResource {
 
     @DELETE
     @Path("/{id}")
+    @Operation(summary = "删除主机", description = "删除指定的主机")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "204", description = "成功删除主机"),
+        @APIResponse(responseCode = "404", description = "主机不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足"),
+        @APIResponse(responseCode = "409", description = "主机仍有关联资源，无法删除")
+    })
     @RequiresPermission("host:delete")
-    public Response delete(@PathParam("id") UUID id) {
+    public Response delete(@Parameter(description = "主机 ID") @PathParam("id") UUID id) {
         HostRecord.Detail host = hostService.get(id);
         hostService.delete(id);
         recordAuditLog(AuditAction.DELETE_HOST, AuditResult.SUCCESS,
