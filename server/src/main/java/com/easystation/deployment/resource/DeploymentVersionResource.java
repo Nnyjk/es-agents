@@ -10,6 +10,12 @@ import com.easystation.deployment.enums.VersionStatus;
 import com.easystation.deployment.service.DeploymentVersionService;
 import io.quarkus.logging.Log;
 import io.quarkus.security.Authenticated;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.responses.APIResponse;
+import io.swagger.v3.oas.annotations.responses.APIResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -28,6 +34,7 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Authenticated
+@Tag(name = "部署版本管理", description = "部署版本管理 API")
 public class DeploymentVersionResource {
 
     @Inject
@@ -47,16 +54,22 @@ public class DeploymentVersionResource {
      * GET /api/deployments/versions
      */
     @GET
+    @Operation(summary = "查询版本列表", description = "分页查询部署版本列表")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回版本列表"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("deployment:view")
     public PageResultDTO<DeploymentVersionDTO> listVersions(
-            @QueryParam("pageNum") @DefaultValue("1") int pageNum,
-            @QueryParam("pageSize") @DefaultValue("20") int pageSize,
-            @QueryParam("applicationId") UUID applicationId,
-            @QueryParam("status") VersionStatus status,
-            @QueryParam("releaseId") UUID releaseId,
-            @QueryParam("keyword") String keyword,
-            @QueryParam("sortBy") @DefaultValue("createdAt") String sortBy,
-            @QueryParam("sortOrder") @DefaultValue("DESC") String sortOrder) {
+            @Parameter(description = "页码", in = ParameterIn.QUERY) @QueryParam("pageNum") @DefaultValue("1") int pageNum,
+            @Parameter(description = "每页数量", in = ParameterIn.QUERY) @QueryParam("pageSize") @DefaultValue("20") int pageSize,
+            @Parameter(description = "应用 ID", in = ParameterIn.QUERY) @QueryParam("applicationId") UUID applicationId,
+            @Parameter(description = "状态", in = ParameterIn.QUERY) @QueryParam("status") VersionStatus status,
+            @Parameter(description = "发布 ID", in = ParameterIn.QUERY) @QueryParam("releaseId") UUID releaseId,
+            @Parameter(description = "关键词", in = ParameterIn.QUERY) @QueryParam("keyword") String keyword,
+            @Parameter(description = "排序字段", in = ParameterIn.QUERY) @QueryParam("sortBy") @DefaultValue("createdAt") String sortBy,
+            @Parameter(description = "排序方式", in = ParameterIn.QUERY) @QueryParam("sortOrder") @DefaultValue("DESC") String sortOrder) {
 
         return versionService.listVersions(pageNum, pageSize, applicationId, status, releaseId, keyword, sortBy, sortOrder);
     }
@@ -66,9 +79,17 @@ public class DeploymentVersionResource {
      * GET /api/deployments/versions/{id}
      */
     @GET
+    @Operation(summary = "获取版本详情", description = "根据 ID 获取部署版本详情")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回版本详情"),
+        @APIResponse(responseCode = "404", description = "版本不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("deployment:view")
     @Path("/{id}")
-    public DeploymentVersionDTO getVersion(@PathParam("id") UUID id) {
+    public DeploymentVersionDTO getVersion(
+            @Parameter(description = "版本 ID", in = ParameterIn.PATH) @PathParam("id") UUID id) {
         return versionService.getVersion(id);
     }
 
@@ -77,8 +98,16 @@ public class DeploymentVersionResource {
      * POST /api/deployments/versions
      */
     @POST
+    @Operation(summary = "创建版本", description = "创建新的部署版本")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "201", description = "成功创建版本"),
+        @APIResponse(responseCode = "400", description = "请求参数错误"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("deployment:create")
-    public Response createVersion(@Valid DeploymentVersionDTO dto) {
+    public Response createVersion(
+            @Parameter(description = "版本 DTO", required = true) @Valid DeploymentVersionDTO dto) {
         String createdBy = securityContext != null && securityContext.getUserPrincipal() != null
                 ? securityContext.getUserPrincipal().getName() : "system";
         DeploymentVersionDTO created = versionService.createVersion(dto, createdBy);
@@ -92,9 +121,19 @@ public class DeploymentVersionResource {
      * PUT /api/deployments/versions/{id}
      */
     @PUT
+    @Operation(summary = "更新版本", description = "更新部署版本信息")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功更新版本"),
+        @APIResponse(responseCode = "400", description = "请求参数错误"),
+        @APIResponse(responseCode = "404", description = "版本不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("deployment:edit")
     @Path("/{id}")
-    public DeploymentVersionDTO updateVersion(@PathParam("id") UUID id, @Valid DeploymentVersionDTO dto) {
+    public DeploymentVersionDTO updateVersion(
+            @Parameter(description = "版本 ID", in = ParameterIn.PATH) @PathParam("id") UUID id,
+            @Parameter(description = "版本 DTO", required = true) @Valid DeploymentVersionDTO dto) {
         DeploymentVersionDTO updated = versionService.updateVersion(id, dto);
         recordAuditLog(AuditAction.UPDATE_DEPLOYMENT_VERSION, AuditResult.SUCCESS,
                 "更新部署版本：" + updated.version, "DeploymentVersion", id);
@@ -106,9 +145,17 @@ public class DeploymentVersionResource {
      * DELETE /api/deployments/versions/{id}
      */
     @DELETE
+    @Operation(summary = "删除版本", description = "删除部署版本")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "204", description = "成功删除版本"),
+        @APIResponse(responseCode = "404", description = "版本不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("deployment:delete")
     @Path("/{id}")
-    public Response deleteVersion(@PathParam("id") UUID id) {
+    public Response deleteVersion(
+            @Parameter(description = "版本 ID", in = ParameterIn.PATH) @PathParam("id") UUID id) {
         DeploymentVersionDTO dto = versionService.getVersion(id);
         versionService.deleteVersion(id);
         recordAuditLog(AuditAction.DELETE_DEPLOYMENT_VERSION, AuditResult.SUCCESS,
@@ -121,11 +168,18 @@ public class DeploymentVersionResource {
      * POST /api/deployments/versions/compare
      */
     @POST
+    @Operation(summary = "版本比对", description = "比对两个部署版本的差异")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回比对结果"),
+        @APIResponse(responseCode = "400", description = "请求参数错误"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("deployment:view")
     @Path("/compare")
     public Object compareVersions(
-            @QueryParam("fromVersionId") UUID fromVersionId,
-            @QueryParam("toVersionId") UUID toVersionId) {
+            @Parameter(description = "源版本 ID", in = ParameterIn.QUERY) @QueryParam("fromVersionId") UUID fromVersionId,
+            @Parameter(description = "目标版本 ID", in = ParameterIn.QUERY) @QueryParam("toVersionId") UUID toVersionId) {
         return versionService.compareVersions(fromVersionId, toVersionId);
     }
 
