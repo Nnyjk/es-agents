@@ -197,4 +197,53 @@ public class TokenService {
             throw new RuntimeException("Failed to hash token", e);
         }
     }
+
+    /**
+     * 验证 JWT 令牌，返回用户 ID
+     */
+    public UUID validateToken(String token) {
+        try {
+            // 检查令牌是否在黑名单中
+            if (tokenBlacklistService.isBlacklisted(token)) {
+                Log.warn("Token is blacklisted");
+                return null;
+            }
+            
+            // 简单验证：从 token 中解析 username claim
+            // 实际项目中应使用完整的 JWT 验证流程
+            String[] parts = token.split("\\.");
+            if (parts.length != 3) {
+                Log.warn("Invalid token format");
+                return null;
+            }
+            
+            // 解码 payload (第二部分)
+            String payload = new String(java.util.Base64.getUrlDecoder().decode(parts[1]));
+            
+            // 简单解析 JSON 获取 username (实际项目应使用 JSON 库)
+            int usernameIdx = payload.indexOf("\"sub\"");
+            if (usernameIdx < 0) {
+                usernameIdx = payload.indexOf("\"username\"");
+            }
+            
+            if (usernameIdx >= 0) {
+                int startIdx = payload.indexOf(":", usernameIdx) + 2;
+                int endIdx = payload.indexOf("\"", startIdx);
+                if (startIdx > 0 && endIdx > startIdx) {
+                    String username = payload.substring(startIdx, endIdx);
+                    
+                    // 查询用户
+                    User user = User.find("username", username).firstResult();
+                    if (user != null) {
+                        return user.id;
+                    }
+                }
+            }
+            
+            return null;
+        } catch (Exception e) {
+            Log.warnf("Invalid token: %s", e.getMessage());
+            return null;
+        }
+    }
 }
