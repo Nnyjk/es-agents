@@ -12,6 +12,7 @@ import {
   MonitorOutlined,
 } from "@ant-design/icons";
 import { logout, getRoutes, RouteItem } from "../services/auth";
+import ThemeToggle from "../components/ThemeToggle";
 
 // Icon mapper
 const IconMap: Record<string, React.ReactNode> = {
@@ -101,6 +102,9 @@ const BasicLayout: React.FC = () => {
           );
         },
       }}
+      actions={[
+        <ThemeToggle key="theme-toggle" />,
+      ]}
       menuItemRender={(item, dom) => (
         <a
           onClick={() => {

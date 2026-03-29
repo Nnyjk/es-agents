@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import { Spin } from "antd";
 import BasicLayout from "./layouts/BasicLayout";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 // ============================================
 // Lazy Loaded Components (M5 Issue #343)
@@ -96,9 +97,10 @@ const PageLoader: React.FC = () => (
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
+    <ThemeProvider>
+      <Router>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<BasicLayout />}>
             <Route index element={<Navigate to="/goals" replace />} />
@@ -171,6 +173,7 @@ const App: React.FC = () => {
         </Routes>
       </Suspense>
     </Router>
+    </ThemeProvider>
   );
 };
 
