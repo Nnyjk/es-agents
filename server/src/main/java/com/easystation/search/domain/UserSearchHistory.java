@@ -3,6 +3,7 @@ package com.easystation.search.domain;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.util.UUID;
 @Table(name = "user_search_history")
 public class UserSearchHistory extends PanacheEntityBase {
 
+    @Id
     @Column(name = "id", nullable = false)
     public UUID id;
 
