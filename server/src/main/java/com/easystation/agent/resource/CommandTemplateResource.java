@@ -13,24 +13,32 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.UUID;
 
-@Path("/commands/templates")
+@Path("/api/v1/commands/templates")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Tag(name = "命令模板管理", description = "命令模板配置与执行 API")
 public class CommandTemplateResource {
 
     @Inject
     CommandTemplateService commandTemplateService;
 
-    /**
-     * List all command templates.
-     * GET /commands/templates?category={category}&activeOnly={true/false}
-     */
     @GET
-    @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @Operation(summary = "查询模板列表", description = "查询所有命令模板")
+    @APIResponses({
+        @APIResponse(responseCode = "200", description = "成功返回模板列表"),
+        @APIResponse(responseCode = "401", description = "未授权访问")
+    })
+    @Parameter(name = "category", description = "按分类过滤", required = false)
+    @Parameter(name = "activeOnly", description = "仅查询启用状态", required = false)
     @RequiresPermission("agent:view")
     public List<CommandTemplateRecord.ListResponse> list(
             @QueryParam("category") CommandCategory category,
@@ -38,24 +46,27 @@ public class CommandTemplateResource {
         return commandTemplateService.list(category, activeOnly);
     }
 
-    /**
-     * Get command template by ID.
-     * GET /commands/templates/{id}
-     */
     @GET
     @Path("/{id}")
-    @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @Operation(summary = "获取模板详情", description = "获取指定命令模板详情")
+    @APIResponses({
+        @APIResponse(responseCode = "200", description = "成功返回模板详情"),
+        @APIResponse(responseCode = "404", description = "模板不存在"),
+        @APIResponse(responseCode = "401", description = "未授权访问")
+    })
+    @Parameter(name = "id", description = "模板 ID", required = true)
     @RequiresPermission("agent:view")
     public CommandTemplateRecord.DetailResponse getById(@PathParam("id") UUID id) {
         return commandTemplateService.getById(id);
     }
 
-    /**
-     * Create a new command template.
-     * POST /commands/templates
-     */
     @POST
-    @RolesAllowed({"Admin", "Ops"})
+    @Operation(summary = "创建模板", description = "创建新的命令模板")
+    @APIResponses({
+        @APIResponse(responseCode = "201", description = "模板创建成功"),
+        @APIResponse(responseCode = "400", description = "请求参数无效"),
+        @APIResponse(responseCode = "401", description = "未授权访问")
+    })
     @RequiresPermission("agent:create")
     public Response create(
             @Valid CommandTemplateRecord.CreateRequest request,
@@ -67,13 +78,16 @@ public class CommandTemplateResource {
         return Response.status(Response.Status.CREATED).entity(response).build();
     }
 
-    /**
-     * Update a command template.
-     * PUT /commands/templates/{id}
-     */
     @PUT
     @Path("/{id}")
-    @RolesAllowed({"Admin", "Ops"})
+    @Operation(summary = "更新模板", description = "更新现有命令模板")
+    @APIResponses({
+        @APIResponse(responseCode = "200", description = "模板更新成功"),
+        @APIResponse(responseCode = "404", description = "模板不存在"),
+        @APIResponse(responseCode = "400", description = "请求参数无效"),
+        @APIResponse(responseCode = "401", description = "未授权访问")
+    })
+    @Parameter(name = "id", description = "模板 ID", required = true)
     @RequiresPermission("agent:edit")
     public CommandTemplateRecord.DetailResponse update(
             @PathParam("id") UUID id,
@@ -81,26 +95,31 @@ public class CommandTemplateResource {
         return commandTemplateService.update(id, request);
     }
 
-    /**
-     * Delete a command template.
-     * DELETE /commands/templates/{id}
-     */
     @DELETE
     @Path("/{id}")
-    @RolesAllowed({"Admin"})
+    @Operation(summary = "删除模板", description = "删除指定命令模板")
+    @APIResponses({
+        @APIResponse(responseCode = "204", description = "模板删除成功"),
+        @APIResponse(responseCode = "404", description = "模板不存在"),
+        @APIResponse(responseCode = "401", description = "未授权访问")
+    })
+    @Parameter(name = "id", description = "模板 ID", required = true)
     @RequiresPermission("agent:delete")
     public Response delete(@PathParam("id") UUID id) {
         commandTemplateService.delete(id);
         return Response.noContent().build();
     }
 
-    /**
-     * Execute a command template on an agent instance.
-     * POST /commands/templates/{id}/execute
-     */
     @POST
     @Path("/{id}/execute")
-    @RolesAllowed({"Admin", "Ops"})
+    @Operation(summary = "执行模板命令", description = "在 Agent 实例上执行命令模板")
+    @APIResponses({
+        @APIResponse(responseCode = "200", description = "命令执行已创建"),
+        @APIResponse(responseCode = "404", description = "模板不存在"),
+        @APIResponse(responseCode = "400", description = "请求参数无效"),
+        @APIResponse(responseCode = "401", description = "未授权访问")
+    })
+    @Parameter(name = "id", description = "模板 ID", required = true)
     @RequiresPermission("agent:execute")
     public CommandTemplateRecord.ExecuteResponse execute(
             @PathParam("id") UUID id,
@@ -112,25 +131,29 @@ public class CommandTemplateResource {
         return commandTemplateService.execute(id, request, username);
     }
 
-    /**
-     * Get execution history for a template.
-     * GET /commands/templates/{id}/executions
-     */
     @GET
     @Path("/{id}/executions")
-    @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @Operation(summary = "查询执行历史", description = "获取模板的执行历史记录")
+    @APIResponses({
+        @APIResponse(responseCode = "200", description = "成功返回执行历史"),
+        @APIResponse(responseCode = "404", description = "模板不存在"),
+        @APIResponse(responseCode = "401", description = "未授权访问")
+    })
+    @Parameter(name = "id", description = "模板 ID", required = true)
     @RequiresPermission("agent:view")
     public List<CommandExecutionRecord.ListResponse> getExecutionHistory(@PathParam("id") UUID id) {
         return commandTemplateService.getExecutionHistory(id);
     }
 
-    /**
-     * Get execution detail by ID.
-     * GET /commands/executions/{executionId}
-     */
     @GET
     @Path("/executions/{executionId}")
-    @RolesAllowed({"Admin", "Ops", "Viewer"})
+    @Operation(summary = "获取执行详情", description = "获取指定执行记录详情")
+    @APIResponses({
+        @APIResponse(responseCode = "200", description = "成功返回执行详情"),
+        @APIResponse(responseCode = "404", description = "执行记录不存在"),
+        @APIResponse(responseCode = "401", description = "未授权访问")
+    })
+    @Parameter(name = "executionId", description = "执行 ID", required = true)
     @RequiresPermission("agent:view")
     public CommandExecutionRecord.DetailResponse getExecutionById(@PathParam("executionId") UUID executionId) {
         return commandTemplateService.getExecutionById(executionId);

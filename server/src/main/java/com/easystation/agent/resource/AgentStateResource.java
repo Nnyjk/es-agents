@@ -13,28 +13,36 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Agent 状态流转 API
- */
 @Path("/v1/agents")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Tag(name = "Agent 状态管理", description = "Agent 状态机流转、历史查询 API")
 public class AgentStateResource {
 
     @Inject
     AgentStateMachineService stateMachineService;
 
-    /**
-     * 状态流转（带校验）
-     * POST /v1/agents/{id}/transition
-     */
     @POST
     @Path("/{id}/transition")
+    @Operation(summary = "执行状态流转（带校验）")
+    @APIResponses({
+        @APIResponse(responseCode = "200", description = "状态流转成功"),
+        @APIResponse(responseCode = "400", description = "请求参数无效或状态流转不合法"),
+        @APIResponse(responseCode = "404", description = "Agent 实例不存在"),
+        @APIResponse(responseCode = "401", description = "未授权访问"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @Parameter(name = "id", description = "Agent 实例 ID", required = true)
     @RequiresPermission("agent:execute")
     public Response transition(
             @PathParam("id") UUID id,
@@ -43,24 +51,34 @@ public class AgentStateResource {
         return Response.ok(result).build();
     }
 
-    /**
-     * 获取可用流转
-     * GET /v1/agents/{id}/transitions
-     */
     @GET
     @Path("/{id}/transitions")
+    @Operation(summary = "获取当前状态可用的流转选项")
+    @APIResponses({
+        @APIResponse(responseCode = "200", description = "成功返回可用流转列表"),
+        @APIResponse(responseCode = "404", description = "Agent 实例不存在"),
+        @APIResponse(responseCode = "401", description = "未授权访问"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @Parameter(name = "id", description = "Agent 实例 ID", required = true)
     @RequiresPermission("agent:view")
     public Response getAvailableTransitions(@PathParam("id") UUID id) {
         AvailableTransitions transitions = stateMachineService.getAvailableTransitions(id);
         return Response.ok(transitions).build();
     }
 
-    /**
-     * 获取状态变更历史
-     * GET /v1/agents/{id}/state-history
-     */
     @GET
     @Path("/{id}/state-history")
+    @Operation(summary = "获取状态变更历史", description = "支持分页查询")
+    @APIResponses({
+        @APIResponse(responseCode = "200", description = "成功返回状态历史"),
+        @APIResponse(responseCode = "404", description = "Agent 实例不存在"),
+        @APIResponse(responseCode = "401", description = "未授权访问"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @Parameter(name = "id", description = "Agent 实例 ID", required = true)
+    @Parameter(name = "page", description = "页码（从 0 开始，默认 0）", required = false)
+    @Parameter(name = "size", description = "每页数量（默认 20）", required = false)
     @RequiresPermission("agent:view")
     public Response getStateHistory(
             @PathParam("id") UUID id,
@@ -70,12 +88,16 @@ public class AgentStateResource {
         return Response.ok(history).build();
     }
 
-    /**
-     * 批量状态流转
-     * POST /v1/agents/batch-transition
-     */
     @POST
     @Path("/batch-transition")
+    @Operation(summary = "批量状态流转")
+    @APIResponses({
+        @APIResponse(responseCode = "200", description = "批量流转成功"),
+        @APIResponse(responseCode = "400", description = "请求参数无效或未提供实例 ID 列表"),
+        @APIResponse(responseCode = "401", description = "未授权访问"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @Parameter(name = "ids", description = "Agent 实例 ID 列表（逗号分隔）", required = true)
     @RequiresPermission("agent:execute")
     public Response batchTransition(
             @QueryParam("ids") List<UUID> instanceIds,
@@ -89,12 +111,20 @@ public class AgentStateResource {
         return Response.ok(results).build();
     }
 
-    /**
-     * 强制状态流转（管理员操作，跳过校验）
-     * POST /v1/agents/{id}/force-transition
-     */
     @POST
     @Path("/{id}/force-transition")
+    @Operation(summary = "强制状态流转（管理员操作，跳过校验）")
+    @APIResponses({
+        @APIResponse(responseCode = "200", description = "强制流转成功"),
+        @APIResponse(responseCode = "400", description = "目标状态未指定"),
+        @APIResponse(responseCode = "404", description = "Agent 实例不存在"),
+        @APIResponse(responseCode = "401", description = "未授权访问"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @Parameter(name = "id", description = "Agent 实例 ID", required = true)
+    @Parameter(name = "targetStatus", description = "目标状态", required = true)
+    @Parameter(name = "reason", description = "流转原因", required = false)
+    @Parameter(name = "operator", description = "操作人（默认 admin）", required = false)
     @RequiresPermission("agent:admin")
     public Response forceTransition(
             @PathParam("id") UUID id,
@@ -110,12 +140,17 @@ public class AgentStateResource {
         return Response.ok(result).build();
     }
 
-    /**
-     * 校验状态流转是否合法（不执行流转）
-     * GET /v1/agents/validate-transition
-     */
     @GET
     @Path("/validate-transition")
+    @Operation(summary = "校验状态流转是否合法（不执行流转）")
+    @APIResponses({
+        @APIResponse(responseCode = "200", description = "成功返回校验结果"),
+        @APIResponse(responseCode = "400", description = "缺少必需参数"),
+        @APIResponse(responseCode = "401", description = "未授权访问"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @Parameter(name = "from", description = "源状态", required = true)
+    @Parameter(name = "to", description = "目标状态", required = true)
     @RequiresPermission("agent:view")
     public Response validateTransition(
             @QueryParam("from") AgentStatus fromStatus,
@@ -136,12 +171,14 @@ public class AgentStateResource {
         )).build();
     }
 
-    /**
-     * 获取所有状态流转规则
-     * GET /v1/agents/state-rules
-     */
     @GET
     @Path("/state-rules")
+    @Operation(summary = "获取所有状态流转规则")
+    @APIResponses({
+        @APIResponse(responseCode = "200", description = "成功返回状态流转规则概览"),
+        @APIResponse(responseCode = "401", description = "未授权访问"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
     @RequiresPermission("agent:view")
     public Response getStateRules() {
         // 返回状态流转规则概览

@@ -17,6 +17,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
@@ -28,23 +29,23 @@ import java.util.UUID;
 @Path("/api/v1/batch-operations")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@Tag(name = "Batch Operations", description = "APIs for batch operations on agents and hosts")
+@Tag(name = "批量操作管理", description = "批量命令执行、部署、升级 API")
 public class BatchOperationResource {
 
     @Inject
     BatchOperationService batchOperationService;
 
-    /**
-     * Execute batch command on multiple hosts.
-     */
     @POST
     @Path("/commands")
-    @RequiresPermission("batch:operate")
-    @Operation(summary = "Execute batch command", description = "Execute a command on multiple hosts")
+    @Operation(summary = "执行批量命令", description = "在多个主机上执行命令")
     @APIResponses({
-        @APIResponse(responseCode = "201", description = "Batch command operation created"),
-        @APIResponse(responseCode = "400", description = "Invalid request parameters")
+        @APIResponse(responseCode = "201", description = "批量命令操作创建成功"),
+        @APIResponse(responseCode = "400", description = "请求参数无效"),
+        @APIResponse(responseCode = "401", description = "未授权访问"),
+        @APIResponse(responseCode = "403", description = "权限不足")
     })
+    @Parameter(name = "request", description = "批量命令请求", required = true)
+    @RequiresPermission("batch:operate")
     public Response executeBatchCommand(
             @Valid BatchCommandRequest request,
             @Context SecurityContext securityContext) {
@@ -59,17 +60,17 @@ public class BatchOperationResource {
                 .build();
     }
 
-    /**
-     * Batch deploy agents.
-     */
     @POST
     @Path("/deploy")
-    @RequiresPermission("batch:operate")
-    @Operation(summary = "Batch deploy", description = "Deploy multiple agent instances")
+    @Operation(summary = "批量部署", description = "部署多个 Agent 实例")
     @APIResponses({
-        @APIResponse(responseCode = "201", description = "Batch deploy operation created"),
-        @APIResponse(responseCode = "400", description = "Invalid request parameters")
+        @APIResponse(responseCode = "201", description = "批量部署操作创建成功"),
+        @APIResponse(responseCode = "400", description = "请求参数无效"),
+        @APIResponse(responseCode = "401", description = "未授权访问"),
+        @APIResponse(responseCode = "403", description = "权限不足")
     })
+    @Parameter(name = "request", description = "批量部署请求", required = true)
+    @RequiresPermission("batch:operate")
     public Response batchDeploy(
             @Valid BatchDeployRequest request,
             @Context SecurityContext securityContext) {
@@ -83,17 +84,17 @@ public class BatchOperationResource {
                 .build();
     }
 
-    /**
-     * Batch upgrade agents.
-     */
     @POST
     @Path("/upgrade")
-    @RequiresPermission("batch:operate")
-    @Operation(summary = "Batch upgrade", description = "Upgrade multiple agent instances to a new version")
+    @Operation(summary = "批量升级", description = "将多个 Agent 实例升级到新版本")
     @APIResponses({
-        @APIResponse(responseCode = "201", description = "Batch upgrade operation created"),
-        @APIResponse(responseCode = "400", description = "Invalid request parameters")
+        @APIResponse(responseCode = "201", description = "批量升级操作创建成功"),
+        @APIResponse(responseCode = "400", description = "请求参数无效"),
+        @APIResponse(responseCode = "401", description = "未授权访问"),
+        @APIResponse(responseCode = "403", description = "权限不足")
     })
+    @Parameter(name = "request", description = "批量升级请求", required = true)
+    @RequiresPermission("batch:operate")
     public Response batchUpgrade(
             @Valid BatchUpgradeRequest request,
             @Context SecurityContext securityContext) {
@@ -108,33 +109,33 @@ public class BatchOperationResource {
                 .build();
     }
 
-    /**
-     * Get batch operation details by ID.
-     */
     @GET
     @Path("/{id}")
-    @RequiresPermission("batch:operate")
-    @Operation(summary = "Get operation details", description = "Get details of a batch operation by ID")
+    @Operation(summary = "获取操作详情", description = "根据 ID 获取批量操作详情")
     @APIResponses({
-        @APIResponse(responseCode = "200", description = "Batch operation details"),
-        @APIResponse(responseCode = "404", description = "Batch operation not found")
+        @APIResponse(responseCode = "200", description = "成功返回批量操作详情"),
+        @APIResponse(responseCode = "404", description = "批量操作不存在"),
+        @APIResponse(responseCode = "401", description = "未授权访问"),
+        @APIResponse(responseCode = "403", description = "权限不足")
     })
+    @Parameter(name = "id", description = "批量操作 ID", required = true)
+    @RequiresPermission("batch:operate")
     public Response getOperation(@PathParam("id") UUID id) {
         BatchOperation operation = batchOperationService.getBatchOperation(id);
         return Response.ok(toResponse(operation)).build();
     }
 
-    /**
-     * Get batch operation items.
-     */
     @GET
     @Path("/{id}/items")
-    @RequiresPermission("batch:operate")
-    @Operation(summary = "Get operation items", description = "Get all items of a batch operation")
+    @Operation(summary = "获取操作项列表", description = "获取批量操作的所有子项")
     @APIResponses({
-        @APIResponse(responseCode = "200", description = "List of batch operation items"),
-        @APIResponse(responseCode = "404", description = "Batch operation not found")
+        @APIResponse(responseCode = "200", description = "成功返回操作项列表"),
+        @APIResponse(responseCode = "404", description = "批量操作不存在"),
+        @APIResponse(responseCode = "401", description = "未授权访问"),
+        @APIResponse(responseCode = "403", description = "权限不足")
     })
+    @Parameter(name = "id", description = "批量操作 ID", required = true)
+    @RequiresPermission("batch:operate")
     public Response getOperationItems(@PathParam("id") UUID id) {
         // First verify the operation exists
         batchOperationService.getBatchOperation(id);
@@ -146,15 +147,16 @@ public class BatchOperationResource {
         return Response.ok(itemResponses).build();
     }
 
-    /**
-     * List batch operations with pagination.
-     */
     @GET
-    @RequiresPermission("batch:operate")
-    @Operation(summary = "List operations", description = "List batch operations history with pagination")
+    @Operation(summary = "列出操作历史", description = "分页列出批量操作历史")
     @APIResponses({
-        @APIResponse(responseCode = "200", description = "List of batch operations")
+        @APIResponse(responseCode = "200", description = "成功返回操作列表"),
+        @APIResponse(responseCode = "401", description = "未授权访问"),
+        @APIResponse(responseCode = "403", description = "权限不足")
     })
+    @Parameter(name = "page", description = "页码（从 0 开始，默认 0）", required = false)
+    @Parameter(name = "size", description = "每页数量（默认 20）", required = false)
+    @RequiresPermission("batch:operate")
     public Response listOperations(
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("20") int size) {
