@@ -64,18 +64,31 @@ public class DeployStrategyResource {
     }
 
     @GET
-    @RequiresPermission("deployment:view")
     @Path("/all")
-    public List<DeployStrategyDTO> listAll(@PathParam("applicationId") UUID applicationId) {
+    @Operation(summary = "获取所有策略", description = "获取应用的所有部署策略")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回策略列表"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @RequiresPermission("deployment:view")
+    public List<DeployStrategyDTO> listAll(@Parameter(description = "应用 ID") @PathParam("applicationId") UUID applicationId) {
         return strategyService.getByApplicationId(applicationId);
     }
 
     @GET
-    @RequiresPermission("deployment:view")
     @Path("/default")
+    @Operation(summary = "获取默认策略", description = "获取应用的默认部署策略")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回默认策略"),
+        @APIResponse(responseCode = "404", description = "默认策略不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @RequiresPermission("deployment:view")
     public DeployStrategyDTO getDefault(
-            @PathParam("applicationId") UUID applicationId,
-            @QueryParam("environmentId") UUID environmentId) {
+            @Parameter(description = "应用 ID") @PathParam("applicationId") UUID applicationId,
+            @Parameter(description = "环境 ID") @QueryParam("environmentId") UUID environmentId) {
         DeployStrategyDTO dto = strategyService.getDefaultStrategy(applicationId, environmentId);
         if (dto == null) {
             throw new WebApplicationException("No default strategy found", Response.Status.NOT_FOUND);
@@ -84,11 +97,18 @@ public class DeployStrategyResource {
     }
 
     @GET
-    @RequiresPermission("deployment:view")
     @Path("/{id}")
+    @Operation(summary = "获取策略详情", description = "根据 ID 查询部署策略详情")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功返回策略详情"),
+        @APIResponse(responseCode = "404", description = "策略不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @RequiresPermission("deployment:view")
     public DeployStrategyDTO get(
-            @PathParam("applicationId") UUID applicationId,
-            @PathParam("id") UUID id) {
+            @Parameter(description = "应用 ID") @PathParam("applicationId") UUID applicationId,
+            @Parameter(description = "策略 ID") @PathParam("id") UUID id) {
         DeployStrategyDTO dto = strategyService.getById(id);
         if (dto == null) {
             throw new WebApplicationException("Strategy not found", Response.Status.NOT_FOUND);
@@ -97,9 +117,17 @@ public class DeployStrategyResource {
     }
 
     @POST
+    @Operation(summary = "创建策略", description = "创建新的部署策略配置")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "201", description = "成功创建策略"),
+        @APIResponse(responseCode = "400", description = "请求参数无效"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足"),
+        @APIResponse(responseCode = "409", description = "策略已存在")
+    })
     @RequiresPermission("deployment:create")
     public Response create(
-            @PathParam("applicationId") UUID applicationId,
+            @Parameter(description = "应用 ID") @PathParam("applicationId") UUID applicationId,
             DeployStrategyDTO dto) {
         dto.applicationId = applicationId;
         DeployStrategyDTO created = strategyService.create(dto);
@@ -109,11 +137,19 @@ public class DeployStrategyResource {
     }
 
     @PUT
-    @RequiresPermission("deployment:edit")
     @Path("/{id}")
+    @Operation(summary = "更新策略", description = "更新部署策略配置")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功更新策略"),
+        @APIResponse(responseCode = "404", description = "策略不存在"),
+        @APIResponse(responseCode = "400", description = "请求参数无效"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @RequiresPermission("deployment:edit")
     public DeployStrategyDTO update(
-            @PathParam("applicationId") UUID applicationId,
-            @PathParam("id") UUID id,
+            @Parameter(description = "应用 ID") @PathParam("applicationId") UUID applicationId,
+            @Parameter(description = "策略 ID") @PathParam("id") UUID id,
             DeployStrategyDTO dto) {
         DeployStrategyDTO updated = strategyService.update(id, dto);
         if (updated == null) {
@@ -125,11 +161,18 @@ public class DeployStrategyResource {
     }
 
     @DELETE
-    @RequiresPermission("deployment:delete")
     @Path("/{id}")
+    @Operation(summary = "删除策略", description = "删除部署策略配置")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "204", description = "成功删除策略"),
+        @APIResponse(responseCode = "404", description = "策略不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @RequiresPermission("deployment:delete")
     public Response delete(
-            @PathParam("applicationId") UUID applicationId,
-            @PathParam("id") UUID id) {
+            @Parameter(description = "应用 ID") @PathParam("applicationId") UUID applicationId,
+            @Parameter(description = "策略 ID") @PathParam("id") UUID id) {
         boolean deleted = strategyService.delete(id);
         if (!deleted) {
             throw new WebApplicationException("Strategy not found", Response.Status.NOT_FOUND);
@@ -175,9 +218,18 @@ public class DeployStrategyResource {
     }
 
     @POST
-    @RequiresPermission("deployment:create")
     @Path("/{id}/default")
-    public DeployStrategyDTO setDefault(@PathParam("id") UUID id) {
+    @Operation(summary = "设为默认策略", description = "设置默认部署策略")
+    @APIResponses(value = {
+        @APIResponse(responseCode = "200", description = "成功设置默认策略"),
+        @APIResponse(responseCode = "404", description = "策略不存在"),
+        @APIResponse(responseCode = "401", description = "未授权"),
+        @APIResponse(responseCode = "403", description = "权限不足")
+    })
+    @RequiresPermission("deployment:edit")
+    public DeployStrategyDTO setDefault(
+            @Parameter(description = "应用 ID", in = ParameterIn.PATH) @PathParam("applicationId") UUID applicationId,
+            @Parameter(description = "策略 ID") @PathParam("id") UUID id) {
         DeployStrategyDTO dto = strategyService.setDefault(id);
         if (dto == null) {
             throw new WebApplicationException("Strategy not found", Response.Status.NOT_FOUND);
