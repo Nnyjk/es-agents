@@ -6,6 +6,8 @@ import io.quarkus.redis.datasource.value.ValueCommands;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -43,6 +45,11 @@ public class RedisCacheService implements CacheService {
     }
 
     @Override
+    public void set(String key, Object value) {
+        set(key, value, 3600, TimeUnit.SECONDS);
+    }
+
+    @Override
     public void set(String key, Object value, long ttl, TimeUnit unit) {
         try {
             String json = objectMapper.writeValueAsString(value);
@@ -64,25 +71,43 @@ public class RedisCacheService implements CacheService {
     }
 
     @Override
-    public void increment(String key) {
-        redisDataSource.string(String.class).incr(key);
+    public <T> Map<String, T> multiGet(List<String> keys, Class<T> clazz) {
+        // TODO: 实现批量获取
+        throw new UnsupportedOperationException("multiGet not implemented yet");
     }
 
     @Override
-    public void decrement(String key) {
-        redisDataSource.string(String.class).decr(key);
+    public void multiSet(Map<String, Object> map) {
+        multiSet(map, 3600, TimeUnit.SECONDS);
     }
 
     @Override
-    public Long getCounter(String key) {
-        String value = getValueCommands().get(key);
-        if (value == null) {
-            return null;
+    public void multiSet(Map<String, Object> map, long ttl, TimeUnit unit) {
+        // TODO: 实现批量设置
+        throw new UnsupportedOperationException("multiSet not implemented yet");
+    }
+
+    @Override
+    public long increment(String key) {
+        return redisDataSource.string(String.class).incr(key);
+    }
+
+    @Override
+    public long decrement(String key) {
+        return redisDataSource.string(String.class).decr(key);
+    }
+
+    @Override
+    public void expire(String key, long ttl, TimeUnit unit) {
+        redisDataSource.key(String.class).expire(key, unit.toSeconds(ttl));
+    }
+
+    @Override
+    public long getTTL(String key, TimeUnit unit) {
+        Long ttlSeconds = redisDataSource.key(String.class).ttl(key);
+        if (ttlSeconds == null || ttlSeconds < 0) {
+            return -1;
         }
-        try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException e) {
-            return null;
-        }
+        return unit.convert(ttlSeconds, TimeUnit.SECONDS);
     }
 }
