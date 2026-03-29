@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Table,
@@ -18,7 +18,7 @@ import {
   Typography,
   Empty,
   Tooltip,
-} from 'antd';
+} from "antd";
 import {
   BellOutlined,
   MailOutlined,
@@ -29,10 +29,10 @@ import {
   CheckCircleOutlined,
   DeleteOutlined,
   EyeOutlined,
-} from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
-import { PageContainer } from '@ant-design/pro-components';
-import dayjs from 'dayjs';
+} from "@ant-design/icons";
+import type { ColumnsType } from "antd/es/table";
+import { PageContainer } from "@ant-design/pro-components";
+import dayjs from "dayjs";
 import {
   getMessages,
   markAsRead,
@@ -42,7 +42,7 @@ import {
   getUnreadCount,
   getStatistics,
   type NotificationQueryParams,
-} from '@/services/notificationMessage';
+} from "@/services/notificationMessage";
 import type {
   NotificationListItem,
   NotificationMessage,
@@ -50,7 +50,7 @@ import type {
   MessageLevel,
   UnreadCount,
   NotificationStatistics,
-} from '@/types/notification';
+} from "@/types/notification";
 
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
@@ -64,29 +64,34 @@ const MessageCenter: React.FC = () => {
   const [messages, setMessages] = useState<NotificationListItem[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [detailVisible, setDetailVisible] = useState(false);
-  const [selectedMessage, setSelectedMessage] = useState<NotificationMessage | null>(null);
+  const [selectedMessage, setSelectedMessage] =
+    useState<NotificationMessage | null>(null);
   const [unreadCount, setUnreadCount] = useState<UnreadCount | null>(null);
-  const [statistics, setStatistics] = useState<NotificationStatistics | null>(null);
+  const [statistics, setStatistics] = useState<NotificationStatistics | null>(
+    null,
+  );
 
   // 查询参数
   const [queryParams, setQueryParams] = useState<NotificationQueryParams>({
     limit: 20,
     offset: 0,
   });
-  const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
-  const [keyword, setKeyword] = useState('');
+  const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(
+    null,
+  );
+  const [keyword, setKeyword] = useState("");
   const [typeFilter, setTypeFilter] = useState<MessageType | undefined>();
   const [levelFilter, setLevelFilter] = useState<MessageLevel | undefined>();
   const [isReadFilter, setIsReadFilter] = useState<boolean | undefined>();
 
   // 获取当前用户 ID（从 localStorage 或上下文）
   const getCurrentUserId = (): string => {
-    const userStr = localStorage.getItem('user');
+    const userStr = localStorage.getItem("user");
     if (userStr) {
       const user = JSON.parse(userStr);
       return user.id;
     }
-    return '';
+    return "";
   };
 
   // 加载消息列表
@@ -107,7 +112,7 @@ const MessageCenter: React.FC = () => {
       const data = await getMessages(params);
       setMessages(data);
     } catch (error: any) {
-      message.error('加载消息列表失败：' + (error.message || '未知错误'));
+      message.error("加载消息列表失败：" + (error.message || "未知错误"));
     } finally {
       setLoading(false);
     }
@@ -124,7 +129,7 @@ const MessageCenter: React.FC = () => {
       setUnreadCount(unread);
       setStatistics(stats);
     } catch (error: any) {
-      console.error('加载统计信息失败:', error);
+      console.error("加载统计信息失败:", error);
     }
   };
 
@@ -137,7 +142,7 @@ const MessageCenter: React.FC = () => {
   const handleRefresh = () => {
     loadMessages();
     loadStatistics();
-    message.success('刷新成功');
+    message.success("刷新成功");
   };
 
   // 查看详情
@@ -149,12 +154,12 @@ const MessageCenter: React.FC = () => {
       if (msg) {
         setSelectedMessage({
           ...msg,
-          userId: '',
-          username: '',
-          content: '消息内容详情...',
+          userId: "",
+          username: "",
+          content: "消息内容详情...",
         } as NotificationMessage);
         setDetailVisible(true);
-        
+
         // 如果未读，自动标记为已读
         if (!msg.isRead) {
           await markAsRead(id);
@@ -163,14 +168,14 @@ const MessageCenter: React.FC = () => {
         }
       }
     } catch (error: any) {
-      message.error('加载消息详情失败：' + (error.message || '未知错误'));
+      message.error("加载消息详情失败：" + (error.message || "未知错误"));
     }
   };
 
   // 批量标记已读
   const handleBatchMarkRead = async () => {
     if (selectedRowKeys.length === 0) {
-      message.warning('请选择要标记的消息');
+      message.warning("请选择要标记的消息");
       return;
     }
 
@@ -181,23 +186,23 @@ const MessageCenter: React.FC = () => {
       loadMessages();
       loadStatistics();
     } catch (error: any) {
-      message.error('批量标记失败：' + (error.message || '未知错误'));
+      message.error("批量标记失败：" + (error.message || "未知错误"));
     }
   };
 
   // 批量删除
   const handleBatchDelete = async () => {
     if (selectedRowKeys.length === 0) {
-      message.warning('请选择要删除的消息');
+      message.warning("请选择要删除的消息");
       return;
     }
 
     Modal.confirm({
-      title: '确认删除',
+      title: "确认删除",
       content: `确定要删除选中的 ${selectedRowKeys.length} 条消息吗？`,
-      okText: '确认',
-      cancelText: '取消',
-      okType: 'danger',
+      okText: "确认",
+      cancelText: "取消",
+      okType: "danger",
       onOk: async () => {
         try {
           const result = await deleteBatchMessages(selectedRowKeys as string[]);
@@ -206,7 +211,7 @@ const MessageCenter: React.FC = () => {
           loadMessages();
           loadStatistics();
         } catch (error: any) {
-          message.error('批量删除失败：' + (error.message || '未知错误'));
+          message.error("批量删除失败：" + (error.message || "未知错误"));
         }
       },
     });
@@ -215,19 +220,19 @@ const MessageCenter: React.FC = () => {
   // 删除单条
   const handleDelete = (id: string) => {
     Modal.confirm({
-      title: '确认删除',
-      content: '确定要删除这条消息吗？',
-      okText: '确认',
-      cancelText: '取消',
-      okType: 'danger',
+      title: "确认删除",
+      content: "确定要删除这条消息吗？",
+      okText: "确认",
+      cancelText: "取消",
+      okType: "danger",
       onOk: async () => {
         try {
           await deleteMessage(id);
-          message.success('删除成功');
+          message.success("删除成功");
           loadMessages();
           loadStatistics();
         } catch (error: any) {
-          message.error('删除失败：' + (error.message || '未知错误'));
+          message.error("删除失败：" + (error.message || "未知错误"));
         }
       },
     });
@@ -235,7 +240,7 @@ const MessageCenter: React.FC = () => {
 
   // 重置筛选
   const handleReset = () => {
-    setKeyword('');
+    setKeyword("");
     setTypeFilter(undefined);
     setLevelFilter(undefined);
     setIsReadFilter(undefined);
@@ -246,9 +251,17 @@ const MessageCenter: React.FC = () => {
   // 获取消息类型标签
   const getTypeTag = (type: MessageType) => {
     const config = {
-      SYSTEM: { color: 'blue', text: '系统', icon: <InfoCircleOutlined /> },
-      ALERT: { color: 'red', text: '告警', icon: <ExclamationCircleOutlined /> },
-      OPERATION: { color: 'green', text: '操作', icon: <CheckCircleOutlined /> },
+      SYSTEM: { color: "blue", text: "系统", icon: <InfoCircleOutlined /> },
+      ALERT: {
+        color: "red",
+        text: "告警",
+        icon: <ExclamationCircleOutlined />,
+      },
+      OPERATION: {
+        color: "green",
+        text: "操作",
+        icon: <CheckCircleOutlined />,
+      },
     };
     const cfg = config[type];
     return (
@@ -261,9 +274,13 @@ const MessageCenter: React.FC = () => {
   // 获取消息级别标签
   const getLevelTag = (level: MessageLevel) => {
     const config = {
-      INFO: { color: 'default', text: '普通', icon: <InfoCircleOutlined /> },
-      WARNING: { color: 'orange', text: '警告', icon: <WarningOutlined /> },
-      ERROR: { color: 'red', text: '错误', icon: <ExclamationCircleOutlined /> },
+      INFO: { color: "default", text: "普通", icon: <InfoCircleOutlined /> },
+      WARNING: { color: "orange", text: "警告", icon: <WarningOutlined /> },
+      ERROR: {
+        color: "red",
+        text: "错误",
+        icon: <ExclamationCircleOutlined />,
+      },
     };
     const cfg = config[level];
     return (
@@ -276,9 +293,9 @@ const MessageCenter: React.FC = () => {
   // 表格列定义
   const columns: ColumnsType<NotificationListItem> = [
     {
-      title: '标题',
-      dataIndex: 'title',
-      key: 'title',
+      title: "标题",
+      dataIndex: "title",
+      key: "title",
       ellipsis: true,
       render: (text, record) => (
         <Space>
@@ -290,40 +307,41 @@ const MessageCenter: React.FC = () => {
       ),
     },
     {
-      title: '类型',
-      dataIndex: 'type',
-      key: 'type',
+      title: "类型",
+      dataIndex: "type",
+      key: "type",
       width: 100,
       render: (type: MessageType) => getTypeTag(type),
     },
     {
-      title: '级别',
-      dataIndex: 'level',
-      key: 'level',
+      title: "级别",
+      dataIndex: "level",
+      key: "level",
       width: 80,
       render: (level: MessageLevel) => getLevelTag(level),
     },
     {
-      title: '状态',
-      dataIndex: 'isRead',
-      key: 'isRead',
+      title: "状态",
+      dataIndex: "isRead",
+      key: "isRead",
       width: 80,
       render: (isRead: boolean) => (
-        <Tag color={isRead ? 'default' : 'processing'}>
-          {isRead ? '已读' : '未读'}
+        <Tag color={isRead ? "default" : "processing"}>
+          {isRead ? "已读" : "未读"}
         </Tag>
       ),
     },
     {
-      title: '创建时间',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
+      title: "创建时间",
+      dataIndex: "createdAt",
+      key: "createdAt",
       width: 180,
-      render: (createdAt: string) => dayjs(createdAt).format('YYYY-MM-DD HH:mm:ss'),
+      render: (createdAt: string) =>
+        dayjs(createdAt).format("YYYY-MM-DD HH:mm:ss"),
     },
     {
-      title: '操作',
-      key: 'action',
+      title: "操作",
+      key: "action",
       width: 120,
       render: (_, record) => (
         <Space size="small">
@@ -398,7 +416,7 @@ const MessageCenter: React.FC = () => {
             <Statistic
               title="未读消息"
               value={statistics?.unreadCount || 0}
-              valueStyle={{ color: '#ff4d4f' }}
+              valueStyle={{ color: "#ff4d4f" }}
               prefix={<BellOutlined />}
             />
           </Card>
@@ -408,7 +426,7 @@ const MessageCenter: React.FC = () => {
             <Statistic
               title="已读消息"
               value={statistics?.readCount || 0}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: "#52c41a" }}
               prefix={<CheckCircleOutlined />}
             />
           </Card>
@@ -441,7 +459,7 @@ const MessageCenter: React.FC = () => {
               value={typeFilter}
               onChange={setTypeFilter}
               allowClear
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
             >
               <Option value="SYSTEM">系统</Option>
               <Option value="ALERT">告警</Option>
@@ -454,7 +472,7 @@ const MessageCenter: React.FC = () => {
               value={levelFilter}
               onChange={setLevelFilter}
               allowClear
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
             >
               <Option value="INFO">普通</Option>
               <Option value="WARNING">警告</Option>
@@ -467,7 +485,7 @@ const MessageCenter: React.FC = () => {
               value={isReadFilter}
               onChange={setIsReadFilter}
               allowClear
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
             >
               <Option value={true}>已读</Option>
               <Option value={false}>未读</Option>
@@ -477,7 +495,7 @@ const MessageCenter: React.FC = () => {
             <RangePicker
               value={dateRange}
               onChange={(dates) => setDateRange(dates as any)}
-              style={{ width: '100%' }}
+              style={{ width: "100%" }}
             />
           </Col>
           <Col span={2}>
@@ -492,7 +510,7 @@ const MessageCenter: React.FC = () => {
       <Card>
         <Row style={{ marginBottom: 16 }}>
           <Col>
-            <Dropdown overlay={batchMenu} trigger={['click']}>
+            <Dropdown overlay={batchMenu} trigger={["click"]}>
               <Button disabled={selectedRowKeys.length === 0}>
                 批量操作 <span style={{ marginLeft: 4 }}>▼</span>
               </Button>
@@ -541,15 +559,16 @@ const MessageCenter: React.FC = () => {
             <Space style={{ marginBottom: 16 }}>
               {getTypeTag(selectedMessage.type)}
               {getLevelTag(selectedMessage.level)}
-              <Tag color={selectedMessage.isRead ? 'default' : 'processing'}>
-                {selectedMessage.isRead ? '已读' : '未读'}
+              <Tag color={selectedMessage.isRead ? "default" : "processing"}>
+                {selectedMessage.isRead ? "已读" : "未读"}
               </Tag>
             </Space>
-            <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>
+            <div style={{ whiteSpace: "pre-wrap", lineHeight: 1.8 }}>
               {selectedMessage.content}
             </div>
-            <div style={{ marginTop: 16, color: '#999', fontSize: 12 }}>
-              创建时间：{dayjs(selectedMessage.createdAt).format('YYYY-MM-DD HH:mm:ss')}
+            <div style={{ marginTop: 16, color: "#999", fontSize: 12 }}>
+              创建时间：
+              {dayjs(selectedMessage.createdAt).format("YYYY-MM-DD HH:mm:ss")}
             </div>
           </div>
         )}

@@ -20,8 +20,16 @@ import {
   CloudServerOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import { createDeployment, getApplications, getEnvironments } from "@/services/deployment";
-import type { CreateDeploymentParams, Application, Environment } from "@/types/deployment";
+import {
+  createDeployment,
+  getApplications,
+  getEnvironments,
+} from "@/services/deployment";
+import type {
+  CreateDeploymentParams,
+  Application,
+  Environment,
+} from "@/types/deployment";
 
 const DeploymentCreatePage: React.FC = () => {
   const navigate = useNavigate();
@@ -116,7 +124,10 @@ const DeploymentCreatePage: React.FC = () => {
   return (
     <Card>
       <div style={{ marginBottom: 24 }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/deployments")}>
+        <Button
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate("/deployments")}
+        >
           返回列表
         </Button>
       </div>
@@ -248,10 +259,7 @@ const DeploymentCreatePage: React.FC = () => {
         <Divider />
 
         <Space style={{ width: "100%", justifyContent: "space-between" }}>
-          <Button
-            disabled={currentStep === 0}
-            onClick={handlePrev}
-          >
+          <Button disabled={currentStep === 0} onClick={handlePrev}>
             上一步
           </Button>
           <Space>
