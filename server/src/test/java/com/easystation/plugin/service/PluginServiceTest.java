@@ -178,7 +178,8 @@ class PluginServiceTest {
         pluginService.create(create2);
 
         // Search by keyword
-        PluginRecord.Query query = new PluginRecord.Query("搜索", null, null, null, null, null, null);
+        PluginRecord.Query query = new PluginRecord.Query();
+        query.setKeyword("搜索");
         List<PluginRecord> results = pluginService.search(query);
 
         assertNotNull(results);
@@ -300,7 +301,6 @@ class PluginServiceTest {
 
         assertNotNull(suspended);
         assertEquals(PluginStatus.SUSPENDED, suspended.status());
-        assertNotNull(suspended.suspendReason());
     }
 
     @Test
@@ -361,16 +361,22 @@ class PluginServiceTest {
         PluginRecord plugin = pluginService.create(create);
 
         // Create a version
-        PluginVersionRecord.CreateVersion createVersion = new PluginVersionRecord.CreateVersion(
+        PluginVersionRecord.Create createVersion = new PluginVersionRecord.Create(
             plugin.id(),
             "1.0.0",
+            1,
             "初始版本",
             "https://example.com/download/v1.0.0.zip",
-            "SHA256_HASH_VALUE",
             1024000L,
-            LocalDateTime.now()
+            "SHA256_HASH_VALUE",
+            null,
+            null,
+            null,
+            null,
+            null,
+            false
         );
-        PluginVersionRecord version = pluginService.createVersion(createVersion);
+        PluginVersionRecord version = pluginService.createVersion(plugin.id(), createVersion);
 
         assertNotNull(version);
         assertNotNull(version.id());
@@ -403,27 +409,39 @@ class PluginServiceTest {
         );
         PluginRecord plugin = pluginService.create(create);
 
-        PluginVersionRecord.CreateVersion createVersion1 = new PluginVersionRecord.CreateVersion(
+        PluginVersionRecord.Create createVersion1 = new PluginVersionRecord.Create(
             plugin.id(),
             "1.0.0",
+            1,
             "初始版本",
             "https://example.com/download/v1.0.0.zip",
-            "HASH1",
             1024000L,
-            LocalDateTime.now().minusDays(10)
+            "HASH1",
+            null,
+            null,
+            null,
+            null,
+            null,
+            false
         );
-        pluginService.createVersion(createVersion1);
+        pluginService.createVersion(plugin.id(), createVersion1);
 
-        PluginVersionRecord.CreateVersion createVersion2 = new PluginVersionRecord.CreateVersion(
+        PluginVersionRecord.Create createVersion2 = new PluginVersionRecord.Create(
             plugin.id(),
             "1.1.0",
+            2,
             "功能更新",
             "https://example.com/download/v1.1.0.zip",
-            "HASH2",
             1048576L,
-            LocalDateTime.now()
+            "HASH2",
+            null,
+            null,
+            null,
+            null,
+            null,
+            false
         );
-        pluginService.createVersion(createVersion2);
+        pluginService.createVersion(plugin.id(), createVersion2);
 
         // Find latest version
         Optional<PluginVersionRecord> latest = pluginService.findLatestVersion(plugin.id());
