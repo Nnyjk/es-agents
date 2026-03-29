@@ -1,6 +1,5 @@
 package com.easystation.profile.resource;
 
-import com.easystation.auth.security.CurrentUser;
 import com.easystation.profile.domain.UserAuditLog;
 import com.easystation.profile.dto.AuditLogRecord;
 import com.easystation.profile.service.AuditLogEnhancedService;
@@ -11,9 +10,11 @@ import com.easystation.profile.service.AuditLogService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.ResponseBuilder;
+import jakarta.ws.rs.core.SecurityContext;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -47,10 +48,18 @@ public class AuditLogEnhancedResource {
     @Inject
     AuditLogService auditLogService;
 
-    @CurrentUser
-    UUID currentUserId;
+    @Context
+    SecurityContext securityContext;
 
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    /**
+     * 获取当前登录用户 ID
+     */
+    private UUID getCurrentUserId() {
+        String userIdStr = securityContext.getUserPrincipal().getName();
+        return UUID.fromString(userIdStr);
+    }
 
     /**
      * 验证单条日志完整性
@@ -81,7 +90,7 @@ public class AuditLogEnhancedResource {
     @POST
     @Path("/verify-batch")
     public Response verifyLogsIntegrity(List<UUID> logIds) {
-        List<UserAuditLog> logs = UserAuditLog.findByIds(logIds);
+        List<UserAuditLog> logs = UserAuditLog.find("id in ?1", logIds).list();
         Map<UUID, Boolean> results = enhancedService.verifyLogsIntegrity(logs);
 
         Map<String, Object> response = new HashMap<>();
@@ -105,7 +114,7 @@ public class AuditLogEnhancedResource {
         
         LocalDateTime start = parseDateTime(startTime);
         LocalDateTime end = parseDateTime(endTime);
-        UUID targetUserId = userId != null ? userId : currentUserId;
+        UUID targetUserId = userId != null ? userId : getCurrentUserId();
 
         List<AuditAnomaly> anomalies = enhancedService.detectAnomalies(targetUserId, start, end);
 
@@ -133,7 +142,7 @@ public class AuditLogEnhancedResource {
         
         LocalDateTime start = parseDateTime(startTime);
         LocalDateTime end = parseDateTime(endTime);
-        UUID targetUserId = userId != null ? userId : currentUserId;
+        UUID targetUserId = userId != null ? userId : getCurrentUserId();
 
         String csv = exportService.exportToCSV(targetUserId, start, end, limit);
 
@@ -159,7 +168,7 @@ public class AuditLogEnhancedResource {
         
         LocalDateTime start = parseDateTime(startTime);
         LocalDateTime end = parseDateTime(endTime);
-        UUID targetUserId = userId != null ? userId : currentUserId;
+        UUID targetUserId = userId != null ? userId : getCurrentUserId();
 
         String json = exportService.exportToJSON(targetUserId, start, end, limit);
 
@@ -182,7 +191,7 @@ public class AuditLogEnhancedResource {
         
         LocalDateTime start = parseDateTime(startTime);
         LocalDateTime end = parseDateTime(endTime);
-        UUID targetUserId = userId != null ? userId : currentUserId;
+        UUID targetUserId = userId != null ? userId : getCurrentUserId();
 
         byte[] gzipData = exportService.exportToGzipCSV(targetUserId, start, end, limit);
 
@@ -207,7 +216,7 @@ public class AuditLogEnhancedResource {
         
         LocalDateTime start = parseDateTime(startTime);
         LocalDateTime end = parseDateTime(endTime);
-        UUID targetUserId = userId != null ? userId : currentUserId;
+        UUID targetUserId = userId != null ? userId : getCurrentUserId();
 
         AuditReportSummary summary = exportService.generateSummary(targetUserId, start, end);
 
@@ -252,7 +261,7 @@ public class AuditLogEnhancedResource {
 
         log.reviewStatus = request.status;
         log.reviewNotes = request.notes;
-        log.reviewerId = currentUserId;
+        log.reviewerId = getCurrentUserId();
         log.reviewedAt = LocalDateTime.now();
         log.persist();
 
@@ -260,7 +269,7 @@ public class AuditLogEnhancedResource {
         result.put("logId", id);
         result.put("reviewStatus", log.reviewStatus);
         result.put("reviewedAt", log.reviewedAt.format(DATE_FORMAT));
-        result.put("reviewerId", currentUserId);
+        result.put("reviewerId", getCurrentUserId());
 
         return Response.ok(result).build();
     }

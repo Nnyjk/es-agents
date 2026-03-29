@@ -9,7 +9,6 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,7 +23,7 @@ public class PermissionService {
     private static final Logger LOG = LoggerFactory.getLogger(PermissionService.class);
 
     /** 权限缓存过期时间：5 分钟 */
-    private static final Duration PERMISSION_CACHE_TTL = Duration.ofMinutes(5);
+    private static final long PERMISSION_CACHE_TTL = 300; // 5 分钟 = 300 秒
 
     @Inject
     RedisDataSource redis;
@@ -66,7 +65,7 @@ public class PermissionService {
         String cacheKey = "user:permissions:" + userId;
         
         // 尝试从 Redis 缓存获取
-        Set<String> cached = redis.value().get(cacheKey);
+        Set<String> cached = redis.value(String.class, Set.class).get(cacheKey);
         if (cached != null) {
             LOG.debug("权限缓存命中：{}", userId);
             return cached;
@@ -77,7 +76,7 @@ public class PermissionService {
         Set<String> permissions = loadPermissionsFromDatabase(userId);
         
         // 写入缓存
-        redis.value().setex(cacheKey, PERMISSION_CACHE_TTL, permissions);
+        redis.value(String.class, Set.class).setex(cacheKey, PERMISSION_CACHE_TTL, permissions);
         
         return permissions;
     }
@@ -129,7 +128,7 @@ public class PermissionService {
      */
     public void clearUserPermissionCache(UUID userId) {
         String cacheKey = "user:permissions:" + userId;
-        redis.value().del(cacheKey);
+        redis.key(String.class).del(cacheKey);
         LOG.debug("清除用户权限缓存：{}", userId);
     }
 

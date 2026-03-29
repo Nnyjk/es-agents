@@ -45,12 +45,12 @@ public class AuditLogEnhancedService {
         UserAuditLog log = auditLogMapper.toEntity(record);
 
         // 1. 标记敏感操作
-        log.isSensitive = UserAuditLog.isSensitiveAction(record.action, record.resourceType);
+        log.isSensitive = UserAuditLog.isSensitiveAction(record.action(), record.resourceType());
         
         // 2. 计算风险等级
         log.riskLevel = UserAuditLog.calculateRiskLevel(
-            record.action, 
-            record.resourceType, 
+            record.action(), 
+            record.resourceType(), 
             log.isSensitive
         );
 
