@@ -2,15 +2,22 @@ package com.easystation.deployment.resource;
 
 import com.easystation.deployment.dto.DeploymentChangeDTO;
 import com.easystation.auth.annotation.RequiresPermission;
+import com.easystation.audit.enums.AuditAction;
+import com.easystation.audit.enums.AuditResult;
+import com.easystation.audit.service.AuditLogService;
 import com.easystation.deployment.dto.PageResultDTO;
 import com.easystation.deployment.enums.ChangeType;
 import com.easystation.deployment.service.DeploymentChangeService;
+import io.quarkus.logging.Log;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
 import java.util.Map;
@@ -24,9 +31,18 @@ import java.util.UUID;
 @Consumes(MediaType.APPLICATION_JSON)
 @Authenticated
 public class DeploymentChangeResource {
-    
+
     @Inject
     DeploymentChangeService changeService;
+
+    @Inject
+    AuditLogService auditLogService;
+
+    @Context
+    SecurityContext securityContext;
+
+    @Context
+    HttpHeaders httpHeaders;
     
     /**
      * 查询变更记录
@@ -65,10 +81,14 @@ public class DeploymentChangeResource {
     @RequiresPermission("deployment:create")
     public DeploymentChangeDTO createChange(@Valid DeploymentChangeDTO dto) {
         // TODO: 从安全上下文获取当前用户
-        String createdBy = "system";
-        return changeService.createChange(dto, createdBy);
+        String createdBy = securityContext != null && securityContext.getUserPrincipal() != null
+                ? securityContext.getUserPrincipal().getName() : "system";
+        DeploymentChangeDTO created = changeService.createChange(dto, createdBy);
+        recordAuditLog(AuditAction.CREATE_DEPLOYMENT_CHANGE, AuditResult.SUCCESS,
+                "创建部署变更记录", "DeploymentChange", created.id);
+        return created;
     }
-    
+
     /**
      * 批量创建变更记录
      * POST /api/deployments/changes/batch
@@ -78,10 +98,14 @@ public class DeploymentChangeResource {
     @Path("/batch")
     public List<DeploymentChangeDTO> batchCreateChanges(@Valid List<DeploymentChangeDTO> dtos) {
         // TODO: 从安全上下文获取当前用户
-        String createdBy = "system";
-        return changeService.batchCreateChanges(dtos, createdBy);
+        String createdBy = securityContext != null && securityContext.getUserPrincipal() != null
+                ? securityContext.getUserPrincipal().getName() : "system";
+        List<DeploymentChangeDTO> created = changeService.batchCreateChanges(dtos, createdBy);
+        recordAuditLog(AuditAction.CREATE_DEPLOYMENT_CHANGE, AuditResult.SUCCESS,
+                "批量创建部署变更记录，数量：" + created.size(), "DeploymentChange", null);
+        return created;
     }
-    
+
     /**
      * 获取版本的变更记录
      * GET /api/deployments/versions/{versionId}/changes
@@ -92,7 +116,7 @@ public class DeploymentChangeResource {
     public List<DeploymentChangeDTO> getVersionChanges(@PathParam("versionId") UUID versionId) {
         return changeService.getVersionChanges(versionId);
     }
-    
+
     /**
      * 分析变更影响
      * GET /api/deployments/versions/{versionId}/impact
@@ -102,5 +126,22 @@ public class DeploymentChangeResource {
     @Path("/versions/{versionId}/impact")
     public Map<String, Object> analyzeImpact(@PathParam("versionId") UUID versionId) {
         return changeService.analyzeImpact(versionId);
+    }
+
+    private void recordAuditLog(AuditAction action, AuditResult result,
+                               String description, String resourceType, UUID resourceId) {
+        try {
+            String username = securityContext != null && securityContext.getUserPrincipal() != null
+                    ? securityContext.getUserPrincipal().getName() : "system";
+            String clientIp = httpHeaders != null
+                    ? httpHeaders.getHeaderString("X-Forwarded-For")
+                    : null;
+            if (clientIp == null && httpHeaders != null) {
+                clientIp = httpHeaders.getHeaderString("X-Real-IP");
+            }
+            auditLogService.log(username, null, action, result, description, resourceType, resourceId, clientIp, "/api/deployments/changes");
+        } catch (Exception e) {
+            Log.warnf("Failed to record audit log: %s", e.getMessage());
+        }
     }
 }

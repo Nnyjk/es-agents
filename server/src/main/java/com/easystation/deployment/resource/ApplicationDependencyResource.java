@@ -2,13 +2,20 @@ package com.easystation.deployment.resource;
 
 import com.easystation.deployment.domain.ApplicationDependency;
 import com.easystation.auth.annotation.RequiresPermission;
+import com.easystation.audit.enums.AuditAction;
+import com.easystation.audit.enums.AuditResult;
+import com.easystation.audit.service.AuditLogService;
 import com.easystation.deployment.dto.ApplicationDependencyDTO;
 import com.easystation.deployment.dto.PageResultDTO;
 import com.easystation.deployment.service.ApplicationDependencyService;
+import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +30,15 @@ public class ApplicationDependencyResource {
 
     @Inject
     ApplicationDependencyService dependencyService;
+
+    @Inject
+    AuditLogService auditLogService;
+
+    @Context
+    SecurityContext securityContext;
+
+    @Context
+    HttpHeaders httpHeaders;
 
     @GET
     @RequiresPermission("deployment:view")
@@ -62,6 +78,8 @@ public class ApplicationDependencyResource {
             ApplicationDependencyDTO dto) {
         dto.applicationId = applicationId;
         ApplicationDependencyDTO created = dependencyService.create(dto);
+        recordAuditLog(AuditAction.CREATE_APPLICATION_DEPENDENCY, AuditResult.SUCCESS,
+                "创建应用依赖", "ApplicationDependency", created.id);
         return Response.status(Response.Status.CREATED).entity(created).build();
     }
 
@@ -76,6 +94,8 @@ public class ApplicationDependencyResource {
         if (updated == null) {
             throw new WebApplicationException("Dependency not found", Response.Status.NOT_FOUND);
         }
+        recordAuditLog(AuditAction.UPDATE_APPLICATION_DEPENDENCY, AuditResult.SUCCESS,
+                "更新应用依赖", "ApplicationDependency", id);
         return updated;
     }
 
@@ -89,6 +109,8 @@ public class ApplicationDependencyResource {
         if (!deleted) {
             throw new WebApplicationException("Dependency not found", Response.Status.NOT_FOUND);
         }
+        recordAuditLog(AuditAction.DELETE_APPLICATION_DEPENDENCY, AuditResult.SUCCESS,
+                "删除应用依赖", "ApplicationDependency", id);
         return Response.noContent().build();
     }
 
@@ -96,6 +118,25 @@ public class ApplicationDependencyResource {
     @RequiresPermission("deployment:delete")
     public Response deleteByApplication(@PathParam("applicationId") UUID applicationId) {
         long count = dependencyService.deleteByApplication(applicationId);
+        recordAuditLog(AuditAction.DELETE_APPLICATION_DEPENDENCY, AuditResult.SUCCESS,
+                "删除应用所有依赖，数量：" + count, "ApplicationDependency", applicationId);
         return Response.ok().entity("{\"deleted\": " + count + "}").build();
+    }
+
+    private void recordAuditLog(AuditAction action, AuditResult result,
+                               String description, String resourceType, UUID resourceId) {
+        try {
+            String username = securityContext != null && securityContext.getUserPrincipal() != null
+                    ? securityContext.getUserPrincipal().getName() : "system";
+            String clientIp = httpHeaders != null
+                    ? httpHeaders.getHeaderString("X-Forwarded-For")
+                    : null;
+            if (clientIp == null && httpHeaders != null) {
+                clientIp = httpHeaders.getHeaderString("X-Real-IP");
+            }
+            auditLogService.log(username, null, action, result, description, resourceType, resourceId, clientIp, "/api/deployment/applications/dependencies");
+        } catch (Exception e) {
+            Log.warnf("Failed to record audit log: %s", e.getMessage());
+        }
     }
 }
