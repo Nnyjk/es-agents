@@ -54,6 +54,11 @@ public class CommandExecutionService {
             String username,
             String clientIp) {
 
+        // Validate required fields
+        if (request.agentInstanceId() == null) {
+            throw new WebApplicationException("Agent instance ID is required", Response.Status.BAD_REQUEST);
+        }
+
         AgentInstance instance = AgentInstance.findById(request.agentInstanceId());
         if (instance == null) {
             throw new WebApplicationException("Agent instance not found", Response.Status.NOT_FOUND);
