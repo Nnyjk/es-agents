@@ -1,6 +1,7 @@
 package com.easystation.deployment.resource;
 
 import com.easystation.deployment.domain.ApplicationConfig;
+import com.easystation.auth.annotation.RequiresPermission;
 import com.easystation.deployment.dto.ApplicationConfigDTO;
 import com.easystation.deployment.dto.PageResultDTO;
 import com.easystation.deployment.service.ApplicationConfigService;
@@ -23,6 +24,7 @@ public class ApplicationConfigResource {
     ApplicationConfigService configService;
 
     @GET
+    @RequiresPermission("deployment:view")
     public PageResultDTO<ApplicationConfigDTO> list(
             @PathParam("applicationId") UUID applicationId,
             @QueryParam("environmentId") UUID environmentId,
@@ -33,6 +35,7 @@ public class ApplicationConfigResource {
     }
 
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/{id}")
     public ApplicationConfigDTO get(
             @PathParam("applicationId") UUID applicationId,
@@ -45,6 +48,7 @@ public class ApplicationConfigResource {
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     public Response create(
             @PathParam("applicationId") UUID applicationId,
             ApplicationConfigDTO dto) {
@@ -54,6 +58,7 @@ public class ApplicationConfigResource {
     }
 
     @PUT
+    @RequiresPermission("deployment:edit")
     @Path("/{id}")
     public ApplicationConfigDTO update(
             @PathParam("applicationId") UUID applicationId,
@@ -67,6 +72,7 @@ public class ApplicationConfigResource {
     }
 
     @DELETE
+    @RequiresPermission("deployment:delete")
     @Path("/{id}")
     public Response delete(
             @PathParam("applicationId") UUID applicationId,
@@ -79,6 +85,7 @@ public class ApplicationConfigResource {
     }
 
     @DELETE
+    @RequiresPermission("deployment:delete")
     public Response deleteByApplication(@PathParam("applicationId") UUID applicationId) {
         long count = configService.deleteByApplication(applicationId);
         return Response.ok().entity("{\"deleted\": " + count + "}").build();

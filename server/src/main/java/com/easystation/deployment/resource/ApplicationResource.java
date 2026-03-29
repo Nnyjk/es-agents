@@ -1,5 +1,6 @@
 package com.easystation.deployment.resource;
 
+import com.easystation.auth.annotation.RequiresPermission;
 import com.easystation.deployment.dto.*;
 import com.easystation.deployment.enums.ApplicationStatus;
 import com.easystation.deployment.service.ApplicationService;
@@ -19,6 +20,7 @@ public class ApplicationResource {
     ApplicationService applicationService;
 
     @GET
+    @RequiresPermission("deployment:view")
     public PageResultDTO<ApplicationDTO> list(
             @QueryParam("pageNum") @DefaultValue("1") int pageNum,
             @QueryParam("pageSize") @DefaultValue("10") int pageSize,
@@ -31,23 +33,27 @@ public class ApplicationResource {
 
     @GET
     @Path("/{id}")
+    @RequiresPermission("deployment:view")
     public ApplicationDTO get(@PathParam("id") UUID id) {
         return applicationService.getApplication(id);
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     public ApplicationDTO create(ApplicationDTO dto) {
         return applicationService.createApplication(dto);
     }
 
     @PUT
     @Path("/{id}")
+    @RequiresPermission("deployment:edit")
     public ApplicationDTO update(@PathParam("id") UUID id, ApplicationDTO dto) {
         return applicationService.updateApplication(id, dto);
     }
 
     @DELETE
     @Path("/{id}")
+    @RequiresPermission("deployment:delete")
     public Response delete(@PathParam("id") UUID id) {
         applicationService.deleteApplication(id);
         return Response.noContent().build();
@@ -55,6 +61,7 @@ public class ApplicationResource {
 
     @POST
     @Path("/{id}/archive")
+    @RequiresPermission("deployment:edit")
     public ApplicationDTO archive(@PathParam("id") UUID id) {
         return applicationService.archiveApplication(id);
     }

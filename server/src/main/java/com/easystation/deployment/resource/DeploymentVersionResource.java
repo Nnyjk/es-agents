@@ -1,6 +1,7 @@
 package com.easystation.deployment.resource;
 
 import com.easystation.deployment.dto.DeploymentVersionDTO;
+import com.easystation.auth.annotation.RequiresPermission;
 import com.easystation.deployment.dto.PageResultDTO;
 import com.easystation.deployment.enums.VersionStatus;
 import com.easystation.deployment.service.DeploymentVersionService;
@@ -30,6 +31,8 @@ public class DeploymentVersionResource {
      * GET /api/deployments/versions
      */
     @GET
+    @RequiresPermission("deployment:view")
+    @RequiresPermission("deployment:view")
     public PageResultDTO<DeploymentVersionDTO> listVersions(
             @QueryParam("pageNum") @DefaultValue("1") int pageNum,
             @QueryParam("pageSize") @DefaultValue("20") int pageSize,
@@ -48,7 +51,9 @@ public class DeploymentVersionResource {
      * GET /api/deployments/versions/{id}
      */
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/{id}")
+    @RequiresPermission("deployment:view")
     public DeploymentVersionDTO getVersion(@PathParam("id") UUID id) {
         return versionService.getVersion(id);
     }
@@ -58,6 +63,8 @@ public class DeploymentVersionResource {
      * POST /api/deployments/versions
      */
     @POST
+    @RequiresPermission("deployment:create")
+    @RequiresPermission("deployment:create")
     public Response createVersion(@Valid DeploymentVersionDTO dto) {
         // TODO: 从安全上下文获取当前用户
         String createdBy = "system";
@@ -70,7 +77,9 @@ public class DeploymentVersionResource {
      * PUT /api/deployments/versions/{id}
      */
     @PUT
+    @RequiresPermission("deployment:edit")
     @Path("/{id}")
+    @RequiresPermission("deployment:edit")
     public DeploymentVersionDTO updateVersion(@PathParam("id") UUID id, @Valid DeploymentVersionDTO dto) {
         return versionService.updateVersion(id, dto);
     }
@@ -80,7 +89,9 @@ public class DeploymentVersionResource {
      * DELETE /api/deployments/versions/{id}
      */
     @DELETE
+    @RequiresPermission("deployment:delete")
     @Path("/{id}")
+    @RequiresPermission("deployment:delete")
     public Response deleteVersion(@PathParam("id") UUID id) {
         versionService.deleteVersion(id);
         return Response.noContent().build();
@@ -91,7 +102,9 @@ public class DeploymentVersionResource {
      * POST /api/deployments/versions/compare
      */
     @POST
+    @RequiresPermission("deployment:create")
     @Path("/compare")
+    @RequiresPermission("deployment:view")
     public Object compareVersions(
             @QueryParam("fromVersionId") UUID fromVersionId,
             @QueryParam("toVersionId") UUID toVersionId) {

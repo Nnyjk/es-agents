@@ -1,5 +1,6 @@
 package com.easystation.deployment.resource;
 
+import com.easystation.auth.annotation.RequiresPermission;
 import com.easystation.deployment.dto.DeploymentProgressDTO;
 import com.easystation.deployment.dto.DeploymentProgressHistoryDTO;
 import com.easystation.deployment.service.DeploymentProgressService;
@@ -31,6 +32,7 @@ public class DeploymentProgressResource {
      */
     @GET
     @Path("/{deploymentId}")
+    @RequiresPermission("deployment:view")
     public Response getCurrentProgress(@PathParam("deploymentId") UUID deploymentId) {
         DeploymentProgressDTO progress = progressService.getCurrentProgress(deploymentId);
         if (progress == null) {
@@ -45,6 +47,7 @@ public class DeploymentProgressResource {
      */
     @GET
     @Path("/{deploymentId}/history")
+    @RequiresPermission("deployment:view")
     public Response getProgressHistory(@PathParam("deploymentId") UUID deploymentId) {
         List<DeploymentProgressDTO> history = progressService.getProgressHistory(deploymentId);
         return Response.ok(history).build();
@@ -56,6 +59,7 @@ public class DeploymentProgressResource {
      */
     @GET
     @Path("/{deploymentId}/status-history")
+    @RequiresPermission("deployment:view")
     public Response getStatusHistory(@PathParam("deploymentId") UUID deploymentId) {
         List<DeploymentProgressHistoryDTO> statusHistory = progressService.getStatusHistory(deploymentId);
         return Response.ok(statusHistory).build();
@@ -67,6 +71,7 @@ public class DeploymentProgressResource {
      */
     @GET
     @Path("/{deploymentId}/overall")
+    @RequiresPermission("deployment:view")
     public Response getOverallProgress(@PathParam("deploymentId") UUID deploymentId) {
         int overallProgress = progressService.calculateOverallProgress(deploymentId);
         return Response.ok(Map.of("deploymentId", deploymentId, "overallProgress", overallProgress)).build();
@@ -78,6 +83,7 @@ public class DeploymentProgressResource {
      */
     @POST
     @Path("/{deploymentId}/complete")
+    @RequiresPermission("deployment:edit")
     public Response markStageComplete(
             @PathParam("deploymentId") UUID deploymentId,
             @QueryParam("stage") String stage,
@@ -97,6 +103,7 @@ public class DeploymentProgressResource {
      */
     @POST
     @Path("/{deploymentId}/fail")
+    @RequiresPermission("deployment:edit")
     public Response markStageFailed(
             @PathParam("deploymentId") UUID deploymentId,
             @QueryParam("stage") String stage,

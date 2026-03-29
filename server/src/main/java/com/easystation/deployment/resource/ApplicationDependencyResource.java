@@ -1,6 +1,7 @@
 package com.easystation.deployment.resource;
 
 import com.easystation.deployment.domain.ApplicationDependency;
+import com.easystation.auth.annotation.RequiresPermission;
 import com.easystation.deployment.dto.ApplicationDependencyDTO;
 import com.easystation.deployment.dto.PageResultDTO;
 import com.easystation.deployment.service.ApplicationDependencyService;
@@ -24,6 +25,7 @@ public class ApplicationDependencyResource {
     ApplicationDependencyService dependencyService;
 
     @GET
+    @RequiresPermission("deployment:view")
     public PageResultDTO<ApplicationDependencyDTO> list(
             @PathParam("applicationId") UUID applicationId,
             @QueryParam("environmentId") UUID environmentId,
@@ -34,12 +36,14 @@ public class ApplicationDependencyResource {
     }
 
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/all")
     public List<ApplicationDependencyDTO> listAll(@PathParam("applicationId") UUID applicationId) {
         return dependencyService.getByApplicationId(applicationId);
     }
 
     @GET
+    @RequiresPermission("deployment:view")
     @Path("/{id}")
     public ApplicationDependencyDTO get(
             @PathParam("applicationId") UUID applicationId,
@@ -52,6 +56,7 @@ public class ApplicationDependencyResource {
     }
 
     @POST
+    @RequiresPermission("deployment:create")
     public Response create(
             @PathParam("applicationId") UUID applicationId,
             ApplicationDependencyDTO dto) {
@@ -61,6 +66,7 @@ public class ApplicationDependencyResource {
     }
 
     @PUT
+    @RequiresPermission("deployment:edit")
     @Path("/{id}")
     public ApplicationDependencyDTO update(
             @PathParam("applicationId") UUID applicationId,
@@ -74,6 +80,7 @@ public class ApplicationDependencyResource {
     }
 
     @DELETE
+    @RequiresPermission("deployment:delete")
     @Path("/{id}")
     public Response delete(
             @PathParam("applicationId") UUID applicationId,
@@ -86,6 +93,7 @@ public class ApplicationDependencyResource {
     }
 
     @DELETE
+    @RequiresPermission("deployment:delete")
     public Response deleteByApplication(@PathParam("applicationId") UUID applicationId) {
         long count = dependencyService.deleteByApplication(applicationId);
         return Response.ok().entity("{\"deleted\": " + count + "}").build();
