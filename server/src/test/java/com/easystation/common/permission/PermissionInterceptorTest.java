@@ -1,6 +1,7 @@
 package com.easystation.common.permission;
 
 import com.easystation.auth.model.Permission.DataScope;
+import jakarta.interceptor.InterceptorBinding;
 import org.junit.jupiter.api.Test;
 
 import java.lang.annotation.Annotation;
