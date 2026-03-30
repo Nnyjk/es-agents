@@ -1,6 +1,7 @@
 package com.easystation.plugin.loader;
 
 import com.easystation.plugin.core.*;
+import com.easystation.plugin.core.impl.PluginDescriptorParserImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class PluginLoaderImpl implements PluginLoader {
     public PluginLoaderImpl(Path pluginsDir) {
         this.pluginsDir = pluginsDir;
         this.objectMapper = new ObjectMapper();
-        this.parser = new PluginDescriptorParserImpl(objectMapper);
+        this.parser = new PluginDescriptorParserImpl();
         
         // 确保插件目录存在
         try {
@@ -71,7 +72,7 @@ public class PluginLoaderImpl implements PluginLoader {
                             } else {
                                 log.warn("无效的插件描述符：{}", file);
                             }
-                        } catch (IOException e) {
+                        } catch (PluginException e) {
                             log.error("解析插件描述符失败：{}", file, e);
                         }
                     }
@@ -158,7 +159,7 @@ public class PluginLoaderImpl implements PluginLoader {
                             result[0] = file.getParent();
                             return FileVisitResult.TERMINATE;
                         }
-                    } catch (IOException e) {
+                    } catch (PluginException e) {
                         // 忽略解析错误
                     }
                 }

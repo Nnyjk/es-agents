@@ -169,7 +169,8 @@ public class HttpPostTool implements Tool {
             return (String) body;
         }
         try {
-            return com.fasterxml.jackson.databind.ObjectMapperCompat.writeValueAsString(body);
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            return mapper.writeValueAsString(body);
         } catch (Exception e) {
             return body.toString();
         }

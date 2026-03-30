@@ -1,5 +1,7 @@
 package com.easystation.agent.resource;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import io.quarkus.runtime.Startup;
@@ -72,42 +74,50 @@ public class MetricsResource {
 
         // JVM 线程指标
         Map<String, Object> jvmThreads = new HashMap<>();
-        meterRegistry.find("jvm.threads.live")
-                .gauge()
-                .ifPresent(gauge -> jvmThreads.put("live", gauge.value()));
-        meterRegistry.find("jvm.threads.daemon")
-                .gauge()
-                .ifPresent(gauge -> jvmThreads.put("daemon", gauge.value()));
+        Gauge liveGauge = meterRegistry.find("jvm.threads.live").gauge();
+        if (liveGauge != null) {
+            jvmThreads.put("live", liveGauge.value());
+        }
+        Gauge daemonGauge = meterRegistry.find("jvm.threads.daemon").gauge();
+        if (daemonGauge != null) {
+            jvmThreads.put("daemon", daemonGauge.value());
+        }
         summary.put("jvmThreads", jvmThreads);
 
         // CPU 指标
         Map<String, Object> cpu = new HashMap<>();
-        meterRegistry.find("system.cpu.usage")
-                .gauge()
-                .ifPresent(gauge -> cpu.put("usage", gauge.value()));
-        meterRegistry.find("system.cpu.count")
-                .gauge()
-                .ifPresent(gauge -> cpu.put("count", gauge.value()));
+        Gauge usageGauge = meterRegistry.find("system.cpu.usage").gauge();
+        if (usageGauge != null) {
+            cpu.put("usage", usageGauge.value());
+        }
+        Gauge countGauge = meterRegistry.find("system.cpu.count").gauge();
+        if (countGauge != null) {
+            cpu.put("count", countGauge.value());
+        }
         summary.put("cpu", cpu);
 
         // Agent 指标
         Map<String, Object> agent = new HashMap<>();
-        meterRegistry.find("esa.agent.count")
-                .gauge()
-                .ifPresent(gauge -> agent.put("count", gauge.value()));
+        Gauge agentGauge = meterRegistry.find("esa.agent.count").gauge();
+        if (agentGauge != null) {
+            agent.put("count", agentGauge.value());
+        }
         summary.put("agent", agent);
 
         // 任务指标
         Map<String, Object> tasks = new HashMap<>();
-        meterRegistry.find("esa.task.execution.total")
-                .counter()
-                .ifPresent(counter -> tasks.put("executionTotal", counter.count()));
-        meterRegistry.find("esa.task.success.total")
-                .counter()
-                .ifPresent(counter -> tasks.put("successTotal", counter.count()));
-        meterRegistry.find("esa.task.failure.total")
-                .counter()
-                .ifPresent(counter -> tasks.put("failureTotal", counter.count()));
+        Counter executionCounter = meterRegistry.find("esa.task.execution.total").counter();
+        if (executionCounter != null) {
+            tasks.put("executionTotal", executionCounter.count());
+        }
+        Counter successCounter = meterRegistry.find("esa.task.success.total").counter();
+        if (successCounter != null) {
+            tasks.put("successTotal", successCounter.count());
+        }
+        Counter failureCounter = meterRegistry.find("esa.task.failure.total").counter();
+        if (failureCounter != null) {
+            tasks.put("failureTotal", failureCounter.count());
+        }
         summary.put("tasks", tasks);
 
         return Response.ok(summary).build();

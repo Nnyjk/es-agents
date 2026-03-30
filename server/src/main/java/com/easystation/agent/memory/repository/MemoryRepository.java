@@ -2,7 +2,7 @@ package com.easystation.agent.memory.repository;
 
 import com.easystation.agent.memory.domain.Memory;
 import com.easystation.agent.memory.domain.MemoryType;
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.LocalDateTime;
@@ -11,9 +11,10 @@ import java.util.UUID;
 
 /**
  * 记忆 Repository
+ * 使用 PanacheRepositoryBase<Memory, UUID> 因为 Memory 实体使用 UUID 作为 ID
  */
 @ApplicationScoped
-public class MemoryRepository implements PanacheRepository<Memory> {
+public class MemoryRepository implements PanacheRepositoryBase<Memory, UUID> {
 
     /**
      * 按会话查找记忆

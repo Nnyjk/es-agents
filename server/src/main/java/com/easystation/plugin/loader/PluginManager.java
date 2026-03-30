@@ -1,6 +1,8 @@
 package com.easystation.plugin.loader;
 
 import com.easystation.plugin.core.*;
+import com.easystation.plugin.core.impl.ExtensionRegistryImpl;
+import com.easystation.plugin.core.impl.PluginContextFactoryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +35,7 @@ public class PluginManager {
         this.pluginsDir = pluginsDir;
         this.pluginRegistry = new PluginRegistry();
         this.extensionRegistry = new ExtensionRegistryImpl();
-        this.contextFactory = new PluginContextFactoryImpl(extensionRegistry);
+        this.contextFactory = new PluginContextFactoryImpl(pluginsDir, new HashMap<>(), extensionRegistry);
         this.pluginLoader = new PluginLoaderImpl(pluginsDir);
     }
     
@@ -105,7 +107,7 @@ public class PluginManager {
         Plugin plugin = pluginLoader.loadPlugin(descriptor);
         
         // 创建插件上下文
-        PluginContext context = contextFactory.create(pluginId, descriptor);
+        PluginContext context = contextFactory.createContext(descriptor, plugin);
         
         // 初始化插件
         plugin.initialize(context);
@@ -166,14 +168,14 @@ public class PluginManager {
      * @return 依赖是否满足
      */
     private boolean checkDependencies(PluginDescriptor descriptor) {
-        List<PluginDependency> dependencies = descriptor.getDependencies();
+        List<PluginDescriptor.PluginDependency> dependencies = descriptor.getDependencies();
         if (dependencies == null || dependencies.isEmpty()) {
             return true;
         }
         
-        for (PluginDependency dep : dependencies) {
-            if (!pluginRegistry.isRegistered(dep.getPluginId())) {
-                log.error("插件依赖不满足：{} 需要 {}", descriptor.getId(), dep.getPluginId());
+        for (PluginDescriptor.PluginDependency dep : dependencies) {
+            if (!pluginRegistry.isRegistered(dep.getId())) {
+                log.error("插件依赖不满足：{} 需要 {}", descriptor.getId(), dep.getId());
                 return false;
             }
             // TODO: 检查版本兼容性

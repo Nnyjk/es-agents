@@ -1,7 +1,7 @@
 package com.easystation.agent.tool.repository;
 
 import com.easystation.agent.tool.domain.ToolDefinition;
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.List;
@@ -9,9 +9,10 @@ import java.util.UUID;
 
 /**
  * 工具定义数据访问层
+ * 使用 PanacheRepositoryBase<ToolDefinition, UUID> 因为 ToolDefinition 实体使用 UUID 作为 ID
  */
 @ApplicationScoped
-public class ToolDefinitionRepository implements PanacheRepository<ToolDefinition> {
+public class ToolDefinitionRepository implements PanacheRepositoryBase<ToolDefinition, UUID> {
 
     /**
      * 根据 toolId 查找工具

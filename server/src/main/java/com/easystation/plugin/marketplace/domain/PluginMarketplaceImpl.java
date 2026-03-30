@@ -158,3 +158,4 @@ public class PluginMarketplaceImpl implements PluginMarketplace {
         
         // TODO: 实际实现需要保存评分和评论
     }
+}
