@@ -113,8 +113,7 @@ public class AuditLogService {
     public AuditRecord.Detail create(AuditRecord.Create dto) {
         record(dto);
         // 通过查询获取刚创建的记录（使用最近的记录）
-        AuditLog log = AuditLog.find("createdAt desc", io.quarkus.panache.common.Page.of(0, 1))
-                .firstResult();
+        AuditLog log = AuditLog.find("ORDER BY createdAt DESC").firstResult();
         return log != null ? toDetail(log) : null;
     }
 

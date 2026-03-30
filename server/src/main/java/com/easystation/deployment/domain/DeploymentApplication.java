@@ -27,6 +27,9 @@ public class DeploymentApplication extends PanacheEntityBase {
     @Column(nullable = false)
     public String project;
 
+    @Column(columnDefinition = "TEXT")
+    public String description;
+
     @Column(nullable = false)
     public String owner;
 
