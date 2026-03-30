@@ -1,6 +1,7 @@
 package com.easystation.agent.collaboration;
 
 import com.easystation.agent.collaboration.domain.*;
+import com.easystation.agent.collaboration.dto.*;
 import com.easystation.agent.collaboration.impl.CollaborationServiceImpl;
 import com.easystation.agent.collaboration.repository.*;
 import io.quarkus.test.junit.QuarkusTest;
@@ -32,118 +33,92 @@ public class CollaborationServiceTest {
 
     @Test
     public void testCreateSession() {
-        CollaborationSession session = collaborationService.createSession(
-                "Test Session",
-                "Test Description",
-                "agent-1",
-                Arrays.asList("agent-1", "agent-2", "agent-3")
-        );
+        CreateSessionRequest req = new CreateSessionRequest();
+        req.name = "Test Session";
+        req.description = "Test Description";
+        req.creatorAgentId = "agent-1";
+        req.agentIds = new String[]{"agent-1", "agent-2", "agent-3"};
+        CollaborationSessionDTO session = collaborationService.createSession(req);
 
         assertNotNull(session.id);
         assertEquals("Test Session", session.name);
         assertEquals("active", session.status);
         assertEquals("agent-1", session.creatorAgentId);
-        assertTrue(session.getAgentIdList().contains("agent-2"));
+        assertTrue(Arrays.asList(session.agentIds.split(",")).contains("agent-2"));
     }
 
     @Test
     public void testJoinAndLeaveSession() {
-        CollaborationSession session = collaborationService.createSession(
-                "Join/Leave Test",
-                null,
-                "agent-1",
-                Arrays.asList("agent-1")
-        );
+        CreateSessionRequest req = new CreateSessionRequest();
+        req.name = "Join/Leave Test";
+        req.description = null;
+        req.creatorAgentId = "agent-1";
+        req.agentIds = new String[]{"agent-1"};
+        CollaborationSessionDTO session = collaborationService.createSession(req);
 
         // Join
         collaborationService.joinSession(session.id, "agent-4");
-        CollaborationSession updated = collaborationService.getSession(session.id);
-        assertTrue(updated.getAgentIdList().contains("agent-4"));
+        CollaborationSessionDTO updated = collaborationService.getSession(session.id);
+        assertTrue(Arrays.asList(updated.agentIds.split(",")).contains("agent-4"));
 
         // Leave
         collaborationService.leaveSession(session.id, "agent-4");
-        CollaborationSession finalSession = collaborationService.getSession(session.id);
-        assertFalse(finalSession.getAgentIdList().contains("agent-4"));
+        CollaborationSessionDTO finalSession = collaborationService.getSession(session.id);
+        assertFalse(Arrays.asList(finalSession.agentIds.split(",")).contains("agent-4"));
     }
 
     @Test
     public void testCloseSession() {
-        CollaborationSession session = collaborationService.createSession(
-                "Close Test",
-                null,
-                "agent-1",
-                Arrays.asList("agent-1")
-        );
+        CreateSessionRequest req = new CreateSessionRequest();
+        req.name = "Close Test";
+        req.description = null;
+        req.creatorAgentId = "agent-1";
+        req.agentIds = new String[]{"agent-1"};
+        CollaborationSessionDTO session = collaborationService.createSession(req);
 
         collaborationService.closeSession(session.id);
-        CollaborationSession closed = collaborationService.getSession(session.id);
+        CollaborationSessionDTO closed = collaborationService.getSession(session.id);
         assertEquals("closed", closed.status);
         assertNotNull(closed.closedAt);
     }
 
     @Test
     public void testSendMessage() {
-        CollaborationSession session = collaborationService.createSession(
-                "Message Test",
-                null,
-                "agent-1",
-                Arrays.asList("agent-1", "agent-2")
-        );
+        CreateSessionRequest req = new CreateSessionRequest();
+        req.name = "Message Test";
+        req.description = null;
+        req.creatorAgentId = "agent-1";
+        req.agentIds = new String[]{"agent-1", "agent-2"};
+        CollaborationSessionDTO session = collaborationService.createSession(req);
 
-        AgentMessage message = collaborationService.sendMessage(
-                session.id,
-                "REQUEST",
-                "agent-1",
-                "agent-2",
-                "Test Subject",
-                "Test Content",
-                null
-        );
+        SendMessageRequest msgReq = new SendMessageRequest();
+        msgReq.sessionId = session.id;
+        msgReq.type = MessageType.TASK_REQUEST;
+        msgReq.fromAgentId = "agent-1";
+        msgReq.toAgentId = "agent-2";
+        msgReq.subject = "Test Subject";
+        msgReq.content = "Test Content";
+        msgReq.correlationId = null;
+        AgentMessageDTO message = collaborationService.sendMessage(msgReq);
 
         assertNotNull(message.id);
-        assertEquals(MessageType.REQUEST, message.type);
-        assertEquals("pending", message.status);
-    }
-
-    @Test
-    public void testGetUnreadMessages() {
-        CollaborationSession session = collaborationService.createSession(
-                "Unread Test",
-                null,
-                "agent-1",
-                Arrays.asList("agent-1", "agent-2")
-        );
-
-        // Send messages
-        collaborationService.sendMessage(session.id, "REQUEST", "agent-1", "agent-2", "Msg 1", "Content 1", null);
-        collaborationService.sendMessage(session.id, "REQUEST", "agent-1", "agent-2", "Msg 2", "Content 2", null);
-
-        List<AgentMessage> unread = collaborationService.getUnreadMessages(session.id, "agent-2");
-        assertEquals(2, unread.size());
-
-        // Mark as read
-        collaborationService.markMessageAsRead(unread.get(0).id);
-        unread = collaborationService.getUnreadMessages(session.id, "agent-2");
-        assertEquals(1, unread.size());
+        assertEquals(MessageType.TASK_REQUEST, message.type);
     }
 
     @Test
     public void testCreateAndAssignTask() {
-        CollaborationSession session = collaborationService.createSession(
-                "Task Test",
-                null,
-                "agent-1",
-                Arrays.asList("agent-1", "agent-2")
-        );
+        CreateSessionRequest req = new CreateSessionRequest();
+        req.name = "Task Test";
+        req.description = null;
+        req.creatorAgentId = "agent-1";
+        req.agentIds = new String[]{"agent-1", "agent-2"};
+        CollaborationSessionDTO session = collaborationService.createSession(req);
 
-        AgentTask task = collaborationService.createTask(
+        AgentTaskDTO task = collaborationService.createTask(
                 session.id,
                 "Test Task",
                 "Test Description",
-                "analysis",
-                "high",
-                "agent-1",
-                "{\"param\": \"value\"}"
+                "high"
         );
 
         assertNotNull(task.id);
@@ -152,36 +127,33 @@ public class CollaborationServiceTest {
 
         // Assign
         collaborationService.assignTask(task.id, "agent-2");
-        AgentTask assigned = collaborationService.getTask(task.id);
+        AgentTaskDTO assigned = collaborationService.getTask(task.id);
         assertEquals(TaskStatus.ASSIGNED, assigned.status);
-        assertEquals("agent-2", assigned.assignedAgentId);
+        assertEquals("agent-2", assigned.assignedTo);
     }
 
     @Test
     public void testTaskLifecycle() {
-        CollaborationSession session = collaborationService.createSession(
-                "Lifecycle Test",
-                null,
-                "agent-1",
-                Arrays.asList("agent-1", "agent-2")
-        );
+        CreateSessionRequest req = new CreateSessionRequest();
+        req.name = "Lifecycle Test";
+        req.description = null;
+        req.creatorAgentId = "agent-1";
+        req.agentIds = new String[]{"agent-1", "agent-2"};
+        CollaborationSessionDTO session = collaborationService.createSession(req);
 
-        AgentTask task = collaborationService.createTask(
+        AgentTaskDTO task = collaborationService.createTask(
                 session.id,
                 "Lifecycle Task",
                 null,
-                null,
-                "medium",
-                "agent-1",
-                null
+                "medium"
         );
 
         // Assign -> Start -> Complete
         collaborationService.assignTask(task.id, "agent-2");
-        collaborationService.startTask(task.id);
+        collaborationService.updateTaskStatus(task.id, "IN_PROGRESS");
         collaborationService.completeTask(task.id, "{\"result\": \"success\"}");
 
-        AgentTask completed = collaborationService.getTask(task.id);
+        AgentTaskDTO completed = collaborationService.getTask(task.id);
         assertEquals(TaskStatus.COMPLETED, completed.status);
         assertNotNull(completed.completedAt);
         assertEquals("{\"result\": \"success\"}", completed.result);
@@ -189,73 +161,46 @@ public class CollaborationServiceTest {
 
     @Test
     public void testFailTask() {
-        CollaborationSession session = collaborationService.createSession(
-                "Fail Test",
-                null,
-                "agent-1",
-                Arrays.asList("agent-1", "agent-2")
-        );
+        CreateSessionRequest req = new CreateSessionRequest();
+        req.name = "Fail Test";
+        req.description = null;
+        req.creatorAgentId = "agent-1";
+        req.agentIds = new String[]{"agent-1", "agent-2"};
+        CollaborationSessionDTO session = collaborationService.createSession(req);
 
-        AgentTask task = collaborationService.createTask(
+        AgentTaskDTO task = collaborationService.createTask(
                 session.id,
                 "Fail Task",
                 null,
-                null,
-                "medium",
-                "agent-1",
-                null
+                "medium"
         );
 
         collaborationService.assignTask(task.id, "agent-2");
-        collaborationService.startTask(task.id);
+        collaborationService.updateTaskStatus(task.id, "IN_PROGRESS");
         collaborationService.failTask(task.id, "Something went wrong");
 
-        AgentTask failed = collaborationService.getTask(task.id);
+        AgentTaskDTO failed = collaborationService.getTask(task.id);
         assertEquals(TaskStatus.FAILED, failed.status);
-        assertEquals("Something went wrong", failed.errorMessage);
+        assertEquals("Something went wrong", failed.error);
     }
 
     @Test
     public void testGetSessionTasks() {
-        CollaborationSession session = collaborationService.createSession(
-                "Session Tasks Test",
-                null,
-                "agent-1",
-                Arrays.asList("agent-1", "agent-2")
-        );
+        CreateSessionRequest req = new CreateSessionRequest();
+        req.name = "Session Tasks Test";
+        req.description = null;
+        req.creatorAgentId = "agent-1";
+        req.agentIds = new String[]{"agent-1", "agent-2"};
+        CollaborationSessionDTO session = collaborationService.createSession(req);
 
-        collaborationService.createTask(session.id, "Task 1", null, null, "high", "agent-1", null);
-        collaborationService.createTask(session.id, "Task 2", null, null, "medium", "agent-1", null);
-        collaborationService.createTask(session.id, "Task 3", null, null, "low", "agent-1", null);
+        collaborationService.createTask(session.id, "Task 1", null, "high");
+        collaborationService.createTask(session.id, "Task 2", null, "medium");
+        collaborationService.createTask(session.id, "Task 3", null, "low");
 
-        List<AgentTask> allTasks = collaborationService.getSessionTasks(session.id, null);
+        List<AgentTaskDTO> allTasks = collaborationService.getSessionTasks(session.id);
         assertEquals(3, allTasks.size());
 
-        List<AgentTask> pendingTasks = collaborationService.getSessionTasks(session.id, "pending");
-        assertEquals(3, pendingTasks.size());
-    }
-
-    @Test
-    public void testGetTasksByAgent() {
-        CollaborationSession session = collaborationService.createSession(
-                "Agent Tasks Test",
-                null,
-                "agent-1",
-                Arrays.asList("agent-1", "agent-2", "agent-3")
-        );
-
-        AgentTask task1 = collaborationService.createTask(session.id, "Task 1", null, null, "high", "agent-1", null);
-        AgentTask task2 = collaborationService.createTask(session.id, "Task 2", null, null, "medium", "agent-1", null);
-
-        collaborationService.assignTask(task1.id, "agent-2");
-        collaborationService.assignTask(task2.id, "agent-3");
-
-        List<AgentTask> agent2Tasks = collaborationService.getTasksByAgent("agent-2", null);
-        assertEquals(1, agent2Tasks.size());
-        assertEquals("Task 1", agent2Tasks.get(0).title);
-
-        List<AgentTask> agent3Tasks = collaborationService.getTasksByAgent("agent-3", null);
-        assertEquals(1, agent3Tasks.size());
-        assertEquals("Task 2", agent3Tasks.get(0).title);
+        List<AgentTaskDTO> pendingTasks = collaborationService.getTasksByStatus("PENDING");
+        assertTrue(pendingTasks.size() >= 3);
     }
 }

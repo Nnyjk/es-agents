@@ -6,12 +6,14 @@ import com.easystation.agent.tool.domain.ToolStatus;
 import com.easystation.agent.tool.repository.ToolDefinitionRepository;
 import com.easystation.agent.tool.repository.ToolParameterRepository;
 import com.easystation.agent.tool.spi.Tool;
+import com.easystation.agent.tool.spi.ToolExecutionResult;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,7 +47,7 @@ public class ToolRegistryImplTest {
         ToolDefinition definition = toolDefinitionRepository.findByToolId("test.tool");
         assertNotNull(definition);
         assertEquals("Test Tool", definition.name);
-        assertEquals(ToolStatus.ACTIVE, definition.status);
+        assertEquals(ToolStatus.ENABLED, definition.status);
         
         // 验证参数已保存
         List<ToolParameter> parameters = toolParameterRepository.findByTool(definition.id);
@@ -58,9 +60,9 @@ public class ToolRegistryImplTest {
      */
     @Test
     public void testGetTool() {
-        Tool tool = toolRegistry.getTool("shell.execute");
-        assertNotNull(tool, "Should get shell.execute tool");
-        assertEquals("shell.execute", tool.getId());
+        Optional<Tool> tool = toolRegistry.getTool("shell.execute");
+        assertTrue(tool.isPresent(), "Should get shell.execute tool");
+        assertEquals("shell.execute", tool.get().getId());
     }
 
     /**
@@ -68,8 +70,8 @@ public class ToolRegistryImplTest {
      */
     @Test
     public void testGetNonExistentTool() {
-        Tool tool = toolRegistry.getTool("non.existent");
-        assertNull(tool, "Should return null for non-existent tool");
+        Optional<Tool> tool = toolRegistry.getTool("non.existent");
+        assertFalse(tool.isPresent(), "Should return empty for non-existent tool");
     }
 
     /**
@@ -77,7 +79,7 @@ public class ToolRegistryImplTest {
      */
     @Test
     public void testListTools() {
-        List<ToolDefinition> tools = toolRegistry.listTools();
+        List<Tool> tools = toolRegistry.listTools();
         assertTrue(tools.size() >= 3, "Should have at least 3 built-in tools");
     }
 
@@ -85,13 +87,9 @@ public class ToolRegistryImplTest {
      * 测试按状态列出工具
      */
     @Test
-    public void testListToolsByStatus() {
-        List<ToolDefinition> activeTools = toolRegistry.listTools(ToolStatus.ACTIVE);
-        assertFalse(activeTools.isEmpty(), "Should have active tools");
-        
-        List<ToolDefinition> deprecatedTools = toolRegistry.listTools(ToolStatus.DEPRECATED);
-        // 可能没有 deprecated 工具
-        assertNotNull(deprecatedTools);
+    public void testListEnabledTools() {
+        List<Tool> enabledTools = toolRegistry.listEnabledTools();
+        assertFalse(enabledTools.isEmpty(), "Should have enabled tools");
     }
 
     /**
@@ -117,12 +115,12 @@ public class ToolRegistryImplTest {
     }
 
     /**
-     * 测试工具是否可用
+     * 测试工具是否已注册
      */
     @Test
-    public void testIsToolAvailable() {
-        assertTrue(toolRegistry.isToolAvailable("shell.execute"), "shell.execute should be available");
-        assertFalse(toolRegistry.isToolAvailable("non.existent"), "non.existent should not be available");
+    public void testIsRegistered() {
+        assertTrue(toolRegistry.isRegistered("shell.execute"), "shell.execute should be registered");
+        assertFalse(toolRegistry.isRegistered("non.existent"), "non.existent should not be registered");
     }
 
     /**
@@ -152,6 +150,11 @@ public class ToolRegistryImplTest {
             param.description = "Test parameter";
             param.required = true;
             return List.of(param);
+        }
+
+        @Override
+        public ToolExecutionResult execute(Map<String, Object> params) {
+            return ToolExecutionResult.success("Test result");
         }
     }
 }

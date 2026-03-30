@@ -2,9 +2,9 @@
  * 站内消息通知类型定义
  */
 
-export type MessageType = 'SYSTEM' | 'ALERT' | 'OPERATION';
+export type MessageType = "SYSTEM" | "ALERT" | "OPERATION";
 
-export type MessageLevel = 'INFO' | 'WARNING' | 'ERROR';
+export type MessageLevel = "INFO" | "WARNING" | "ERROR";
 
 /**
  * 消息详情

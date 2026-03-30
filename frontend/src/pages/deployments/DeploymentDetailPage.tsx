@@ -166,9 +166,17 @@ const DeploymentDetailPage: React.FC = () => {
           background: "#fafafa",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: 8,
+          }}
+        >
           <Typography.Text strong>{stage.name}</Typography.Text>
-          <Tag color={statusColors[stageStatus]}>{statusLabels[stageStatus]}</Tag>
+          <Tag color={statusColors[stageStatus]}>
+            {statusLabels[stageStatus]}
+          </Tag>
         </div>
         <Progress
           percent={stage.progress}
@@ -193,7 +201,10 @@ const DeploymentDetailPage: React.FC = () => {
           </Typography.Text>
         )}
         {stage.startTime && (
-          <Typography.Text type="secondary" style={{ display: "block", marginTop: 8 }}>
+          <Typography.Text
+            type="secondary"
+            style={{ display: "block", marginTop: 8 }}
+          >
             开始时间: {new Date(stage.startTime).toLocaleString()}
           </Typography.Text>
         )}
@@ -246,14 +257,19 @@ const DeploymentDetailPage: React.FC = () => {
     );
   }
 
-  const canCancel = deployment.status === "running" || deployment.status === "pending";
-  const canRetry = deployment.status === "failed" || deployment.status === "cancelled";
+  const canCancel =
+    deployment.status === "running" || deployment.status === "pending";
+  const canRetry =
+    deployment.status === "failed" || deployment.status === "cancelled";
 
   return (
     <Card>
       <div style={{ marginBottom: 16 }}>
         <Space>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate("/deployments")}>
+          <Button
+            icon={<ArrowLeftOutlined />}
+            onClick={() => navigate("/deployments")}
+          >
             返回列表
           </Button>
           {canCancel && (
@@ -329,10 +345,7 @@ const DeploymentDetailPage: React.FC = () => {
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic
-              title="阶段数"
-              value={deployment.stages?.length || 0}
-            />
+            <Statistic title="阶段数" value={deployment.stages?.length || 0} />
           </Card>
         </Col>
       </Row>

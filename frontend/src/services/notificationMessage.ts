@@ -1,4 +1,4 @@
-import request from '../utils/request';
+import request from "../utils/request";
 import type {
   NotificationMessage,
   NotificationListItem,
@@ -6,7 +6,7 @@ import type {
   UnreadCount,
   NotificationStatistics,
   NotificationCreateRequest,
-} from '../types/notification';
+} from "../types/notification";
 
 export type { NotificationQueryParams };
 
@@ -25,7 +25,7 @@ export const getMessages = async (
   if (params.type) apiParams.type = params.type;
   if (params.level) apiParams.level = params.level;
 
-  return request.get('/api/v1/notification/messages', { params: apiParams });
+  return request.get("/api/v1/notification/messages", { params: apiParams });
 };
 
 /**
@@ -50,7 +50,7 @@ export const markAsRead = async (id: string): Promise<{ success: boolean }> => {
 export const markBatchAsRead = async (
   ids: string[],
 ): Promise<{ count: number }> => {
-  return request.put('/api/v1/notification/messages/read-batch', ids);
+  return request.put("/api/v1/notification/messages/read-batch", ids);
 };
 
 /**
@@ -68,16 +68,14 @@ export const deleteMessage = async (
 export const deleteBatchMessages = async (
   ids: string[],
 ): Promise<{ count: number }> => {
-  return request.delete('/api/v1/notification/messages/batch', { data: ids });
+  return request.delete("/api/v1/notification/messages/batch", { data: ids });
 };
 
 /**
  * 获取未读数量
  */
-export const getUnreadCount = async (
-  userId: string,
-): Promise<UnreadCount> => {
-  return request.get('/api/v1/notification/messages/unread-count', {
+export const getUnreadCount = async (userId: string): Promise<UnreadCount> => {
+  return request.get("/api/v1/notification/messages/unread-count", {
     params: { userId },
   });
 };
@@ -88,7 +86,7 @@ export const getUnreadCount = async (
 export const getStatistics = async (
   userId: string,
 ): Promise<NotificationStatistics> => {
-  return request.get('/api/v1/notification/messages/statistics', {
+  return request.get("/api/v1/notification/messages/statistics", {
     params: { userId },
   });
 };
@@ -99,5 +97,5 @@ export const getStatistics = async (
 export const createMessage = async (
   data: NotificationCreateRequest,
 ): Promise<NotificationMessage> => {
-  return request.post('/api/v1/notification/messages', data);
+  return request.post("/api/v1/notification/messages", data);
 };

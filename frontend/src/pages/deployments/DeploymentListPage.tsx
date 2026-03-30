@@ -328,8 +328,10 @@ const DeploymentListPage: React.FC = () => {
       valueType: "option",
       width: 200,
       render: (_, record) => {
-        const canCancel = record.status === "running" || record.status === "pending";
-        const canRetry = record.status === "failed" || record.status === "cancelled";
+        const canCancel =
+          record.status === "running" || record.status === "pending";
+        const canRetry =
+          record.status === "failed" || record.status === "cancelled";
 
         return (
           <Space size="small">
@@ -346,12 +348,7 @@ const DeploymentListPage: React.FC = () => {
                 title="确定要取消此部署吗？"
                 onConfirm={() => handleCancel(record)}
               >
-                <Button
-                  type="link"
-                  size="small"
-                  danger
-                  icon={<StopOutlined />}
-                >
+                <Button type="link" size="small" danger icon={<StopOutlined />}>
                   取消
                 </Button>
               </Popconfirm>
@@ -471,16 +468,22 @@ const DeploymentListPage: React.FC = () => {
           <>
             <Descriptions column={2} bordered size="small">
               <Descriptions.Item label="部署ID" span={2}>
-                <Typography.Text copyable>{currentDeployment.id}</Typography.Text>
+                <Typography.Text copyable>
+                  {currentDeployment.id}
+                </Typography.Text>
               </Descriptions.Item>
               <Descriptions.Item label="应用">
-                {currentDeployment.applicationName || currentDeployment.applicationId}
+                {currentDeployment.applicationName ||
+                  currentDeployment.applicationId}
               </Descriptions.Item>
               <Descriptions.Item label="环境">
-                {currentDeployment.environmentName || currentDeployment.environmentId}
+                {currentDeployment.environmentName ||
+                  currentDeployment.environmentId}
               </Descriptions.Item>
               <Descriptions.Item label="版本">
-                <Typography.Text code>{currentDeployment.version}</Typography.Text>
+                <Typography.Text code>
+                  {currentDeployment.version}
+                </Typography.Text>
               </Descriptions.Item>
               <Descriptions.Item label="状态">
                 <Tag color={statusColors[currentDeployment.status]}>
@@ -542,23 +545,24 @@ const DeploymentListPage: React.FC = () => {
               currentDeployment.stages?.map(renderStageProgress)
             )}
 
-            {currentDeployment.artifacts && currentDeployment.artifacts.length > 0 && (
-              <>
-                <h4 style={{ marginTop: 16, marginBottom: 8 }}>构建产物</h4>
-                {currentDeployment.artifacts.map((artifact, idx) => (
-                  <div key={idx} style={{ marginBottom: 8 }}>
-                    <Typography.Link href={artifact.url}>
-                      {artifact.name}
-                    </Typography.Link>
-                    {artifact.size && (
-                      <Typography.Text type="secondary">
-                        ({artifact.size} bytes)
-                      </Typography.Text>
-                    )}
-                  </div>
-                ))}
-              </>
-            )}
+            {currentDeployment.artifacts &&
+              currentDeployment.artifacts.length > 0 && (
+                <>
+                  <h4 style={{ marginTop: 16, marginBottom: 8 }}>构建产物</h4>
+                  {currentDeployment.artifacts.map((artifact, idx) => (
+                    <div key={idx} style={{ marginBottom: 8 }}>
+                      <Typography.Link href={artifact.url}>
+                        {artifact.name}
+                      </Typography.Link>
+                      {artifact.size && (
+                        <Typography.Text type="secondary">
+                          ({artifact.size} bytes)
+                        </Typography.Text>
+                      )}
+                    </div>
+                  ))}
+                </>
+              )}
           </>
         )}
       </Drawer>

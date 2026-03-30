@@ -1,6 +1,5 @@
 package com.easystation.agent.collaboration.resource;
 
-import com.easystation.agent.collaboration.domain.AgentMessage;
 import com.easystation.agent.collaboration.dto.AgentMessageDTO;
 import com.easystation.agent.collaboration.dto.SendMessageRequest;
 import com.easystation.agent.collaboration.spi.CollaborationService;
@@ -10,7 +9,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Agent 消息 REST API
@@ -27,65 +25,61 @@ public class MessageResource {
      * 发送消息
      */
     @POST
-    public Response sendMessage(@QueryParam("sessionId") Long sessionId,
-                               SendMessageRequest request,
+    public Response sendMessage(SendMessageRequest request,
                                @HeaderParam("X-Agent-ID") String agentId) {
-        if (!request.validate()) {
+        // Validate required fields
+        if (request.sessionId == null) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("{\"error\": \"Invalid request: type, fromAgentId, and content are required\"}")
+                    .entity("{\"error\": \"sessionId is required\"}")
+                    .build();
+        }
+        if (request.content == null || request.content.trim().isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"content is required\"}")
                     .build();
         }
 
-        AgentMessage message = collaborationService.sendMessage(
-                sessionId,
-                request.type,
-                request.fromAgentId != null ? request.fromAgentId : agentId,
-                request.toAgentId,
-                request.subject,
-                request.content,
-                request.correlationId
-        );
+        // Set from agent ID from header if not provided
+        if (request.fromAgentId == null || request.fromAgentId.trim().isEmpty()) {
+            request.fromAgentId = agentId != null ? agentId : "system";
+        }
 
-        return Response.status(Response.Status.CREATED)
-                .entity(AgentMessageDTO.fromEntity(message))
-                .build();
+        AgentMessageDTO message = collaborationService.sendMessage(request);
+        return Response.status(Response.Status.CREATED).entity(message).build();
     }
 
     /**
-     * 获取消息历史
+     * 获取会话消息
      */
     @GET
-    public Response getMessages(@QueryParam("sessionId") Long sessionId,
-                               @QueryParam("sinceMessageId") Long sinceMessageId,
-                               @QueryParam("limit") @DefaultValue("50") int limit) {
-        List<AgentMessage> messages = collaborationService.getMessages(sessionId, sinceMessageId, limit);
-        List<AgentMessageDTO> dtos = messages.stream()
-                .map(AgentMessageDTO::fromEntity)
-                .collect(Collectors.toList());
-        return Response.ok(dtos).build();
+    @Path("/session/{sessionId}")
+    public Response getSessionMessages(@PathParam("sessionId") Long sessionId) {
+        List<AgentMessageDTO> messages = collaborationService.getSessionMessages(sessionId);
+        return Response.ok(messages).build();
     }
 
     /**
-     * 获取未读消息
+     * 获取 Agent 的消息
      */
     @GET
-    @Path("/unread")
-    public Response getUnreadMessages(@QueryParam("sessionId") Long sessionId,
-                                     @QueryParam("agentId") String agentId) {
-        List<AgentMessage> messages = collaborationService.getUnreadMessages(sessionId, agentId);
-        List<AgentMessageDTO> dtos = messages.stream()
-                .map(AgentMessageDTO::fromEntity)
-                .collect(Collectors.toList());
-        return Response.ok(dtos).build();
+    @Path("/agent/{agentId}")
+    public Response getMessagesForAgent(@PathParam("agentId") String agentId) {
+        List<AgentMessageDTO> messages = collaborationService.getMessagesForAgent(agentId);
+        return Response.ok(messages).build();
     }
 
     /**
-     * 标记消息为已读
+     * 获取消息详情
      */
-    @POST
-    @Path("/{messageId}/read")
-    public Response markAsRead(@PathParam("messageId") Long messageId) {
-        collaborationService.markMessageAsRead(messageId);
-        return Response.noContent().build();
+    @GET
+    @Path("/{messageId}")
+    public Response getMessage(@PathParam("messageId") Long messageId) {
+        AgentMessageDTO message = collaborationService.getMessageById(messageId);
+        if (message == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("{\"error\": \"Message not found: " + messageId + "\"}")
+                    .build();
+        }
+        return Response.ok(message).build();
     }
 }

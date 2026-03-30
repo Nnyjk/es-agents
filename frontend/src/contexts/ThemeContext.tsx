@@ -1,10 +1,16 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 // ============================================
 // ESA 主题上下文 - 深色模式支持 (Issue #349)
 // ============================================
 
-type Theme = 'light' | 'dark';
+type Theme = "light" | "dark";
 
 interface ThemeContextType {
   theme: Theme;
@@ -21,19 +27,19 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   children,
-  defaultTheme = 'light',
+  defaultTheme = "light",
 }) => {
   const [theme, setThemeState] = useState<Theme>(() => {
     // 从 localStorage 读取主题偏好
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('esa-theme') as Theme | null;
-      if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+    if (typeof window !== "undefined") {
+      const savedTheme = localStorage.getItem("esa-theme") as Theme | null;
+      if (savedTheme && (savedTheme === "light" || savedTheme === "dark")) {
         return savedTheme;
       }
-      
+
       // 如果没有保存的主题，检查系统偏好
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'dark';
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        return "dark";
       }
     }
     return defaultTheme;
@@ -42,27 +48,27 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
   // 应用主题到 document
   useEffect(() => {
     const root = document.documentElement;
-    root.setAttribute('data-theme', theme);
-    localStorage.setItem('esa-theme', theme);
+    root.setAttribute("data-theme", theme);
+    localStorage.setItem("esa-theme", theme);
   }, [theme]);
 
   // 监听系统主题变化
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (event: MediaQueryListEvent) => {
       // 只有在没有用户偏好时才跟随系统
-      const savedTheme = localStorage.getItem('esa-theme');
+      const savedTheme = localStorage.getItem("esa-theme");
       if (!savedTheme) {
-        setThemeState(event.matches ? 'dark' : 'light');
+        setThemeState(event.matches ? "dark" : "light");
       }
     };
 
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
   const toggleTheme = () => {
-    setThemeState((prev) => (prev === 'light' ? 'dark' : 'light'));
+    setThemeState((prev) => (prev === "light" ? "dark" : "light"));
   };
 
   const setTheme = (newTheme: Theme) => {
@@ -83,7 +89,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
 export const useTheme = (): ThemeContextType => {
   const context = useContext(ThemeContext);
   if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;
 };

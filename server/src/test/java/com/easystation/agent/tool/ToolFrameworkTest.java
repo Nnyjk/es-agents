@@ -55,7 +55,7 @@ public class ToolFrameworkTest {
         ToolDefinition shellTool = toolDefinitionRepository.findByToolId("shell.execute");
         assertNotNull(shellTool, "shell.execute tool should exist");
         assertEquals("Shell 命令执行", shellTool.name);
-        assertEquals(ToolStatus.ACTIVE, shellTool.status);
+        assertEquals(ToolStatus.ENABLED, shellTool.status);
     }
 
     /**

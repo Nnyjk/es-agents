@@ -1,6 +1,5 @@
 package com.easystation.agent.collaboration.resource;
 
-import com.easystation.agent.collaboration.domain.CollaborationSession;
 import com.easystation.agent.collaboration.dto.*;
 import com.easystation.agent.collaboration.spi.CollaborationService;
 import jakarta.inject.Inject;
@@ -9,7 +8,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 协作会话 REST API
@@ -27,22 +25,19 @@ public class CollaborationResource {
      */
     @POST
     public Response createSession(CreateSessionRequest request, @HeaderParam("X-Agent-ID") String agentId) {
-        if (!request.validate()) {
+        if (request.name == null || request.name.trim().isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("{\"error\": \"Invalid request: name is required\"}")
                     .build();
         }
 
-        CollaborationSession session = collaborationService.createSession(
-                request.name,
-                request.description,
-                agentId != null ? agentId : "system",
-                request.agentIds
-        );
+        // Set creator agent ID from header if not provided
+        if (request.creatorAgentId == null || request.creatorAgentId.trim().isEmpty()) {
+            request.creatorAgentId = agentId != null ? agentId : "system";
+        }
 
-        return Response.status(Response.Status.CREATED)
-                .entity(CollaborationSessionDTO.fromEntity(session))
-                .build();
+        CollaborationSessionDTO session = collaborationService.createSession(request);
+        return Response.status(Response.Status.CREATED).entity(session).build();
     }
 
     /**
@@ -51,13 +46,23 @@ public class CollaborationResource {
     @GET
     @Path("/{sessionId}")
     public Response getSession(@PathParam("sessionId") Long sessionId) {
-        CollaborationSession session = collaborationService.getSession(sessionId);
+        CollaborationSessionDTO session = collaborationService.getSession(sessionId);
         if (session == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("{\"error\": \"Session not found: " + sessionId + "\"}")
                     .build();
         }
-        return Response.ok(CollaborationSessionDTO.fromEntity(session)).build();
+        return Response.ok(session).build();
+    }
+
+    /**
+     * 列出所有会话
+     */
+    @GET
+    @Path("/all")
+    public Response listAllSessions() {
+        List<CollaborationSessionDTO> sessions = collaborationService.listSessions();
+        return Response.ok(sessions).build();
     }
 
     /**
@@ -65,10 +70,7 @@ public class CollaborationResource {
      */
     @GET
     public Response listActiveSessions() {
-        List<CollaborationSessionDTO> sessions = collaborationService.listActiveSessions()
-                .stream()
-                .map(CollaborationSessionDTO::fromEntity)
-                .collect(Collectors.toList());
+        List<CollaborationSessionDTO> sessions = collaborationService.getActiveSessions();
         return Response.ok(sessions).build();
     }
 
@@ -84,8 +86,8 @@ public class CollaborationResource {
                     .entity("{\"error\": \"Agent-ID header is required\"}")
                     .build();
         }
-        collaborationService.joinSession(sessionId, agentId);
-        return Response.noContent().build();
+        CollaborationSessionDTO session = collaborationService.joinSession(sessionId, agentId);
+        return Response.ok(session).build();
     }
 
     /**
@@ -100,8 +102,8 @@ public class CollaborationResource {
                     .entity("{\"error\": \"Agent-ID header is required\"}")
                     .build();
         }
-        collaborationService.leaveSession(sessionId, agentId);
-        return Response.noContent().build();
+        CollaborationSessionDTO session = collaborationService.leaveSession(sessionId, agentId);
+        return Response.ok(session).build();
     }
 
     /**
@@ -110,7 +112,7 @@ public class CollaborationResource {
     @POST
     @Path("/{sessionId}/close")
     public Response closeSession(@PathParam("sessionId") Long sessionId) {
-        collaborationService.closeSession(sessionId);
-        return Response.noContent().build();
+        CollaborationSessionDTO session = collaborationService.closeSession(sessionId);
+        return Response.ok(session).build();
     }
 }

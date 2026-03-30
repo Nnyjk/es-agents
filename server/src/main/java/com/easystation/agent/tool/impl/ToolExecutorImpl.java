@@ -159,7 +159,8 @@ public class ToolExecutorImpl implements ToolExecutor {
             return (String) obj;
         }
         try {
-            return com.fasterxml.jackson.databind.ObjectMapperCompat.writeValueAsString(obj);
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            return mapper.writeValueAsString(obj);
         } catch (Exception e) {
             return obj.toString();
         }

@@ -172,7 +172,7 @@ class PluginRegistryTest {
         }
         
         @Override
-        public String getClassName() {
+        public String getMainClass() {
             return "com.example.MockPlugin";
         }
         
@@ -182,8 +182,16 @@ class PluginRegistryTest {
         @Override
         public String getAuthor() { return null; }
         @Override
-        public java.util.List<PluginDependency> getDependencies() { return null; }
+        public String getLicense() { return null; }
         @Override
-        public java.util.Map<String, String> getSettings() { return null; }
+        public java.util.List<PluginDependency> getDependencies() { return java.util.Collections.emptyList(); }
+        @Override
+        public java.util.List<String> getProvides() { return java.util.Collections.emptyList(); }
+        @Override
+        public java.util.List<String> getRequires() { return java.util.Collections.emptyList(); }
+        @Override
+        public java.util.Map<String, Object> getConfigDefaults() { return java.util.Collections.emptyMap(); }
+        @Override
+        public java.util.Map<String, Object> getConfigSchema() { return java.util.Collections.emptyMap(); }
     }
 }

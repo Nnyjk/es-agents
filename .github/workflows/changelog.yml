@@ -14,7 +14,7 @@ jobs:
   update-changelog:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, 'chore(release)') && !contains(github.event.head_commit.message, 'ci skip')"
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,7 +25,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install conventional-changelog-cli
         run: npm install -g conventional-changelog-cli
@@ -34,7 +34,7 @@ jobs:
         run: |
           # Generate changelog from all commits
           conventional-changelog -p angular -i CHANGELOG.md -s -r 0
-          
+
       - name: Commit CHANGELOG and create PR
         run: |
           git config --local user.email "y-bot-n@example.com"

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Col, Row, Statistic, Progress, Spin, Alert, Table } from 'antd';
+import React, { useEffect, useState } from "react";
+import { Card, Col, Row, Statistic, Progress, Spin, Alert, Table } from "antd";
 import {
   CpuOutlined,
   MemoryOutlined,
@@ -7,7 +7,7 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   RocketOutlined,
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 
 interface MetricsSummary {
   jvmMemory: {
@@ -47,9 +47,9 @@ const MetricsPage: React.FC = () => {
   const fetchMetrics = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/v1/metrics/summary', {
+      const response = await fetch("/api/v1/metrics/summary", {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
       if (!response.ok) {
@@ -66,7 +66,7 @@ const MetricsPage: React.FC = () => {
   };
 
   const formatBytes = (bytes?: number): string => {
-    if (bytes === undefined) return 'N/A';
+    if (bytes === undefined) return "N/A";
     const gb = bytes / (1024 * 1024 * 1024);
     return `${gb.toFixed(2)} GB`;
   };
@@ -86,7 +86,7 @@ const MetricsPage: React.FC = () => {
 
   if (loading && !metrics) {
     return (
-      <div style={{ textAlign: 'center', padding: '100px' }}>
+      <div style={{ textAlign: "center", padding: "100px" }}>
         <Spin size="large" tip="加载指标数据..." />
       </div>
     );
@@ -99,17 +99,17 @@ const MetricsPage: React.FC = () => {
         description={error}
         type="error"
         showIcon
-        style={{ margin: '20px' }}
+        style={{ margin: "20px" }}
       />
     );
   }
 
   return (
-    <div style={{ padding: '24px' }}>
+    <div style={{ padding: "24px" }}>
       <h1>系统指标监控</h1>
-      
+
       {/* 资源使用概览 */}
-      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+      <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
         <Col xs={24} sm={12} md={6}>
           <Card>
             <Statistic
@@ -120,14 +120,14 @@ const MetricsPage: React.FC = () => {
               valueStyle={{
                 color:
                   (metrics?.cpu?.usage || 0) > 0.8
-                    ? '#cf1322'
+                    ? "#cf1322"
                     : (metrics?.cpu?.usage || 0) > 0.5
-                    ? '#faad14'
-                    : '#3f8600',
+                      ? "#faad14"
+                      : "#3f8600",
               }}
             />
-            <div style={{ marginTop: '8px', color: '#666' }}>
-              CPU 核心数：{metrics?.cpu?.count || 'N/A'}
+            <div style={{ marginTop: "8px", color: "#666" }}>
+              CPU 核心数：{metrics?.cpu?.count || "N/A"}
             </div>
           </Card>
         </Col>
@@ -139,7 +139,7 @@ const MetricsPage: React.FC = () => {
               value={formatBytes(metrics?.jvmMemory?.heap)}
               prefix={<MemoryOutlined />}
             />
-            <div style={{ marginTop: '8px', color: '#666' }}>
+            <div style={{ marginTop: "8px", color: "#666" }}>
               非堆内存：{formatBytes(metrics?.jvmMemory?.nonheap)}
             </div>
           </Card>
@@ -152,7 +152,7 @@ const MetricsPage: React.FC = () => {
               value={metrics?.jvmThreads?.live || 0}
               prefix={<DashboardOutlined />}
             />
-            <div style={{ marginTop: '8px', color: '#666' }}>
+            <div style={{ marginTop: "8px", color: "#666" }}>
               守护线程：{metrics?.jvmThreads?.daemon || 0}
             </div>
           </Card>
@@ -164,20 +164,20 @@ const MetricsPage: React.FC = () => {
               title="Agent 实例"
               value={metrics?.agent?.count || 0}
               prefix={<RocketOutlined />}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: "#1890ff" }}
             />
           </Card>
         </Col>
       </Row>
 
       {/* 任务统计 */}
-      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+      <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
         <Col xs={24} md={8}>
           <Card title="任务执行统计">
             <Statistic
               title="总执行数"
               value={metrics?.tasks?.executionTotal || 0}
-              valueStyle={{ color: '#1890ff' }}
+              valueStyle={{ color: "#1890ff" }}
             />
           </Card>
         </Col>
@@ -188,7 +188,7 @@ const MetricsPage: React.FC = () => {
               title="成功数"
               value={metrics?.tasks?.successTotal || 0}
               prefix={<CheckCircleOutlined />}
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: "#52c41a" }}
             />
           </Card>
         </Col>
@@ -199,17 +199,23 @@ const MetricsPage: React.FC = () => {
               title="失败数"
               value={metrics?.tasks?.failureTotal || 0}
               prefix={<CloseCircleOutlined />}
-              valueStyle={{ color: '#cf1322' }}
+              valueStyle={{ color: "#cf1322" }}
             />
           </Card>
         </Col>
       </Row>
 
       {/* 成功率进度条 */}
-      <Card title="任务成功率" style={{ marginBottom: '24px' }}>
+      <Card title="任务成功率" style={{ marginBottom: "24px" }}>
         <Progress
           percent={getTaskSuccessRate()}
-          status={getTaskSuccessRate() >= 95 ? 'success' : getTaskSuccessRate() >= 80 ? 'normal' : 'exception'}
+          status={
+            getTaskSuccessRate() >= 95
+              ? "success"
+              : getTaskSuccessRate() >= 80
+                ? "normal"
+                : "exception"
+          }
           format={(percent) => `${percent}% 成功率`}
         />
       </Card>
@@ -218,21 +224,36 @@ const MetricsPage: React.FC = () => {
       <Card title="详细指标">
         <Table
           dataSource={[
-            { name: 'CPU 使用率', value: `${formatPercentage(metrics?.cpu?.usage)}%` },
-            { name: 'CPU 核心数', value: metrics?.cpu?.count || 'N/A' },
-            { name: '堆内存', value: formatBytes(metrics?.jvmMemory?.heap) },
-            { name: '非堆内存', value: formatBytes(metrics?.jvmMemory?.nonheap) },
-            { name: '活跃线程', value: metrics?.jvmThreads?.live || 'N/A' },
-            { name: '守护线程', value: metrics?.jvmThreads?.daemon || 'N/A' },
-            { name: 'Agent 实例数', value: metrics?.agent?.count || 'N/A' },
-            { name: '任务执行总数', value: metrics?.tasks?.executionTotal || 'N/A' },
-            { name: '任务成功数', value: metrics?.tasks?.successTotal || 'N/A' },
-            { name: '任务失败数', value: metrics?.tasks?.failureTotal || 'N/A' },
-            { name: '任务成功率', value: `${getTaskSuccessRate()}%` },
+            {
+              name: "CPU 使用率",
+              value: `${formatPercentage(metrics?.cpu?.usage)}%`,
+            },
+            { name: "CPU 核心数", value: metrics?.cpu?.count || "N/A" },
+            { name: "堆内存", value: formatBytes(metrics?.jvmMemory?.heap) },
+            {
+              name: "非堆内存",
+              value: formatBytes(metrics?.jvmMemory?.nonheap),
+            },
+            { name: "活跃线程", value: metrics?.jvmThreads?.live || "N/A" },
+            { name: "守护线程", value: metrics?.jvmThreads?.daemon || "N/A" },
+            { name: "Agent 实例数", value: metrics?.agent?.count || "N/A" },
+            {
+              name: "任务执行总数",
+              value: metrics?.tasks?.executionTotal || "N/A",
+            },
+            {
+              name: "任务成功数",
+              value: metrics?.tasks?.successTotal || "N/A",
+            },
+            {
+              name: "任务失败数",
+              value: metrics?.tasks?.failureTotal || "N/A",
+            },
+            { name: "任务成功率", value: `${getTaskSuccessRate()}%` },
           ]}
           columns={[
-            { title: '指标名称', dataIndex: 'name', key: 'name' },
-            { title: '数值', dataIndex: 'value', key: 'value' },
+            { title: "指标名称", dataIndex: "name", key: "name" },
+            { title: "数值", dataIndex: "value", key: "value" },
           ]}
           pagination={false}
           size="small"

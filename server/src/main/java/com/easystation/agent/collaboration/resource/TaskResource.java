@@ -1,6 +1,5 @@
 package com.easystation.agent.collaboration.resource;
 
-import com.easystation.agent.collaboration.domain.AgentTask;
 import com.easystation.agent.collaboration.dto.*;
 import com.easystation.agent.collaboration.spi.CollaborationService;
 import jakarta.inject.Inject;
@@ -9,7 +8,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 协作任务 REST API
@@ -26,8 +24,7 @@ public class TaskResource {
      * 创建任务
      */
     @POST
-    public Response createTask(@QueryParam("sessionId") Long sessionId,
-                              CreateTaskRequest request,
+    public Response createTask(CreateTaskRequest request,
                               @HeaderParam("X-Agent-ID") String agentId) {
         if (!request.validate()) {
             return Response.status(Response.Status.BAD_REQUEST)
@@ -35,19 +32,14 @@ public class TaskResource {
                     .build();
         }
 
-        AgentTask task = collaborationService.createTask(
-                sessionId,
-                request.title,
-                request.description,
-                request.taskType,
-                request.priority,
-                agentId != null ? agentId : "system",
-                request.parameters
+        // Create task using the service interface
+        AgentTaskDTO task = collaborationService.createTask(
+            null, // sessionId - not available from request
+            request.title,
+            request.description,
+            request.priority != null ? request.priority : "MEDIUM"
         );
-
-        return Response.status(Response.Status.CREATED)
-                .entity(AgentTaskDTO.fromEntity(task))
-                .build();
+        return Response.status(Response.Status.CREATED).entity(task).build();
     }
 
     /**
@@ -56,40 +48,33 @@ public class TaskResource {
     @GET
     @Path("/{taskId}")
     public Response getTask(@PathParam("taskId") Long taskId) {
-        AgentTask task = collaborationService.getTask(taskId);
+        AgentTaskDTO task = collaborationService.getTask(taskId);
         if (task == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("{\"error\": \"Task not found: " + taskId + "\"}")
                     .build();
         }
-        return Response.ok(AgentTaskDTO.fromEntity(task)).build();
+        return Response.ok(task).build();
     }
 
     /**
-     * 获取会话任务列表
+     * 获取会话的任务列表
      */
     @GET
-    public Response getSessionTasks(@QueryParam("sessionId") Long sessionId,
-                                   @QueryParam("status") String status) {
-        List<AgentTask> tasks = collaborationService.getSessionTasks(sessionId, status);
-        List<AgentTaskDTO> dtos = tasks.stream()
-                .map(AgentTaskDTO::fromEntity)
-                .collect(Collectors.toList());
-        return Response.ok(dtos).build();
+    @Path("/session/{sessionId}")
+    public Response getSessionTasks(@PathParam("sessionId") Long sessionId) {
+        List<AgentTaskDTO> tasks = collaborationService.getSessionTasks(sessionId);
+        return Response.ok(tasks).build();
     }
 
     /**
-     * 获取分配给 Agent 的任务
+     * 按状态获取任务
      */
     @GET
-    @Path("/assigned")
-    public Response getAssignedTasks(@QueryParam("agentId") String agentId,
-                                    @QueryParam("status") String status) {
-        List<AgentTask> tasks = collaborationService.getTasksByAgent(agentId, status);
-        List<AgentTaskDTO> dtos = tasks.stream()
-                .map(AgentTaskDTO::fromEntity)
-                .collect(Collectors.toList());
-        return Response.ok(dtos).build();
+    @Path("/status/{status}")
+    public Response getTasksByStatus(@PathParam("status") String status) {
+        List<AgentTaskDTO> tasks = collaborationService.getTasksByStatus(status);
+        return Response.ok(tasks).build();
     }
 
     /**
@@ -104,18 +89,24 @@ public class TaskResource {
                     .entity("{\"error\": \"Invalid request: taskId and agentId are required\"}")
                     .build();
         }
-        collaborationService.assignTask(request.taskId != null ? request.taskId : taskId, request.agentId);
-        return Response.noContent().build();
+        AgentTaskDTO task = collaborationService.assignTask(taskId, request.agentId);
+        return Response.ok(task).build();
     }
 
     /**
-     * 开始任务
+     * 更新任务状态
      */
-    @POST
-    @Path("/{taskId}/start")
-    public Response startTask(@PathParam("taskId") Long taskId) {
-        collaborationService.startTask(taskId);
-        return Response.noContent().build();
+    @PUT
+    @Path("/{taskId}/status")
+    public Response updateTaskStatus(@PathParam("taskId") Long taskId,
+                                    String status) {
+        if (status == null || status.trim().isEmpty()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("{\"error\": \"status is required\"}")
+                    .build();
+        }
+        AgentTaskDTO task = collaborationService.updateTaskStatus(taskId, status);
+        return Response.ok(task).build();
     }
 
     /**
@@ -124,37 +115,24 @@ public class TaskResource {
     @POST
     @Path("/{taskId}/complete")
     public Response completeTask(@PathParam("taskId") Long taskId,
-                                TaskCompletionResponse request) {
-        if (!request.validate()) {
+                                TaskCompletionResponse response) {
+        if (response == null || response.taskId == null) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("{\"error\": \"Invalid request: taskId is required\"}")
+                    .entity("{\"error\": \"Invalid request\"}")
                     .build();
         }
-        collaborationService.completeTask(
-                request.taskId != null ? request.taskId : taskId,
-                request.result
-        );
-        return Response.noContent().build();
+        AgentTaskDTO task = collaborationService.completeTask(taskId, response.result);
+        return Response.ok(task).build();
     }
 
     /**
-     * 失败任务
+     * 任务失败
      */
     @POST
     @Path("/{taskId}/fail")
     public Response failTask(@PathParam("taskId") Long taskId,
-                            @FormParam("error") String error) {
-        collaborationService.failTask(taskId, error != null ? error : "Unknown error");
-        return Response.noContent().build();
-    }
-
-    /**
-     * 取消任务
-     */
-    @POST
-    @Path("/{taskId}/cancel")
-    public Response cancelTask(@PathParam("taskId") Long taskId) {
-        collaborationService.cancelTask(taskId);
-        return Response.noContent().build();
+                           String error) {
+        AgentTaskDTO task = collaborationService.failTask(taskId, error);
+        return Response.ok(task).build();
     }
 }

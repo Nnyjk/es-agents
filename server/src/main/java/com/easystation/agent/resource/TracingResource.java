@@ -16,9 +16,9 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.time.Instant;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -90,9 +90,9 @@ public class TracingResource {
             150L,
             false,
             List.of(
-                AbstractMap.simpleEntry("http.method", "GET"),
-                AbstractMap.simpleEntry("http.url", "/api/v1/agents"),
-                AbstractMap.simpleEntry("http.status_code", "200")
+                Map.entry("http.method", "GET"),
+                Map.entry("http.url", "/api/v1/agents"),
+                Map.entry("http.status_code", "200")
             )
         ));
         
@@ -107,8 +107,8 @@ public class TracingResource {
             80L,
             false,
             List.of(
-                AbstractMap.simpleEntry("agent.count", "5"),
-                AbstractMap.simpleEntry("db.query.time", "30ms")
+                Map.entry("agent.count", "5"),
+                Map.entry("db.query.time", "30ms")
             )
         ));
         

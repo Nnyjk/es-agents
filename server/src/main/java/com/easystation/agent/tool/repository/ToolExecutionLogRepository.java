@@ -2,17 +2,19 @@ package com.easystation.agent.tool.repository;
 
 import com.easystation.agent.tool.domain.ToolExecutionLog;
 import com.easystation.agent.tool.domain.ToolExecutionStatus;
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 工具执行日志数据访问层
+ * 使用 PanacheRepositoryBase<ToolExecutionLog, UUID> 因为 ToolExecutionLog 实体使用 UUID 作为 ID
  */
 @ApplicationScoped
-public class ToolExecutionLogRepository implements PanacheRepository<ToolExecutionLog> {
+public class ToolExecutionLogRepository implements PanacheRepositoryBase<ToolExecutionLog, UUID> {
 
     /**
      * 根据工具 ID 查找最近的执行日志

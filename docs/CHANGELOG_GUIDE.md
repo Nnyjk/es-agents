@@ -20,19 +20,19 @@
 
 ### Commit 类型
 
-| 类型 | 说明 | 是否出现在 CHANGELOG |
-|------|------|---------------------|
-| `feat` | 新功能 | ✅ Features |
-| `fix` | Bug 修复 | ✅ Bug Fixes |
-| `docs` | 文档更新 | ✅ Documentation |
-| `style` | 代码格式（不影响代码逻辑） | ❌ |
-| `refactor` | 代码重构 | ✅ Code Refactoring |
-| `perf` | 性能优化 | ✅ Performance Improvements |
-| `test` | 测试相关 | ❌ |
-| `build` | 构建系统 | ✅ Build System |
-| `ci` | CI/CD 配置 | ✅ Continuous Integration |
-| `chore` | 其他杂项 | ❌ |
-| `revert` | 回滚提交 | ✅ Reverts |
+| 类型       | 说明                       | 是否出现在 CHANGELOG        |
+| ---------- | -------------------------- | --------------------------- |
+| `feat`     | 新功能                     | ✅ Features                 |
+| `fix`      | Bug 修复                   | ✅ Bug Fixes                |
+| `docs`     | 文档更新                   | ✅ Documentation            |
+| `style`    | 代码格式（不影响代码逻辑） | ❌                          |
+| `refactor` | 代码重构                   | ✅ Code Refactoring         |
+| `perf`     | 性能优化                   | ✅ Performance Improvements |
+| `test`     | 测试相关                   | ❌                          |
+| `build`    | 构建系统                   | ✅ Build System             |
+| `ci`       | CI/CD 配置                 | ✅ Continuous Integration   |
+| `chore`    | 其他杂项                   | ❌                          |
+| `revert`   | 回滚提交                   | ✅ Reverts                  |
 
 ### 示例
 
@@ -60,6 +60,7 @@ BREAKING CHANGE: authentication endpoint now requires Bearer token prefix"
 ### 1. 自动更新 CHANGELOG
 
 当 PR 合并到 `main` 分支时，GitHub Action 会自动：
+
 - 解析 Conventional Commits
 - 更新 `CHANGELOG.md`
 - 提交变更
@@ -74,6 +75,7 @@ BREAKING CHANGE: authentication endpoint now requires Bearer token prefix"
 4. 点击 **Run workflow**
 
 发布流程会自动：
+
 - 构建前端、服务端、Agent
 - 生成对应版本的 CHANGELOG 段落
 - 创建 GitHub Release 并上传构建产物

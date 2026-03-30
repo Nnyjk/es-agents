@@ -54,7 +54,6 @@ public class CustomMetrics {
         // 任务执行时间
         taskExecutionTime = Timer.builder("esa.task.execution.time")
                 .description("任务执行时间")
-                .baseUnit("seconds")
                 .register(registry);
     }
 

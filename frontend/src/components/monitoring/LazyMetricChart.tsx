@@ -1,9 +1,9 @@
-import React, { lazy, Suspense } from 'react';
-import { Spin, Card } from 'antd';
-import type { TimeSeriesData, TimeRangePreset } from '../../types/monitoring';
+import React, { lazy, Suspense } from "react";
+import { Spin, Card } from "antd";
+import type { TimeSeriesData, TimeRangePreset } from "../../types/monitoring";
 
 // 懒加载 Recharts
-const MetricChart = lazy(() => import('./MetricChart'));
+const MetricChart = lazy(() => import("./MetricChart"));
 
 interface LazyMetricChartProps {
   title: string;
@@ -26,12 +26,14 @@ interface LazyMetricChartProps {
 export const LazyMetricChart: React.FC<LazyMetricChartProps> = (props) => {
   const defaultLoading = (
     <Card title={props.title} style={{ height: props.height || 300 }}>
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        height: '100%'
-      }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100%",
+        }}
+      >
         <Spin tip="加载图表..." />
       </div>
     </Card>
