@@ -1,7 +1,6 @@
 package com.easystation.agent.resource;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tag;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import io.quarkus.runtime.Startup;
 import jakarta.inject.Inject;
