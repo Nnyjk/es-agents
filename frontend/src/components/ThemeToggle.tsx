@@ -1,16 +1,18 @@
-import React from 'react';
-import { IconButton, Tooltip } from '@mui/material';
-import { useTheme } from '../contexts/ThemeContext';
+import React from "react";
+import { IconButton, Tooltip } from "@mui/material";
+import { useTheme } from "../contexts/ThemeContext";
 
 // ============================================
 // ESA 主题切换按钮 - 深色模式支持 (Issue #349)
 // ============================================
 
 interface ThemeToggleProps {
-  size?: 'small' | 'medium' | 'large';
+  size?: "small" | "medium" | "large";
 }
 
-export const ThemeToggle: React.FC<ThemeToggleProps> = ({ size = 'medium' }) => {
+export const ThemeToggle: React.FC<ThemeToggleProps> = ({
+  size = "medium",
+}) => {
   const { theme, toggleTheme } = useTheme();
 
   // 太阳图标（浅色模式）
@@ -56,8 +58,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ size = 'medium' }) => 
   );
 
   return (
-    <Tooltip 
-      title={theme === 'light' ? '切换到深色模式' : '切换到浅色模式'}
+    <Tooltip
+      title={theme === "light" ? "切换到深色模式" : "切换到浅色模式"}
       placement="bottom"
     >
       <IconButton
@@ -65,16 +67,16 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ size = 'medium' }) => 
         size={size}
         color="inherit"
         sx={{
-          borderRadius: '50%',
-          transition: 'transform 0.2s ease, background-color 0.2s ease',
-          '&:hover': {
-            transform: 'scale(1.1)',
-            backgroundColor: 'var(--bg-secondary)',
+          borderRadius: "50%",
+          transition: "transform 0.2s ease, background-color 0.2s ease",
+          "&:hover": {
+            transform: "scale(1.1)",
+            backgroundColor: "var(--bg-secondary)",
           },
         }}
         aria-label="toggle theme"
       >
-        {theme === 'light' ? <SunIcon /> : <MoonIcon />}
+        {theme === "light" ? <SunIcon /> : <MoonIcon />}
       </IconButton>
     </Tooltip>
   );

@@ -424,7 +424,11 @@ export interface DeploymentStatistics {
 /**
  * 部署进度阶段状态
  */
-export type DeploymentStageStatus = "pending" | "running" | "success" | "failed";
+export type DeploymentStageStatus =
+  | "pending"
+  | "running"
+  | "success"
+  | "failed";
 
 /**
  * 部署进度阶段

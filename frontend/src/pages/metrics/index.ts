@@ -1,1 +1,1 @@
-export { default as MetricsPage } from './MetricsPage';
+export { default as MetricsPage } from "./MetricsPage";

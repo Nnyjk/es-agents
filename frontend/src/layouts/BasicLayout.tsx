@@ -102,9 +102,7 @@ const BasicLayout: React.FC = () => {
           );
         },
       }}
-      actions={[
-        <ThemeToggle key="theme-toggle" />,
-      ]}
+      actions={[<ThemeToggle key="theme-toggle" />]}
       menuItemRender={(item, dom) => (
         <a
           onClick={() => {
