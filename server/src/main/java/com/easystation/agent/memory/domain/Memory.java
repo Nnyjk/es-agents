@@ -62,9 +62,8 @@ public class Memory extends PanacheEntityBase {
     public MemoryImportance importance = MemoryImportance.MEDIUM;
 
     /** 向量嵌入（用于相似度搜索） */
-    // Use BLOB for H2 compatibility, PostgreSQL will handle float[] appropriately
+    // Let Hibernate choose appropriate type based on dialect
     @Lob
-    @Column(columnDefinition = "BLOB")
     public float[] embedding;
 
     /** 是否已压缩 */
