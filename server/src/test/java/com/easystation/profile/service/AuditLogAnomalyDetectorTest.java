@@ -4,6 +4,7 @@ import com.easystation.profile.domain.UserAuditLog;
 import com.easystation.profile.service.AuditLogEnhancedService.AuditAnomaly;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,6 +32,7 @@ public class AuditLogAnomalyDetectorTest {
     }
 
     @Test
+    @Transactional
     void testDetectFrequentFailures() {
         // 创建多次失败登录记录
         for (int i = 0; i < 6; i++) {
@@ -56,6 +58,7 @@ public class AuditLogAnomalyDetectorTest {
     }
 
     @Test
+    @Transactional
     void testDetectMultipleIPs() {
         // 创建来自多个 IP 的登录记录
         String[] ips = {"192.168.1.1", "192.168.1.2", "192.168.1.3", "192.168.1.4", "192.168.1.5"};
@@ -82,6 +85,7 @@ public class AuditLogAnomalyDetectorTest {
     }
 
     @Test
+    @Transactional
     void testDetectHighRiskActivities() {
         // 创建高风险操作记录
         for (int i = 0; i < 3; i++) {
@@ -107,6 +111,7 @@ public class AuditLogAnomalyDetectorTest {
     }
 
     @Test
+    @Transactional
     void testDetectSensitiveDataAccess() {
         // 创建敏感数据访问记录
         for (int i = 0; i < 5; i++) {
@@ -133,6 +138,7 @@ public class AuditLogAnomalyDetectorTest {
     }
 
     @Test
+    @Transactional
     void testNoAnomalies_NormalActivity() {
         // 创建正常活动记录
         for (int i = 0; i < 3; i++) {
@@ -156,6 +162,7 @@ public class AuditLogAnomalyDetectorTest {
     }
 
     @Test
+    @Transactional
     void testDetectAfterHoursActivity() {
         // 创建非工作时间活动记录（凌晨 3 点）
         for (int i = 0; i < 3; i++) {
@@ -181,6 +188,7 @@ public class AuditLogAnomalyDetectorTest {
     }
 
     @Test
+    @Transactional
     void testDetectBulkOperations() {
         // 创建批量操作记录
         for (int i = 0; i < 10; i++) {
@@ -206,6 +214,7 @@ public class AuditLogAnomalyDetectorTest {
     }
 
     @Test
+    @Transactional
     void testAnomalyDetails() {
         // 创建异常活动
         for (int i = 0; i < 6; i++) {

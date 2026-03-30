@@ -36,7 +36,7 @@ public class UserSearchHistory extends PanacheEntityBase {
      * 查找指定用户的搜索历史
      */
     public static java.util.List<UserSearchHistory> findByUserId(UUID userId, int limit) {
-        return find("userId order by createdAt desc", userId)
+        return find("userId = ?1 order by createdAt desc", userId)
             .page(0, limit)
             .list();
     }
@@ -45,20 +45,20 @@ public class UserSearchHistory extends PanacheEntityBase {
      * 查找指定用户的搜索历史（按查询关键词）
      */
     public static java.util.List<UserSearchHistory> findByUserIdAndQuery(UUID userId, String query) {
-        return find("userId AND query LIKE ?1", userId, "%" + query + "%").list();
+        return find("userId = ?1 AND query LIKE ?2", userId, "%" + query + "%").list();
     }
 
     /**
      * 删除指定用户的搜索历史
      */
     public static long deleteByUserId(UUID userId) {
-        return delete("userId", userId);
+        return delete("userId = ?1", userId);
     }
 
     /**
      * 删除指定的搜索历史
      */
     public static long deleteByUserIdAndId(UUID userId, UUID id) {
-        return delete("userId AND id", userId, id);
+        return delete("userId = ?1 AND id = ?2", userId, id);
     }
 }

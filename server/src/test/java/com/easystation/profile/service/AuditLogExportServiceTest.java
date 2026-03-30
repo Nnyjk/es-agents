@@ -4,6 +4,7 @@ import com.easystation.profile.domain.UserAuditLog;
 import com.easystation.profile.repository.AuditLogRepository;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -33,6 +34,7 @@ public class AuditLogExportServiceTest {
     }
 
     @Test
+    @Transactional
     void testExportToCSV() {
         // 创建测试数据
         createTestAuditLogs(5);
@@ -50,6 +52,7 @@ public class AuditLogExportServiceTest {
     }
 
     @Test
+    @Transactional
     void testExportToCSV_Escaping() {
         // 创建包含特殊字符的测试数据
         UserAuditLog log = new UserAuditLog();
@@ -71,6 +74,7 @@ public class AuditLogExportServiceTest {
     }
 
     @Test
+    @Transactional
     void testExportToJSON() {
         // 创建测试数据
         createTestAuditLogs(3);
@@ -86,6 +90,7 @@ public class AuditLogExportServiceTest {
     }
 
     @Test
+    @Transactional
     void testExportToJSON_Empty() {
         UUID emptyUserId = UUID.randomUUID();
         String json = exportService.exportToJSON(emptyUserId, startTime, endTime, 100);
@@ -96,6 +101,7 @@ public class AuditLogExportServiceTest {
     }
 
     @Test
+    @Transactional
     void testExportToGzipCSV() throws Exception {
         // 创建测试数据
         createTestAuditLogs(5);
@@ -110,6 +116,7 @@ public class AuditLogExportServiceTest {
     }
 
     @Test
+    @Transactional
     void testGenerateSummary() {
         // 创建混合测试数据
         createTestAuditLogs(10);
@@ -152,6 +159,7 @@ public class AuditLogExportServiceTest {
     }
 
     @Test
+    @Transactional
     void testGenerateSummary_NoData() {
         UUID emptyUserId = UUID.randomUUID();
         AuditLogExportService.AuditReportSummary summary = 
@@ -167,6 +175,7 @@ public class AuditLogExportServiceTest {
     }
 
     @Test
+    @Transactional
     void testExportWithLimit() {
         // 创建 20 条测试数据
         createTestAuditLogs(20);
