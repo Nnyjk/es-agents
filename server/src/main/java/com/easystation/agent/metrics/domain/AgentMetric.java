@@ -13,7 +13,7 @@ import java.util.UUID;
 /**
  * Agent 指标数据
  */
-@Entity
+@Entity(name = "AgentMetricRecord")
 @Table(name = "agent_metric")
 @Getter
 @Setter

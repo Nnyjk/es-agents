@@ -7,7 +7,7 @@ import java.util.UUID;
 /**
  * 角色权限关联实体
  */
-@Entity
+@Entity(name = "AuthModelRolePermission")
 @Table(name = "role_permissions", 
        uniqueConstraints = @UniqueConstraint(columnNames = {"role_id", "permission_id"}))
 public class RolePermission extends PanacheEntityBase {

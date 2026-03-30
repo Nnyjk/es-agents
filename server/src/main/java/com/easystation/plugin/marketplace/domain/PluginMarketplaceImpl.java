@@ -141,7 +141,11 @@ public class PluginMarketplaceImpl implements PluginMarketplace {
         LOG.infof("Uninstalling plugin: %s", pluginId);
         
         // 调用 PluginManager 卸载插件
-        pluginManager.unloadPlugin(pluginId);
+        if (pluginManager != null) {
+            pluginManager.unloadPlugin(pluginId);
+        } else {
+            LOG.warnf("PluginManager not available, skipping actual unload for: %s", pluginId);
+        }
     }
     
     @Override

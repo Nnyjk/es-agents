@@ -12,12 +12,12 @@ import java.util.UUID;
  * 会话实体
  * 管理 Agent 对话会话和上下文
  */
-@Entity
+@Entity(name = "AgentSession")
 @Table(name = "agent_session", 
        uniqueConstraints = @UniqueConstraint(columnNames = "sessionId"))
-@NamedQuery(name = "Session.findBySessionId", query = "SELECT s FROM Session s WHERE s.sessionId = :sessionId")
-@NamedQuery(name = "Session.findByAgent", query = "SELECT s FROM Session s WHERE s.agentId = :agentId ORDER BY s.lastAccessedAt DESC")
-@NamedQuery(name = "Session.findInactive", query = "SELECT s FROM Session s WHERE s.lastAccessedAt < :threshold")
+@NamedQuery(name = "AgentSession.findBySessionId", query = "SELECT s FROM AgentSession s WHERE s.sessionId = :sessionId")
+@NamedQuery(name = "AgentSession.findByAgent", query = "SELECT s FROM AgentSession s WHERE s.agentId = :agentId ORDER BY s.lastAccessedAt DESC")
+@NamedQuery(name = "AgentSession.findInactive", query = "SELECT s FROM AgentSession s WHERE s.lastAccessedAt < :threshold")
 public class Session extends PanacheEntityBase {
 
     @Id
@@ -67,7 +67,7 @@ public class Session extends PanacheEntityBase {
      */
     public static Session findBySessionId(String sessionId) {
         return getEntityManager()
-                .createNamedQuery("Session.findBySessionId", Session.class)
+                .createNamedQuery("AgentSession.findBySessionId", Session.class)
                 .setParameter("sessionId", sessionId)
                 .getResultStream()
                 .findFirst()
@@ -79,7 +79,7 @@ public class Session extends PanacheEntityBase {
      */
     public static java.util.List<Session> findByAgent(String agentId) {
         return getEntityManager()
-                .createNamedQuery("Session.findByAgent", Session.class)
+                .createNamedQuery("AgentSession.findByAgent", Session.class)
                 .setParameter("agentId", agentId)
                 .getResultList();
     }
@@ -89,7 +89,7 @@ public class Session extends PanacheEntityBase {
      */
     public static java.util.List<Session> findInactive(LocalDateTime threshold) {
         return getEntityManager()
-                .createNamedQuery("Session.findInactive", Session.class)
+                .createNamedQuery("AgentSession.findInactive", Session.class)
                 .setParameter("threshold", threshold)
                 .getResultList();
     }
