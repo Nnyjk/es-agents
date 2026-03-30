@@ -130,6 +130,10 @@ const GrafanaDashboardPage = lazy(
   () => import("./pages/monitoring/GrafanaDashboardPage"),
 );
 
+// Diagnostic (Issue #397)
+const DiagnosticReportList = lazy(() => import("./pages/diagnostic/DiagnosticReportList"));
+const DiagnosticRuleList = lazy(() => import("./pages/diagnostic/DiagnosticRuleList"));
+
 // System Event Log
 const SystemEventLogPage = lazy(() => import("./pages/systemEventLog"));
 
@@ -191,6 +195,11 @@ const App: React.FC = () => {
                 <Route index element={<AlertList />} />
                 <Route path="rules" element={<AlertRulePage />} />
                 <Route path="channels" element={<AlertChannelPage />} />
+              </Route>
+              <Route path="diagnostic">
+                <Route index element={<DiagnosticReportList />} />
+                <Route path="reports" element={<DiagnosticReportList />} />
+                <Route path="rules" element={<DiagnosticRuleList />} />
               </Route>
               <Route path="users" element={<UserList />} />
               <Route path="roles" element={<RoleList />} />
