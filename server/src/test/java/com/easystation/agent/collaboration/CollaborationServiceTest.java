@@ -6,6 +6,7 @@ import com.easystation.agent.collaboration.impl.CollaborationServiceImpl;
 import com.easystation.agent.collaboration.repository.*;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -17,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * 协作服务测试
  */
 @QuarkusTest
+@Transactional
 public class CollaborationServiceTest {
 
     @Inject

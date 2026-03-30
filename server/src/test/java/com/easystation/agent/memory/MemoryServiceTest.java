@@ -8,6 +8,7 @@ import com.easystation.agent.memory.repository.MemoryRepository;
 import com.easystation.agent.memory.repository.SessionRepository;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * 记忆服务单元测试
  */
 @QuarkusTest
+@Transactional
 public class MemoryServiceTest {
 
     @Inject

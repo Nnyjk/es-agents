@@ -9,6 +9,7 @@ import com.easystation.agent.memory.repository.MemoryRepository;
 import com.easystation.agent.memory.repository.SessionRepository;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * 记忆框架集成测试
  */
 @QuarkusTest
+@Transactional
 public class MemoryFrameworkTest {
 
     @Inject

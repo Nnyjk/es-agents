@@ -64,7 +64,7 @@ public class Memory extends PanacheEntityBase {
     /** 向量嵌入（用于相似度搜索） */
     // Use BLOB for H2 compatibility, PostgreSQL will handle float[] appropriately
     @Lob
-    @Column(columnDefinition = "bytea")
+    @Column(columnDefinition = "BLOB")
     public float[] embedding;
 
     /** 是否已压缩 */
