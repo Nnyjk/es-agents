@@ -1,18 +1,30 @@
 {
   "ignorePatterns": [
     {
-      "pattern": "^http(s)?://.*"
+      "pattern": "^[^h].*"
     },
     {
       "pattern": "^mailto:"
     },
     {
       "pattern": "^#"
+    },
+    {
+      "pattern": "^\\./.*"
+    },
+    {
+      "pattern": "^\\.\\.\\/.*"
+    },
+    {
+      "pattern": "docs/.*\\.md"
+    },
+    {
+      "pattern": ".*_%.*"
     }
   ],
   "timeout": "10s",
   "retryOn429": true,
   "retryCount": 3,
   "fallbackRetryDelay": "30s",
-  "aliveStatusCodes": [200, 206]
+  "aliveStatusCodes": [200, 206, 301, 302]
 }
