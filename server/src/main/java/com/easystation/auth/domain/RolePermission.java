@@ -9,7 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "SysRolePermission")
 @Table(name = "sys_role_permission")
 @Getter
 @Setter

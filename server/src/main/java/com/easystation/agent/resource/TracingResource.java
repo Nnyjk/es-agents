@@ -16,6 +16,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,9 +44,12 @@ public class TracingResource {
     public TraceQueryResponse queryTraces(
             @QueryParam("serviceId") String serviceId,
             @QueryParam("operation") String operation,
-            @QueryParam("startTime") Instant startTime,
-            @QueryParam("endTime") Instant endTime,
+            @QueryParam("startTime") String startTimeStr,
+            @QueryParam("endTime") String endTimeStr,
             @QueryParam("limit") Integer limit) {
+        
+        Instant startTime = parseInstant(startTimeStr);
+        Instant endTime = parseInstant(endTimeStr);
         
         List<TraceQueryResponse.TraceSummary> traces = new ArrayList<>();
         
@@ -63,6 +67,20 @@ public class TracingResource {
         }
         
         return new TraceQueryResponse(traces);
+    }
+    
+    /**
+     * 解析 ISO-8601 格式的时间字符串
+     */
+    private Instant parseInstant(String instantStr) {
+        if (instantStr == null || instantStr.isBlank()) {
+            return null;
+        }
+        try {
+            return Instant.parse(instantStr);
+        } catch (DateTimeParseException e) {
+            return null;
+        }
     }
 
     /**

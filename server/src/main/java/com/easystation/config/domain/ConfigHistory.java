@@ -9,7 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "DomainConfigHistory")
 @Table(name = "config_history")
 @Getter
 @Setter

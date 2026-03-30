@@ -17,7 +17,7 @@ import java.util.UUID;
 /**
  * 告警规则配置
  */
-@Entity
+@Entity(name = "AlertRuleEntity")
 @Table(name = "alert_rule")
 @Getter
 @Setter

@@ -1,0 +1,19 @@
+# Test configuration for Quarkus tests
+quarkus:
+  datasource:
+    db-kind: h2
+    jdbc:
+      url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: ""
+  hibernate-orm:
+    database:
+      generation: drop-and-create
+  log:
+    level:
+      root: WARN
+      com.easystation: DEBUG
+
+# Disable plugin loading in tests
+plugins:
+  directory: target/plugins
