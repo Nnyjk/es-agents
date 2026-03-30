@@ -108,9 +108,10 @@ public class AgentMetric extends PanacheEntityBase {
     /**
      * 采集时间
      */
-    @Column(nullable = false)
+    @Column(name = "collected_at", nullable = false)
     public LocalDateTime collectedAt;
 
+    @Column(name = "created_at")
     @CreationTimestamp
     public LocalDateTime createdAt;
 }

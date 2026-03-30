@@ -24,10 +24,10 @@ public class MemoryRepository implements PanacheRepositoryBase<Memory, UUID> {
     }
 
     /**
-     * 按会话和类型查找记忆（带限制）
+     * 按会话和类型查找记忆（带限制，按创建时间倒序）
      */
     public List<Memory> findBySessionIdAndType(String sessionId, MemoryType type, int limit) {
-        return find("sessionId = ?1 and type = ?2", sessionId, type)
+        return find("sessionId = ?1 and type = ?2 order by createdAt desc", sessionId, type)
                 .page(0, limit)
                 .list();
     }

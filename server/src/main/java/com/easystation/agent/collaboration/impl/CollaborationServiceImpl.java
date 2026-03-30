@@ -84,7 +84,7 @@ public class CollaborationServiceImpl implements CollaborationService {
     public CollaborationSessionDTO leaveSession(Long sessionId, String agentId) {
         CollaborationSession session = sessionRepository.findById(sessionId);
         if (session != null && session.agentIds != null) {
-            List<String> agentIds = Arrays.asList(session.agentIds.split(","));
+            List<String> agentIds = new ArrayList<>(Arrays.asList(session.agentIds.split(",")));
             agentIds.remove(agentId);
             session.agentIds = String.join(",", agentIds);
             sessionRepository.persist(session);

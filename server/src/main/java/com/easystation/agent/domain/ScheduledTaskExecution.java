@@ -93,7 +93,7 @@ public class ScheduledTaskExecution extends PanacheEntityBase {
     /**
      * 创建时间
      */
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
     public LocalDateTime createdAt;
 

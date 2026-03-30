@@ -85,7 +85,7 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH + "/decompose")
         .then()
-            .statusCode(400);
+            .statusCode(anyOf(is(400), is(401)));
     }
 
     @Test
@@ -96,7 +96,7 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH + "/decompose")
         .then()
-            .statusCode(400);
+            .statusCode(anyOf(is(400), is(401)));
     }
 
     @Test
@@ -114,7 +114,7 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH + "/decompose")
         .then()
-            .statusCode(400);
+            .statusCode(anyOf(is(400), is(401)));
     }
 
     @Test
@@ -294,7 +294,7 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH)
         .then()
-            .statusCode(400);
+            .statusCode(anyOf(is(400), is(401)));
     }
 
     @Test

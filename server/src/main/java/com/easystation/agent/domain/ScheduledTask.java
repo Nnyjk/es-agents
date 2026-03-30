@@ -86,7 +86,7 @@ public class ScheduledTask extends PanacheEntityBase {
     /**
      * 是否启用
      */
-    @Column(nullable = false)
+    @Column(name = "is_active", nullable = false)
     public Boolean isActive = true;
 
     /**
@@ -104,7 +104,7 @@ public class ScheduledTask extends PanacheEntityBase {
     /**
      * 下次执行时间
      */
-    @Column
+    @Column(name = "next_execution_at")
     public LocalDateTime nextExecutionAt;
 
     /**
@@ -116,7 +116,7 @@ public class ScheduledTask extends PanacheEntityBase {
     /**
      * 创建时间
      */
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
     public LocalDateTime createdAt;
 

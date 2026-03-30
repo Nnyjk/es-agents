@@ -4,6 +4,7 @@ import com.easystation.agent.collaboration.domain.*;
 import com.easystation.agent.collaboration.repository.*;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * 协作框架集成测试
  */
 @QuarkusTest
+@Transactional
 public class CollaborationFrameworkTest {
 
     @Inject

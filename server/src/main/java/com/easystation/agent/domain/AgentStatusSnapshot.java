@@ -50,7 +50,7 @@ public class AgentStatusSnapshot extends PanacheEntityBase {
     /**
      * 快照时间
      */
-    @Column(nullable = false)
+    @Column(name = "snapshot_time", nullable = false)
     public LocalDateTime snapshotTime;
 
     /**
@@ -59,6 +59,7 @@ public class AgentStatusSnapshot extends PanacheEntityBase {
     @Column(columnDefinition = "TEXT")
     public String extraInfo;
 
+    @Column(name = "created_at")
     @CreationTimestamp
     public LocalDateTime createdAt;
 }
