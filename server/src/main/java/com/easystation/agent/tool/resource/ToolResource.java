@@ -174,7 +174,7 @@ public class ToolResource {
                 .required(parameter.required)
                 .defaultValue(parameter.defaultValue)
                 .validationRule(parameter.validationRule)
-                .order(parameter.order)
+                .sortOrder(parameter.sortOrder)
                 .build();
     }
 }

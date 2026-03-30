@@ -20,6 +20,15 @@
     },
     {
       "pattern": ".*_%.*"
+    },
+    {
+      "pattern": "^https://example\\.com"
+    },
+    {
+      "pattern": "^http://localhost"
+    },
+    {
+      "pattern": "conventional-changelog.*tree/master/packages/conventional-changelog-cli"
     }
   ],
   "timeout": "10s",

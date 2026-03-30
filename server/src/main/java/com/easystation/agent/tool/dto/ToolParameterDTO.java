@@ -23,5 +23,5 @@ public class ToolParameterDTO {
     private boolean required;
     private String defaultValue;
     private String validationRule;
-    private int order;
+    private int sortOrder;
 }

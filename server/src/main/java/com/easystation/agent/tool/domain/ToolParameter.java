@@ -51,20 +51,20 @@ public class ToolParameter extends PanacheEntityBase {
     public String validationRule;
 
     /** 参数顺序 */
-    @Column(nullable = false)
-    public int order;
+    @Column(name = "sort_order", nullable = false)
+    public int sortOrder;
 
     /**
      * 根据工具查找所有参数（按顺序排序）
      */
     public static java.util.List<ToolParameter> findByTool(ToolDefinition tool) {
-        return find("tool order by order asc", tool).list();
+        return find("tool order by sortOrder asc", tool).list();
     }
 
     /**
      * 根据工具 ID 查找所有参数
      */
     public static java.util.List<ToolParameter> findByToolId(UUID toolId) {
-        return find("tool.id order by order asc", toolId).list();
+        return find("tool.id order by sortOrder asc", toolId).list();
     }
 }
