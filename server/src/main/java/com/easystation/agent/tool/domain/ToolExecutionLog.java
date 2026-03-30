@@ -61,14 +61,14 @@ public class ToolExecutionLog extends PanacheEntityBase {
      * 根据工具 ID 查找最近的执行日志
      */
     public static java.util.List<ToolExecutionLog> findByToolId(String toolId) {
-        return find("toolId order by executedAt desc", toolId).list();
+        return find("toolId = ?1 order by executedAt desc", toolId).list();
     }
 
     /**
      * 根据任务 ID 查找执行日志
      */
     public static java.util.List<ToolExecutionLog> findByTaskId(String taskId) {
-        return find("taskId order by executedAt desc", taskId).list();
+        return find("taskId = ?1 order by executedAt desc", taskId).list();
     }
 
     /**
