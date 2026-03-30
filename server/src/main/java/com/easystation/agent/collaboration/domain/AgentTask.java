@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 /**
  * 协作任务实体
  */
-@Entity
+@Entity(name = "CollaborationTask")
 @Table(name = "agent_collaboration_task")
 public class AgentTask extends PanacheEntityBase {
 

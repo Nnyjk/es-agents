@@ -73,7 +73,7 @@ public class ToolRegistryImpl implements ToolRegistry {
                 newParam.required = param.required;
                 newParam.defaultValue = param.defaultValue;
                 newParam.validationRule = param.validationRule;
-                newParam.order = param.order != 0 ? param.order : i;
+                newParam.sortOrder = param.sortOrder != 0 ? param.sortOrder : i;
                 toolParameterRepository.persist(newParam);
             }
         }

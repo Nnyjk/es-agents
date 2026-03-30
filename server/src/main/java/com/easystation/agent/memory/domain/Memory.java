@@ -62,7 +62,9 @@ public class Memory extends PanacheEntityBase {
     public MemoryImportance importance = MemoryImportance.MEDIUM;
 
     /** 向量嵌入（用于相似度搜索） */
-    @Column(columnDefinition = "vector(768)")
+    // Use BLOB for H2 compatibility, PostgreSQL will handle float[] appropriately
+    @Lob
+    @Column(columnDefinition = "bytea")
     public float[] embedding;
 
     /** 是否已压缩 */

@@ -13,7 +13,7 @@ import java.util.UUID;
  * - 操作级：read, create, update, delete
  * - 数据范围：ALL, DEPARTMENT, PROJECT, SELF
  */
-@Entity
+@Entity(name = "AuthModelPermission")
 @Table(name = "permissions")
 public class Permission extends PanacheEntityBase {
 
