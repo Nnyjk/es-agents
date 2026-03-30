@@ -4,11 +4,11 @@ import { userEvent } from "@testing-library/user-event";
 import { SelectEnvironment } from "./SelectEnvironment";
 
 // Mock the API service
-vi.mock("../../../services/infra", () => ({
+vi.mock("../../../../services/infra", () => ({
   queryEnvironments: vi.fn(),
 }));
 
-import { queryEnvironments } from "../../../services/infra";
+import { queryEnvironments } from "../../../../services/infra";
 
 const mockEnvironments = [
   {
