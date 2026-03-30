@@ -12,7 +12,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "SchedulerTask")
 @Table(name = "scheduled_task")
 @Getter
 @Setter

@@ -10,7 +10,7 @@ import java.util.List;
  * 
  * 记录配置变更历史，用于审计和回滚
  */
-@Entity
+@Entity(name = "ConfigEntityHistory")
 @Table(name = "config_history")
 public class ConfigHistory extends PanacheEntityBase {
 

@@ -1,7 +1,8 @@
 package com.easystation.plugin.marketplace.domain;
 
 import com.easystation.plugin.marketplace.dto.*;
-import org.junit.jupiter.api.BeforeEach;
+import io.quarkus.test.junit.QuarkusTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 
@@ -10,14 +11,11 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * 插件市场服务测试
  */
+@QuarkusTest
 class PluginMarketplaceTest {
-    
-    private PluginMarketplace marketplace;
-    
-    @BeforeEach
-    void setUp() {
-        marketplace = new PluginMarketplaceImpl();
-    }
+
+    @Inject
+    PluginMarketplace marketplace;
     
     @Test
     @DisplayName("测试获取插件列表")
