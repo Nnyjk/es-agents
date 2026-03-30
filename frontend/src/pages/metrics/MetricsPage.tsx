@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Col, Row, Statistic, Progress, Spin, Alert, Table } from "antd";
 import {
-  CpuOutlined,
-  MemoryOutlined,
   DashboardOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
@@ -116,7 +114,7 @@ const MetricsPage: React.FC = () => {
               title="CPU 使用率"
               value={formatPercentage(metrics?.cpu?.usage)}
               suffix="%"
-              prefix={<CpuOutlined />}
+              prefix={<DashboardOutlined />}
               valueStyle={{
                 color:
                   (metrics?.cpu?.usage || 0) > 0.8
@@ -137,7 +135,7 @@ const MetricsPage: React.FC = () => {
             <Statistic
               title="内存使用"
               value={formatBytes(metrics?.jvmMemory?.heap)}
-              prefix={<MemoryOutlined />}
+              prefix={<RocketOutlined />}
             />
             <div style={{ marginTop: "8px", color: "#666" }}>
               非堆内存：{formatBytes(metrics?.jvmMemory?.nonheap)}

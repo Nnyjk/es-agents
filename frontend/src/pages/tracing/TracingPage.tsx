@@ -14,7 +14,7 @@ import {
 } from "antd";
 import { SearchOutlined, ReloadOutlined, EyeOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
-import api from "../../utils/api";
+import request from "../../utils/request";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -61,7 +61,7 @@ const TracingPage: React.FC = () => {
       if (searchParams.serviceId) params.serviceId = searchParams.serviceId;
       if (searchParams.operation) params.operation = searchParams.operation;
 
-      const response = await api.get("/api/v1/tracing/traces", { params });
+      const response = await request.get("/api/v1/tracing/traces", { params });
       setTraces(response.data.traces || []);
     } catch (error) {
       console.error("加载链路列表失败:", error);
@@ -72,7 +72,7 @@ const TracingPage: React.FC = () => {
 
   const loadTraceDetail = async (traceId: string) => {
     try {
-      const response = await api.get(`/api/v1/tracing/traces/${traceId}`);
+      const response = await request.get(`/api/v1/tracing/traces/${traceId}`);
       setSelectedTrace(response.data);
     } catch (error) {
       console.error("加载链路详情失败:", error);
