@@ -5,6 +5,7 @@ import com.easystation.agent.planning.domain.enums.TaskPriority;
 import com.easystation.agent.planning.dto.DecomposeRequest;
 import com.easystation.agent.planning.dto.TaskRecord;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.Test;
 
@@ -23,6 +24,7 @@ class TaskResourceTest {
     private static final String BASE_PATH = "/api/agent/tasks";
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testDecomposeEndpoint() {
         DecomposeRequest request = new DecomposeRequest(
                 "完成系统部署任务",
@@ -37,13 +39,14 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH + "/decompose")
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403)))
+            .statusCode(200)
             .body("valid", is(true))
             .body("totalTasks", greaterThan(0))
             .body("tasks", notNullValue());
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testDecomposeWithMinimalRequest() {
         DecomposeRequest request = new DecomposeRequest("测试目标");
 
@@ -53,11 +56,12 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH + "/decompose")
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403)))
+            .statusCode(200)
             .body("goal", equalTo("测试目标"));
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testDecomposeWithConstraints() {
         DecomposeRequest request = new DecomposeRequest(
                 "部署应用到生产环境",
@@ -72,10 +76,11 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH + "/decompose")
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403)));
+            .statusCode(200);
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testDecomposeWithEmptyGoalFails() {
         DecomposeRequest request = new DecomposeRequest("");
 
@@ -85,10 +90,11 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH + "/decompose")
         .then()
-            .statusCode(anyOf(is(400), is(401)));
+            .statusCode(400);
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testDecomposeWithNullGoalFails() {
         given()
             .contentType(ContentType.JSON)
@@ -96,10 +102,11 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH + "/decompose")
         .then()
-            .statusCode(anyOf(is(400), is(401)));
+            .statusCode(400);
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testDecomposeWithInvalidDepthFails() {
         DecomposeRequest request = new DecomposeRequest(
                 "测试目标",
@@ -114,10 +121,11 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH + "/decompose")
         .then()
-            .statusCode(anyOf(is(400), is(401)));
+            .statusCode(400);
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testGetByIdEndpoint() {
         UUID randomId = UUID.randomUUID();
 
@@ -126,10 +134,11 @@ class TaskResourceTest {
         .when()
             .get(BASE_PATH + "/" + randomId)
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403), is(404)));
+            .statusCode(anyOf(is(200), is(404)));
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testUpdateStatusEndpoint() {
         UUID randomId = UUID.randomUUID();
         TaskRecord.UpdateStatusRequest request = new TaskRecord.UpdateStatusRequest(
@@ -144,10 +153,11 @@ class TaskResourceTest {
         .when()
             .put(BASE_PATH + "/" + randomId + "/status")
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403), is(404)));
+            .statusCode(anyOf(is(200), is(404)));
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testUpdateStatusToRunning() {
         UUID randomId = UUID.randomUUID();
         TaskRecord.UpdateStatusRequest request = new TaskRecord.UpdateStatusRequest(
@@ -162,10 +172,11 @@ class TaskResourceTest {
         .when()
             .put(BASE_PATH + "/" + randomId + "/status")
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403), is(404)));
+            .statusCode(anyOf(is(200), is(404)));
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testExecuteEndpoint() {
         UUID randomId = UUID.randomUUID();
 
@@ -174,10 +185,11 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH + "/" + randomId + "/execute")
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403), is(404)));
+            .statusCode(anyOf(is(200), is(404)));
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testCancelEndpoint() {
         UUID randomId = UUID.randomUUID();
 
@@ -186,22 +198,24 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH + "/" + randomId + "/cancel")
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403), is(404), is(400)));
+            .statusCode(anyOf(is(200), is(404), is(400)));
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testListEndpoint() {
         given()
             .contentType(ContentType.JSON)
         .when()
             .get(BASE_PATH)
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403)))
+            .statusCode(200)
             .body("tasks", notNullValue())
             .body("total", notNullValue());
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testListWithStatusFilter() {
         given()
             .contentType(ContentType.JSON)
@@ -209,10 +223,11 @@ class TaskResourceTest {
         .when()
             .get(BASE_PATH)
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403)));
+            .statusCode(200);
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testListWithLimit() {
         given()
             .contentType(ContentType.JSON)
@@ -220,10 +235,11 @@ class TaskResourceTest {
         .when()
             .get(BASE_PATH)
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403)));
+            .statusCode(200);
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testListByGoalEndpoint() {
         UUID randomGoalId = UUID.randomUUID();
 
@@ -232,10 +248,11 @@ class TaskResourceTest {
         .when()
             .get(BASE_PATH + "/goals/" + randomGoalId)
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403)));
+            .statusCode(200);
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testCreateEndpoint() {
         TaskRecord.Create request = new TaskRecord.Create(
                 UUID.randomUUID(),
@@ -252,12 +269,13 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH)
         .then()
-            .statusCode(anyOf(is(201), is(401), is(403)))
+            .statusCode(201)
             .body("id", notNullValue())
             .body("description", equalTo("测试任务描述"));
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testCreateWithMinimalFields() {
         TaskRecord.Create request = new TaskRecord.Create(
                 UUID.randomUUID(),
@@ -274,10 +292,11 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH)
         .then()
-            .statusCode(anyOf(is(201), is(401), is(403)));
+            .statusCode(201);
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testCreateWithNullDescriptionFails() {
         TaskRecord.Create request = new TaskRecord.Create(
                 UUID.randomUUID(),
@@ -294,10 +313,11 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH)
         .then()
-            .statusCode(anyOf(is(400), is(401)));
+            .statusCode(400);
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testScheduleGoalEndpoint() {
         UUID randomGoalId = UUID.randomUUID();
 
@@ -306,23 +326,25 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH + "/goals/" + randomGoalId + "/schedule")
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403)));
+            .statusCode(200);
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testGetCountsEndpoint() {
         given()
             .contentType(ContentType.JSON)
         .when()
             .get(BASE_PATH + "/counts")
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403)))
+            .statusCode(200)
             .body("created", notNullValue())
             .body("completed", notNullValue())
             .body("failed", notNullValue());
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testDecomposeLongGoal() {
         DecomposeRequest request = new DecomposeRequest(
                 "完成系统部署：包括环境准备、配置管理、应用部署、服务验证和监控配置",
@@ -337,11 +359,12 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH + "/decompose")
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403)))
+            .statusCode(200)
             .body("valid", is(true));
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testUpdateStatusToFailed() {
         UUID randomId = UUID.randomUUID();
         TaskRecord.UpdateStatusRequest request = new TaskRecord.UpdateStatusRequest(
@@ -356,10 +379,11 @@ class TaskResourceTest {
         .when()
             .put(BASE_PATH + "/" + randomId + "/status")
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403), is(404)));
+            .statusCode(anyOf(is(200), is(404)));
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testListWithCompletedStatus() {
         given()
             .contentType(ContentType.JSON)
@@ -368,10 +392,11 @@ class TaskResourceTest {
         .when()
             .get(BASE_PATH)
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403)));
+            .statusCode(200);
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testCreateWithHighPriority() {
         TaskRecord.Create request = new TaskRecord.Create(
                 UUID.randomUUID(),
@@ -388,10 +413,11 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH)
         .then()
-            .statusCode(anyOf(is(201), is(401), is(403)));
+            .statusCode(201);
     }
 
     @Test
+    @TestSecurity(user = "admin", roles = {"Admin", "Ops"})
     void testDecomposeGoalWithKeywords() {
         // 包含任务关键词的目标应该能被正确分解
         DecomposeRequest request = new DecomposeRequest(
@@ -407,7 +433,7 @@ class TaskResourceTest {
         .when()
             .post(BASE_PATH + "/decompose")
         .then()
-            .statusCode(anyOf(is(200), is(401), is(403)))
+            .statusCode(200)
             .body("totalTasks", greaterThan(0));
     }
 }

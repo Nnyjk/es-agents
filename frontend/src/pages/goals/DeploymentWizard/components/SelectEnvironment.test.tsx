@@ -48,9 +48,12 @@ describe("SelectEnvironment", () => {
         () => new Promise(() => {}), // Never resolves to simulate loading
       );
 
-      render(<SelectEnvironment value={null} onChange={vi.fn()} />);
+      const { container } = render(
+        <SelectEnvironment value={null} onChange={vi.fn()} />,
+      );
 
-      expect(screen.getByRole("img", { hidden: true })).toBeInTheDocument();
+      // Ant Design Spin renders as .ant-spin, not role="img"
+      expect(container.querySelector(".ant-spin")).toBeInTheDocument();
     });
 
     it("shows environments after loading completes", async () => {
