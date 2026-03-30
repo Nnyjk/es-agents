@@ -158,13 +158,3 @@ public class PluginMarketplaceImpl implements PluginMarketplace {
         
         // TODO: 实际实现需要保存评分和评论
     }
-    
-    /**
-     * 插件未找到异常
-     */
-    public static class PluginNotFoundException extends RuntimeException {
-        public PluginNotFoundException(String pluginId) {
-            super("Plugin not found: " + pluginId);
-        }
-    }
-}

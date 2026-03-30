@@ -12,7 +12,7 @@ import java.util.UUID;
 /**
  * 记忆 Repository
  */
-@AppScoped
+@ApplicationScoped
 public class MemoryRepository implements PanacheRepository<Memory> {
 
     /**

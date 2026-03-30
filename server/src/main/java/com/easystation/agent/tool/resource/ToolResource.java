@@ -12,9 +12,9 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.jboss.resteasy.reactive.RestPath;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -53,7 +53,7 @@ public class ToolResource {
      */
     @GET
     @Path("/{id}")
-    public ToolDefinitionDTO getTool(@RestPath UUID id) {
+    public ToolDefinitionDTO getTool(@PathParam("id") UUID id) {
         ToolDefinition definition = toolDefinitionRepository.findById(id);
         if (definition == null) {
             throw new NotFoundException("Tool not found: " + id);
@@ -66,7 +66,7 @@ public class ToolResource {
      */
     @GET
     @Path("/by-id/{toolId}")
-    public ToolDefinitionDTO getToolByToolId(@RestPath String toolId) {
+    public ToolDefinitionDTO getToolByToolId(@PathParam("toolId") String toolId) {
         ToolDefinition definition = toolDefinitionRepository.findByToolId(toolId);
         if (definition == null) {
             throw new NotFoundException("Tool not found: " + toolId);
@@ -93,7 +93,7 @@ public class ToolResource {
      */
     @GET
     @Path("/category/{category}")
-    public List<ToolDefinitionDTO> getToolsByCategory(@RestPath String category) {
+    public List<ToolDefinitionDTO> getToolsByCategory(@PathParam("category") String category) {
         return toolDefinitionRepository.findByCategory(category).stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
@@ -105,7 +105,7 @@ public class ToolResource {
     @PUT
     @Path("/{id}/status")
     @Transactional
-    public ToolDefinitionDTO updateStatus(@RestPath UUID id, Map<String, String> body) {
+    public ToolDefinitionDTO updateStatus(@PathParam("id") UUID id, Map<String, String> body) {
         String statusStr = body.get("status");
         if (statusStr == null) {
             throw new BadRequestException("Status is required");
@@ -127,7 +127,7 @@ public class ToolResource {
     @DELETE
     @Path("/{id}")
     @Transactional
-    public Response deleteTool(@RestPath UUID id) {
+    public Response deleteTool(@PathParam("id") UUID id) {
         ToolDefinition definition = toolDefinitionRepository.findById(id);
         if (definition == null) {
             throw new NotFoundException("Tool not found: " + id);

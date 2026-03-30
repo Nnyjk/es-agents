@@ -109,7 +109,7 @@ public class PluginLoaderImpl implements PluginLoader {
             classLoaders.put(pluginId, classLoader);
             
             // 加载插件类
-            String className = descriptor.getClassName();
+            String className = descriptor.getMainClass();
             Class<?> pluginClass = classLoader.loadClass(className);
             
             // 实例化插件
@@ -207,11 +207,11 @@ public class PluginLoaderImpl implements PluginLoader {
      * 验证插件描述符是否有效
      */
     private boolean isValidDescriptor(PluginDescriptor descriptor) {
-        return descriptor != null 
-            && descriptor.getId() != null 
+        return descriptor != null
+            && descriptor.getId() != null
             && !descriptor.getId().isEmpty()
             && descriptor.getVersion() != null
-            && descriptor.getClassName() != null;
+            && descriptor.getMainClass() != null;
     }
     
     /**

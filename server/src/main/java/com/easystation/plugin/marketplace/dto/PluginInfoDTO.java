@@ -1,5 +1,8 @@
 package com.easystation.plugin.marketplace.dto;
 
+import java.time.Instant;
+import java.util.List;
+
 /**
  * 插件信息 DTO
  */
@@ -10,16 +13,16 @@ public record PluginInfoDTO(
     String description,
     String author,
     String category,
-    java.util.List<String> tags,
+    List<String> tags,
     int downloadCount,
     double rating,
     int reviewCount,
     String status,
-    java.time.InstalledAt installedAt
+    Instant installedAt
 ) {
     public static PluginInfoDTO of(
         String id, String name, String version, String description,
-        String author, String category, java.util.List<String> tags,
+        String author, String category, List<String> tags,
         int downloadCount, double rating, int reviewCount, String status
     ) {
         return new PluginInfoDTO(id, name, version, description, author, 

@@ -1,7 +1,6 @@
 package com.easystation.agent.tool.resource;
 
 import com.easystation.agent.tool.domain.ToolExecutionLog;
-import com.easystation.agent.tool.domain.ToolExecutionStatus;
 import com.easystation.agent.tool.dto.ToolExecutionRequest;
 import com.easystation.agent.tool.dto.ToolExecutionResponse;
 import com.easystation.agent.tool.repository.ToolExecutionLogRepository;
@@ -11,10 +10,11 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import org.jboss.resteasy.reactive.RestPath;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -43,7 +43,7 @@ public class ToolExecutionResource {
 
         ToolExecutionResult result = toolExecutor.execute(
                 request.getToolId(),
-                request.getParameters() != null ? request.getParameters() : java.util.Collections.emptyMap(),
+                request.getParameters() != null ? request.getParameters() : Collections.emptyMap(),
                 request.getTimeout() != null ? request.getTimeout() : 30000L
         );
 
@@ -72,7 +72,7 @@ public class ToolExecutionResource {
         // 启动异步执行
         toolExecutor.executeAsync(
                 request.getToolId(),
-                request.getParameters() != null ? request.getParameters() : java.util.Collections.emptyMap(),
+                request.getParameters() != null ? request.getParameters() : Collections.emptyMap(),
                 request.getTimeout() != null ? request.getTimeout() : 30000L
         );
 
@@ -86,7 +86,7 @@ public class ToolExecutionResource {
      */
     @POST
     @Path("/{executionId}/cancel")
-    public Response cancelExecution(@RestPath String executionId) {
+    public Response cancelExecution(@PathParam("executionId") String executionId) {
         boolean cancelled = toolExecutor.cancelExecution(executionId);
         if (cancelled) {
             return Response.ok(Map.of("status", "CANCELLED")).build();
@@ -102,7 +102,7 @@ public class ToolExecutionResource {
      */
     @GET
     @Path("/{executionId}/status")
-    public Response getExecutionStatus(@RestPath String executionId) {
+    public Response getExecutionStatus(@PathParam("executionId") String executionId) {
         boolean running = toolExecutor.isRunning(executionId);
         return Response.ok(Map.of("executionId", executionId, "running", running)).build();
     }
@@ -138,7 +138,7 @@ public class ToolExecutionResource {
      */
     @GET
     @Path("/history/{id}")
-    public ToolExecutionResponse getExecutionLog(@RestPath UUID id) {
+    public ToolExecutionResponse getExecutionLog(@PathParam("id") UUID id) {
         ToolExecutionLog log = executionLogRepository.findById(id);
         if (log == null) {
             throw new NotFoundException("Execution log not found: " + id);

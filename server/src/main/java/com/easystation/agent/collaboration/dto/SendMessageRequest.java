@@ -11,4 +11,13 @@ public class SendMessageRequest {
     public String subject;
     public String content;
     public String metadata;
+
+    /**
+     * 验证请求参数
+     */
+    public boolean validate() {
+        return type != null
+            && fromAgentId != null && !fromAgentId.trim().isEmpty()
+            && content != null && !content.trim().isEmpty();
+    }
 }
