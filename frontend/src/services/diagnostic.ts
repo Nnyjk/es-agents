@@ -2,7 +2,12 @@ import request from "../utils/request";
 
 // ========== Types ==========
 
-export type DiagnosticCategory = "SYSTEM" | "PERFORMANCE" | "SECURITY" | "BUSINESS" | "ALERT";
+export type DiagnosticCategory =
+  | "SYSTEM"
+  | "PERFORMANCE"
+  | "SECURITY"
+  | "BUSINESS"
+  | "ALERT";
 export type FindingSeverity = "INFO" | "WARNING" | "CRITICAL" | "FATAL";
 export type ReportStatus = "GENERATING" | "COMPLETED" | "FAILED";
 
@@ -75,22 +80,29 @@ export interface DiagnosticReportWithFindings extends DiagnosticReport {
 
 // ========== Rule APIs ==========
 
-export const getDiagnosticRules = async (): Promise<DiagnosticRuleSummary[]> => {
-  const response = await request.get<DiagnosticRuleSummary[]>("/diagnostic/rules");
+export const getDiagnosticRules = async (): Promise<
+  DiagnosticRuleSummary[]
+> => {
+  const response =
+    await request.get<DiagnosticRuleSummary[]>("/diagnostic/rules");
   return response.data;
 };
 
 export const getDiagnosticRulesByCategory = async (
-  category: DiagnosticCategory
+  category: DiagnosticCategory,
 ): Promise<DiagnosticRuleSummary[]> => {
   const response = await request.get<DiagnosticRuleSummary[]>(
-    `/diagnostic/rules/category/${category}`
+    `/diagnostic/rules/category/${category}`,
   );
   return response.data;
 };
 
-export const getDiagnosticRule = async (ruleId: string): Promise<DiagnosticRule> => {
-  const response = await request.get<DiagnosticRule>(`/diagnostic/rules/${ruleId}`);
+export const getDiagnosticRule = async (
+  ruleId: string,
+): Promise<DiagnosticRule> => {
+  const response = await request.get<DiagnosticRule>(
+    `/diagnostic/rules/${ruleId}`,
+  );
   return response.data;
 };
 
@@ -114,19 +126,22 @@ export interface UpdateDiagnosticRuleParams {
 }
 
 export const createDiagnosticRule = async (
-  params: CreateDiagnosticRuleParams
+  params: CreateDiagnosticRuleParams,
 ): Promise<DiagnosticRule> => {
-  const response = await request.post<DiagnosticRule>("/diagnostic/rules", params);
+  const response = await request.post<DiagnosticRule>(
+    "/diagnostic/rules",
+    params,
+  );
   return response.data;
 };
 
 export const updateDiagnosticRule = async (
   ruleId: string,
-  params: UpdateDiagnosticRuleParams
+  params: UpdateDiagnosticRuleParams,
 ): Promise<DiagnosticRule> => {
   const response = await request.put<DiagnosticRule>(
     `/diagnostic/rules/${ruleId}`,
-    params
+    params,
   );
   return response.data;
 };
@@ -145,26 +160,30 @@ export const deleteDiagnosticRule = async (ruleId: string): Promise<void> => {
 
 // ========== Report APIs ==========
 
-export const getDiagnosticReports = async (): Promise<DiagnosticReportSummary[]> => {
-  const response = await request.get<DiagnosticReportSummary[]>("/diagnostic/reports");
+export const getDiagnosticReports = async (): Promise<
+  DiagnosticReportSummary[]
+> => {
+  const response = await request.get<DiagnosticReportSummary[]>(
+    "/diagnostic/reports",
+  );
   return response.data;
 };
 
 export const getRecentDiagnosticReports = async (
-  limit: number = 10
+  limit: number = 10,
 ): Promise<DiagnosticReportSummary[]> => {
   const response = await request.get<DiagnosticReportSummary[]>(
     "/diagnostic/reports/recent",
-    { params: { limit } }
+    { params: { limit } },
   );
   return response.data;
 };
 
 export const getDiagnosticReport = async (
-  reportId: string
+  reportId: string,
 ): Promise<DiagnosticReportWithFindings> => {
   const response = await request.get<DiagnosticReportWithFindings>(
-    `/diagnostic/reports/${reportId}`
+    `/diagnostic/reports/${reportId}`,
   );
   return response.data;
 };
@@ -175,22 +194,27 @@ export interface GenerateReportParams {
 }
 
 export const generateDiagnosticReport = async (
-  params: GenerateReportParams
-): Promise<DiagnosticReport> => {
-  const response = await request.post<DiagnosticReport>("/diagnostic/reports", params);
-  return response.data;
-};
-
-export const generateDiagnosticReportAsync = async (
-  params: GenerateReportParams
+  params: GenerateReportParams,
 ): Promise<DiagnosticReport> => {
   const response = await request.post<DiagnosticReport>(
-    "/diagnostic/reports/async",
-    params
+    "/diagnostic/reports",
+    params,
   );
   return response.data;
 };
 
-export const deleteDiagnosticReport = async (reportId: string): Promise<void> => {
+export const generateDiagnosticReportAsync = async (
+  params: GenerateReportParams,
+): Promise<DiagnosticReport> => {
+  const response = await request.post<DiagnosticReport>(
+    "/diagnostic/reports/async",
+    params,
+  );
+  return response.data;
+};
+
+export const deleteDiagnosticReport = async (
+  reportId: string,
+): Promise<void> => {
   await request.delete(`/diagnostic/reports/${reportId}`);
 };

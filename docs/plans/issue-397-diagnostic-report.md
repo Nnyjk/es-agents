@@ -35,6 +35,7 @@
 ### Phase 1: Core Domain Model (基础模型)
 
 #### 1.1 Domain Entities
+
 - [ ] `DiagnosticRule` - 诊断规则实体
   - ruleId, name, category, condition, severity
   - enabled, createdAt, updatedAt
@@ -46,6 +47,7 @@
   - impact, recommendation
 
 #### 1.2 Enums
+
 - [ ] `DiagnosticCategory` - 诊断类别（性能、安全、配置、资源）
 - [ ] `ReportStatus` - 报告状态（生成中、完成、失败）
 - [ ] `FindingSeverity` - 发现级别（信息、警告、严重、致命）
@@ -53,6 +55,7 @@
 ### Phase 2: Diagnostic Engine (诊断引擎)
 
 #### 2.1 Rule Engine
+
 - [ ] `DiagnosticRuleService` - 规则管理服务
   - CRUD 规则
   - 规则启用/禁用
@@ -63,6 +66,7 @@
   - 结果聚合器
 
 #### 2.2 Data Collectors
+
 - [ ] `MetricDataCollector` - 指标数据收集器
   - 从 Prometheus/Micrometer 获取指标
   - 聚合历史数据
@@ -74,6 +78,7 @@
   - 服务可用性
 
 #### 2.3 Built-in Rules
+
 - [ ] CPU 使用率检查规则
 - [ ] 内存使用率检查规则
 - [ ] 磁盘空间检查规则
@@ -84,6 +89,7 @@
 ### Phase 3: Report Generation (报告生成)
 
 #### 3.1 Report Service
+
 - [ ] `DiagnosticReportService` - 报告服务
   - 手动生成报告
   - 定时生成报告
@@ -93,12 +99,14 @@
   - 模板渲染
 
 #### 3.2 Export Service
+
 - [ ] `ReportExportService` - 导出服务
   - PDF 导出（使用 iText 或 OpenPDF）
   - HTML 导出
   - 导出格式选择
 
 #### 3.3 Scheduler
+
 - [ ] `DiagnosticScheduler` - 定时任务调度
   - Cron 表达式配置
   - 定时生成报告
@@ -107,6 +115,7 @@
 ### Phase 4: REST API (接口层)
 
 #### 4.1 Resources
+
 - [ ] `DiagnosticRuleResource` - 规则管理 API
   - GET /api/diagnostic/rules
   - POST /api/diagnostic/rules
@@ -122,11 +131,13 @@
 ### Phase 5: Frontend (前端页面)
 
 #### 5.1 Pages
+
 - [ ] DiagnosticRules - 规则配置页面
 - [ ] DiagnosticReports - 报告列表页面
 - [ ] ReportDetail - 报告详情页面
 
 #### 5.2 Components
+
 - [ ] RuleEditor - 规则编辑器组件
 - [ ] ReportViewer - 报告查看器组件
 - [ ] FindingCard - 发现卡片组件
@@ -141,6 +152,7 @@
 ## Dependencies
 
 ### Maven Dependencies
+
 ```xml
 <!-- PDF 生成 -->
 <dependency>
@@ -206,11 +218,11 @@ frontend/src/pages/diagnostic/
 
 ## Risk Assessment
 
-| 风险 | 级别 | 缓解措施 |
-|------|------|----------|
-| PDF 生成复杂度高 | 中 | 使用简单模板，逐步增强 |
-| 规则引擎性能 | 中 | 异步执行，结果缓存 |
-| 数据收集延迟 | 低 | 设置合理超时 |
+| 风险             | 级别 | 缓解措施               |
+| ---------------- | ---- | ---------------------- |
+| PDF 生成复杂度高 | 中   | 使用简单模板，逐步增强 |
+| 规则引擎性能     | 中   | 异步执行，结果缓存     |
+| 数据收集延迟     | 低   | 设置合理超时           |
 
 ## Estimated Effort
 

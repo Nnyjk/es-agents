@@ -38,7 +38,10 @@ import {
 const { Option } = Select;
 const { TextArea } = Input;
 
-const categoryConfig: Record<DiagnosticCategory, { color: string; text: string }> = {
+const categoryConfig: Record<
+  DiagnosticCategory,
+  { color: string; text: string }
+> = {
   SYSTEM: { color: "blue", text: "系统" },
   PERFORMANCE: { color: "purple", text: "性能" },
   SECURITY: { color: "red", text: "安全" },
@@ -46,7 +49,13 @@ const categoryConfig: Record<DiagnosticCategory, { color: string; text: string }
   ALERT: { color: "orange", text: "告警" },
 };
 
-const severityConfig: Record<FindingSeverity, { color: "default" | "processing" | "success" | "warning" | "error"; text: string }> = {
+const severityConfig: Record<
+  FindingSeverity,
+  {
+    color: "default" | "processing" | "success" | "warning" | "error";
+    text: string;
+  }
+> = {
   INFO: { color: "default", text: "信息" },
   WARNING: { color: "warning", text: "警告" },
   CRITICAL: { color: "error", text: "严重" },
@@ -201,10 +210,19 @@ const DiagnosticRuleList: React.FC = () => {
       width: 150,
       render: (_, record) => (
         <Space>
-          <Button type="link" size="small" onClick={() => handleEdit(record.ruleId)}>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => handleEdit(record.ruleId)}
+          >
             编辑
           </Button>
-          <Button type="link" size="small" danger onClick={() => handleDelete(record.ruleId)}>
+          <Button
+            type="link"
+            size="small"
+            danger
+            onClick={() => handleDelete(record.ruleId)}
+          >
             删除
           </Button>
         </Space>
@@ -217,7 +235,11 @@ const DiagnosticRuleList: React.FC = () => {
       <Card>
         <div style={{ marginBottom: 16 }}>
           <Space>
-            <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleCreate}
+            >
               新建规则
             </Button>
             <Button icon={<ReloadOutlined />} onClick={fetchRules}>

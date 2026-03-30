@@ -42,13 +42,30 @@ import {
 
 const { Text, Title } = Typography;
 
-const statusConfig: Record<ReportStatus, { color: string; icon: React.ReactNode; text: string }> = {
-  GENERATING: { color: "processing", icon: <SyncOutlined spin />, text: "生成中" },
-  COMPLETED: { color: "success", icon: <CheckCircleOutlined />, text: "已完成" },
+const statusConfig: Record<
+  ReportStatus,
+  { color: string; icon: React.ReactNode; text: string }
+> = {
+  GENERATING: {
+    color: "processing",
+    icon: <SyncOutlined spin />,
+    text: "生成中",
+  },
+  COMPLETED: {
+    color: "success",
+    icon: <CheckCircleOutlined />,
+    text: "已完成",
+  },
   FAILED: { color: "error", icon: <CloseCircleOutlined />, text: "失败" },
 };
 
-const severityConfig: Record<FindingSeverity, { color: "default" | "processing" | "success" | "warning" | "error"; text: string }> = {
+const severityConfig: Record<
+  FindingSeverity,
+  {
+    color: "default" | "processing" | "success" | "warning" | "error";
+    text: string;
+  }
+> = {
   INFO: { color: "default", text: "信息" },
   WARNING: { color: "warning", text: "警告" },
   CRITICAL: { color: "error", text: "严重" },
@@ -59,7 +76,8 @@ const DiagnosticReportList: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [reports, setReports] = useState<DiagnosticReportSummary[]>([]);
   const [detailVisible, setDetailVisible] = useState(false);
-  const [currentReport, setCurrentReport] = useState<DiagnosticReportWithFindings | null>(null);
+  const [currentReport, setCurrentReport] =
+    useState<DiagnosticReportWithFindings | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [generateModalVisible, setGenerateModalVisible] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -162,10 +180,16 @@ const DiagnosticReportList: React.FC = () => {
         <Space size="small">
           <Text>{total}</Text>
           {record.fatalCount > 0 && (
-            <Badge count={record.fatalCount} style={{ backgroundColor: "#ff4d4f" }} />
+            <Badge
+              count={record.fatalCount}
+              style={{ backgroundColor: "#ff4d4f" }}
+            />
           )}
           {record.criticalCount > 0 && (
-            <Badge count={record.criticalCount} style={{ backgroundColor: "#ff7a45" }} />
+            <Badge
+              count={record.criticalCount}
+              style={{ backgroundColor: "#ff7a45" }}
+            />
           )}
         </Space>
       ),
@@ -175,14 +199,16 @@ const DiagnosticReportList: React.FC = () => {
       dataIndex: "warningCount",
       key: "warningCount",
       width: 80,
-      render: (count: number) => (count > 0 ? <Tag color="warning">{count}</Tag> : "-"),
+      render: (count: number) =>
+        count > 0 ? <Tag color="warning">{count}</Tag> : "-",
     },
     {
       title: "严重",
       dataIndex: "criticalCount",
       key: "criticalCount",
       width: 80,
-      render: (count: number) => (count > 0 ? <Tag color="error">{count}</Tag> : "-"),
+      render: (count: number) =>
+        count > 0 ? <Tag color="error">{count}</Tag> : "-",
     },
     {
       title: "生成时间",
@@ -197,10 +223,19 @@ const DiagnosticReportList: React.FC = () => {
       width: 150,
       render: (_, record) => (
         <Space>
-          <Button type="link" size="small" onClick={() => handleViewDetail(record.reportId)}>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => handleViewDetail(record.reportId)}
+          >
             详情
           </Button>
-          <Button type="link" size="small" danger onClick={() => handleDelete(record.reportId)}>
+          <Button
+            type="link"
+            size="small"
+            danger
+            onClick={() => handleDelete(record.reportId)}
+          >
             删除
           </Button>
         </Space>
@@ -243,7 +278,11 @@ const DiagnosticReportList: React.FC = () => {
 
         <div style={{ marginBottom: 16 }}>
           <Space>
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => setGenerateModalVisible(true)}>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => setGenerateModalVisible(true)}
+            >
               生成报告
             </Button>
             <Button icon={<ReloadOutlined />} onClick={fetchReports}>
@@ -281,7 +320,9 @@ const DiagnosticReportList: React.FC = () => {
               <Button type="primary" htmlType="submit" loading={generating}>
                 生成
               </Button>
-              <Button onClick={() => setGenerateModalVisible(false)}>取消</Button>
+              <Button onClick={() => setGenerateModalVisible(false)}>
+                取消
+              </Button>
             </Space>
           </Form.Item>
         </Form>
@@ -300,8 +341,15 @@ const DiagnosticReportList: React.FC = () => {
           </div>
         ) : currentReport ? (
           <div>
-            <Descriptions bordered column={2} size="small" style={{ marginBottom: 16 }}>
-              <Descriptions.Item label="报告ID">{currentReport.reportId}</Descriptions.Item>
+            <Descriptions
+              bordered
+              column={2}
+              size="small"
+              style={{ marginBottom: 16 }}
+            >
+              <Descriptions.Item label="报告ID">
+                {currentReport.reportId}
+              </Descriptions.Item>
               <Descriptions.Item label="状态">
                 <Tag color={statusConfig[currentReport.status].color}>
                   {statusConfig[currentReport.status].text}
@@ -312,16 +360,30 @@ const DiagnosticReportList: React.FC = () => {
               </Descriptions.Item>
               <Descriptions.Item label="完成时间">
                 {currentReport.completedAt
-                  ? dayjs(currentReport.completedAt).format("YYYY-MM-DD HH:mm:ss")
+                  ? dayjs(currentReport.completedAt).format(
+                      "YYYY-MM-DD HH:mm:ss",
+                    )
                   : "-"}
               </Descriptions.Item>
               <Descriptions.Item label="发现问题" span={2}>
                 <Space>
                   <Text>总计: {currentReport.totalFindings}</Text>
-                  <Badge status="default" text={`信息: ${currentReport.infoCount}`} />
-                  <Badge status="warning" text={`警告: ${currentReport.warningCount}`} />
-                  <Badge status="error" text={`严重: ${currentReport.criticalCount}`} />
-                  <Badge status="error" text={`致命: ${currentReport.fatalCount}`} />
+                  <Badge
+                    status="default"
+                    text={`信息: ${currentReport.infoCount}`}
+                  />
+                  <Badge
+                    status="warning"
+                    text={`警告: ${currentReport.warningCount}`}
+                  />
+                  <Badge
+                    status="error"
+                    text={`严重: ${currentReport.criticalCount}`}
+                  />
+                  <Badge
+                    status="error"
+                    text={`致命: ${currentReport.fatalCount}`}
+                  />
                 </Space>
               </Descriptions.Item>
               <Descriptions.Item label="摘要" span={2}>
@@ -347,7 +409,9 @@ const DiagnosticReportList: React.FC = () => {
                         <Text type="secondary">{item.description}</Text>
                         <br />
                         {item.recommendation && (
-                          <Text type="success">建议: {item.recommendation}</Text>
+                          <Text type="success">
+                            建议: {item.recommendation}
+                          </Text>
                         )}
                       </div>
                     }

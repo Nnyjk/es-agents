@@ -176,10 +176,7 @@ const AgentList: React.FC = () => {
           selectedRowKeys,
           onChange: setSelectedRowKeys,
         }}
-        tableAlertRender={({
-          selectedRowKeys,
-          onCleanSelected,
-        }) => (
+        tableAlertRender={({ selectedRowKeys, onCleanSelected }) => (
           <Space>
             <span>已选择 {selectedRowKeys.length} 项</span>
             <Button type="link" onClick={onCleanSelected}>

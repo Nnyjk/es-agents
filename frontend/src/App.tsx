@@ -131,8 +131,12 @@ const GrafanaDashboardPage = lazy(
 );
 
 // Diagnostic (Issue #397)
-const DiagnosticReportList = lazy(() => import("./pages/diagnostic/DiagnosticReportList"));
-const DiagnosticRuleList = lazy(() => import("./pages/diagnostic/DiagnosticRuleList"));
+const DiagnosticReportList = lazy(
+  () => import("./pages/diagnostic/DiagnosticReportList"),
+);
+const DiagnosticRuleList = lazy(
+  () => import("./pages/diagnostic/DiagnosticRuleList"),
+);
 
 // System Event Log
 const SystemEventLogPage = lazy(() => import("./pages/systemEventLog"));
