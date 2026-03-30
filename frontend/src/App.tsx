@@ -78,6 +78,7 @@ const BatchOperationDetailPage = lazy(() => import("./pages/batch").then(m => ({
 
 // Monitoring
 const MonitoringPage = lazy(() => import("./pages/monitoring/MonitoringPage"));
+const MetricsPage = lazy(() => import("./pages/metrics"));
 const GrafanaDashboardPage = lazy(() => import("./pages/monitoring/GrafanaDashboardPage"));
 
 // System Event Log
@@ -162,6 +163,7 @@ const App: React.FC = () => {
               <Route index element={<MonitoringPage />} />
               <Route path="grafana" element={<GrafanaDashboardPage />} />
             </Route>
+            <Route path="metrics" element={<MetricsPage />} />
             <Route path="system-event-log" element={<SystemEventLogPage />} />
             <Route path="settings">
               <Route path="api-keys" element={<ApiKeyList />} />
