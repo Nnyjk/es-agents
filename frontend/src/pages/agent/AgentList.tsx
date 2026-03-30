@@ -178,7 +178,6 @@ const AgentList: React.FC = () => {
         }}
         tableAlertRender={({
           selectedRowKeys,
-          selectedRows,
           onCleanSelected,
         }) => (
           <Space>
